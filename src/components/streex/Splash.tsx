@@ -1,0 +1,21 @@
+import logo from "@/assets/streex-logo.png";
+
+export function Splash() {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B0B]">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, rgba(230,206,32,0.12) 0%, transparent 70%)",
+        }}
+      />
+      <div className="relative flex flex-col items-center streex-fade-in">
+        <img src={logo} alt="Streex" className="w-56 h-auto" />
+        <p className="mt-8 text-xs streex-tracking text-white/80 uppercase">
+          Private rides. Elevated.
+        </p>
+      </div>
+    </div>
+  );
+}

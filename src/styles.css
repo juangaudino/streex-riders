@@ -1,6 +1,7 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -63,14 +64,14 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(1 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.85 0.17 95);
+  --primary-foreground: oklch(0.145 0 0);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
@@ -95,6 +96,17 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+}
+
+:root {
+  --streex-bg: #0B0B0B;
+  --streex-accent: #E6CE20;
+  --streex-text: #FFFFFF;
+  --streex-text-secondary: rgba(255,255,255,0.6);
+  --streex-card: rgba(255,255,255,0.05);
+  --streex-border: rgba(255,255,255,0.08);
+  --streex-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --streex-glow: 0 0 20px rgba(230,206,32,0.15);
 }
 
 .dark {
@@ -138,7 +150,51 @@
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--streex-bg);
+    color: var(--streex-text);
+    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
+}
+
+@layer utilities {
+  .streex-glass {
+    background-color: var(--streex-card);
+    border: 1px solid var(--streex-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    box-shadow: var(--streex-shadow);
+    transition: transform 300ms ease, box-shadow 400ms ease, border-color 400ms ease;
+  }
+  .streex-glass:active {
+    transform: scale(0.97);
+    box-shadow: var(--streex-glow), var(--streex-shadow);
+    border-color: rgba(230, 206, 32, 0.4);
+  }
+  .streex-chip {
+    border: 1px solid rgba(230, 206, 32, 0.5);
+    background-color: rgba(230, 206, 32, 0.06);
+    color: #fff;
+    border-radius: 9999px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+  .streex-tracking { letter-spacing: 0.2em; }
+  .streex-divider {
+    background: linear-gradient(90deg, transparent, #E6CE20, transparent);
+    height: 1px;
+  }
+  @keyframes streex-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes streex-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  .streex-fade-in { animation: streex-fade-in 800ms ease both; }
+  .streex-fade-out { animation: streex-fade-out 500ms ease both; }
 }
