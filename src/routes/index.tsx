@@ -70,7 +70,7 @@ function Index() {
             your journey.
           </p>
 
-          <div className="mt-5 -mx-6 px-6 w-screen max-w-md overflow-x-auto no-scrollbar">
+          <div className="mt-5 -mx-6 w-screen max-w-md overflow-x-auto no-scrollbar" style={{ paddingLeft: 20, paddingRight: 20 }}>
             <div className="flex gap-2 w-max mx-auto">
               {["Airport Rides", "Park City", "Ski Trips", "Scheduled Rides"].map((c) => (
                 <span key={c} className="streex-chip whitespace-nowrap">{c}</span>

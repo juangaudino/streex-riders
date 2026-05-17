@@ -177,8 +177,8 @@
     background-color: rgba(230, 206, 32, 0.06);
     color: #fff;
     border-radius: 9999px;
-    padding: 0.4rem 0.9rem;
-    font-size: 0.75rem;
+    padding: 6px 14px;
+    font-size: 11px;
     letter-spacing: 0.08em;
     font-weight: 500;
   }
