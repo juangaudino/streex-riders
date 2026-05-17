@@ -10,12 +10,14 @@ function ActionCard({
   description,
   onClick,
   href,
+  download,
 }: {
   icon: React.ReactNode;
   label: string;
   description: string;
   onClick?: () => void;
   href?: string;
+  download?: boolean;
 }) {
   const content = (
     <div className="streex-glass p-5 h-full flex flex-col gap-3 cursor-pointer">
@@ -30,7 +32,12 @@ function ActionCard({
   );
   if (href) {
     return (
-      <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
+      <a
+        href={href}
+        target={href.startsWith("http") ? "_blank" : undefined}
+        rel="noreferrer"
+        {...(download ? { download: "" } : {})}
+      >
         {content}
       </a>
     );
@@ -52,22 +59,6 @@ export function QuickActions() {
   const [wifiOpen, setWifiOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
-
-  const saveContact = () => {
-    try {
-      const blob = new Blob([STREEX_VCARD], { type: "text/vcard;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Juan-StreexRides.vcf";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch {
-      setContactOpen(true);
-    }
-  };
 
   const iconCls = "h-5 w-5 text-[#E6CE20]";
 
@@ -99,7 +90,8 @@ export function QuickActions() {
           icon={<UserPlus className={iconCls} />}
           label="Save Contact"
           description="Add to your phone"
-          onClick={saveContact}
+          href="/contact.vcf"
+          download
         />
         <ActionCard
           icon={<Instagram className={iconCls} />}
