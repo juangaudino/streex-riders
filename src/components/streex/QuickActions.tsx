@@ -10,12 +10,14 @@ function ActionCard({
   description,
   onClick,
   href,
+  download,
 }: {
   icon: React.ReactNode;
   label: string;
   description: string;
   onClick?: () => void;
   href?: string;
+  download?: boolean;
 }) {
   const content = (
     <div className="streex-glass p-5 h-full flex flex-col gap-3 cursor-pointer">
@@ -30,7 +32,12 @@ function ActionCard({
   );
   if (href) {
     return (
-      <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
+      <a
+        href={href}
+        target={href.startsWith("http") ? "_blank" : undefined}
+        rel="noreferrer"
+        {...(download ? { download: "" } : {})}
+      >
         {content}
       </a>
     );
