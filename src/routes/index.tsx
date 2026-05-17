@@ -50,7 +50,7 @@ function Index() {
 
       <main className="mx-auto max-w-md pb-16">
         {/* HERO */}
-        <section className="relative px-6 pt-20 pb-10 flex flex-col items-center text-center overflow-hidden">
+        <section className="relative px-6 pt-12 pb-6 flex flex-col items-center text-center overflow-hidden">
           <div
             className="absolute inset-0 -z-10"
             style={{
@@ -58,22 +58,24 @@ function Index() {
                 "radial-gradient(ellipse at 50% 20%, rgba(230,206,32,0.10) 0%, transparent 65%)",
             }}
           />
-          <img src={logo} alt="Streex" className="w-44 h-auto mb-8" />
+          <img src={logo} alt="Streex" className="w-40 h-auto mb-5" />
           <h1 className="text-3xl font-bold leading-tight tracking-tight">
             Private rides.
             <br />
             <span className="text-[#E6CE20]">Elevated.</span>
           </h1>
-          <p className="mt-4 text-sm leading-relaxed text-white/60 max-w-xs">
+          <p className="mt-3 text-sm leading-relaxed text-white/60 max-w-xs">
             Premium private rides across Salt Lake City & Park City. Reliable,
             comfortable and personalized transportation — designed to elevate
             your journey.
           </p>
 
-          <div className="mt-7 flex flex-wrap justify-center gap-2">
-            {["Airport Rides", "Park City", "Ski Trips", "Scheduled Rides"].map((c) => (
-              <span key={c} className="streex-chip">{c}</span>
-            ))}
+          <div className="mt-5 -mx-6 px-6 w-screen max-w-md overflow-x-auto no-scrollbar">
+            <div className="flex gap-2 w-max mx-auto">
+              {["Airport Rides", "Park City", "Ski Trips", "Scheduled Rides"].map((c) => (
+                <span key={c} className="streex-chip whitespace-nowrap">{c}</span>
+              ))}
+            </div>
           </div>
         </section>
 
