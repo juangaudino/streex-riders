@@ -197,4 +197,6 @@
   }
   .streex-fade-in { animation: streex-fade-in 800ms ease both; }
   .streex-fade-out { animation: streex-fade-out 500ms ease both; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
