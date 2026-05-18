@@ -4,6 +4,10 @@ import logo from "@/assets/streex-logo.png";
 import { Splash } from "@/components/streex/Splash";
 import { Header } from "@/components/streex/Header";
 import { QuickActions } from "@/components/streex/QuickActions";
+import { ExperienceGallery } from "@/components/streex/ExperienceGallery";
+import { Reviews } from "@/components/streex/Reviews";
+import { FeedbackForm } from "@/components/streex/FeedbackForm";
+import { MeetJuan } from "@/components/streex/MeetJuan";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -78,6 +82,15 @@ function Index() {
         {/* QUICK ACTIONS */}
         <QuickActions />
 
+        {/* EXPERIENCE GALLERY */}
+        <ExperienceGallery />
+
+        {/* REVIEWS */}
+        <Reviews />
+
+        {/* FEEDBACK FORM */}
+        <FeedbackForm />
+
         {/* ABOUT */}
         <section className="px-6 mt-16">
           <div className="streex-divider w-16 mb-5" />
@@ -112,6 +125,9 @@ function Index() {
             ))}
           </div>
         </section>
+
+        {/* MEET JUAN */}
+        <MeetJuan />
 
         {/* FOOTER */}
         <footer className="px-6 mt-20 pt-10 pb-8 flex flex-col items-center text-center border-t border-white/5">
