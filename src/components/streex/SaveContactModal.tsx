@@ -8,17 +8,12 @@ import {
 } from "@/components/ui/dialog";
 import { Copy, Check } from "lucide-react";
 
-const CONTACT_LINES = [
-  { label: "Name", value: "Juan — Streex Rides" },
-  { label: "Phone", value: "+1 (801) 797-4971" },
-  { label: "Email", value: "streex.rides@gmail.com" },
-  { label: "Website", value: "https://streexrides.lovable.app" },
+const CONTACT_LINES: { label: string; value: string; href?: string }[] = [
+  { label: "Name", value: "Juan - Streex Rides" },
+  { label: "Phone", value: "(801) 797-4971", href: "tel:+18017974971" },
+  { label: "Email", value: "streex.rides@gmail.com", href: "mailto:streex.rides@gmail.com" },
+  { label: "Website", value: "streexrides.lovable.app", href: "https://streexrides.lovable.app" },
 ];
-
-const COPY_TEXT = `Juan — Streex Rides
-Phone: +1 (801) 797-4971
-Email: streex.rides@gmail.com
-Website: https://streexrides.lovable.app`;
 
 export function SaveContactModal({
   open,
@@ -31,9 +26,9 @@ export function SaveContactModal({
 }) {
   const [copied, setCopied] = useState(false);
 
-  const copy = async () => {
+  const copyPhone = async () => {
     try {
-      await navigator.clipboard.writeText(COPY_TEXT);
+      await navigator.clipboard.writeText("+1 (801) 797-4971");
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
@@ -48,7 +43,7 @@ export function SaveContactModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-[#0B0B0B] border-white/10 text-white max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-white">Save Contact</DialogTitle>
+          <DialogTitle className="text-white">Save Juan's Contact</DialogTitle>
           <DialogDescription className="text-white/55">
             If the contact didn't open automatically, copy the details below or
             download the card manually.
@@ -61,18 +56,29 @@ export function SaveContactModal({
               <div className="text-[10px] uppercase streex-tracking text-white/40">
                 {c.label}
               </div>
-              <div className="text-sm text-white">{c.value}</div>
+              {c.href ? (
+                <a
+                  href={c.href}
+                  target={c.href.startsWith("http") ? "_blank" : undefined}
+                  rel="noreferrer"
+                  className="text-sm text-white underline-offset-2 hover:underline"
+                >
+                  {c.value}
+                </a>
+              ) : (
+                <div className="text-sm text-white">{c.value}</div>
+              )}
             </div>
           ))}
         </div>
 
         <div className="flex flex-col gap-2">
           <button
-            onClick={copy}
+            onClick={copyPhone}
             className="w-full rounded-full bg-[#E6CE20] text-black font-semibold text-sm py-3 flex items-center justify-center gap-2"
           >
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            {copied ? "Copied" : "Copy Contact Info"}
+            {copied ? "Copied" : "Copy Phone Number"}
           </button>
           <a
             href={dataUrl}

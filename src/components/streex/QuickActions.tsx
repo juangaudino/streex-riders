@@ -45,15 +45,17 @@ function ActionCard({
   return <button onClick={onClick} className="text-left">{content}</button>;
 }
 
-const STREEX_VCARD = `BEGIN:VCARD
-VERSION:3.0
-FN:Juan - Streex Rides
-N:Streex Rides;Juan;;;
-ORG:Streex Rides
-TEL;TYPE=WORK,VOICE:+18017974971
-EMAIL;TYPE=WORK:streex.rides@gmail.com
-URL:https://streexrides.lovable.app
-END:VCARD`;
+const STREEX_VCARD = [
+  "BEGIN:VCARD",
+  "VERSION:3.0",
+  "FN:Juan - Streex Rides",
+  "N:Streex Rides;Juan;;;",
+  "ORG:Streex Rides",
+  "TEL;TYPE=WORK,VOICE:+18017974971",
+  "EMAIL;TYPE=WORK:streex.rides@gmail.com",
+  "URL:https://streexrides.lovable.app",
+  "END:VCARD",
+].join("\r\n");
 
 export function QuickActions() {
   const [wifiOpen, setWifiOpen] = useState(false);
@@ -61,6 +63,26 @@ export function QuickActions() {
   const [contactOpen, setContactOpen] = useState(false);
 
   const iconCls = "h-5 w-5 text-[#E6CE20]";
+
+  const saveContact = () => {
+    try {
+      const blob = new Blob([STREEX_VCARD], { type: "text/vcard" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Juan-StreexRides.vcf");
+      link.setAttribute("type", "text/vcard");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      // ignore — fallback below
+    }
+    // Fallback: show the contact details modal shortly after, in case
+    // iOS Safari renders the .vcf as plain text instead of opening Contacts.
+    setTimeout(() => setContactOpen(true), 1200);
+  };
 
   return (
     <section className="px-5 mt-10">
@@ -90,8 +112,7 @@ export function QuickActions() {
           icon={<UserPlus className={iconCls} />}
           label="Save Contact"
           description="Add to your phone"
-          href="/contact.vcf"
-          download
+          onClick={saveContact}
         />
         <ActionCard
           icon={<Instagram className={iconCls} />}
