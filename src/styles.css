@@ -200,4 +200,17 @@
   .streex-fade-out { animation: streex-fade-out 500ms ease both; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .streex-frame {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background-color: #0B0B0B;
+  }
+  .streex-logo-glow {
+    filter: drop-shadow(0 0 24px rgba(230, 206, 32, 0.18));
+  }
+}
+
+html, body {
+  background-color: #111111;
 }

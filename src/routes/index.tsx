@@ -39,7 +39,7 @@ function Index() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0B0B0B] text-white">
+    <div className="min-h-screen text-white streex-frame">
       {showSplash && (
         <div className={fadingOut ? "streex-fade-out" : ""}>
           <Splash />
@@ -50,15 +50,13 @@ function Index() {
 
       <main className="mx-auto max-w-md pb-16">
         {/* HERO */}
-        <section className="relative px-6 pb-6 flex flex-col items-center text-center overflow-hidden" style={{ paddingTop: 32 }}>
-          <div
-            className="absolute inset-0 -z-10"
-            style={{
-              background:
-                "radial-gradient(ellipse at 50% 20%, rgba(230,206,32,0.10) 0%, transparent 65%)",
-            }}
+        <section className="relative px-6 pb-6 flex flex-col items-center text-center" style={{ paddingTop: 40 }}>
+          <img
+            src={logo}
+            alt="Streex"
+            className="h-auto streex-logo-glow"
+            style={{ width: 192, display: "block", marginBottom: 24 }}
           />
-          <img src={logo} alt="Streex" className="h-auto" style={{ width: 192, marginBottom: 24 }} />
           <h1 className="text-3xl font-bold leading-tight tracking-tight">
             Private rides.
             <br />
