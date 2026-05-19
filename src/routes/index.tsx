@@ -9,6 +9,7 @@ import { Reviews } from "@/components/streex/Reviews";
 import { FeedbackForm } from "@/components/streex/FeedbackForm";
 import { MeetJuan } from "@/components/streex/MeetJuan";
 import { PaymentOptions } from "@/components/streex/PaymentOptions";
+import { ServiceTicker } from "@/components/streex/ServiceTicker";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -60,7 +61,7 @@ function Index() {
             src={logo}
             alt="Streex"
             className="h-auto streex-logo-glow"
-            style={{ width: 192, display: "block", marginBottom: 10 }}
+            style={{ width: 192, display: "block", marginBottom: 12 }}
           />
           <h1 className="text-3xl font-bold leading-tight tracking-tight">
             Private rides.
@@ -72,13 +73,12 @@ function Index() {
             comfortable and personalized transportation — designed to elevate
             your journey.
           </p>
-
-          <div className="mt-5 flex flex-wrap justify-center gap-2 max-w-xs mx-auto">
-            {["Airport Rides", "Scheduled Rides", "Park City", "Long Distance", "Hourly Service"].map((c) => (
-              <span key={c} className="streex-chip">{c}</span>
-            ))}
-          </div>
         </section>
+
+        {/* SERVICE TICKER */}
+        <div className="mt-5">
+          <ServiceTicker />
+        </div>
 
         {/* QUICK ACTIONS */}
         <QuickActions />
