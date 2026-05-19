@@ -33,7 +33,12 @@ export function ExperienceGallery() {
               <div className="h-[2px] w-8 bg-[#E6CE20] mb-2" />
               <div
                 className="text-white"
-                style={{ fontFamily: "Montserrat", fontWeight: 600, fontSize: 14, letterSpacing: "0.05em" }}
+                style={{
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontWeight: 600,
+                  fontSize: 14,
+                  letterSpacing: "0.05em",
+                } as React.CSSProperties}
               >
                 {e.label}
               </div>
