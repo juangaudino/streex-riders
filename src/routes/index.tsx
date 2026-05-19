@@ -56,7 +56,7 @@ function Index() {
 
       <main className="mx-auto max-w-md pb-16">
         {/* HERO */}
-        <section className="relative px-6 pb-6 flex flex-col items-center text-center" style={{ paddingTop: 28 }}>
+        <section className="relative px-6 pb-6 flex flex-col items-center text-center" style={{ paddingTop: 16 }}>
           <img
             src={logo}
             alt="Streex"
@@ -76,12 +76,15 @@ function Index() {
         </section>
 
         {/* SERVICE TICKER */}
-        <div className="mt-5">
+        <div className="mt-3">
           <ServiceTicker />
         </div>
 
         {/* QUICK ACTIONS */}
         <QuickActions />
+
+        {/* PAYMENT OPTIONS */}
+        <PaymentOptions />
 
         {/* EXPERIENCE GALLERY */}
         <ExperienceGallery />
@@ -129,9 +132,6 @@ function Index() {
 
         {/* MEET JUAN */}
         <MeetJuan />
-
-        {/* PAYMENT OPTIONS */}
-        <PaymentOptions />
 
         {/* FOOTER */}
         <footer className="px-6 mt-20 pt-10 pb-8 flex flex-col items-center text-center border-t border-white/5">
