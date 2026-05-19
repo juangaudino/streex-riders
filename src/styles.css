@@ -218,6 +218,14 @@
   .streex-logo-glow {
     filter: drop-shadow(0 0 24px rgba(230, 206, 32, 0.18));
   }
+  @keyframes streex-ticker-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .streex-ticker-track {
+    animation: streex-ticker-scroll 20s linear infinite;
+    will-change: transform;
+  }
 }
 
 html, body {
