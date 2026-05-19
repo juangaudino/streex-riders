@@ -231,6 +231,18 @@
     font-weight: 600 !important;
     letter-spacing: 0.05em;
   }
+  .streex-pay-icon {
+    background-color: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: transform 200ms ease, box-shadow 300ms ease, border-color 300ms ease;
+  }
+  .streex-pay-icon:active {
+    transform: scale(0.97);
+    box-shadow: 0 0 16px rgba(230,206,32,0.2);
+    border-color: rgba(230,206,32,0.4);
+  }
 }
 
 html, body {
