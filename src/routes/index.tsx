@@ -8,6 +8,7 @@ import { ExperienceGallery } from "@/components/streex/ExperienceGallery";
 import { Reviews } from "@/components/streex/Reviews";
 import { FeedbackForm } from "@/components/streex/FeedbackForm";
 import { MeetJuan } from "@/components/streex/MeetJuan";
+import { PaymentOptions } from "@/components/streex/PaymentOptions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -54,12 +55,12 @@ function Index() {
 
       <main className="mx-auto max-w-md pb-16">
         {/* HERO */}
-        <section className="relative px-6 pb-6 flex flex-col items-center text-center" style={{ paddingTop: 40 }}>
+        <section className="relative px-6 pb-6 flex flex-col items-center text-center" style={{ paddingTop: 28 }}>
           <img
             src={logo}
             alt="Streex"
             className="h-auto streex-logo-glow"
-            style={{ width: 192, display: "block", marginBottom: 24 }}
+            style={{ width: 192, display: "block", marginBottom: 10 }}
           />
           <h1 className="text-3xl font-bold leading-tight tracking-tight">
             Private rides.
@@ -72,8 +73,8 @@ function Index() {
             your journey.
           </p>
 
-          <div className="mt-5 flex flex-wrap justify-center gap-2 max-w-xs">
-            {["Airport Rides", "Park City", "Ski Trips", "Scheduled Rides"].map((c) => (
+          <div className="mt-5 flex flex-wrap justify-center gap-2 max-w-xs mx-auto">
+            {["Airport Rides", "Scheduled Rides", "Park City", "Long Distance", "Hourly Service"].map((c) => (
               <span key={c} className="streex-chip">{c}</span>
             ))}
           </div>
@@ -128,6 +129,9 @@ function Index() {
 
         {/* MEET JUAN */}
         <MeetJuan />
+
+        {/* PAYMENT OPTIONS */}
+        <PaymentOptions />
 
         {/* FOOTER */}
         <footer className="px-6 mt-20 pt-10 pb-8 flex flex-col items-center text-center border-t border-white/5">

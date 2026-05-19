@@ -206,6 +206,15 @@
     min-height: 100vh;
     background-color: #0B0B0B;
   }
+  @media (min-width: 768px) {
+    .streex-frame { max-width: 480px; }
+  }
+  @media (min-width: 1024px) {
+    .streex-frame {
+      max-width: 520px;
+      box-shadow: 0 0 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+  }
   .streex-logo-glow {
     filter: drop-shadow(0 0 24px rgba(230, 206, 32, 0.18));
   }
