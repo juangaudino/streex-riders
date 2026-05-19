@@ -9,34 +9,39 @@ const SERVICES = [
 function TickerRow() {
   return (
     <>
-      {SERVICES.map((s, i) => (
-        <span key={`${s}-${i}`} className="flex items-center shrink-0">
-          <span
-            style={{
-              fontFamily: "'Montserrat', sans-serif",
-              fontWeight: 500,
-              fontSize: 12,
-              color: "rgba(255,255,255,0.7)",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {s}
+      {SERVICES.map((s, i) => {
+        const isOdd = i % 2 === 0;
+        const textColor = isOdd ? "#FFFFFF" : "#E6CE20";
+        const sepColor = isOdd ? "#E6CE20" : "rgba(255,255,255,0.35)";
+        return (
+          <span key={`${s}-${i}`} className="flex items-center shrink-0">
+            <span
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontWeight: 500,
+                fontSize: 12,
+                color: textColor,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {s}
+            </span>
+            <span
+              aria-hidden
+              style={{
+                display: "inline-block",
+                width: "16px",
+                height: "1px",
+                verticalAlign: "middle",
+                margin: "0 20px",
+                backgroundColor: sepColor,
+              }}
+            />
           </span>
-          <span
-            aria-hidden
-            style={{
-              color: "#E6CE20",
-              margin: "0 16px",
-              fontSize: 12,
-              lineHeight: 1,
-            }}
-          >
-            ·
-          </span>
-        </span>
-      ))}
+        );
+      })}
     </>
   );
 }
