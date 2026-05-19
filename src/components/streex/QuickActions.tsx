@@ -79,9 +79,6 @@ export function QuickActions() {
     } catch {
       // ignore — fallback below
     }
-    // Fallback: show the contact details modal shortly after, in case
-    // iOS Safari renders the .vcf as plain text instead of opening Contacts.
-    setTimeout(() => setContactOpen(true), 1200);
   };
 
   return (
