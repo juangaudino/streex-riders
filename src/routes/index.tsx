@@ -10,6 +10,7 @@ import { FeedbackForm } from "@/components/streex/FeedbackForm";
 import { MeetJuan } from "@/components/streex/MeetJuan";
 import { PaymentOptions } from "@/components/streex/PaymentOptions";
 import { ServiceTicker } from "@/components/streex/ServiceTicker";
+import { Reveal } from "@/components/streex/Reveal";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -84,16 +85,16 @@ function Index() {
         <QuickActions />
 
         {/* PAYMENT OPTIONS */}
-        <PaymentOptions />
+        <Reveal><PaymentOptions /></Reveal>
 
         {/* EXPERIENCE GALLERY */}
-        <ExperienceGallery />
+        <Reveal><ExperienceGallery /></Reveal>
 
         {/* REVIEWS */}
-        <Reviews />
+        <Reveal><Reviews /></Reveal>
 
         {/* ABOUT */}
-        <section className="px-6 mt-16">
+        <Reveal as="section" className="px-6 mt-16">
           <div className="streex-divider w-16 mb-5" />
           <h2 className="text-2xl font-bold mb-5">Why Streex</h2>
           <p className="text-[15px] leading-relaxed text-white/75">
@@ -107,7 +108,7 @@ function Index() {
             Streex is more than a ride. It's the beginning of a better way to
             move.
           </p>
-        </section>
+        </Reveal>
 
         {/* WHERE WE RIDE — hidden for now, restore when needed */}
         {/* <section className="px-6 mt-16">
@@ -131,7 +132,7 @@ function Index() {
         <MeetJuan />
 
         {/* FEEDBACK FORM */}
-        <FeedbackForm />
+        <Reveal><FeedbackForm /></Reveal>
 
         {/* FOOTER */}
         <footer className="px-6 mt-20 pt-10 pb-8 flex flex-col items-center text-center border-t border-white/5">
