@@ -8,8 +8,7 @@ export function FeedbackForm() {
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = () => {
     setSubmitted(true);
   };
 
@@ -31,7 +30,7 @@ export function FeedbackForm() {
             </p>
           </div>
         ) : (
-          <form onSubmit={onSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center justify-center gap-2 py-2">
               {Array.from({ length: 5 }).map((_, i) => {
                 const value = i + 1;
@@ -72,12 +71,13 @@ export function FeedbackForm() {
             />
 
             <button
-              type="submit"
+              type="button"
+              onClick={onSubmit}
               className="w-full rounded-full bg-[#E6CE20] text-black font-semibold py-3 text-[14px] tracking-wide transition-transform active:scale-[0.98]"
             >
               Send Feedback
             </button>
-          </form>
+          </div>
         )}
       </div>
     </section>
