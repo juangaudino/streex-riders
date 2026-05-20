@@ -1,20 +1,34 @@
 type Experience = {
   label: string;
-  gradient: string;
-  image?: string;
+  image: string;
   microLabel?: string;
 };
 
 const EXPERIENCES: Experience[] = [
-  { label: "Salt Lake City", gradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" },
-  { label: "Park City", gradient: "linear-gradient(135deg, #0d1f0d 0%, #1a3a1a 100%)" },
-  { label: "SLC Airport", gradient: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)" },
-  { label: "Mountain Routes", gradient: "linear-gradient(135deg, #0f1923 0%, #1c2e3d 100%)" },
+  {
+    label: "Salt Lake City",
+    image:
+      "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/slc.jpg",
+  },
+  {
+    label: "Park City",
+    image:
+      "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/park-city.jpg",
+  },
+  {
+    label: "SLC Airport",
+    image:
+      "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/airport.jpg",
+  },
+  {
+    label: "Mountain Routes",
+    image:
+      "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/mountains.jpg",
+  },
   {
     label: "Your Ride",
-    gradient:
-      "linear-gradient(135deg, #1a1a1a 0%, #2b2b2b 45%, #111111 100%)",
-    // image: "/path/to/streex-vehicle.jpg", // swap in real photo later
+    image:
+      "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/rav4.jpg",
     microLabel: "✦ Toyota RAV4 • Spacious SUV",
   },
 ];
@@ -31,16 +45,11 @@ export function ExperienceGallery() {
             style={{
               width: 240,
               minHeight: 200,
-              background: e.gradient,
+              backgroundImage: `url(${e.image})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}
           >
-            {e.image && (
-              <img
-                src={e.image}
-                alt={e.label}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            )}
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
