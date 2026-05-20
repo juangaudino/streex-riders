@@ -42,18 +42,26 @@ function CharCell({ char, color }: { char: string; color: string }) {
 
 function SeparatorCells() {
   return (
-    <span style={{ display: "inline-block", margin: "0 10px" }}>
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          style={{
-            ...cellBase,
-            width: 8,
-            background: "rgba(230,206,32,0.15)",
-            border: "1px solid rgba(230,206,32,0.2)",
-          }}
-        />
-      ))}
+    <span style={{
+      display: "inline-flex",
+      alignItems: "center",
+      margin: "0 14px",
+    }}>
+      <span style={{
+        display: "inline-block",
+        width: "18px",
+        height: "18px",
+        lineHeight: "18px",
+        textAlign: "center",
+        background: "rgba(230,206,32,0.12)",
+        border: "1px solid rgba(230,206,32,0.25)",
+        borderRadius: "3px",
+        fontFamily: "'IBM Plex Mono', monospace",
+        fontSize: "10px",
+        color: "rgba(230,206,32,0.7)",
+      }}>
+        •
+      </span>
     </span>
   );
 }
