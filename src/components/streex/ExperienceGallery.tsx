@@ -18,8 +18,6 @@ export function ExperienceGallery() {
               width: 240,
               minHeight: 200,
               background: e.gradient,
-              backdropFilter: "none",
-              WebkitBackdropFilter: "none",
             }}
           >
             <div
