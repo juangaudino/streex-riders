@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Wifi, MessageSquare, Phone, UserPlus, Instagram, LayoutGrid } from "lucide-react";
+import { Wifi, MessageSquare, Phone, UserPlus, Calendar, LayoutGrid } from "lucide-react";
 import { WifiModal } from "./WifiModal";
 import { MoreOptionsSheet } from "./MoreOptionsSheet";
 import { SaveContactModal } from "./SaveContactModal";
@@ -112,15 +112,15 @@ export function QuickActions() {
           onClick={saveContact}
         />
         <ActionCard
-          icon={<Instagram className={iconCls} />}
-          label="Instagram"
-          description="Follow @streex.rides"
-          href="https://instagram.com/streex.rides"
+          icon={<Calendar className={iconCls} />}
+          label="Schedule Ride"
+          description="Book ahead"
+          href="https://cal.com/streex-riders"
         />
         <ActionCard
           icon={<LayoutGrid className={iconCls} />}
           label="More Options"
-          description="WhatsApp & DMs"
+          description="WhatsApp & Instagram"
           onClick={() => setMoreOpen(true)}
         />
       </div>

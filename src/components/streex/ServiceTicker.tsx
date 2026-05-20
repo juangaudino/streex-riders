@@ -1,18 +1,20 @@
 const SERVICES = [
-  "Airport Rides",
+  "Airport Transfers",
   "Park City",
   "Long Distance",
   "Scheduled Rides",
   "Hourly Service",
+  "Corporate Travel",
+  "Private Events",
+  "Bilingual Service",
+  "Las Vegas",
 ];
 
 function TickerRow() {
   return (
     <>
       {SERVICES.map((s, i) => {
-        const isOdd = i % 2 === 0;
-        const textColor = isOdd ? "#FFFFFF" : "#E6CE20";
-        const sepColor = isOdd ? "#E6CE20" : "rgba(255,255,255,0.35)";
+        const textColor = i % 2 === 0 ? "#FFFFFF" : "#E6CE20";
         return (
           <span key={`${s}-${i}`} className="flex items-center shrink-0">
             <span
@@ -21,7 +23,8 @@ function TickerRow() {
                 fontWeight: 500,
                 fontSize: 12,
                 color: textColor,
-                letterSpacing: "0.15em",
+                letterSpacing: "0.12em",
+                fontVariantNumeric: "tabular-nums",
                 textTransform: "uppercase",
                 whiteSpace: "nowrap",
               }}
@@ -35,8 +38,8 @@ function TickerRow() {
                 width: "16px",
                 height: "1px",
                 verticalAlign: "middle",
-                margin: "0 20px",
-                backgroundColor: sepColor,
+                margin: "0 24px",
+                backgroundColor: "rgba(255,255,255,0.3)",
               }}
             />
           </span>

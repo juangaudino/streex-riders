@@ -224,7 +224,7 @@
     to { transform: translateX(-50%); }
   }
   .streex-ticker-track {
-    animation: streex-ticker-scroll 20s linear infinite;
+    animation: streex-ticker-scroll 24s linear infinite;
     will-change: transform;
   }
   .streex-gallery-caption {
