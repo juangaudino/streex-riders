@@ -3,6 +3,7 @@ import { Wifi, MessageSquare, Phone, UserPlus, Calendar, LayoutGrid } from "luci
 import { WifiModal } from "./WifiModal";
 import { MoreOptionsSheet } from "./MoreOptionsSheet";
 import { SaveContactModal } from "./SaveContactModal";
+import { Reveal } from "./Reveal";
 
 function ActionCard({
   icon,
@@ -11,6 +12,7 @@ function ActionCard({
   onClick,
   href,
   download,
+  revealDelay = 0,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -18,6 +20,7 @@ function ActionCard({
   onClick?: () => void;
   href?: string;
   download?: boolean;
+  revealDelay?: number;
 }) {
   const content = (
     <div className="streex-glass p-5 h-full flex flex-col gap-3 cursor-pointer">
@@ -30,19 +33,19 @@ function ActionCard({
       </div>
     </div>
   );
-  if (href) {
-    return (
-      <a
-        href={href}
-        target={href.startsWith("http") ? "_blank" : undefined}
-        rel="noreferrer"
-        {...(download ? { download: "" } : {})}
-      >
-        {content}
-      </a>
-    );
-  }
-  return <button onClick={onClick} className="text-left">{content}</button>;
+  const inner = href ? (
+    <a
+      href={href}
+      target={href.startsWith("http") ? "_blank" : undefined}
+      rel="noreferrer"
+      {...(download ? { download: "" } : {})}
+    >
+      {content}
+    </a>
+  ) : (
+    <button onClick={onClick} className="text-left w-full">{content}</button>
+  );
+  return <Reveal delay={revealDelay}>{inner}</Reveal>;
 }
 
 const STREEX_VCARD = [
@@ -92,36 +95,42 @@ export function QuickActions() {
           label="Connect WiFi"
           description="Free onboard WiFi"
           onClick={() => setWifiOpen(true)}
+          revealDelay={0}
         />
         <ActionCard
           icon={<MessageSquare className={iconCls} />}
           label="Text Me"
           description="Schedule a ride by SMS"
           href="sms:+18017974971&body=Hi%20Juan!%20I'd%20like%20to%20schedule%20a%20ride."
+          revealDelay={90}
         />
         <ActionCard
           icon={<Phone className={iconCls} />}
           label="Call Me"
           description="Reach Juan directly"
           href="tel:+18017974971"
+          revealDelay={180}
         />
         <ActionCard
           icon={<UserPlus className={iconCls} />}
           label="Save Contact"
           description="Add to your phone"
           onClick={saveContact}
+          revealDelay={270}
         />
         <ActionCard
           icon={<Calendar className={iconCls} />}
           label="Schedule Ride"
           description="Book ahead"
           href="https://cal.com/streex-riders"
+          revealDelay={360}
         />
         <ActionCard
           icon={<LayoutGrid className={iconCls} />}
           label="More Options"
           description="WhatsApp & Instagram"
           onClick={() => setMoreOpen(true)}
+          revealDelay={450}
         />
       </div>
 
