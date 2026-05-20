@@ -140,7 +140,7 @@ function Index() {
           <p className="text-[11px] uppercase streex-tracking text-white/60">
             Private rides. Elevated.
           </p>
-          <p className="mt-4 text-xs text-white/30">© 2025 Streex Rides</p>
+          <p className="mt-4 text-xs text-white/30">© 2026 Streex Rides</p>
         </footer>
       </main>
     </div>
