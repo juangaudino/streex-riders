@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Star, Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function FeedbackForm() {
   const [rating, setRating] = useState(0);
@@ -7,8 +8,32 @@ export function FeedbackForm() {
   const [name, setName] = useState("");
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
+    setError(null);
+    if (rating < 1 || rating > 5) {
+      setError("Please select a rating.");
+      return;
+    }
+    const trimmedMessage = text.trim();
+    if (!trimmedMessage) {
+      setError("Please share a short message.");
+      return;
+    }
+    setSubmitting(true);
+    const { error: insertError } = await supabase.from("reviews").insert({
+      name: name.trim() || null,
+      rating,
+      message: trimmedMessage.slice(0, 1000),
+      status: "pending",
+    });
+    setSubmitting(false);
+    if (insertError) {
+      setError("Something went wrong. Please try again.");
+      return;
+    }
     setSubmitted(true);
   };
 
@@ -26,7 +51,7 @@ export function FeedbackForm() {
               <Check className="h-7 w-7 text-[#E6CE20]" strokeWidth={2.5} />
             </div>
             <p className="text-[15px] text-white/85 max-w-xs">
-              Thank you. Your feedback means a lot to us.
+              Thank you. Your feedback was received and will be reviewed before appearing publicly.
             </p>
           </div>
         ) : (
@@ -67,15 +92,21 @@ export function FeedbackForm() {
               onChange={(e) => setText(e.target.value)}
               placeholder="Tell us about your experience..."
               rows={4}
+              maxLength={1000}
               className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-[14px] text-white placeholder:text-white/40 focus:outline-none focus:border-[#E6CE20]/50 resize-none"
             />
+
+            {error && (
+              <p className="text-xs text-red-400/90 text-center">{error}</p>
+            )}
 
             <button
               type="button"
               onClick={onSubmit}
-              className="w-full rounded-full bg-[#E6CE20] text-black font-semibold py-3 text-[14px] tracking-wide transition-transform active:scale-[0.98]"
+              disabled={submitting}
+              className="w-full rounded-full bg-[#E6CE20] text-black font-semibold py-3 text-[14px] tracking-wide transition-transform active:scale-[0.98] disabled:opacity-60"
             >
-              Send Feedback
+              {submitting ? "Sending..." : "Send Feedback"}
             </button>
           </div>
         )}
