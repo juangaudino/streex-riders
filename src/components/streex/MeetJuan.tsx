@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { User } from "lucide-react";
 
 export function MeetJuan() {
   const ref = useRef<HTMLDivElement>(null);
@@ -38,17 +37,17 @@ export function MeetJuan() {
         style={{ borderLeft: "2px solid #E6CE20" }}
       >
         <div className="flex flex-col items-center text-center mb-5">
-          <div
-            className="rounded-full flex items-center justify-center bg-black mb-4"
+          <img
+            src="https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/juan.jpg"
+            alt="Juan"
+            className="rounded-full mb-4 object-cover"
             style={{
               width: 90,
               height: 90,
               border: "2px solid rgba(230,206,32,0.4)",
               boxShadow: "0 0 16px rgba(230,206,32,0.15)",
             }}
-          >
-            <User className="h-9 w-9 text-white/40" strokeWidth={1.5} />
-          </div>
+          />
           <h2 className="text-2xl font-bold">Meet Juan</h2>
         </div>
         <div className="space-y-4 text-[15px] leading-relaxed text-white/80">
