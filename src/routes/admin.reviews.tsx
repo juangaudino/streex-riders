@@ -1,9 +1,14 @@
-// NOTE: MVP moderation page — currently unprotected.
-// TODO: Add authentication/role check before production (admin-only access).
+// NOTE: MVP moderation page — protected by a simple password gate.
+// TODO: Replace with proper authentication before
+// sharing /admin/reviews URL publicly
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/streex-logo.png";
+
+const ADMIN_PASSWORD = "Comedia-6789";
+const SESSION_KEY = "streex_admin_authed";
 
 type ReviewRow = {
   id: string;
@@ -16,8 +21,73 @@ type ReviewRow = {
 };
 
 export const Route = createFileRoute("/admin/reviews")({
-  component: AdminReviews,
+  component: AdminReviewsGate,
 });
+
+function AdminReviewsGate() {
+  const [authed, setAuthed] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && sessionStorage.getItem(SESSION_KEY) === "1") {
+      setAuthed(true);
+    }
+  }, []);
+
+  if (authed) return <AdminReviews />;
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      sessionStorage.setItem(SESSION_KEY, "1");
+      setAuthed(true);
+      setError(false);
+    } else {
+      setError(true);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B0B] px-6">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, rgba(230,206,32,0.10) 0%, transparent 70%)",
+        }}
+      />
+      <div className="relative w-full max-w-xs flex flex-col items-center">
+        <img src={logo} alt="Streex" className="w-40 h-auto streex-logo-glow" />
+        <p className="mt-6 text-[10px] streex-tracking text-white/60 uppercase">
+          Restricted Area
+        </p>
+        <form onSubmit={submit} className="mt-8 w-full flex flex-col gap-3">
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (error) setError(false);
+            }}
+            placeholder="Password"
+            autoFocus
+            className="w-full rounded-xl bg-white/[0.04] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/30 backdrop-blur-xl focus:outline-none focus:border-[#E6CE20]/40 transition-colors"
+          />
+          <button
+            type="submit"
+            className="w-full rounded-xl bg-[#E6CE20] text-black font-semibold text-sm py-3 hover:bg-[#E6CE20]/90 transition-colors"
+          >
+            Enter
+          </button>
+          {error && (
+            <p className="text-center text-xs text-red-400/90 mt-1">Access denied.</p>
+          )}
+        </form>
+      </div>
+    </div>
+  );
+}
 
 function AdminReviews() {
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
