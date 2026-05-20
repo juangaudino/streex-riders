@@ -2,6 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -224,7 +225,7 @@
     to { transform: translateX(-50%); }
   }
   .streex-ticker-track {
-    animation: streex-ticker-scroll 24s linear infinite;
+    animation: streex-ticker-scroll 30s linear infinite;
     will-change: transform;
   }
   .streex-gallery-caption {
