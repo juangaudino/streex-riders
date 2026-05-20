@@ -92,9 +92,6 @@ function Index() {
         {/* REVIEWS */}
         <Reviews />
 
-        {/* FEEDBACK FORM */}
-        <FeedbackForm />
-
         {/* ABOUT */}
         <section className="px-6 mt-16">
           <div className="streex-divider w-16 mb-5" />
@@ -112,8 +109,8 @@ function Index() {
           </p>
         </section>
 
-        {/* AREAS SERVED */}
-        <section className="px-6 mt-16">
+        {/* WHERE WE RIDE — hidden for now, restore when needed */}
+        {/* <section className="px-6 mt-16">
           <h2 className="text-[11px] uppercase streex-tracking text-white/50 font-semibold mb-4">
             Where We Ride
           </h2>
@@ -128,10 +125,13 @@ function Index() {
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
 
         {/* MEET JUAN */}
         <MeetJuan />
+
+        {/* FEEDBACK FORM */}
+        <FeedbackForm />
 
         {/* FOOTER */}
         <footer className="px-6 mt-20 pt-10 pb-8 flex flex-col items-center text-center border-t border-white/5">
