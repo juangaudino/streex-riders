@@ -11,13 +11,13 @@ const SERVICES = [
 
 const cellBase: React.CSSProperties = {
   display: "inline-block",
-  height: 18,
-  lineHeight: "18px",
+  height: 22,
+  lineHeight: "22px",
   textAlign: "center",
   borderRadius: 2,
   margin: "0 0.5px",
   fontFamily: "'IBM Plex Mono', monospace",
-  fontSize: 10,
+  fontSize: 11,
   fontWeight: 500,
   letterSpacing: 0,
 };
@@ -28,9 +28,9 @@ function CharCell({ char, color }: { char: string; color: string }) {
     <span
       style={{
         ...cellBase,
-        width: isSpace ? 4 : 10,
-        background: isSpace ? "transparent" : "rgba(255,255,255,0.04)",
-        border: `1px solid ${isSpace ? "transparent" : "rgba(255,255,255,0.07)"}`,
+        width: isSpace ? 5 : 12,
+        background: isSpace ? "transparent" : "rgba(255,255,255,0.06)",
+        border: `1px solid ${isSpace ? "transparent" : "rgba(255,255,255,0.11)"}`,
         color,
       }}
     >
@@ -47,9 +47,9 @@ function SeparatorCell({ dotColor, bgColor, borderColor }: {
   return (
     <span style={{
       display: "inline-block",
-      width: "18px",
-      height: "18px",
-      lineHeight: "18px",
+      width: "20px",
+      height: "22px",
+      lineHeight: "22px",
       textAlign: "center",
       background: bgColor,
       border: `1px solid ${borderColor}`,
@@ -115,10 +115,12 @@ export function ServiceTicker() {
       style={{
         overflow: "hidden",
         width: "100%",
-        borderTop: "1px solid rgba(255,255,255,0.06)",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
-        padding: "8px 0",
+        padding: "10px 0",
         background: "rgba(0,0,0,0.3)",
+        WebkitMaskImage:
+          "linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%)",
+        maskImage:
+          "linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%)",
       }}
     >
       <div className="streex-ticker-track" style={{ display: "inline-flex", whiteSpace: "nowrap" }}>
