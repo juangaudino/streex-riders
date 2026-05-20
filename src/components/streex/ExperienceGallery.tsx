@@ -48,6 +48,7 @@ export function ExperienceGallery() {
               backgroundImage: `url(${e.image})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
+              border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
             <div
@@ -59,13 +60,21 @@ export function ExperienceGallery() {
             />
             {e.microLabel && (
               <div
-                className="absolute top-4 left-4 right-4"
                 style={{
+                  position: "absolute",
+                  top: 12,
+                  left: 12,
                   fontFamily: "'Montserrat', sans-serif",
                   fontWeight: 500,
                   fontSize: 11,
-                  color: "rgba(255,255,255,0.65)",
-                  letterSpacing: "0.04em",
+                  color: "rgba(255,255,255,0.9)",
+                  letterSpacing: "0.05em",
+                  background: "rgba(0,0,0,0.55)",
+                  backdropFilter: "blur(6px)",
+                  WebkitBackdropFilter: "blur(6px)",
+                  padding: "4px 10px",
+                  borderRadius: "999px",
+                  border: "1px solid rgba(255,255,255,0.12)",
                 }}
               >
                 {e.microLabel}
