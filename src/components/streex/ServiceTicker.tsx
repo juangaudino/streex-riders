@@ -116,7 +116,9 @@ export function ServiceTicker() {
         overflow: "hidden",
         width: "100%",
         padding: "10px 0",
-        background: "rgba(0,0,0,0.3)",
+        paddingLeft: "16px",
+        paddingRight: "16px",
+        background: "rgba(255,255,255,0.02)",
         WebkitMaskImage:
           "linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%)",
         maskImage:
