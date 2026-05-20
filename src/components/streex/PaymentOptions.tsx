@@ -45,7 +45,7 @@ const PAYMENTS: Payment[] = [
 
 export function PaymentOptions() {
   return (
-    <section className="px-5 mt-16">
+    <section className="px-5 mt-8">
       <h2 className="text-2xl font-bold mb-1 px-1">Payment Options</h2>
       <p className="text-sm text-white/55 mb-6 px-1">
         Quick and convenient payment methods.
