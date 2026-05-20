@@ -1,13 +1,15 @@
 import { Star } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 type Review = {
   name: string;
-  location: string;
+  location: string | null;
   stars: number;
   text: string;
 };
 
-const REVIEWS: Review[] = [
+const PLACEHOLDER_REVIEWS: Review[] = [
   {
     name: "Sarah M.",
     location: "Salt Lake City",
@@ -29,12 +31,37 @@ const REVIEWS: Review[] = [
 ];
 
 export function Reviews() {
+  const [reviews, setReviews] = useState<Review[]>(PLACEHOLDER_REVIEWS);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("name, rating, message, location, created_at")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false });
+      if (cancelled || error || !data || data.length === 0) return;
+      setReviews(
+        data.map((r) => ({
+          name: r.name?.trim() || "Streex Passenger",
+          location: r.location,
+          stars: r.rating,
+          text: r.message,
+        })),
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <section className="px-6 mt-16">
       <h2 className="text-2xl font-bold mb-5">What Passengers Say</h2>
       <div className="space-y-4">
-        {REVIEWS.map((r) => (
-          <div key={r.name} className="streex-glass p-5 relative overflow-hidden">
+        {reviews.map((r, idx) => (
+          <div key={`${r.name}-${idx}`} className="streex-glass p-5 relative overflow-hidden">
             <span
               aria-hidden
               className="absolute top-1 right-4 text-[#E6CE20] select-none pointer-events-none"
@@ -54,7 +81,9 @@ export function Reviews() {
               <div className="text-white" style={{ fontWeight: 700, fontSize: 14 }}>
                 {r.name}
               </div>
-              <div className="text-xs text-white/55 mt-0.5">{r.location}</div>
+              {r.location && (
+                <div className="text-xs text-white/55 mt-0.5">{r.location}</div>
+              )}
             </div>
           </div>
         ))}
