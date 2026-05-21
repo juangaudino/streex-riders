@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { declineBooking } from "@/lib/booking.functions";
-import { ResponseShell } from "./booking.accept";
+import { BookingResponseShell } from "@/components/streex/BookingResponseShell";
 
 const Search = z.object({ id: z.string().optional() });
 
@@ -25,5 +25,5 @@ export const Route = createFileRoute("/booking/decline")({
 
 function DeclinePage() {
   const { state } = Route.useLoaderData();
-  return <ResponseShell variant={state === "ok" ? "declined" : state} />;
+  return <BookingResponseShell variant={state === "ok" ? "declined" : state} />;
 }
