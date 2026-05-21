@@ -10,11 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BookingDeclineRouteImport } from './routes/booking.decline'
+import { Route as BookingAcceptRouteImport } from './routes/booking.accept'
 import { Route as AdminReviewsRouteImport } from './routes/admin.reviews'
+import { Route as AdminBookingsRouteImport } from './routes/admin.bookings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingDeclineRoute = BookingDeclineRouteImport.update({
+  id: '/booking/decline',
+  path: '/booking/decline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingAcceptRoute = BookingAcceptRouteImport.update({
+  id: '/booking/accept',
+  path: '/booking/accept',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminReviewsRoute = AdminReviewsRouteImport.update({
@@ -22,31 +35,64 @@ const AdminReviewsRoute = AdminReviewsRouteImport.update({
   path: '/admin/reviews',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminBookingsRoute = AdminBookingsRouteImport.update({
+  id: '/admin/bookings',
+  path: '/admin/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin/bookings': typeof AdminBookingsRoute
   '/admin/reviews': typeof AdminReviewsRoute
+  '/booking/accept': typeof BookingAcceptRoute
+  '/booking/decline': typeof BookingDeclineRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/bookings': typeof AdminBookingsRoute
   '/admin/reviews': typeof AdminReviewsRoute
+  '/booking/accept': typeof BookingAcceptRoute
+  '/booking/decline': typeof BookingDeclineRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin/bookings': typeof AdminBookingsRoute
   '/admin/reviews': typeof AdminReviewsRoute
+  '/booking/accept': typeof BookingAcceptRoute
+  '/booking/decline': typeof BookingDeclineRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin/reviews'
+  fullPaths:
+    | '/'
+    | '/admin/bookings'
+    | '/admin/reviews'
+    | '/booking/accept'
+    | '/booking/decline'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/reviews'
-  id: '__root__' | '/' | '/admin/reviews'
+  to:
+    | '/'
+    | '/admin/bookings'
+    | '/admin/reviews'
+    | '/booking/accept'
+    | '/booking/decline'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin/bookings'
+    | '/admin/reviews'
+    | '/booking/accept'
+    | '/booking/decline'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminBookingsRoute: typeof AdminBookingsRoute
   AdminReviewsRoute: typeof AdminReviewsRoute
+  BookingAcceptRoute: typeof BookingAcceptRoute
+  BookingDeclineRoute: typeof BookingDeclineRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +104,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/booking/decline': {
+      id: '/booking/decline'
+      path: '/booking/decline'
+      fullPath: '/booking/decline'
+      preLoaderRoute: typeof BookingDeclineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking/accept': {
+      id: '/booking/accept'
+      path: '/booking/accept'
+      fullPath: '/booking/accept'
+      preLoaderRoute: typeof BookingAcceptRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/reviews': {
       id: '/admin/reviews'
       path: '/admin/reviews'
@@ -65,23 +125,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/bookings': {
+      id: '/admin/bookings'
+      path: '/admin/bookings'
+      fullPath: '/admin/bookings'
+      preLoaderRoute: typeof AdminBookingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminBookingsRoute: AdminBookingsRoute,
   AdminReviewsRoute: AdminReviewsRoute,
+  BookingAcceptRoute: BookingAcceptRoute,
+  BookingDeclineRoute: BookingDeclineRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

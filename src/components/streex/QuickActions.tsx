@@ -3,6 +3,7 @@ import { Wifi, MessageSquare, Phone, UserPlus, Calendar, LayoutGrid } from "luci
 import { WifiModal } from "./WifiModal";
 import { MoreOptionsSheet } from "./MoreOptionsSheet";
 import { SaveContactModal } from "./SaveContactModal";
+import { BookingFormModal } from "./BookingFormModal";
 import { Reveal } from "./Reveal";
 
 function ActionCard({
@@ -64,6 +65,7 @@ export function QuickActions() {
   const [wifiOpen, setWifiOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
 
   const iconCls = "h-5 w-5 text-[#E6CE20]";
 
@@ -122,7 +124,7 @@ export function QuickActions() {
           icon={<Calendar className={iconCls} />}
           label="Schedule Ride"
           description="Book ahead"
-          href="https://cal.com/streex-riders"
+          onClick={() => setBookingOpen(true)}
           revealDelay={360}
         />
         <ActionCard
@@ -141,6 +143,7 @@ export function QuickActions() {
         onOpenChange={setContactOpen}
         vcard={STREEX_VCARD}
       />
+      <BookingFormModal open={bookingOpen} onOpenChange={setBookingOpen} />
     </section>
   );
 }
