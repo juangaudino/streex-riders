@@ -19,14 +19,22 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Premium private rides across Salt Lake City & Park City. Reliable, comfortable and personalized transportation.",
+          "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
       },
       { property: "og:title", content: "Streex Rides — Private rides. Elevated." },
       {
         property: "og:description",
         content:
-          "Premium private rides across Salt Lake City & Park City. Reliable, comfortable and personalized transportation.",
+          "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
       },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://streexrides.lovable.app" },
+      { property: "og:site_name", content: "Streex Rides" },
+      { property: "og:image", content: "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/streex-og-preview.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Streex Rides — Private rides. Elevated." },
+      { name: "twitter:description", content: "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service." },
+      { name: "twitter:image", content: "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/streex-og-preview.jpg" },
     ],
   }),
   component: Index,
