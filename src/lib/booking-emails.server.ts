@@ -2,7 +2,7 @@
 // Imported only from server functions / server routes.
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const FROM = "Streex Rides <onboarding@resend.dev>";
+const FROM = "Streex Rides <noreply@streex-riders.lovable.app>";
 const ADMIN_EMAIL = "streex.rides@gmail.com";
 const SITE_URL = "https://streex-riders.lovable.app";
 const JUAN_PHONE = "(801) 797-4971";
@@ -118,7 +118,7 @@ export function buildPassengerConfirmation(b: Booking) {
 }
 
 export function buildAdminNewRequest(b: Booking) {
-  const wa = `https://wa.me/${encodeURIComponent(b.phone.replace(/[^\d+]/g, ""))}?text=${encodeURIComponent(
+  const wa = `https://wa.me/${b.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
     `Hi ${b.name}, this is Juan from Streex Rides. I received your ride request from ${b.pickup} to ${b.destination} on ${b.date} at ${b.time}.`,
   )}`;
   return {
