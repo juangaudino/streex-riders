@@ -176,7 +176,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3">
                 <div>
                   <label className={labelCls}>Phone</label>
                   <input
@@ -220,7 +220,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3">
                 <div>
                   <label className={labelCls}>Date</label>
                   <input
