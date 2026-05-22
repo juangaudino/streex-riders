@@ -2,7 +2,7 @@
 // Imported only from server functions / server routes.
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const FROM = "Streex Rides <noreply@streex-riders.lovable.app>";
+const FROM = "Streex Rides <onboarding@resend.dev>";
 const ADMIN_EMAIL = "streex.rides@gmail.com";
 const SITE_URL = "https://streex-riders.lovable.app";
 const JUAN_PHONE = "(801) 797-4971";
