@@ -16,20 +16,17 @@ type SendArgs = {
 };
 
 export async function sendEmail({ to, subject, html }: SendArgs) {
-  const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
-  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
 
-  const res = await fetch(`${GATEWAY_URL}/emails`, {
+  const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${LOVABLE_API_KEY}`,
-      "X-Connection-Api-Key": RESEND_API_KEY,
+      "Authorization": `Bearer ${RESEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: FROM,
+      from: "Streex Rides <onboarding@resend.dev>",
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
