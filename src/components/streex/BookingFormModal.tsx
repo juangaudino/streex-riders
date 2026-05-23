@@ -33,11 +33,11 @@ const EMPTY: FormState = {
 };
 
 const COUNTRY_CODES = [
-  { label: "🇺🇸 +1", value: "+1" },
-  { label: "🇲🇽 +52", value: "+52" },
-  { label: "🇬🇧 +44", value: "+44" },
-  { label: "🇪🇸 +34", value: "+34" },
-  { label: "🇦🇷 +54", value: "+54" },
+  { label: "🇺🇸 +1 — United States", value: "+1" },
+  { label: "🇲🇽 +52 — Mexico", value: "+52" },
+  { label: "🇬🇧 +44 — United Kingdom", value: "+44" },
+  { label: "🇪🇸 +34 — Spain", value: "+34" },
+  { label: "🇦🇷 +54 — Argentina", value: "+54" },
   { label: "🌍 Other", value: "other" },
 ];
 
@@ -196,53 +196,55 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                   required
                 />
               </div>
-              <div className="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Country Code</label>
+                <select
+                  className={fieldCls}
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                >
+                  {COUNTRY_CODES.map((c) => (
+                    <option key={c.value} value={c.value} className="bg-[#0F0F0F] text-white">
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {countryCode === "other" ? (
                 <div>
-                  <label className={labelCls}>Phone</label>
-                  <div className="flex gap-2">
-                    <select
-                      className={`${fieldCls} w-[38%] pr-2 appearance-none`}
-                      value={countryCode}
-                      onChange={(e) => setCountryCode(e.target.value)}
-                    >
-                      {COUNTRY_CODES.map((c) => (
-                        <option key={c.value} value={c.value} className="bg-[#0F0F0F] text-white">
-                          {c.label}
-                        </option>
-                      ))}
-                    </select>
-                    {countryCode === "other" ? (
-                      <input
-                        className={`${fieldCls} w-[28%]`}
-                        type="text"
-                        value={customCode}
-                        onChange={(e) => setCustomCode(e.target.value.slice(0, 4))}
-                        placeholder="+__"
-                        maxLength={4}
-                      />
-                    ) : null}
-                    <input
-                      className={`${fieldCls} flex-1`}
-                      type="tel"
-                      inputMode="numeric"
-                      value={form.phone}
-                      onChange={(e) => set("phone", e.target.value.replace(/[^\d]/g, ""))}
-                      placeholder="Your number"
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className={labelCls}>Email</label>
+                  <label className={labelCls}>Country Code</label>
                   <input
                     className={fieldCls}
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => set("email", e.target.value)}
-                    placeholder="you@email.com"
-                    required
+                    type="text"
+                    value={customCode}
+                    onChange={(e) => setCustomCode(e.target.value.slice(0, 4))}
+                    placeholder="+__"
+                    maxLength={4}
                   />
                 </div>
+              ) : null}
+              <div>
+                <label className={labelCls}>Phone Number</label>
+                <input
+                  className={fieldCls}
+                  type="tel"
+                  inputMode="numeric"
+                  value={form.phone}
+                  onChange={(e) => set("phone", e.target.value.replace(/[^\d]/g, ""))}
+                  placeholder="Your number"
+                  required
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Email</label>
+                <input
+                  className={fieldCls}
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => set("email", e.target.value)}
+                  placeholder="you@email.com"
+                  required
+                />
               </div>
               <div>
                 <label className={labelCls}>Pickup Location</label>
