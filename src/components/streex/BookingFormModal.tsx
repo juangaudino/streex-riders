@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Check } from "lucide-react";
+import { X, Check, Minus, Plus } from "lucide-react";
 import { createBooking } from "@/lib/booking.functions";
 
 type Props = {
@@ -32,6 +32,15 @@ const EMPTY: FormState = {
   notes: "",
 };
 
+const COUNTRY_CODES = [
+  { label: "🇺🇸 +1", value: "+1" },
+  { label: "🇲🇽 +52", value: "+52" },
+  { label: "🇬🇧 +44", value: "+44" },
+  { label: "🇪🇸 +34", value: "+34" },
+  { label: "🇦🇷 +54", value: "+54" },
+  { label: "🌍 Other", value: "other" },
+];
+
 const fieldCls =
   "w-full rounded-xl bg-white/[0.04] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/30 backdrop-blur-xl focus:outline-none focus:border-[#E6CE20]/50 transition-colors";
 
@@ -40,6 +49,8 @@ const labelCls =
 
 export function BookingFormModal({ open, onOpenChange }: Props) {
   const [form, setForm] = useState<FormState>(EMPTY);
+  const [countryCode, setCountryCode] = useState<string>("+1");
+  const [customCode, setCustomCode] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +69,8 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
       setSubmitted(false);
       setError(null);
       setForm(EMPTY);
+      setCountryCode("+1");
+      setCustomCode("");
     }
   }, [open]);
 
@@ -70,9 +83,14 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
     e.preventDefault();
     setError(null);
 
+    const rawCode = countryCode === "other" ? customCode : countryCode;
+    const codeDigits = rawCode.replace(/\D/g, "");
+    const numberDigits = form.phone.replace(/\D/g, "");
+    const fullPhone = codeDigits && numberDigits ? `+${codeDigits}${numberDigits}` : "";
+
     const trimmed = {
       name: form.name.trim(),
-      phone: form.phone.trim(),
+      phone: fullPhone,
       email: form.email.trim(),
       pickup: form.pickup.trim(),
       destination: form.destination.trim(),
@@ -85,6 +103,8 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
     if (
       !trimmed.name ||
       !trimmed.phone ||
+      !codeDigits ||
+      !numberDigits ||
       !trimmed.email ||
       !trimmed.pickup ||
       !trimmed.destination ||
@@ -179,14 +199,38 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
               <div className="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3">
                 <div>
                   <label className={labelCls}>Phone</label>
-                  <input
-                    className={fieldCls}
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => set("phone", e.target.value)}
-                    placeholder="+1 ..."
-                    required
-                  />
+                  <div className="flex gap-2">
+                    <select
+                      className={`${fieldCls} w-[38%] pr-2 appearance-none`}
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                    >
+                      {COUNTRY_CODES.map((c) => (
+                        <option key={c.value} value={c.value} className="bg-[#0F0F0F] text-white">
+                          {c.label}
+                        </option>
+                      ))}
+                    </select>
+                    {countryCode === "other" ? (
+                      <input
+                        className={`${fieldCls} w-[28%]`}
+                        type="text"
+                        value={customCode}
+                        onChange={(e) => setCustomCode(e.target.value.slice(0, 4))}
+                        placeholder="+__"
+                        maxLength={4}
+                      />
+                    ) : null}
+                    <input
+                      className={`${fieldCls} flex-1`}
+                      type="tel"
+                      inputMode="numeric"
+                      value={form.phone}
+                      onChange={(e) => set("phone", e.target.value.replace(/[^\d]/g, ""))}
+                      placeholder="Your number"
+                      required
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className={labelCls}>Email</label>
@@ -244,17 +288,32 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
               </div>
               <div>
                 <label className={labelCls}>Passengers</label>
-                <input
-                  className={fieldCls}
-                  type="number"
-                  min={1}
-                  max={8}
-                  value={form.passengers}
-                  onChange={(e) =>
-                    set("passengers", Math.max(1, Math.min(8, Number(e.target.value) || 1)))
-                  }
-                  required
-                />
+                <div className="w-full rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-xl px-4 py-3 flex items-center justify-center gap-5">
+                  <button
+                    type="button"
+                    onClick={() => set("passengers", Math.max(1, form.passengers - 1))}
+                    disabled={form.passengers <= 1}
+                    aria-label="Decrease passengers"
+                    className="h-9 w-9 rounded-full flex items-center justify-center bg-white/[0.06] border border-white/10 text-white transition-transform focus:outline-none focus:border-[#E6CE20]/50 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <span
+                    className="text-white text-center"
+                    style={{ fontSize: 18, fontWeight: 600, minWidth: 32, fontFamily: "Montserrat, sans-serif" }}
+                  >
+                    {form.passengers}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => set("passengers", Math.min(8, form.passengers + 1))}
+                    disabled={form.passengers >= 8}
+                    aria-label="Increase passengers"
+                    className="h-9 w-9 rounded-full flex items-center justify-center bg-white/[0.06] border border-white/10 text-white transition-transform focus:outline-none focus:border-[#E6CE20]/50 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
               <div>
                 <label className={labelCls}>Notes (optional)</label>
