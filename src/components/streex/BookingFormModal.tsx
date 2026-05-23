@@ -33,11 +33,11 @@ const EMPTY: FormState = {
 };
 
 const COUNTRY_CODES = [
-  { label: "🇺🇸 +1", value: "+1" },
-  { label: "🇲🇽 +52", value: "+52" },
-  { label: "🇬🇧 +44", value: "+44" },
-  { label: "🇪🇸 +34", value: "+34" },
-  { label: "🇦🇷 +54", value: "+54" },
+  { label: "🇺🇸 +1 — United States", value: "+1" },
+  { label: "🇲🇽 +52 — Mexico", value: "+52" },
+  { label: "🇬🇧 +44 — United Kingdom", value: "+44" },
+  { label: "🇪🇸 +34 — Spain", value: "+34" },
+  { label: "🇦🇷 +54 — Argentina", value: "+54" },
   { label: "🌍 Other", value: "other" },
 ];
 
