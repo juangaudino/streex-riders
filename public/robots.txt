@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://streex-riders.lovable.app/sitemap.xml
