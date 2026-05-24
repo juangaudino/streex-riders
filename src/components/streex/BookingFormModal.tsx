@@ -152,6 +152,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
         style={{
           backgroundImage:
             "radial-gradient(ellipse at top, rgba(230,206,32,0.08) 0%, transparent 60%)",
+          contain: "paint",
         }}
       >
         <button
@@ -283,7 +284,16 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 <label className={labelCls}>Date</label>
                 <input
                   className={fieldCls}
-                  style={fieldStyle}
+                  style={{
+                    ...fieldStyle,
+                    display: "block",
+                    width: "100%",
+                    maxWidth: "100%",
+                    minWidth: "0",
+                    boxSizing: "border-box",
+                    WebkitAppearance: "none",
+                    appearance: "none",
+                  }}
                   type="date"
                   value={form.date}
                   onChange={(e) => set("date", e.target.value)}
@@ -294,7 +304,16 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 <label className={labelCls}>Time</label>
                 <input
                   className={fieldCls}
-                  style={fieldStyle}
+                  style={{
+                    ...fieldStyle,
+                    display: "block",
+                    width: "100%",
+                    maxWidth: "100%",
+                    minWidth: "0",
+                    boxSizing: "border-box",
+                    WebkitAppearance: "none",
+                    appearance: "none",
+                  }}
                   type="time"
                   value={form.time}
                   onChange={(e) => set("time", e.target.value)}
