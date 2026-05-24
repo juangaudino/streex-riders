@@ -21,6 +21,13 @@ type ReviewRow = {
 };
 
 export const Route = createFileRoute("/admin/reviews")({
+  head: () => ({
+    meta: [
+      { title: "Admin — Reviews | Streex Rides" },
+      { name: "description", content: "Internal review moderation panel." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AdminReviewsGate,
 });
 
