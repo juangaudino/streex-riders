@@ -19,13 +19,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
+          "Premium private transportation across Salt Lake City & Park City. Airport rides, ski trips, scheduled rides and more.",
       },
       { property: "og:title", content: "Streex Rides — Private rides. Elevated." },
       {
         property: "og:description",
         content:
-          "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
+          "Premium private transportation across Salt Lake City & Park City. Airport rides, ski trips, scheduled rides and more.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://streexrides.lovable.app" },
@@ -33,8 +33,46 @@ export const Route = createFileRoute("/")({
       { property: "og:image", content: "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/streex-og-preview.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Streex Rides — Private rides. Elevated." },
-      { name: "twitter:description", content: "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service." },
+      { name: "twitter:description", content: "Premium private transportation across Salt Lake City & Park City. Airport rides, ski trips, scheduled rides and more." },
       { name: "twitter:image", content: "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/streex-og-preview.jpg" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": ["LocalBusiness", "TaxiService"],
+          name: "Streex Rides",
+          description:
+            "Premium private transportation across Salt Lake City and Park City. Airport rides, ski trips, scheduled rides and hourly service.",
+          url: "https://streex-riders.lovable.app",
+          telephone: "+18017974971",
+          email: "streex.rides@gmail.com",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Salt Lake City",
+            addressRegion: "UT",
+            addressCountry: "US",
+          },
+          areaServed: [
+            "Salt Lake City",
+            "Park City",
+            "Salt Lake City International Airport",
+            "Utah",
+          ],
+          serviceType: [
+            "Airport Transfers",
+            "Scheduled Rides",
+            "Hourly Service",
+            "Corporate Travel",
+            "Private Events",
+            "Long Distance",
+          ],
+          priceRange: "$$",
+          availableLanguage: ["English", "Spanish"],
+          sameAs: ["https://instagram.com/streex.rides"],
+        }),
+      },
     ],
   }),
   component: Index,

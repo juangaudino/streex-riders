@@ -6,6 +6,13 @@ import { BookingResponseShell } from "@/components/streex/BookingResponseShell";
 const Search = z.object({ id: z.string().optional() });
 
 export const Route = createFileRoute("/booking/decline")({
+  head: () => ({
+    meta: [
+      { title: "Ride Request Update | Streex Rides" },
+      { name: "description", content: "Your Streex ride request update." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   validateSearch: (s) => Search.parse(s),
   loaderDeps: ({ search: { id } }) => ({ id }),
   loader: async ({ deps }) => {

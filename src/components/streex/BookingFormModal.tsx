@@ -42,7 +42,13 @@ const COUNTRY_CODES = [
 ];
 
 const fieldCls =
-  "w-full rounded-xl bg-white/[0.04] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/30 backdrop-blur-xl focus:outline-none focus:border-[#E6CE20]/50 transition-colors";
+  "block w-full box-border rounded-xl bg-white/[0.04] border border-white/10 text-sm text-white placeholder:text-white/30 backdrop-blur-xl focus:outline-none focus:border-[#E6CE20]/50 transition-colors";
+
+const fieldStyle: React.CSSProperties = {
+  padding: "14px 16px",
+  width: "100%",
+  maxWidth: "100%",
+};
 
 const labelCls =
   "block text-[11px] uppercase tracking-[0.18em] text-white/55 font-semibold mb-2";
@@ -190,6 +196,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 <label className={labelCls}>Name</label>
                 <input
                   className={fieldCls}
+                  style={fieldStyle}
                   value={form.name}
                   onChange={(e) => set("name", e.target.value)}
                   placeholder="Your full name"
@@ -200,6 +207,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 <label className={labelCls}>Country Code</label>
                 <select
                   className={fieldCls}
+                  style={fieldStyle}
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
                 >
@@ -215,6 +223,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                   <label className={labelCls}>Country Code</label>
                   <input
                     className={fieldCls}
+                    style={fieldStyle}
                     type="text"
                     value={customCode}
                     onChange={(e) => setCustomCode(e.target.value.slice(0, 4))}
@@ -227,6 +236,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 <label className={labelCls}>Phone Number</label>
                 <input
                   className={fieldCls}
+                  style={fieldStyle}
                   type="tel"
                   inputMode="numeric"
                   value={form.phone}
@@ -239,6 +249,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 <label className={labelCls}>Email</label>
                 <input
                   className={fieldCls}
+                  style={fieldStyle}
                   type="email"
                   value={form.email}
                   onChange={(e) => set("email", e.target.value)}
@@ -250,6 +261,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 <label className={labelCls}>Pickup Location</label>
                 <input
                   className={fieldCls}
+                  style={fieldStyle}
                   value={form.pickup}
                   onChange={(e) => set("pickup", e.target.value)}
                   placeholder="Address or place"
@@ -260,33 +272,34 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 <label className={labelCls}>Destination</label>
                 <input
                   className={fieldCls}
+                  style={fieldStyle}
                   value={form.destination}
                   onChange={(e) => set("destination", e.target.value)}
                   placeholder="Where to?"
                   required
                 />
               </div>
-              <div className="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3">
-                <div>
-                  <label className={labelCls}>Date</label>
-                  <input
-                    className={fieldCls}
-                    type="date"
-                    value={form.date}
-                    onChange={(e) => set("date", e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={labelCls}>Time</label>
-                  <input
-                    className={fieldCls}
-                    type="time"
-                    value={form.time}
-                    onChange={(e) => set("time", e.target.value)}
-                    required
-                  />
-                </div>
+              <div>
+                <label className={labelCls}>Date</label>
+                <input
+                  className={fieldCls}
+                  style={fieldStyle}
+                  type="date"
+                  value={form.date}
+                  onChange={(e) => set("date", e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Time</label>
+                <input
+                  className={fieldCls}
+                  style={fieldStyle}
+                  type="time"
+                  value={form.time}
+                  onChange={(e) => set("time", e.target.value)}
+                  required
+                />
               </div>
               <div>
                 <label className={labelCls}>Passengers</label>
@@ -321,6 +334,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 <label className={labelCls}>Notes (optional)</label>
                 <textarea
                   className={`${fieldCls} min-h-[88px] resize-none`}
+                  style={fieldStyle}
                   value={form.notes}
                   onChange={(e) => set("notes", e.target.value)}
                   placeholder="Anything Juan should know?"
