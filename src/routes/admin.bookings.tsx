@@ -33,6 +33,13 @@ type BookingRow = {
 };
 
 export const Route = createFileRoute("/admin/bookings")({
+  head: () => ({
+    meta: [
+      { title: "Admin — Bookings | Streex Rides" },
+      { name: "description", content: "Internal booking management panel." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AdminBookingsGate,
 });
 
