@@ -5,10 +5,12 @@ import { Splash } from "@/components/streex/Splash";
 import { Header } from "@/components/streex/Header";
 import { QuickActions } from "@/components/streex/QuickActions";
 import { ExperienceGallery } from "@/components/streex/ExperienceGallery";
+import { ServicesSection } from "@/components/streex/ServicesSection";
 import { Reviews } from "@/components/streex/Reviews";
 import { FeedbackForm } from "@/components/streex/FeedbackForm";
 import { MeetJuan } from "@/components/streex/MeetJuan";
 import { PaymentOptions } from "@/components/streex/PaymentOptions";
+import { FindUsSection } from "@/components/streex/FindUsSection";
 import { ServiceTicker } from "@/components/streex/ServiceTicker";
 import { Reveal } from "@/components/streex/Reveal";
 
@@ -133,8 +135,14 @@ function Index() {
         {/* PAYMENT OPTIONS */}
         <Reveal><PaymentOptions /></Reveal>
 
+        {/* FIND US */}
+        <FindUsSection />
+
         {/* EXPERIENCE GALLERY */}
         <Reveal><ExperienceGallery /></Reveal>
+
+        {/* OUR SERVICES */}
+        <ServicesSection />
 
         {/* REVIEWS */}
         <Reveal><Reviews /></Reveal>
