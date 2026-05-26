@@ -12,7 +12,7 @@ export function loadGoogleMaps(): Promise<typeof google> {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("Google Maps can only load in the browser"));
   }
-  if (window.google?.maps?.importLibrary) {
+  if (typeof window.google?.maps?.importLibrary === "function") {
     return Promise.resolve(window.google);
   }
   if (loadPromise) return loadPromise;
