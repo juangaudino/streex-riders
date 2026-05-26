@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Check, Minus, Plus } from "lucide-react";
 import { createBooking } from "@/lib/booking.functions";
+import { PlacesAutocompleteInput } from "./PlacesAutocompleteInput";
 
 type Props = {
   open: boolean;
@@ -260,22 +261,22 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
               </div>
               <div>
                 <label className={labelCls}>Pickup Location</label>
-                <input
+                <PlacesAutocompleteInput
                   className={fieldCls}
                   style={fieldStyle}
                   value={form.pickup}
-                  onChange={(e) => set("pickup", e.target.value)}
+                  onChange={(v) => set("pickup", v)}
                   placeholder="Address or place"
                   required
                 />
               </div>
               <div>
                 <label className={labelCls}>Destination</label>
-                <input
+                <PlacesAutocompleteInput
                   className={fieldCls}
                   style={fieldStyle}
                   value={form.destination}
-                  onChange={(e) => set("destination", e.target.value)}
+                  onChange={(v) => set("destination", v)}
                   placeholder="Where to?"
                   required
                 />
