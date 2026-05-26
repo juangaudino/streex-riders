@@ -51,16 +51,14 @@ const BUTTONS: SocialButton[] = [
   {
     icon: <GoogleIcon />,
     label: "Google Reviews",
-    subLabel: "Coming soon",
     href: "#",
-    active: false,
+    active: true,
   },
   {
     icon: <NextdoorIcon />,
     label: "Nextdoor",
-    subLabel: "Coming soon",
     href: "#",
-    active: false,
+    active: true,
   },
 ];
 
