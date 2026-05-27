@@ -1,3 +1,6 @@
+// To customize this template, edit src/config.ts
+import { CONFIG } from "@/config";
+
 type Payment = {
   label: string;
   href: string;
@@ -26,19 +29,19 @@ const ApplePayIcon = () => (
 const PAYMENTS: Payment[] = [
   {
     label: "Venmo",
-    href: "https://venmo.com/juangaudino",
+    href: CONFIG.venmo,
     external: true,
     icon: <VenmoIcon />,
   },
   {
     label: "Cash App",
-    href: "https://cash.app/$juangaudino",
+    href: CONFIG.cashapp,
     external: true,
     icon: <CashAppIcon />,
   },
   {
     label: "Apple Pay",
-    href: "tel:+18017974971",
+    href: `tel:${CONFIG.applePayPhone}`,
     icon: <ApplePayIcon />,
   },
 ];
