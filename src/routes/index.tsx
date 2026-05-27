@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import logo from "@/assets/streex-logo.png";
+// To customize this template, edit src/config.ts
+import { CONFIG } from "@/config";
 import { Splash } from "@/components/streex/Splash";
 import { Header } from "@/components/streex/Header";
 import { QuickActions } from "@/components/streex/QuickActions";
@@ -17,26 +19,18 @@ import { Reveal } from "@/components/streex/Reveal";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Streex Rides — Private rides. Elevated." },
-      {
-        name: "description",
-        content:
-          "Premium private transportation across Salt Lake City & Park City. Airport rides, ski trips, scheduled rides and more.",
-      },
-      { property: "og:title", content: "Streex Rides — Private rides. Elevated." },
-      {
-        property: "og:description",
-        content:
-          "Premium private transportation across Salt Lake City & Park City. Airport rides, ski trips, scheduled rides and more.",
-      },
+      { title: CONFIG.seoTitle },
+      { name: "description", content: CONFIG.seoDescription },
+      { property: "og:title", content: CONFIG.seoTitle },
+      { property: "og:description", content: CONFIG.seoDescription },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://streexrides.lovable.app" },
-      { property: "og:site_name", content: "Streex Rides" },
-      { property: "og:image", content: "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/streex-og-preview.jpg" },
+      { property: "og:url", content: CONFIG.seoUrl },
+      { property: "og:site_name", content: CONFIG.brandName },
+      { property: "og:image", content: CONFIG.ogImage },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Streex Rides — Private rides. Elevated." },
-      { name: "twitter:description", content: "Premium private transportation across Salt Lake City & Park City. Airport rides, ski trips, scheduled rides and more." },
-      { name: "twitter:image", content: "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/streex-og-preview.jpg" },
+      { name: "twitter:title", content: CONFIG.seoTitle },
+      { name: "twitter:description", content: CONFIG.seoDescription },
+      { name: "twitter:image", content: CONFIG.ogImage },
     ],
     scripts: [
       {
@@ -44,12 +38,11 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": ["LocalBusiness", "TaxiService"],
-          name: "Streex Rides",
-          description:
-            "Premium private transportation across Salt Lake City and Park City. Airport rides, ski trips, scheduled rides and hourly service.",
-          url: "https://streex-riders.lovable.app",
-          telephone: "+18017974971",
-          email: "streex.rides@gmail.com",
+          name: CONFIG.brandName,
+          description: CONFIG.seoDescription,
+          url: CONFIG.seoUrl,
+          telephone: CONFIG.phone,
+          email: CONFIG.email,
           address: {
             "@type": "PostalAddress",
             addressLocality: "Salt Lake City",
@@ -72,7 +65,7 @@ export const Route = createFileRoute("/")({
           ],
           priceRange: "$$",
           availableLanguage: ["English", "Spanish"],
-          sameAs: ["https://instagram.com/streex.rides"],
+          sameAs: [CONFIG.instagramUrl],
         }),
       },
     ],
@@ -108,19 +101,26 @@ function Index() {
         <section className="relative px-6 pb-6 flex flex-col items-center text-center" style={{ paddingTop: 16 }}>
           <img
             src={logo}
-            alt="Streex"
+            alt={CONFIG.brandName}
             className="h-auto streex-logo-glow"
             style={{ width: 192, display: "block", marginBottom: 12 }}
           />
           <h1 className="text-3xl font-bold leading-tight tracking-tight">
-            Private rides.
-            <br />
-            <span className="text-[#E6CE20]">Elevated.</span>
+            {(() => {
+              const words = CONFIG.tagline.trim().split(/\s+/);
+              const last = words.pop() ?? "";
+              const first = words.join(" ");
+              return (
+                <>
+                  {first}
+                  <br />
+                  <span className="text-[#E6CE20]">{last}</span>
+                </>
+              );
+            })()}
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-white/60 max-w-xs">
-            Premium private rides across Salt Lake City & Park City. Reliable,
-            comfortable and personalized transportation — designed to elevate
-            your journey.
+            {CONFIG.subheadline}
           </p>
         </section>
 
@@ -133,36 +133,39 @@ function Index() {
         <QuickActions />
 
         {/* PAYMENT OPTIONS */}
-        <Reveal><PaymentOptions /></Reveal>
+        {CONFIG.sections.paymentOptions && <Reveal><PaymentOptions /></Reveal>}
 
         {/* FIND US */}
-        <FindUsSection />
+        {CONFIG.sections.findUs && <FindUsSection />}
 
         {/* EXPERIENCE GALLERY */}
-        <Reveal><ExperienceGallery /></Reveal>
+        {CONFIG.sections.experienceGallery && <Reveal><ExperienceGallery /></Reveal>}
 
         {/* OUR SERVICES */}
-        <ServicesSection />
+        {CONFIG.sections.servicesGrid && <ServicesSection />}
 
         {/* REVIEWS */}
-        <Reveal><Reviews /></Reveal>
+        {CONFIG.sections.reviews && <Reveal><Reviews /></Reveal>}
 
         {/* ABOUT */}
-        <Reveal as="section" className="px-6 mt-16">
-          <div className="streex-divider w-16 mb-5" />
-          <h2 className="text-2xl font-bold mb-5">Why Streex</h2>
-          <p className="text-[15px] leading-relaxed text-white/75">
-            Streex was created to offer something different — a more thoughtful,
-            comfortable and elevated transportation experience in Utah. Every
-            ride is designed around you: your schedule, your comfort, your
-            experience.
-          </p>
-          <p className="mt-4 text-[15px] leading-relaxed text-white/75">
-            Built by someone with a background in branding and technology,
-            Streex is more than a ride. It's the beginning of a better way to
-            move.
-          </p>
-        </Reveal>
+        {CONFIG.sections.whyStreex && (
+          <Reveal as="section" className="px-6 mt-16">
+            <div className="streex-divider w-16 mb-5" />
+            <h2 className="text-2xl font-bold mb-5">{CONFIG.whyStreexTitle}</h2>
+            {CONFIG.whyStreexBody.map((p, i) => (
+              <p
+                key={i}
+                className={
+                  i === 0
+                    ? "text-[15px] leading-relaxed text-white/75"
+                    : "mt-4 text-[15px] leading-relaxed text-white/75"
+                }
+              >
+                {p}
+              </p>
+            ))}
+          </Reveal>
+        )}
 
         {/* WHERE WE RIDE — hidden for now, restore when needed */}
         {/* <section className="px-6 mt-16">
@@ -183,18 +186,18 @@ function Index() {
         </section> */}
 
         {/* MEET JUAN */}
-        <MeetJuan />
+        {CONFIG.sections.meetJuan && <MeetJuan />}
 
         {/* FEEDBACK FORM */}
-        <Reveal><FeedbackForm /></Reveal>
+        {CONFIG.sections.feedbackForm && <Reveal><FeedbackForm /></Reveal>}
 
         {/* FOOTER */}
         <footer className="px-6 mt-20 pt-10 pb-8 flex flex-col items-center text-center border-t border-white/5">
-          <img src={logo} alt="Streex" className="h-10 w-auto mb-3 opacity-90" />
+          <img src={logo} alt={CONFIG.brandName} className="h-10 w-auto mb-3 opacity-90" />
           <p className="text-[11px] uppercase streex-tracking text-white/60">
-            Private rides. Elevated.
+            {CONFIG.tagline}
           </p>
-          <p className="mt-4 text-xs text-white/30">© 2026 Streex Rides</p>
+          <p className="mt-4 text-xs text-white/30">© 2026 {CONFIG.brandName}</p>
         </footer>
       </main>
     </div>
