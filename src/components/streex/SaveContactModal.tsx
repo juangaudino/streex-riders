@@ -7,12 +7,14 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Copy, Check } from "lucide-react";
+// To customize this template, edit src/config.ts
+import { CONFIG } from "@/config";
 
 const CONTACT_LINES: { label: string; value: string; href?: string }[] = [
-  { label: "Name", value: "Juan - Streex Rides" },
-  { label: "Phone", value: "(801) 797-4971", href: "tel:+18017974971" },
-  { label: "Email", value: "streex.rides@gmail.com", href: "mailto:streex.rides@gmail.com" },
-  { label: "Website", value: "streexrides.lovable.app", href: "https://streexrides.lovable.app" },
+  { label: "Name", value: `${CONFIG.ownerName} — ${CONFIG.brandName}` },
+  { label: "Phone", value: CONFIG.phoneDisplay, href: `tel:${CONFIG.phone}` },
+  { label: "Email", value: CONFIG.email, href: `mailto:${CONFIG.email}` },
+  { label: "Website", value: CONFIG.website.replace(/^https?:\/\//, ""), href: CONFIG.website },
 ];
 
 export function SaveContactModal({
@@ -28,7 +30,7 @@ export function SaveContactModal({
 
   const copyPhone = async () => {
     try {
-      await navigator.clipboard.writeText("+1 (801) 797-4971");
+      await navigator.clipboard.writeText(CONFIG.phoneDisplay);
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
