@@ -1,5 +1,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { MessageCircle, Instagram } from "lucide-react";
+// To customize this template, edit src/config.ts
+import { CONFIG } from "@/config";
 
 export function MoreOptionsSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   return (
@@ -13,7 +15,7 @@ export function MoreOptionsSheet({ open, onOpenChange }: { open: boolean; onOpen
         </SheetHeader>
         <div className="mt-6 space-y-3 pb-6">
           <a
-            href="https://wa.me/18017974971"
+            href={CONFIG.whatsapp}
             target="_blank"
             rel="noreferrer"
             className="streex-glass flex items-center gap-4 px-5 py-4 active:scale-[0.97]"
@@ -27,7 +29,7 @@ export function MoreOptionsSheet({ open, onOpenChange }: { open: boolean; onOpen
             </div>
           </a>
           <a
-            href="https://ig.me/m/streex.rides"
+            href={CONFIG.instagramDM}
             target="_blank"
             rel="noreferrer"
             className="streex-glass flex items-center gap-4 px-5 py-4 active:scale-[0.97]"

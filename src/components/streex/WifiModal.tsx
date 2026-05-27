@@ -1,5 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Wifi } from "lucide-react";
+// To customize this template, edit src/config.ts
+import { CONFIG } from "@/config";
 
 export function WifiModal({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const handleOpenWifi = () => {
@@ -27,10 +29,12 @@ export function WifiModal({ open, onOpenChange }: { open: boolean; onOpenChange:
 
           <div className="mt-5 space-y-4">
             <div className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 font-mono text-base tracking-widest text-[#E6CE20]">
-              STREEX-5G
+              {CONFIG.wifiName}
             </div>
             <p className="text-sm text-white/60 leading-relaxed">
-              No password required. Open your WiFi settings and select the network.
+              {CONFIG.wifiPassword
+                ? `Password: ${CONFIG.wifiPassword}. Open your WiFi settings and select the network.`
+                : "No password required. Open your WiFi settings and select the network."}
             </p>
 
             <button
@@ -41,7 +45,7 @@ export function WifiModal({ open, onOpenChange }: { open: boolean; onOpenChange:
             </button>
 
             <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-xs leading-relaxed text-white/55">
-              To connect: open your iPhone Settings → WiFi → select <span className="text-[#E6CE20]">STREEX-5G</span>
+              To connect: open your iPhone Settings → WiFi → select <span className="text-[#E6CE20]">{CONFIG.wifiName}</span>
             </div>
           </div>
         </div>

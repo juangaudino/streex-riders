@@ -1,67 +1,7 @@
-import { PlaneTakeoff, Mountain, CalendarCheck, Clock, Briefcase, MapPin, Sparkles, Star } from "lucide-react";
+// To customize this template, edit src/config.ts
+import { CONFIG } from "@/config";
+import { resolveIcon } from "@/lib/icon-map";
 import { Reveal } from "./Reveal";
-
-type Service = {
-  icon: React.ReactNode;
-  name: string;
-  price: string;
-  subtitle?: string;
-  enabled: boolean;
-};
-
-const SERVICES: Service[] = [
-  {
-    icon: <PlaneTakeoff className="h-5 w-5 text-[#E6CE20]" />,
-    name: "Airport Transfers",
-    price: "From $40",
-    enabled: true,
-  },
-  {
-    icon: <Mountain className="h-5 w-5 text-[#E6CE20]" />,
-    name: "Park City",
-    price: "From $80",
-    enabled: true,
-  },
-  {
-    icon: <CalendarCheck className="h-5 w-5 text-[#E6CE20]" />,
-    name: "Scheduled Rides",
-    price: "From $40",
-    enabled: true,
-  },
-  {
-    icon: <Clock className="h-5 w-5 text-[#E6CE20]" />,
-    name: "Hourly Service",
-    price: "$60/hr · 40 mi included",
-    subtitle: "$1 per additional mile",
-    enabled: true,
-  },
-  {
-    icon: <Briefcase className="h-5 w-5 text-[#E6CE20]" />,
-    name: "Corporate Travel",
-    price: "Contact for quote",
-    enabled: true,
-  },
-  {
-    icon: <MapPin className="h-5 w-5 text-[#E6CE20]" />,
-    name: "Long Distance",
-    price: "Contact for quote",
-    enabled: true,
-  },
-  // CONFIG: enabled: false
-  {
-    icon: <Sparkles className="h-5 w-5 text-[#E6CE20]" />,
-    name: "Las Vegas",
-    price: "Contact for quote",
-    enabled: false,
-  },
-  // CONFIG: enabled: false
-  {
-    icon: <Star className="h-5 w-5 text-[#E6CE20]" />,
-    name: "Private Events",
-    price: "Contact for quote",
-    enabled: false,
-  },
-];
 
 function ServiceCard({
   icon,
@@ -73,7 +13,7 @@ function ServiceCard({
   icon: React.ReactNode;
   name: string;
   price: string;
-  subtitle?: string;
+  subtitle?: string | null;
   revealDelay?: number;
 }) {
   return (
@@ -110,22 +50,25 @@ function ServiceCard({
 }
 
 export function ServicesSection() {
-  const visible = SERVICES.filter((s) => s.enabled);
+  const visible = CONFIG.services.filter((s) => s.enabled);
 
   return (
     <section className="px-6 mt-16">
       <h2 className="text-2xl font-bold mb-5">Our Services</h2>
       <div className="grid grid-cols-2 gap-3">
-        {visible.map((s, idx) => (
-          <ServiceCard
-            key={s.name}
-            icon={s.icon}
-            name={s.name}
-            price={s.price}
-            subtitle={s.subtitle}
-            revealDelay={idx * 90}
-          />
-        ))}
+        {visible.map((s, idx) => {
+          const Icon = resolveIcon(s.icon);
+          return (
+            <ServiceCard
+              key={s.id}
+              icon={<Icon className="h-5 w-5 text-[#E6CE20]" />}
+              name={s.name}
+              price={s.price}
+              subtitle={s.subtitle}
+              revealDelay={idx * 90}
+            />
+          );
+        })}
       </div>
     </section>
   );

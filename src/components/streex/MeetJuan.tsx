@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+// To customize this template, edit src/config.ts
+import { CONFIG } from "@/config";
 
 export function MeetJuan() {
   const ref = useRef<HTMLDivElement>(null);
@@ -38,8 +40,8 @@ export function MeetJuan() {
       >
         <div className="flex flex-col items-center text-center mb-5">
           <img
-            src="https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/juan.jpg"
-            alt="Juan"
+            src={CONFIG.meetPhoto}
+            alt={CONFIG.ownerName}
             className="rounded-full mb-4 object-cover"
             style={{
               width: 90,
@@ -48,25 +50,14 @@ export function MeetJuan() {
               boxShadow: "0 0 16px rgba(230,206,32,0.15)",
             }}
           />
-          <h2 className="text-2xl font-bold">Meet Juan</h2>
+          <h2 className="text-2xl font-bold">{CONFIG.meetTitle}</h2>
         </div>
         <div className="space-y-4 text-[15px] leading-relaxed text-white/80">
-          <p>Hi, I'm Juan — creator of Streex Rides.</p>
-          <p>
-            I believe transportation can be more than a ride — it can be a
-            genuinely comfortable and thoughtful experience.
-          </p>
-          <p>
-            Fluent in English and Spanish, with a background in branding,
-            technology and creative projects, I built Streex around one
-            simple idea: details matter.
-          </p>
-          <p>
-            While continuing my studies at Weber State University, I'm
-            building Streex as a more personal, elevated and human way to
-            move around Utah.
-          </p>
-          <p className="text-white">I look forward to being your driver.</p>
+          {CONFIG.meetBody.map((p, i) => (
+            <p key={i} className={i === CONFIG.meetBody.length - 1 ? "text-white" : undefined}>
+              {p}
+            </p>
+          ))}
         </div>
       </div>
     </section>

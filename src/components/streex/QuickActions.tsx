@@ -5,6 +5,8 @@ import { MoreOptionsSheet } from "./MoreOptionsSheet";
 import { SaveContactModal } from "./SaveContactModal";
 import { BookingFormModal } from "./BookingFormModal";
 import { Reveal } from "./Reveal";
+// To customize this template, edit src/config.ts
+import { CONFIG } from "@/config";
 
 function ActionCard({
   icon,
@@ -52,12 +54,12 @@ function ActionCard({
 const STREEX_VCARD = [
   "BEGIN:VCARD",
   "VERSION:3.0",
-  "FN:Juan - Streex Rides",
-  "N:Streex Rides;Juan;;;",
-  "ORG:Streex Rides",
-  "TEL;TYPE=WORK,VOICE:+18017974971",
-  "EMAIL;TYPE=WORK:streex.rides@gmail.com",
-  "URL:https://streexrides.lovable.app",
+  `FN:${CONFIG.ownerName} - ${CONFIG.brandName}`,
+  `N:${CONFIG.brandName};${CONFIG.ownerName};;;`,
+  `ORG:${CONFIG.brandName}`,
+  `TEL;TYPE=WORK,VOICE:${CONFIG.phone}`,
+  `EMAIL;TYPE=WORK:${CONFIG.email}`,
+  `URL:${CONFIG.website}`,
   "END:VCARD",
 ].join("\r\n");
 
@@ -75,7 +77,7 @@ export function QuickActions() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "Juan-StreexRides.vcf");
+      link.setAttribute("download", `${CONFIG.ownerName}-${CONFIG.brandName.replace(/\s+/g, "")}.vcf`);
       link.setAttribute("type", "text/vcard");
       document.body.appendChild(link);
       link.click();
@@ -92,48 +94,48 @@ export function QuickActions() {
         Quick Actions
       </h2>
       <div className="grid grid-cols-2 gap-3">
-        <ActionCard
+        {CONFIG.sections.wifi && <ActionCard
           icon={<Wifi className={iconCls} />}
           label="Connect WiFi"
           description="Free onboard WiFi"
           onClick={() => setWifiOpen(true)}
           revealDelay={0}
-        />
-        <ActionCard
+        />}
+        {CONFIG.sections.textMe && <ActionCard
           icon={<MessageSquare className={iconCls} />}
           label="Text Me"
           description="Schedule a ride by SMS"
-          href="sms:+18017974971&body=Hi%20Juan!%20I'd%20like%20to%20schedule%20a%20ride."
+          href={`sms:${CONFIG.phone}&body=Hi%20${encodeURIComponent(CONFIG.ownerName)}!%20I'd%20like%20to%20schedule%20a%20ride.`}
           revealDelay={90}
-        />
-        <ActionCard
+        />}
+        {CONFIG.sections.callMe && <ActionCard
           icon={<Phone className={iconCls} />}
           label="Call Me"
-          description="Reach Juan directly"
-          href="tel:+18017974971"
+          description={`Reach ${CONFIG.ownerName} directly`}
+          href={`tel:${CONFIG.phone}`}
           revealDelay={180}
-        />
-        <ActionCard
+        />}
+        {CONFIG.sections.saveContact && <ActionCard
           icon={<UserPlus className={iconCls} />}
           label="Save Contact"
           description="Add to your phone"
           onClick={saveContact}
           revealDelay={270}
-        />
-        <ActionCard
+        />}
+        {CONFIG.sections.scheduleRide && <ActionCard
           icon={<Calendar className={iconCls} />}
           label="Schedule Ride"
           description="Book ahead"
           onClick={() => setBookingOpen(true)}
           revealDelay={360}
-        />
-        <ActionCard
+        />}
+        {CONFIG.sections.moreOptions && <ActionCard
           icon={<LayoutGrid className={iconCls} />}
           label="More Options"
           description="WhatsApp & Instagram"
           onClick={() => setMoreOpen(true)}
           revealDelay={450}
-        />
+        />}
       </div>
 
       <WifiModal open={wifiOpen} onOpenChange={setWifiOpen} />
