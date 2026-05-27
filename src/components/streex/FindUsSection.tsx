@@ -1,4 +1,6 @@
 import { Reveal } from "./Reveal";
+// To customize this template, edit src/config.ts
+import { CONFIG } from "@/config";
 
 const InstagramIcon = () => (
   <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
@@ -45,19 +47,19 @@ const BUTTONS: SocialButton[] = [
   {
     icon: <InstagramIcon />,
     label: "Instagram",
-    href: "https://instagram.com/streex.rides",
+    href: CONFIG.instagramUrl,
     active: true,
   },
   {
     icon: <GoogleIcon />,
     label: "Google Reviews",
-    href: "#",
+    href: CONFIG.googleReviews || "#",
     active: true,
   },
   {
     icon: <NextdoorIcon />,
     label: "Nextdoor",
-    href: "#",
+    href: CONFIG.nextdoor || "#",
     active: true,
   },
 ];
