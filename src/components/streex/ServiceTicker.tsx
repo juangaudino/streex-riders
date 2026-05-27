@@ -1,13 +1,7 @@
-const SERVICES = [
-  "Airport Transfers",
-  "Park City",
-  "Scheduled Rides",
-  "Hourly Service",
-  "Corporate Travel",
-  "Private Events",
-  "Bilingual Service",
-  "Las Vegas",
-];
+// To customize this template, edit src/config.ts
+import { CONFIG } from "@/config";
+
+const SERVICES = CONFIG.tickerServices;
 
 const cellBase: React.CSSProperties = {
   display: "inline-block",
