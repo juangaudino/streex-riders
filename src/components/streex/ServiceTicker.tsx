@@ -1,8 +1,14 @@
 // To customize this template, edit src/config.ts
+import { useEffect, useState } from "react";
 import { CONFIG } from "@/config";
+import { supabase } from "@/integrations/supabase/client";
 
 const SERVICES = CONFIG.tickerServices;
-const TICKER_STYLE = CONFIG.tickerStyle;
+type TickerStyle = "boarding" | "pill";
+
+function isTickerStyle(value: string | null | undefined): value is TickerStyle {
+  return value === "boarding" || value === "pill";
+}
 
 function ServicePill({ service, tone }: { service: string; tone: "light" | "accent" }) {
   const isAccent = tone === "accent";
@@ -22,16 +28,25 @@ function ServicePill({ service, tone }: { service: string; tone: "light" | "acce
 }
 
 function ServicePanel({ service, index }: { service: string; index: number }) {
+  const tone = index % 3;
   return (
-    <span className="streex-led-panel">
+    <span className={`streex-led-panel streex-led-panel-${tone}`}>
       <span className="streex-led-code">{String(index + 1).padStart(2, "0")}</span>
       <span className="streex-led-text">{service}</span>
     </span>
   );
 }
 
-function ServiceTickerItem({ service, index }: { service: string; index: number }) {
-  if (TICKER_STYLE === "pill") {
+function ServiceTickerItem({
+  service,
+  index,
+  tickerStyle,
+}: {
+  service: string;
+  index: number;
+  tickerStyle: TickerStyle;
+}) {
+  if (tickerStyle === "pill") {
     return (
       <span className="inline-flex items-center gap-3 pr-3">
         <ServicePill service={service} tone={index % 2 === 0 ? "light" : "accent"} />
@@ -49,27 +64,68 @@ function ServiceTickerItem({ service, index }: { service: string; index: number 
   );
 }
 
-function TickerRow() {
+function TickerRow({ tickerStyle }: { tickerStyle: TickerStyle }) {
   return (
     <>
       {SERVICES.map((service, i) => {
-        return <ServiceTickerItem key={service} service={service} index={i} />;
+        return (
+          <ServiceTickerItem key={service} service={service} index={i} tickerStyle={tickerStyle} />
+        );
       })}
     </>
   );
 }
 
+function useTickerStyle() {
+  const [tickerStyle, setTickerStyle] = useState<TickerStyle>(
+    isTickerStyle(CONFIG.tickerStyle) ? CONFIG.tickerStyle : "boarding",
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadTickerStyle() {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "ticker_style")
+        .maybeSingle();
+
+      if (!cancelled && !error && isTickerStyle(data?.value)) {
+        setTickerStyle(data.value);
+      }
+    }
+
+    loadTickerStyle();
+
+    const onThemeChanged = (event: Event) => {
+      const detail = (event as CustomEvent<{ tickerStyle?: string }>).detail;
+      if (isTickerStyle(detail?.tickerStyle)) setTickerStyle(detail.tickerStyle);
+    };
+
+    window.addEventListener("streex:ticker-theme-changed", onThemeChanged);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("streex:ticker-theme-changed", onThemeChanged);
+    };
+  }, []);
+
+  return tickerStyle;
+}
+
 export function ServiceTicker() {
+  const tickerStyle = useTickerStyle();
+
   return (
     <div
-      className={TICKER_STYLE === "boarding" ? "streex-led-board" : undefined}
+      className={tickerStyle === "boarding" ? "streex-led-board" : undefined}
       style={{
         overflow: "hidden",
         width: "100%",
-        padding: TICKER_STYLE === "boarding" ? "12px 0" : "10px 0",
+        padding: tickerStyle === "boarding" ? "12px 0" : "10px 0",
         paddingLeft: "16px",
         paddingRight: "16px",
-        background: TICKER_STYLE === "pill" ? "rgba(255,255,255,0.02)" : undefined,
+        background: tickerStyle === "pill" ? "rgba(255,255,255,0.02)" : undefined,
         WebkitMaskImage:
           "linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%)",
         maskImage:
@@ -78,10 +134,10 @@ export function ServiceTicker() {
     >
       <div className="streex-ticker-track" style={{ display: "inline-flex", whiteSpace: "nowrap" }}>
         <div style={{ display: "inline-flex" }}>
-          <TickerRow />
+          <TickerRow tickerStyle={tickerStyle} />
         </div>
         <div style={{ display: "inline-flex" }}>
-          <TickerRow />
+          <TickerRow tickerStyle={tickerStyle} />
         </div>
       </div>
     </div>

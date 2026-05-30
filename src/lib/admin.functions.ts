@@ -32,6 +32,10 @@ const ReviewIdSchema = AdminSchema.extend({
   id: z.string().uuid(),
 });
 
+const TickerThemeSchema = AdminSchema.extend({
+  tickerStyle: z.enum(["boarding", "pill"]),
+});
+
 export const verifyAdminKey = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => AdminSchema.parse(input))
   .handler(async ({ data }) => {
@@ -166,4 +170,23 @@ export const deleteAdminReview = createServerFn({ method: "POST" })
     }
 
     return { ok: true };
+  });
+
+export const updateAdminTickerTheme = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => TickerThemeSchema.parse(input))
+  .handler(async ({ data }) => {
+    assertAdminAccess(data.adminKey);
+
+    const { error } = await supabaseAdmin.from("app_settings").upsert({
+      key: "ticker_style",
+      value: data.tickerStyle,
+      updated_at: new Date().toISOString(),
+    });
+
+    if (error) {
+      console.error("[updateAdminTickerTheme] update error", error);
+      throw new Error("Failed to update ticker theme.");
+    }
+
+    return { ok: true, tickerStyle: data.tickerStyle };
   });
