@@ -33,6 +33,12 @@ const EMPTY: FormState = {
   notes: "",
 };
 
+const todayLocalISO = () => {
+  const today = new Date();
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+  return today.toISOString().slice(0, 10);
+};
+
 const COUNTRY_CODES = [
   { label: "🇺🇸 +1 — United States", value: "+1" },
   { label: "🇲🇽 +52 — Mexico", value: "+52" },
@@ -51,8 +57,7 @@ const fieldStyle: React.CSSProperties = {
   maxWidth: "100%",
 };
 
-const labelCls =
-  "block text-[11px] uppercase tracking-[0.18em] text-white/55 font-semibold mb-2";
+const labelCls = "block text-[11px] uppercase tracking-[0.18em] text-white/55 font-semibold mb-2";
 
 export function BookingFormModal({ open, onOpenChange }: Props) {
   const [form, setForm] = useState<FormState>(EMPTY);
@@ -61,6 +66,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const minRideDate = todayLocalISO();
 
   useEffect(() => {
     if (!open) return;
@@ -129,6 +135,10 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
       setError("Passengers must be between 1 and 8.");
       return;
     }
+    if (trimmed.date < minRideDate) {
+      setError("Please choose today or a future date.");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -178,12 +188,9 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
               <div className="h-14 w-14 rounded-full bg-[#E6CE20]/15 border border-[#E6CE20]/40 flex items-center justify-center mb-4">
                 <Check className="h-6 w-6 text-[#E6CE20]" strokeWidth={2.4} />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">
-                Request received
-              </h3>
+              <h3 className="text-lg font-semibold text-white mb-2">Request received</h3>
               <p className="text-sm text-white/65 mb-6 max-w-xs">
-                Your ride request was received. Juan will review and send you a
-                quote shortly.
+                Your ride request was received. Juan will review and send you a quote shortly.
               </p>
               <button
                 onClick={() => onOpenChange(false)}
@@ -296,6 +303,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                     appearance: "none",
                   }}
                   type="date"
+                  min={minRideDate}
                   value={form.date}
                   onChange={(e) => set("date", e.target.value)}
                   required
@@ -335,7 +343,12 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                   </button>
                   <span
                     className="text-white text-center"
-                    style={{ fontSize: 18, fontWeight: 600, minWidth: 32, fontFamily: "Montserrat, sans-serif" }}
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 600,
+                      minWidth: 32,
+                      fontFamily: "Montserrat, sans-serif",
+                    }}
                   >
                     {form.passengers}
                   </span>
@@ -362,9 +375,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 />
               </div>
 
-              {error && (
-                <p className="text-xs text-red-400/90 text-center">{error}</p>
-              )}
+              {error && <p className="text-xs text-red-400/90 text-center">{error}</p>}
 
               <button
                 type="submit"

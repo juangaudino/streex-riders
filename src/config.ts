@@ -40,6 +40,8 @@ export const CONFIG = {
   backgroundColor: "#0B0B0B",
 
   // ─── TICKER SERVICES ─────────────────────────
+  // Options: "boarding" | "pill"
+  tickerStyle: "boarding",
   tickerServices: [
     "Airport Transfers",
     "Park City",
@@ -99,8 +101,7 @@ export const CONFIG = {
 
   // ─── MEET OWNER ──────────────────────────────
   meetTitle: "Meet Juan",
-  meetPhoto:
-    "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/juan.jpg",
+  meetPhoto: "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/juan.jpg",
   meetBody: [
     "Hi, I'm Juan — creator of Streex Rides.",
     "I believe transportation can be more than a ride — it can be a genuinely comfortable and thoughtful experience.",

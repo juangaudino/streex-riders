@@ -46,7 +46,9 @@ function ActionCard({
       {content}
     </a>
   ) : (
-    <button onClick={onClick} className="text-left w-full">{content}</button>
+    <button onClick={onClick} className="text-left w-full">
+      {content}
+    </button>
   );
   return <Reveal delay={revealDelay}>{inner}</Reveal>;
 }
@@ -77,7 +79,10 @@ export function QuickActions() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `${CONFIG.ownerName}-${CONFIG.brandName.replace(/\s+/g, "")}.vcf`);
+      link.setAttribute(
+        "download",
+        `${CONFIG.ownerName}-${CONFIG.brandName.replace(/\s+/g, "")}.vcf`,
+      );
       link.setAttribute("type", "text/vcard");
       document.body.appendChild(link);
       link.click();
@@ -94,57 +99,65 @@ export function QuickActions() {
         Quick Actions
       </h2>
       <div className="grid grid-cols-2 gap-3">
-        {CONFIG.sections.wifi && <ActionCard
-          icon={<Wifi className={iconCls} />}
-          label="Connect WiFi"
-          description="Free onboard WiFi"
-          onClick={() => setWifiOpen(true)}
-          revealDelay={0}
-        />}
-        {CONFIG.sections.textMe && <ActionCard
-          icon={<MessageSquare className={iconCls} />}
-          label="Text Me"
-          description="Schedule a ride by SMS"
-          href={`sms:${CONFIG.phone}&body=Hi%20${encodeURIComponent(CONFIG.ownerName)}!%20I'd%20like%20to%20schedule%20a%20ride.`}
-          revealDelay={90}
-        />}
-        {CONFIG.sections.callMe && <ActionCard
-          icon={<Phone className={iconCls} />}
-          label="Call Me"
-          description={`Reach ${CONFIG.ownerName} directly`}
-          href={`tel:${CONFIG.phone}`}
-          revealDelay={180}
-        />}
-        {CONFIG.sections.saveContact && <ActionCard
-          icon={<UserPlus className={iconCls} />}
-          label="Save Contact"
-          description="Add to your phone"
-          onClick={saveContact}
-          revealDelay={270}
-        />}
-        {CONFIG.sections.scheduleRide && <ActionCard
-          icon={<Calendar className={iconCls} />}
-          label="Schedule Ride"
-          description="Book ahead"
-          onClick={() => setBookingOpen(true)}
-          revealDelay={360}
-        />}
-        {CONFIG.sections.moreOptions && <ActionCard
-          icon={<LayoutGrid className={iconCls} />}
-          label="More Options"
-          description="WhatsApp & Instagram"
-          onClick={() => setMoreOpen(true)}
-          revealDelay={450}
-        />}
+        {CONFIG.sections.wifi && (
+          <ActionCard
+            icon={<Wifi className={iconCls} />}
+            label="Connect WiFi"
+            description="Free onboard WiFi"
+            onClick={() => setWifiOpen(true)}
+            revealDelay={0}
+          />
+        )}
+        {CONFIG.sections.textMe && (
+          <ActionCard
+            icon={<MessageSquare className={iconCls} />}
+            label="Text Me"
+            description="Schedule a ride by SMS"
+            href={`sms:${CONFIG.phone}?&body=${encodeURIComponent(`Hi ${CONFIG.ownerName}! I'd like to schedule a ride.`)}`}
+            revealDelay={90}
+          />
+        )}
+        {CONFIG.sections.callMe && (
+          <ActionCard
+            icon={<Phone className={iconCls} />}
+            label="Call Me"
+            description={`Reach ${CONFIG.ownerName} directly`}
+            href={`tel:${CONFIG.phone}`}
+            revealDelay={180}
+          />
+        )}
+        {CONFIG.sections.saveContact && (
+          <ActionCard
+            icon={<UserPlus className={iconCls} />}
+            label="Save Contact"
+            description="Add to your phone"
+            onClick={saveContact}
+            revealDelay={270}
+          />
+        )}
+        {CONFIG.sections.scheduleRide && (
+          <ActionCard
+            icon={<Calendar className={iconCls} />}
+            label="Schedule Ride"
+            description="Book ahead"
+            onClick={() => setBookingOpen(true)}
+            revealDelay={360}
+          />
+        )}
+        {CONFIG.sections.moreOptions && (
+          <ActionCard
+            icon={<LayoutGrid className={iconCls} />}
+            label="More Options"
+            description="WhatsApp & Instagram"
+            onClick={() => setMoreOpen(true)}
+            revealDelay={450}
+          />
+        )}
       </div>
 
       <WifiModal open={wifiOpen} onOpenChange={setWifiOpen} />
       <MoreOptionsSheet open={moreOpen} onOpenChange={setMoreOpen} />
-      <SaveContactModal
-        open={contactOpen}
-        onOpenChange={setContactOpen}
-        vcard={STREEX_VCARD}
-      />
+      <SaveContactModal open={contactOpen} onOpenChange={setContactOpen} vcard={STREEX_VCARD} />
       <BookingFormModal open={bookingOpen} onOpenChange={setBookingOpen} />
     </section>
   );

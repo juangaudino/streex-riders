@@ -2,102 +2,58 @@
 import { CONFIG } from "@/config";
 
 const SERVICES = CONFIG.tickerServices;
+const TICKER_STYLE = CONFIG.tickerStyle;
 
-const cellBase: React.CSSProperties = {
-  display: "inline-block",
-  height: 22,
-  lineHeight: "22px",
-  textAlign: "center",
-  borderRadius: 2,
-  margin: "0 0.5px",
-  fontFamily: "'IBM Plex Mono', monospace",
-  fontSize: 11,
-  fontWeight: 500,
-  letterSpacing: 0,
-};
-
-function CharCell({ char, color }: { char: string; color: string }) {
-  const isSpace = char === " ";
+function ServicePill({ service, tone }: { service: string; tone: "light" | "accent" }) {
+  const isAccent = tone === "accent";
   return (
     <span
+      className="inline-flex items-center rounded-full border px-4 py-2 text-[11px] font-semibold uppercase whitespace-nowrap"
       style={{
-        ...cellBase,
-        width: isSpace ? 5 : 12,
-        background: isSpace ? "transparent" : "rgba(255,255,255,0.06)",
-        border: `1px solid ${isSpace ? "transparent" : "rgba(255,255,255,0.11)"}`,
-        color,
+        fontFamily: "'IBM Plex Mono', monospace",
+        color: isAccent ? "#E6CE20" : "rgba(255,255,255,0.88)",
+        background: isAccent ? "rgba(230,206,32,0.08)" : "rgba(255,255,255,0.045)",
+        borderColor: isAccent ? "rgba(230,206,32,0.25)" : "rgba(255,255,255,0.10)",
       }}
     >
-      {isSpace ? "\u00A0" : char}
+      {service}
     </span>
   );
 }
 
-function SeparatorCell({ dotColor, bgColor, borderColor }: {
-  dotColor: string;
-  bgColor: string;
-  borderColor: string;
-}) {
+function ServicePanel({ service, index }: { service: string; index: number }) {
   return (
-    <span style={{
-      display: "inline-block",
-      width: "20px",
-      height: "22px",
-      lineHeight: "22px",
-      textAlign: "center",
-      background: bgColor,
-      border: `1px solid ${borderColor}`,
-      borderRadius: "3px",
-      fontFamily: "'IBM Plex Mono', monospace",
-      fontSize: "10px",
-      color: dotColor,
-    }}>
-      •
+    <span className="streex-led-panel">
+      <span className="streex-led-code">{String(index + 1).padStart(2, "0")}</span>
+      <span className="streex-led-text">{service}</span>
     </span>
   );
 }
 
-function getContrastStyles(textColor: string) {
-  const isWhite = textColor === "#FFFFFF";
-  return {
-    dotColor: isWhite ? "rgba(230,206,32,0.85)" : "rgba(255,255,255,0.75)",
-    bgColor: isWhite ? "rgba(230,206,32,0.1)" : "rgba(255,255,255,0.06)",
-    borderColor: isWhite ? "rgba(230,206,32,0.3)" : "rgba(255,255,255,0.2)",
-  };
+function ServiceTickerItem({ service, index }: { service: string; index: number }) {
+  if (TICKER_STYLE === "pill") {
+    return (
+      <span className="inline-flex items-center gap-3 pr-3">
+        <ServicePill service={service} tone={index % 2 === 0 ? "light" : "accent"} />
+        <span className="text-[#E6CE20]/55" aria-hidden="true">
+          •
+        </span>
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center pr-2">
+      <ServicePanel service={service} index={index} />
+    </span>
+  );
 }
 
 function TickerRow() {
   return (
     <>
       {SERVICES.map((service, i) => {
-        const color = i % 2 === 0 ? "#FFFFFF" : "#E6CE20";
-        const nextColor = (i + 1) % 2 === 0 ? "#FFFFFF" : "#E6CE20";
-        const firstSep = getContrastStyles(color);
-        const secondSep = getContrastStyles(nextColor);
-        return (
-          <span key={i} style={{ display: "inline-flex", alignItems: "center" }}>
-            {service.split("").map((char, j) => (
-              <CharCell key={j} char={char} color={color} />
-            ))}
-            <span style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "3px",
-              margin: "0 12px",
-            }}>
-              <SeparatorCell
-                dotColor={firstSep.dotColor}
-                bgColor={firstSep.bgColor}
-                borderColor={firstSep.borderColor}
-              />
-              <SeparatorCell
-                dotColor={secondSep.dotColor}
-                bgColor={secondSep.bgColor}
-                borderColor={secondSep.borderColor}
-              />
-            </span>
-          </span>
-        );
+        return <ServiceTickerItem key={service} service={service} index={i} />;
       })}
     </>
   );
@@ -106,13 +62,14 @@ function TickerRow() {
 export function ServiceTicker() {
   return (
     <div
+      className={TICKER_STYLE === "boarding" ? "streex-led-board" : undefined}
       style={{
         overflow: "hidden",
         width: "100%",
-        padding: "10px 0",
+        padding: TICKER_STYLE === "boarding" ? "12px 0" : "10px 0",
         paddingLeft: "16px",
         paddingRight: "16px",
-        background: "rgba(255,255,255,0.02)",
+        background: TICKER_STYLE === "pill" ? "rgba(255,255,255,0.02)" : undefined,
         WebkitMaskImage:
           "linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%)",
         maskImage:
@@ -120,10 +77,10 @@ export function ServiceTicker() {
       }}
     >
       <div className="streex-ticker-track" style={{ display: "inline-flex", whiteSpace: "nowrap" }}>
-        <div style={{ display: "inline-block" }}>
+        <div style={{ display: "inline-flex" }}>
           <TickerRow />
         </div>
-        <div style={{ display: "inline-block" }}>
+        <div style={{ display: "inline-flex" }}>
           <TickerRow />
         </div>
       </div>

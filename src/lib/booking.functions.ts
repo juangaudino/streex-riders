@@ -1,17 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Tables } from "@/integrations/supabase/types";
 import {
   ADMIN_EMAIL,
   sendEmail,
   buildPassengerConfirmation,
   buildAdminNewRequest,
-  buildPassengerQuote,
   buildPassengerConfirmed,
   buildAdminConfirmed,
   buildPassengerDeclined,
   buildAdminDeclined,
 } from "./booking-emails.server";
+
+type BookingRow = Tables<"bookings">;
 
 const CreateSchema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -50,67 +52,24 @@ export const createBooking = createServerFn({ method: "POST" })
       throw new Error("Failed to save your request. Please try again.");
     }
 
-    const b = booking as any;
     try {
-      const conf = buildPassengerConfirmation(b);
-      const notif = buildAdminNewRequest(b);
+      const conf = buildPassengerConfirmation(booking);
+      const notif = buildAdminNewRequest(booking);
       await Promise.allSettled([
-        sendEmail({ to: b.email, ...conf }),
+        sendEmail({ to: booking.email, ...conf }),
         sendEmail({ to: ADMIN_EMAIL, ...notif }),
       ]);
     } catch (e) {
       console.error("[createBooking] email error", e);
     }
 
-    return { ok: true, id: b.id as string };
-  });
-
-const QuoteSchema = z.object({
-  id: z.string().uuid(),
-  price: z.number().positive().max(100000),
-});
-
-export const sendQuote = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => QuoteSchema.parse(input))
-  .handler(async ({ data }) => {
-    const { data: booking, error } = await supabaseAdmin
-      .from("bookings")
-      .update({ price: data.price, status: "quoted" })
-      .eq("id", data.id)
-      .select("*")
-      .single();
-
-    if (error || !booking) {
-      console.error("[sendQuote] update error", error);
-      throw new Error("Failed to send quote.");
-    }
-
-    const b = booking as any;
-    const msg = buildPassengerQuote(b);
-    await sendEmail({ to: b.email, ...msg });
-    return { ok: true };
-  });
-
-const StatusSchema = z.object({
-  id: z.string().uuid(),
-  status: z.enum(["confirmed", "completed", "cancelled"]),
-});
-
-export const updateBookingStatus = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => StatusSchema.parse(input))
-  .handler(async ({ data }) => {
-    const { error } = await supabaseAdmin
-      .from("bookings")
-      .update({ status: data.status })
-      .eq("id", data.id);
-    if (error) throw new Error("Failed to update booking.");
-    return { ok: true };
+    return { ok: true, id: booking.id };
   });
 
 const IdSchema = z.object({ id: z.string().uuid() });
 
 type Outcome =
-  | { status: "confirmed" | "declined"; booking: any }
+  | { status: "confirmed" | "declined"; booking: BookingRow }
   | { status: "already_processed"; current: string }
   | { status: "not_found" };
 
@@ -126,8 +85,8 @@ async function processResponse(id: string, action: "accept" | "decline"): Promis
     throw new Error("Unable to process this request.");
   }
   if (!existing) return { status: "not_found" };
-  if ((existing as any).status !== "quoted") {
-    return { status: "already_processed", current: (existing as any).status };
+  if (existing.status !== "quoted") {
+    return { status: "already_processed", current: existing.status };
   }
 
   const newStatus = action === "accept" ? "confirmed" : "declined";
@@ -144,24 +103,23 @@ async function processResponse(id: string, action: "accept" | "decline"): Promis
     throw new Error("Unable to process this request.");
   }
 
-  const b = updated as any;
   try {
     if (action === "accept") {
       await Promise.allSettled([
-        sendEmail({ to: b.email, ...buildPassengerConfirmed(b) }),
-        sendEmail({ to: ADMIN_EMAIL, ...buildAdminConfirmed(b) }),
+        sendEmail({ to: updated.email, ...buildPassengerConfirmed(updated) }),
+        sendEmail({ to: ADMIN_EMAIL, ...buildAdminConfirmed(updated) }),
       ]);
     } else {
       await Promise.allSettled([
-        sendEmail({ to: b.email, ...buildPassengerDeclined(b) }),
-        sendEmail({ to: ADMIN_EMAIL, ...buildAdminDeclined(b) }),
+        sendEmail({ to: updated.email, ...buildPassengerDeclined(updated) }),
+        sendEmail({ to: ADMIN_EMAIL, ...buildAdminDeclined(updated) }),
       ]);
     }
   } catch (e) {
     console.error("[processResponse] email error", e);
   }
 
-  return { status: newStatus, booking: b };
+  return { status: newStatus, booking: updated };
 }
 
 export const acceptBooking = createServerFn({ method: "POST" })

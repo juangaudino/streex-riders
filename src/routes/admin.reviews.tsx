@@ -1,14 +1,15 @@
-// NOTE: MVP moderation page — protected by a simple password gate.
-// TODO: Replace with proper authentication before
-// sharing /admin/reviews URL publicly
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { Star } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  deleteAdminReview,
+  listAdminReviews,
+  updateAdminReviewStatus,
+  verifyAdminKey,
+} from "@/lib/admin.functions";
 import logo from "@/assets/streex-logo.png";
 
-const ADMIN_PASSWORD = "Comedia-6789";
-const SESSION_KEY = "streex_admin_authed";
+const SESSION_KEY = "streex_admin_key";
 
 type ReviewRow = {
   id: string;
@@ -32,26 +33,32 @@ export const Route = createFileRoute("/admin/reviews")({
 });
 
 function AdminReviewsGate() {
-  const [authed, setAuthed] = useState(false);
+  const [adminKey, setAdminKey] = useState<string | null>(null);
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem(SESSION_KEY) === "1") {
-      setAuthed(true);
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem(SESSION_KEY);
+      if (stored) setAdminKey(stored);
     }
   }, []);
 
-  if (authed) return <AdminReviews />;
+  if (adminKey) return <AdminReviews adminKey={adminKey} />;
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, "1");
-      setAuthed(true);
-      setError(false);
-    } else {
-      setError(true);
+    setChecking(true);
+    setError(null);
+    try {
+      await verifyAdminKey({ data: { adminKey: password } });
+      sessionStorage.setItem(SESSION_KEY, password);
+      setAdminKey(password);
+    } catch {
+      setError("Access denied.");
+    } finally {
+      setChecking(false);
     }
   };
 
@@ -66,16 +73,14 @@ function AdminReviewsGate() {
       />
       <div className="relative w-full max-w-xs flex flex-col items-center">
         <img src={logo} alt="Streex" className="w-40 h-auto streex-logo-glow" />
-        <p className="mt-6 text-[10px] streex-tracking text-white/60 uppercase">
-          Restricted Area
-        </p>
+        <p className="mt-6 text-[10px] streex-tracking text-white/60 uppercase">Restricted Area</p>
         <form onSubmit={submit} className="mt-8 w-full flex flex-col gap-3">
           <input
             type="password"
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
-              if (error) setError(false);
+              if (error) setError(null);
             }}
             placeholder="Password"
             autoFocus
@@ -83,34 +88,34 @@ function AdminReviewsGate() {
           />
           <button
             type="submit"
+            disabled={checking}
             className="w-full rounded-xl bg-[#E6CE20] text-black font-semibold text-sm py-3 hover:bg-[#E6CE20]/90 transition-colors"
           >
-            Enter
+            {checking ? "Checking..." : "Enter"}
           </button>
-          {error && (
-            <p className="text-center text-xs text-red-400/90 mt-1">Access denied.</p>
-          )}
+          {error && <p className="text-center text-xs text-red-400/90 mt-1">{error}</p>}
         </form>
       </div>
     </div>
   );
 }
 
-function AdminReviews() {
+function AdminReviews({ adminKey }: { adminKey: string }) {
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data, error: err } = await supabase
-      .from("reviews")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (err) setError(err.message);
-    else setReviews((data ?? []) as ReviewRow[]);
-    setLoading(false);
-  }, []);
+    try {
+      const result = await listAdminReviews({ data: { adminKey } });
+      setReviews((result.reviews ?? []) as ReviewRow[]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load reviews.");
+    } finally {
+      setLoading(false);
+    }
+  }, [adminKey]);
 
   useEffect(() => {
     load();
@@ -119,10 +124,11 @@ function AdminReviews() {
   const updateStatus = async (id: string, status: ReviewRow["status"]) => {
     const prev = reviews;
     setReviews((r) => r.map((x) => (x.id === id ? { ...x, status } : x)));
-    const { error: err } = await supabase.from("reviews").update({ status }).eq("id", id);
-    if (err) {
+    try {
+      await updateAdminReviewStatus({ data: { adminKey, id, status } });
+    } catch (e) {
       setReviews(prev);
-      setError(err.message);
+      setError(e instanceof Error ? e.message : "Failed to update review.");
     }
   };
 
@@ -130,10 +136,11 @@ function AdminReviews() {
     if (!confirm("Delete this review permanently?")) return;
     const prev = reviews;
     setReviews((r) => r.filter((x) => x.id !== id));
-    const { error: err } = await supabase.from("reviews").delete().eq("id", id);
-    if (err) {
+    try {
+      await deleteAdminReview({ data: { adminKey, id } });
+    } catch (e) {
       setReviews(prev);
-      setError(err.message);
+      setError(e instanceof Error ? e.message : "Failed to delete review.");
     }
   };
 

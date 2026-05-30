@@ -1,14 +1,14 @@
-// NOTE: MVP moderation page — protected by a simple password gate.
-// TODO: Replace with proper authentication before
-// sharing /admin/bookings URL publicly
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { sendQuote, updateBookingStatus } from "@/lib/booking.functions";
+import {
+  listAdminBookings,
+  sendAdminQuote,
+  updateAdminBookingStatus,
+  verifyAdminKey,
+} from "@/lib/admin.functions";
 import logo from "@/assets/streex-logo.png";
 
-const ADMIN_PASSWORD = "Comedia-6789";
-const SESSION_KEY = "streex_admin_authed";
+const SESSION_KEY = "streex_admin_key";
 
 type BookingRow = {
   id: string;
@@ -22,13 +22,7 @@ type BookingRow = {
   passengers: number;
   notes: string | null;
   price: number | null;
-  status:
-    | "pending"
-    | "quoted"
-    | "confirmed"
-    | "declined"
-    | "completed"
-    | "cancelled";
+  status: "pending" | "quoted" | "confirmed" | "declined" | "completed" | "cancelled";
   created_at: string;
 };
 
@@ -44,26 +38,32 @@ export const Route = createFileRoute("/admin/bookings")({
 });
 
 function AdminBookingsGate() {
-  const [authed, setAuthed] = useState(false);
+  const [adminKey, setAdminKey] = useState<string | null>(null);
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem(SESSION_KEY) === "1") {
-      setAuthed(true);
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem(SESSION_KEY);
+      if (stored) setAdminKey(stored);
     }
   }, []);
 
-  if (authed) return <AdminBookings />;
+  if (adminKey) return <AdminBookings adminKey={adminKey} />;
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, "1");
-      setAuthed(true);
-      setError(false);
-    } else {
-      setError(true);
+    setChecking(true);
+    setError(null);
+    try {
+      await verifyAdminKey({ data: { adminKey: password } });
+      sessionStorage.setItem(SESSION_KEY, password);
+      setAdminKey(password);
+    } catch {
+      setError("Access denied.");
+    } finally {
+      setChecking(false);
     }
   };
 
@@ -78,16 +78,14 @@ function AdminBookingsGate() {
       />
       <div className="relative w-full max-w-xs flex flex-col items-center">
         <img src={logo} alt="Streex" className="w-40 h-auto streex-logo-glow" />
-        <p className="mt-6 text-[10px] streex-tracking text-white/60 uppercase">
-          Restricted Area
-        </p>
+        <p className="mt-6 text-[10px] streex-tracking text-white/60 uppercase">Restricted Area</p>
         <form onSubmit={submit} className="mt-8 w-full flex flex-col gap-3">
           <input
             type="password"
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
-              if (error) setError(false);
+              if (error) setError(null);
             }}
             placeholder="Password"
             autoFocus
@@ -95,13 +93,12 @@ function AdminBookingsGate() {
           />
           <button
             type="submit"
+            disabled={checking}
             className="w-full rounded-xl bg-[#E6CE20] text-black font-semibold text-sm py-3 hover:bg-[#E6CE20]/90 transition-colors"
           >
-            Enter
+            {checking ? "Checking..." : "Enter"}
           </button>
-          {error && (
-            <p className="text-center text-xs text-red-400/90 mt-1">Access denied.</p>
-          )}
+          {error && <p className="text-center text-xs text-red-400/90 mt-1">{error}</p>}
         </form>
       </div>
     </div>
@@ -117,7 +114,7 @@ const STATUS_TABS: { key: BookingRow["status"]; label: string }[] = [
   { key: "cancelled", label: "Cancelled" },
 ];
 
-function AdminBookings() {
+function AdminBookings({ adminKey }: { adminKey: string }) {
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,14 +122,15 @@ function AdminBookings() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data, error: err } = await supabase
-      .from("bookings")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (err) setError(err.message);
-    else setBookings((data ?? []) as BookingRow[]);
-    setLoading(false);
-  }, []);
+    try {
+      const result = await listAdminBookings({ data: { adminKey } });
+      setBookings((result.bookings ?? []) as BookingRow[]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load bookings.");
+    } finally {
+      setLoading(false);
+    }
+  }, [adminKey]);
 
   useEffect(() => {
     load();
@@ -189,7 +187,13 @@ function AdminBookings() {
 
         <div className="space-y-3">
           {visible.map((b) => (
-            <BookingCard key={b.id} booking={b} onChange={load} setError={setError} />
+            <BookingCard
+              key={b.id}
+              adminKey={adminKey}
+              booking={b}
+              onChange={load}
+              setError={setError}
+            />
           ))}
         </div>
       </div>
@@ -199,16 +203,16 @@ function AdminBookings() {
 
 function BookingCard({
   booking,
+  adminKey,
   onChange,
   setError,
 }: {
   booking: BookingRow;
+  adminKey: string;
   onChange: () => void;
   setError: (s: string | null) => void;
 }) {
-  const [price, setPrice] = useState<string>(
-    booking.price != null ? String(booking.price) : "",
-  );
+  const [price, setPrice] = useState<string>(booking.price != null ? String(booking.price) : "");
   const [busy, setBusy] = useState(false);
 
   const wrap = async (fn: () => Promise<unknown>) => {
@@ -231,11 +235,11 @@ function BookingCard({
       setError("Enter a valid price.");
       return;
     }
-    wrap(() => sendQuote({ data: { id: booking.id, price: n } }));
+    wrap(() => sendAdminQuote({ data: { adminKey, id: booking.id, price: n } }));
   };
 
   const doStatus = (status: "confirmed" | "completed" | "cancelled") =>
-    wrap(() => updateBookingStatus({ data: { id: booking.id, status } }));
+    wrap(() => updateAdminBookingStatus({ data: { adminKey, id: booking.id, status } }));
 
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
@@ -260,7 +264,8 @@ function BookingCard({
         {booking.passengers === 1 ? "" : "s"}
         {booking.price != null && (
           <>
-            {" "}&middot; <span className="text-[#E6CE20]">${Number(booking.price).toFixed(2)}</span>
+            {" "}
+            &middot; <span className="text-[#E6CE20]">${Number(booking.price).toFixed(2)}</span>
           </>
         )}
       </div>
