@@ -24,6 +24,16 @@ type RunnerState = {
   crashUntil: number | null;
   crashKind: RunnerEntity["kind"] | null;
   toast: { text: string; until: number } | null;
+  rewardFx: RunnerRewardFx[];
+};
+
+type RunnerRewardFx = {
+  id: number;
+  kind: RunnerEntity["kind"];
+  lane: RunnerLane;
+  y: number;
+  startedAt: number;
+  until: number;
 };
 
 export function RunnerCanvas({ onGameOver }: RunnerControls) {
@@ -51,6 +61,7 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
     crashUntil: null,
     crashKind: null,
     toast: null,
+    rewardFx: [],
   });
 
   const move = useCallback((direction: -1 | 1) => {
@@ -168,6 +179,14 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
               text: buildCollectibleToast(entity),
               until: time + 780,
             };
+            state.rewardFx.push({
+              id: entity.id,
+              kind: entity.kind,
+              lane: entity.lane,
+              y: entity.y,
+              startedAt: time,
+              until: time + getRewardFxDuration(entity.kind),
+            });
             state.entities = state.entities.filter((item) => item.id !== entity.id);
             fireHaptic(entity.kind === "vipRide" ? 45 : 12);
             continue;
@@ -196,6 +215,7 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
       if (state.toast && time > state.toast.until) {
         state.toast = null;
       }
+      state.rewardFx = state.rewardFx.filter((fx) => time < fx.until);
 
       setScoreLabel((current) => {
         const next = Math.floor(state.score);
@@ -337,6 +357,7 @@ function drawRunnerFrame(
     .slice()
     .sort((a, b) => a.y - b.y)
     .forEach((entity) => drawEntity(ctx, width, height, entity, sprites));
+  state.rewardFx.forEach((fx) => drawRewardFx(ctx, width, height, fx, time));
   drawPlayer(
     ctx,
     width,
@@ -454,16 +475,17 @@ function drawRoad(
   const topLeft = width * 0.37;
   const topRight = width * 0.63;
   const shoulderGradient = ctx.createLinearGradient(0, horizonY, 0, height);
-  shoulderGradient.addColorStop(0, "#161B17");
-  shoulderGradient.addColorStop(0.5, "#0D110F");
-  shoulderGradient.addColorStop(1, "#070807");
+  shoulderGradient.addColorStop(0, "#222E20");
+  shoulderGradient.addColorStop(0.48, "#182216");
+  shoulderGradient.addColorStop(1, "#10140E");
   ctx.fillStyle = shoulderGradient;
   ctx.fillRect(0, horizonY, width, height - horizonY);
+  drawRoadsideEcosystem(ctx, width, height, horizonY, offset, topLeft, topRight);
 
   const roadGradient = ctx.createLinearGradient(0, horizonY, 0, height);
-  roadGradient.addColorStop(0, "#303536");
-  roadGradient.addColorStop(0.48, "#232829");
-  roadGradient.addColorStop(1, "#171B1C");
+  roadGradient.addColorStop(0, "#454A45");
+  roadGradient.addColorStop(0.5, "#343735");
+  roadGradient.addColorStop(1, "#2B2E2D");
   ctx.fillStyle = roadGradient;
   ctx.beginPath();
   ctx.moveTo(topLeft, horizonY);
@@ -476,10 +498,10 @@ function drawRoad(
   if (sprites.roadTexture) {
     ctx.save();
     ctx.clip();
-    ctx.globalAlpha = 0.16;
+    ctx.globalAlpha = 0.08;
     drawScrollingRoadTexture(ctx, sprites.roadTexture, width, height, horizonY, offset);
     ctx.globalAlpha = 1;
-    ctx.fillStyle = "rgba(24,28,29,0.5)";
+    ctx.fillStyle = "rgba(58,62,58,0.36)";
     ctx.fillRect(0, horizonY, width, height - horizonY);
     ctx.restore();
   }
@@ -497,15 +519,6 @@ function drawRoad(
     ctx.lineTo(right, y);
     ctx.stroke();
   }
-  ctx.restore();
-
-  ctx.save();
-  ctx.strokeStyle = "rgba(23,27,28,0.74)";
-  ctx.lineWidth = Math.max(9, width * 0.028);
-  ctx.beginPath();
-  ctx.moveTo(vanishingX, horizonY);
-  ctx.lineTo(width * 0.5, height);
-  ctx.stroke();
   ctx.restore();
 
   for (let lane = 1; lane < 3; lane += 1) {
@@ -611,6 +624,165 @@ function drawPlayer(
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("STREEX", 0, -carHeight * 0.52);
+  ctx.restore();
+}
+
+function drawRoadsideEcosystem(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  horizonY: number,
+  offset: number,
+  topLeft: number,
+  topRight: number,
+) {
+  const shoulder = ctx.createLinearGradient(0, horizonY, 0, height);
+  shoulder.addColorStop(0, "rgba(117,102,67,0.12)");
+  shoulder.addColorStop(1, "rgba(159,133,76,0.24)");
+
+  ctx.save();
+  for (const side of [-1, 1] as const) {
+    ctx.beginPath();
+    if (side === -1) {
+      ctx.moveTo(0, horizonY);
+      ctx.lineTo(topLeft, horizonY);
+      ctx.lineTo(0, height);
+    } else {
+      ctx.moveTo(width, horizonY);
+      ctx.lineTo(topRight, horizonY);
+      ctx.lineTo(width, height);
+    }
+    ctx.closePath();
+    ctx.fillStyle = shoulder;
+    ctx.fill();
+  }
+  ctx.restore();
+
+  const spacing = 118;
+  const scroll = (offset * 2.1) % spacing;
+  for (let i = -2; i < 11; i += 1) {
+    const y = horizonY + i * spacing + scroll;
+    if (y < horizonY - 40 || y > height + 80) continue;
+
+    const yPct = (y / height) * 100;
+    const progress = roadDepthProgress(yPct);
+    const leftRoad = lerp(topLeft, 0, progress);
+    const rightRoad = lerp(topRight, width, progress);
+    const scale = 0.36 + progress * 1.18;
+
+    drawRoadsideCluster(ctx, leftRoad - width * (0.1 + pseudoRandom(i, 3) * 0.18), y, scale, i, -1);
+    drawRoadsideCluster(
+      ctx,
+      rightRoad + width * (0.1 + pseudoRandom(i, 9) * 0.18),
+      y + spacing * 0.38,
+      scale * 0.92,
+      i + 13,
+      1,
+    );
+  }
+
+  const haze = ctx.createLinearGradient(0, horizonY - 24, 0, horizonY + 78);
+  haze.addColorStop(0, "rgba(230,206,32,0)");
+  haze.addColorStop(0.48, "rgba(124,116,78,0.18)");
+  haze.addColorStop(1, "rgba(16,20,14,0)");
+  ctx.fillStyle = haze;
+  ctx.fillRect(0, horizonY - 24, width, 102);
+}
+
+function drawRoadsideCluster(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  scale: number,
+  seed: number,
+  side: -1 | 1,
+) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(side, 1);
+  ctx.globalAlpha = Math.min(0.88, 0.28 + scale * 0.42);
+
+  const bushWidth = 30 * scale;
+  const bushHeight = 12 * scale;
+  ctx.fillStyle = seed % 3 === 0 ? "#384731" : seed % 3 === 1 ? "#465032" : "#59613D";
+  ctx.beginPath();
+  ctx.ellipse(0, 0, bushWidth, bushHeight, -0.12, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(134,111,72,0.48)";
+  ctx.beginPath();
+  ctx.ellipse(18 * scale, 8 * scale, 16 * scale, 6 * scale, 0.18, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (seed % 4 === 0) {
+    ctx.fillStyle = "rgba(42,51,34,0.72)";
+    ctx.beginPath();
+    ctx.ellipse(-20 * scale, -8 * scale, 9 * scale, 28 * scale, -0.18, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawRewardFx(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  fx: RunnerRewardFx,
+  time: number,
+) {
+  const lifetime = fx.until - fx.startedAt;
+  const progress = Math.max(0, Math.min(1, (time - fx.startedAt) / lifetime));
+  const alpha = 1 - progress;
+  const x = roadLaneCenterX(width, fx.lane, fx.y);
+  const y = (fx.y / 100) * height + progress * height * 0.035;
+  const isVip = fx.kind === "vipRide";
+  const isAirport = fx.kind === "airportRide";
+  const isPassenger = fx.kind === "passengerPickup";
+  const base = isVip
+    ? width * 0.22
+    : isAirport
+      ? width * 0.17
+      : isPassenger
+        ? width * 0.14
+        : width * 0.11;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = isVip ? "rgba(255,230,84,0.92)" : "rgba(230,206,32,0.78)";
+  ctx.lineWidth = isVip ? 3 : 2;
+  ctx.beginPath();
+  ctx.ellipse(
+    x,
+    y,
+    base * (0.26 + progress * 0.82),
+    base * (0.12 + progress * 0.34),
+    0,
+    0,
+    Math.PI * 2,
+  );
+  ctx.stroke();
+
+  const glow = ctx.createRadialGradient(x, y, 0, x, y, base * (0.7 + progress * 0.55));
+  glow.addColorStop(0, isVip ? "rgba(255,235,110,0.36)" : "rgba(230,206,32,0.26)");
+  glow.addColorStop(1, "rgba(230,206,32,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(x - base, y - base, base * 2, base * 2);
+
+  if (isAirport || isVip) {
+    ctx.strokeStyle = isVip ? "rgba(255,255,255,0.72)" : "rgba(255,255,255,0.48)";
+    ctx.lineWidth = 1.5;
+    for (let i = 0; i < 8; i += 1) {
+      const angle = (Math.PI * 2 * i) / 8 + progress * 0.5;
+      const inner = base * (0.16 + progress * 0.2);
+      const outer = base * (0.38 + progress * 0.7);
+      ctx.beginPath();
+      ctx.moveTo(x + Math.cos(angle) * inner, y + Math.sin(angle) * inner);
+      ctx.lineTo(x + Math.cos(angle) * outer, y + Math.sin(angle) * outer);
+      ctx.stroke();
+    }
+  }
+
   ctx.restore();
 }
 
@@ -989,6 +1161,18 @@ function roadDepthProgress(yPct: number) {
 
 function lerp(start: number, end: number, progress: number) {
   return start + (end - start) * progress;
+}
+
+function pseudoRandom(seed: number, salt: number) {
+  const value = Math.sin(seed * 12.9898 + salt * 78.233) * 43758.5453;
+  return value - Math.floor(value);
+}
+
+function getRewardFxDuration(kind: RunnerEntity["kind"]) {
+  if (kind === "vipRide") return 1180;
+  if (kind === "airportRide") return 980;
+  if (kind === "passengerPickup") return 820;
+  return 680;
 }
 
 function buildCollectibleToast(entity: RunnerEntity) {

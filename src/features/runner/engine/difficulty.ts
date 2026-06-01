@@ -10,25 +10,25 @@ export type DifficultyState = {
 };
 
 export function getRunnerStage(score: number): RunnerStage {
-  if (score >= 650) return "legendaryDriver";
-  if (score >= 300) return "utahChaos";
-  if (score >= 120) return "trafficBuilds";
+  if (score >= 950) return "legendaryDriver";
+  if (score >= 520) return "utahChaos";
+  if (score >= 220) return "trafficBuilds";
   return "warmRide";
 }
 
 export function getDifficulty(score: number, elapsedMs: number): DifficultyState {
   const stage = getRunnerStage(score);
-  const timePressure = Math.min(elapsedMs / 90000, 1.8);
-  const scorePressure = Math.min(score / 900, 1.6);
+  const timePressure = Math.min(elapsedMs / 125000, 1.45);
+  const scorePressure = Math.min(score / 1300, 1.25);
   const pressure = timePressure + scorePressure;
 
   if (stage === "legendaryDriver") {
     return {
       stage,
-      speed: 4.6 + pressure * 1.25,
-      spawnEveryMs: Math.max(520, 920 - pressure * 150),
-      obstacleChance: 0.76,
-      collectibleChance: 0.24,
+      speed: 4.25 + pressure * 0.95,
+      spawnEveryMs: Math.max(640, 1080 - pressure * 120),
+      obstacleChance: 0.72,
+      collectibleChance: 0.28,
       maxOccupiedLanes: 2,
     };
   }
@@ -36,10 +36,10 @@ export function getDifficulty(score: number, elapsedMs: number): DifficultyState
   if (stage === "utahChaos") {
     return {
       stage,
-      speed: 4.1 + pressure,
-      spawnEveryMs: Math.max(650, 1050 - pressure * 130),
-      obstacleChance: 0.68,
-      collectibleChance: 0.32,
+      speed: 3.72 + pressure * 0.78,
+      spawnEveryMs: Math.max(780, 1260 - pressure * 105),
+      obstacleChance: 0.62,
+      collectibleChance: 0.38,
       maxOccupiedLanes: 2,
     };
   }
@@ -47,20 +47,20 @@ export function getDifficulty(score: number, elapsedMs: number): DifficultyState
   if (stage === "trafficBuilds") {
     return {
       stage,
-      speed: 3.5 + pressure * 0.8,
-      spawnEveryMs: Math.max(820, 1250 - pressure * 110),
-      obstacleChance: 0.58,
-      collectibleChance: 0.42,
+      speed: 3.02 + pressure * 0.58,
+      spawnEveryMs: Math.max(980, 1500 - pressure * 85),
+      obstacleChance: 0.52,
+      collectibleChance: 0.48,
       maxOccupiedLanes: 2,
     };
   }
 
   return {
     stage,
-    speed: 3.1 + pressure * 0.45,
-    spawnEveryMs: Math.max(1050, 1450 - pressure * 100),
-    obstacleChance: 0.48,
-    collectibleChance: 0.52,
+    speed: 2.12 + pressure * 0.32,
+    spawnEveryMs: Math.max(1320, 1880 - pressure * 72),
+    obstacleChance: 0.36,
+    collectibleChance: 0.64,
     maxOccupiedLanes: 1,
   };
 }

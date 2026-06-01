@@ -51,9 +51,9 @@ export const RUNNER_ASSET_SLOTS = {
 
 export const RUNNER_STAGE_SCORE: Record<RunnerStage, number> = {
   warmRide: 0,
-  trafficBuilds: 120,
-  utahChaos: 300,
-  legendaryDriver: 650,
+  trafficBuilds: 220,
+  utahChaos: 520,
+  legendaryDriver: 950,
 };
 
 export const RUNNER_COLLECTIBLE_POINTS: Record<RunnerCollectibleKind, number> = {
