@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { RUNNER_COLORS, RUNNER_HORIZON, RUNNER_OBSTACLE_LABELS } from "../runner.config";
 import type { RunnerControls, RunnerEntity, RunnerGameSnapshot, RunnerLane } from "../runner.types";
+import { RUNNER_SPRITES, type RunnerSpriteKey } from "../assets/manifest";
 import { detectRunnerCollision, laneCenter } from "../engine/collision";
 import { getDifficulty } from "../engine/difficulty";
 import { createSpawnMemory, createSpawnWave } from "../engine/spawnEngine";
+
+type RunnerLoadedSprites = Partial<Record<RunnerSpriteKey, HTMLImageElement>>;
 
 type RunnerState = {
   running: boolean;
@@ -28,6 +31,7 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
   const shellRef = useRef<HTMLDivElement | null>(null);
   const memoryRef = useRef(createSpawnMemory());
   const animationRef = useRef<number | null>(null);
+  const spritesRef = useRef<RunnerLoadedSprites>({});
   const [scoreLabel, setScoreLabel] = useState(0);
   const [toastLabel, setToastLabel] = useState<string | null>(null);
 
@@ -77,6 +81,25 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [move]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const entries = Object.entries(RUNNER_SPRITES) as [RunnerSpriteKey, string][];
+
+    entries.forEach(([key, src]) => {
+      const image = new Image();
+      image.onload = () => {
+        if (!cancelled) {
+          spritesRef.current = { ...spritesRef.current, [key]: image };
+        }
+      };
+      image.src = src;
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const resize = () => {
@@ -168,7 +191,7 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
         }
       }
 
-      drawRunnerFrame(ctx, width, height, state, time);
+      drawRunnerFrame(ctx, width, height, state, time, spritesRef.current);
 
       if (state.toast && time > state.toast.until) {
         state.toast = null;
@@ -305,14 +328,25 @@ function drawRunnerFrame(
   height: number,
   state: RunnerState,
   time: number,
+  sprites: RunnerLoadedSprites,
 ) {
   ctx.clearRect(0, 0, width, height);
-  drawAmbientWorld(ctx, width, height, time);
-  drawRoad(ctx, width, height, state.roadOffset);
+  drawAmbientWorld(ctx, width, height, time, sprites);
+  drawRoad(ctx, width, height, state.roadOffset, sprites);
   state.entities
-    .slice().sort((a, b) => a.y - b.y)
-    .forEach((entity) => drawEntity(ctx, width, height, entity));
-  drawPlayer(ctx, width, height, state.playerX, state.playerY, time, time < state.iceDriftUntil);
+    .slice()
+    .sort((a, b) => a.y - b.y)
+    .forEach((entity) => drawEntity(ctx, width, height, entity, sprites));
+  drawPlayer(
+    ctx,
+    width,
+    height,
+    state.playerX,
+    state.playerY,
+    time,
+    time < state.iceDriftUntil,
+    sprites,
+  );
 
   if (state.crashUntil) {
     drawCrashFx(ctx, width, height, state.crashKind);
@@ -324,6 +358,7 @@ function drawAmbientWorld(
   width: number,
   height: number,
   time: number,
+  sprites: RunnerLoadedSprites,
 ) {
   const horizonY = height * RUNNER_HORIZON;
   const sky = ctx.createLinearGradient(0, 0, 0, horizonY);
@@ -346,8 +381,24 @@ function drawAmbientWorld(
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, width, horizonY);
 
-  drawMountainLayer(ctx, width, horizonY, height * 0.1, RUNNER_COLORS.mountainFar, time * 0.002);
-  drawMountainLayer(ctx, width, horizonY, height * 0.16, RUNNER_COLORS.mountainNear, time * 0.004);
+  if (sprites.mountainFar) {
+    drawParallaxImage(ctx, sprites.mountainFar, 0, horizonY - height * 0.21, width, height * 0.32);
+  } else {
+    drawMountainLayer(ctx, width, horizonY, height * 0.1, RUNNER_COLORS.mountainFar, time * 0.002);
+  }
+
+  if (sprites.mountainNear) {
+    drawParallaxImage(ctx, sprites.mountainNear, 0, horizonY - height * 0.2, width, height * 0.38);
+  } else {
+    drawMountainLayer(
+      ctx,
+      width,
+      horizonY,
+      height * 0.16,
+      RUNNER_COLORS.mountainNear,
+      time * 0.004,
+    );
+  }
 }
 
 function drawMountainLayer(
@@ -372,7 +423,13 @@ function drawMountainLayer(
   ctx.fill();
 }
 
-function drawRoad(ctx: CanvasRenderingContext2D, width: number, height: number, offset: number) {
+function drawRoad(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  offset: number,
+  sprites: RunnerLoadedSprites,
+) {
   const horizonY = height * RUNNER_HORIZON;
   const vanishingX = width * 0.5;
   const topLeft = width * 0.37;
@@ -393,7 +450,14 @@ function drawRoad(ctx: CanvasRenderingContext2D, width: number, height: number, 
   ctx.lineTo(width, height);
   ctx.lineTo(0, height);
   ctx.closePath();
-  ctx.fill();
+  if (sprites.roadTexture) {
+    ctx.save();
+    ctx.clip();
+    drawScrollingRoadTexture(ctx, sprites.roadTexture, width, height, horizonY, offset);
+    ctx.restore();
+  } else {
+    ctx.fill();
+  }
 
   const textureSpacing = 18;
   ctx.save();
@@ -443,6 +507,7 @@ function drawPlayer(
   playerY: number,
   time: number,
   isRecovering: boolean,
+  sprites: RunnerLoadedSprites,
 ) {
   const x = (playerX / 100) * width;
   const y = (playerY / 100) * height;
@@ -456,6 +521,20 @@ function drawPlayer(
   ctx.beginPath();
   ctx.ellipse(0, carHeight * 0.52, carWidth * 0.46, carHeight * 0.14, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  if (sprites.playerRav4Rear) {
+    const spriteWidth = Math.min(width * 0.42, 176);
+    const spriteHeight = spriteWidth * 1.02;
+    ctx.drawImage(
+      sprites.playerRav4Rear,
+      -spriteWidth / 2,
+      -spriteHeight * 0.62,
+      spriteWidth,
+      spriteHeight,
+    );
+    ctx.restore();
+    return;
+  }
 
   roundRect(ctx, -carWidth / 2, -carHeight * 0.34, carWidth, carHeight * 0.72, 5, "#D9D9D3");
   roundRect(
@@ -508,6 +587,7 @@ function drawEntity(
   width: number,
   height: number,
   entity: RunnerEntity,
+  sprites: RunnerLoadedSprites,
 ) {
   const progress = roadDepthProgress(entity.y);
   const x = roadLaneCenterX(width, entity.lane, entity.y);
@@ -518,22 +598,35 @@ function drawEntity(
   drawGroundShadow(ctx, x, y, size, entity.type === "collectible" ? 0.32 : 0.52);
 
   if (entity.type === "collectible") {
-    drawCollectible(ctx, x, y, size, entity.kind);
+    drawCollectible(ctx, x, y, size, entity.kind, sprites);
     return;
   }
 
   if (entity.kind === "ice") {
-    drawIce(ctx, x, y, size);
+    if (sprites.icePatch) {
+      drawSpriteCentered(ctx, sprites.icePatch, x, y, size * 1.55, size * 0.88);
+    } else {
+      drawIce(ctx, x, y, size);
+    }
     return;
   }
 
   if (entity.kind === "construction") {
-    drawConstruction(ctx, x, y, size);
+    if (sprites.constructionBarrier) {
+      drawSpriteCentered(ctx, sprites.constructionBarrier, x, y, size * 1.2, size * 1.1);
+    } else {
+      drawConstruction(ctx, x, y, size);
+    }
     return;
   }
 
   if (entity.kind === "deer" || entity.kind === "moose") {
     drawWildlife(ctx, x, y, size, entity.kind === "moose");
+    return;
+  }
+
+  if (entity.kind === "sedan" && sprites.trafficSedan) {
+    drawSpriteCentered(ctx, sprites.trafficSedan, x, y, size * 1.2, size * 1.18);
     return;
   }
 
@@ -546,13 +639,18 @@ function drawCollectible(
   y: number,
   size: number,
   kind: RunnerEntity["kind"],
+  sprites: RunnerLoadedSprites,
 ) {
   ctx.save();
   ctx.shadowColor = RUNNER_COLORS.yellow;
   ctx.shadowBlur = 12;
   ctx.fillStyle = RUNNER_COLORS.yellow;
 
-  if (kind === "vipRide") {
+  if (kind === "reputationStar" && sprites.reputationStar) {
+    drawSpriteCentered(ctx, sprites.reputationStar, x, y, size * 1.05, size * 1.05);
+  } else if (kind === "passengerPickup" && sprites.passengerPickup) {
+    drawSpriteCentered(ctx, sprites.passengerPickup, x, y, size * 1.04, size * 1.04);
+  } else if (kind === "vipRide") {
     drawDiamond(ctx, x, y, size * 0.55);
   } else if (kind === "airportRide") {
     drawTerminal(ctx, x, y, size * 0.7);
@@ -726,6 +824,53 @@ function drawDiamond(ctx: CanvasRenderingContext2D, x: number, y: number, size: 
   ctx.lineTo(x - size * 0.8, y);
   ctx.closePath();
   ctx.fill();
+}
+
+function drawSpriteCentered(
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) {
+  ctx.drawImage(image, x - width / 2, y - height / 2, width, height);
+}
+
+function drawParallaxImage(
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) {
+  ctx.drawImage(image, x, y, width, height);
+}
+
+function drawScrollingRoadTexture(
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  width: number,
+  height: number,
+  horizonY: number,
+  offset: number,
+) {
+  const textureHeight = Math.max(260, width * 1.25);
+  const textureWidth = width * 1.4;
+  const x = (width - textureWidth) / 2;
+  const startY = horizonY - textureHeight + ((offset * 4) % textureHeight);
+
+  for (let y = startY; y < height; y += textureHeight) {
+    ctx.drawImage(image, x, y, textureWidth, textureHeight);
+  }
+
+  const shade = ctx.createLinearGradient(0, horizonY, 0, height);
+  shade.addColorStop(0, "rgba(11,11,11,0.38)");
+  shade.addColorStop(0.55, "rgba(11,11,11,0)");
+  shade.addColorStop(1, "rgba(11,11,11,0.26)");
+  ctx.fillStyle = shade;
+  ctx.fillRect(0, horizonY, width, height - horizonY);
 }
 
 function roundRect(
