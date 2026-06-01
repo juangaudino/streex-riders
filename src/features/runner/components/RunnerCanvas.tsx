@@ -352,7 +352,8 @@ function drawRunnerFrame(
 ) {
   ctx.clearRect(0, 0, width, height);
   drawAmbientWorld(ctx, width, height, time, sprites);
-  drawRoad(ctx, width, height, state.roadOffset, sprites);
+  drawRoad(ctx, width, height, state.roadOffset);
+  drawHorizonIntegration(ctx, width, height, state.roadOffset, time);
   state.entities
     .slice()
     .sort((a, b) => a.y - b.y)
@@ -384,9 +385,9 @@ function drawAmbientWorld(
 ) {
   const horizonY = height * RUNNER_HORIZON;
   const sky = ctx.createLinearGradient(0, 0, 0, horizonY);
-  sky.addColorStop(0, "#20251F");
-  sky.addColorStop(0.65, "#161A16");
-  sky.addColorStop(1, "#11110F");
+  sky.addColorStop(0, "#25281E");
+  sky.addColorStop(0.65, "#1B2018");
+  sky.addColorStop(1, "#151711");
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width, horizonY + 2);
 
@@ -404,13 +405,14 @@ function drawAmbientWorld(
   ctx.fillRect(0, 0, width, horizonY);
 
   if (sprites.mountainFar) {
-    const farWidth = width * 1.14;
-    const farDrift = Math.sin(time * 0.00011) * width * 0.025;
+    const farZoom = 1.08 + Math.sin(time * 0.00007) * 0.015;
+    const farWidth = width * farZoom;
+    const farDrift = Math.sin(time * 0.00011) * width * 0.03;
     drawParallaxImage(
       ctx,
       sprites.mountainFar,
       (width - farWidth) / 2 + farDrift,
-      horizonY - height * 0.21,
+      horizonY - height * 0.215,
       farWidth,
       height * 0.32,
     );
@@ -419,8 +421,9 @@ function drawAmbientWorld(
   }
 
   if (sprites.mountainNear) {
-    const nearWidth = width * 1.18;
-    const nearDrift = Math.sin(time * 0.00016 + 1.4) * width * 0.035;
+    const nearZoom = 1.12 + Math.sin(time * 0.0001 + 0.8) * 0.02;
+    const nearWidth = width * nearZoom;
+    const nearDrift = Math.sin(time * 0.00016 + 1.4) * width * 0.045;
     drawParallaxImage(
       ctx,
       sprites.mountainNear,
@@ -463,13 +466,7 @@ function drawMountainLayer(
   ctx.fill();
 }
 
-function drawRoad(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  offset: number,
-  sprites: RunnerLoadedSprites,
-) {
+function drawRoad(ctx: CanvasRenderingContext2D, width: number, height: number, offset: number) {
   const horizonY = height * RUNNER_HORIZON;
   const vanishingX = width * 0.5;
   const topLeft = width * 0.37;
@@ -483,7 +480,7 @@ function drawRoad(
   drawRoadsideEcosystem(ctx, width, height, horizonY, offset, topLeft, topRight);
 
   const roadGradient = ctx.createLinearGradient(0, horizonY, 0, height);
-  roadGradient.addColorStop(0, "#454A45");
+  roadGradient.addColorStop(0, "#4D514B");
   roadGradient.addColorStop(0.5, "#343735");
   roadGradient.addColorStop(1, "#2B2E2D");
   ctx.fillStyle = roadGradient;
@@ -495,16 +492,7 @@ function drawRoad(
   ctx.closePath();
   ctx.fill();
 
-  if (sprites.roadTexture) {
-    ctx.save();
-    ctx.clip();
-    ctx.globalAlpha = 0.08;
-    drawScrollingRoadTexture(ctx, sprites.roadTexture, width, height, horizonY, offset);
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = "rgba(58,62,58,0.36)";
-    ctx.fillRect(0, horizonY, width, height - horizonY);
-    ctx.restore();
-  }
+  drawAsphaltWear(ctx, width, height, horizonY, offset, topLeft, topRight);
 
   const textureSpacing = 34;
   ctx.save();
@@ -542,6 +530,91 @@ function drawRoad(
   ctx.moveTo(topRight, horizonY);
   ctx.lineTo(width, height);
   ctx.stroke();
+}
+
+function drawAsphaltWear(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  horizonY: number,
+  offset: number,
+  topLeft: number,
+  topRight: number,
+) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(topLeft, horizonY);
+  ctx.lineTo(topRight, horizonY);
+  ctx.lineTo(width, height);
+  ctx.lineTo(0, height);
+  ctx.closePath();
+  ctx.clip();
+
+  const wash = ctx.createLinearGradient(0, horizonY, 0, height);
+  wash.addColorStop(0, "rgba(255,255,255,0.055)");
+  wash.addColorStop(0.5, "rgba(255,255,255,0.018)");
+  wash.addColorStop(1, "rgba(0,0,0,0.1)");
+  ctx.fillStyle = wash;
+  ctx.fillRect(0, horizonY, width, height - horizonY);
+
+  for (let i = 0; i < 42; i += 1) {
+    const seed = pseudoRandom(i, 17);
+    const y = horizonY + ((offset * (0.46 + seed * 0.18) + i * 47) % (height - horizonY + 80)) - 40;
+    const yPct = (y / height) * 100;
+    const progress = roadDepthProgress(yPct);
+    const roadLeft = lerp(topLeft, 0, progress);
+    const roadRight = lerp(topRight, width, progress);
+    const x = lerp(roadLeft, roadRight, 0.14 + pseudoRandom(i, 23) * 0.72);
+    const markWidth = width * (0.03 + pseudoRandom(i, 41) * 0.1) * (0.25 + progress);
+    const markHeight = 1 + progress * 3;
+
+    ctx.globalAlpha = 0.035 + pseudoRandom(i, 31) * 0.035;
+    ctx.fillStyle = pseudoRandom(i, 47) > 0.48 ? "#FFFFFF" : "#1D211F";
+    ctx.beginPath();
+    ctx.ellipse(x, y, markWidth, markHeight, 0.04, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawHorizonIntegration(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  offset: number,
+  time: number,
+) {
+  const horizonY = height * RUNNER_HORIZON;
+  const distantGround = ctx.createLinearGradient(0, horizonY - 18, 0, horizonY + height * 0.16);
+  distantGround.addColorStop(0, "rgba(224,177,91,0.08)");
+  distantGround.addColorStop(0.38, "rgba(63,75,48,0.36)");
+  distantGround.addColorStop(1, "rgba(43,55,35,0)");
+  ctx.fillStyle = distantGround;
+  ctx.fillRect(0, horizonY - 18, width, height * 0.18);
+
+  const dust = ctx.createLinearGradient(0, horizonY - 30, 0, horizonY + 76);
+  dust.addColorStop(0, "rgba(230,206,32,0)");
+  dust.addColorStop(0.32, "rgba(234,197,118,0.24)");
+  dust.addColorStop(0.62, "rgba(101,91,59,0.2)");
+  dust.addColorStop(1, "rgba(13,17,12,0)");
+  ctx.fillStyle = dust;
+  ctx.fillRect(0, horizonY - 30, width, 106);
+
+  ctx.save();
+  ctx.globalAlpha = 0.12;
+  ctx.strokeStyle = "rgba(255,239,180,0.62)";
+  ctx.lineWidth = 1;
+  const bandOffset = (offset * 0.42 + time * 0.006) % 38;
+  for (let y = horizonY + bandOffset - 38; y < horizonY + height * 0.12; y += 38) {
+    const fade = Math.max(0, 1 - Math.abs(y - horizonY) / (height * 0.16));
+    ctx.globalAlpha = fade * 0.12;
+    ctx.beginPath();
+    ctx.moveTo(width * 0.12, y);
+    ctx.lineTo(width * 0.88, y + 3);
+    ctx.stroke();
+  }
+  ctx.restore();
 }
 
 function drawPlayer(
@@ -1102,31 +1175,6 @@ function drawParallaxImage(
   height: number,
 ) {
   ctx.drawImage(image, x, y, width, height);
-}
-
-function drawScrollingRoadTexture(
-  ctx: CanvasRenderingContext2D,
-  image: HTMLImageElement,
-  width: number,
-  height: number,
-  horizonY: number,
-  offset: number,
-) {
-  const textureHeight = Math.max(260, width * 1.25);
-  const textureWidth = width * 1.4;
-  const x = (width - textureWidth) / 2;
-  const startY = horizonY - textureHeight + ((offset * 4) % textureHeight);
-
-  for (let y = startY; y < height; y += textureHeight) {
-    ctx.drawImage(image, x, y, textureWidth, textureHeight);
-  }
-
-  const shade = ctx.createLinearGradient(0, horizonY, 0, height);
-  shade.addColorStop(0, "rgba(11,11,11,0.38)");
-  shade.addColorStop(0.55, "rgba(11,11,11,0)");
-  shade.addColorStop(1, "rgba(11,11,11,0.26)");
-  ctx.fillStyle = shade;
-  ctx.fillRect(0, horizonY, width, height - horizonY);
 }
 
 function roundRect(
