@@ -36,6 +36,17 @@ const TickerThemeSchema = AdminSchema.extend({
   tickerStyle: z.enum(["boarding", "pill"]),
 });
 
+const RunnerScoreStatusSchema = AdminSchema.extend({
+  id: z.string().uuid(),
+  status: z.enum(["pending", "approved", "rejected"]),
+});
+
+const RunnerScoreUpdateSchema = AdminSchema.extend({
+  id: z.string().uuid(),
+  name: z.string().trim().min(1).max(24),
+  score: z.number().int().min(0).max(999999),
+});
+
 export const verifyAdminKey = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => AdminSchema.parse(input))
   .handler(async ({ data }) => {
@@ -189,4 +200,77 @@ export const updateAdminTickerTheme = createServerFn({ method: "POST" })
     }
 
     return { ok: true, tickerStyle: data.tickerStyle };
+  });
+
+export const listAdminRunnerScores = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => AdminSchema.parse(input))
+  .handler(async ({ data }) => {
+    assertAdminAccess(data.adminKey);
+
+    const { data: scores, error } = await supabaseAdmin
+      .from("runner_scores")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("[listAdminRunnerScores] read error", error);
+      throw new Error("Failed to load runner scores.");
+    }
+
+    return { scores: scores ?? [] };
+  });
+
+export const updateAdminRunnerScoreStatus = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => RunnerScoreStatusSchema.parse(input))
+  .handler(async ({ data }) => {
+    assertAdminAccess(data.adminKey);
+
+    const { error } = await supabaseAdmin
+      .from("runner_scores")
+      .update({ status: data.status, updated_at: new Date().toISOString() })
+      .eq("id", data.id);
+
+    if (error) {
+      console.error("[updateAdminRunnerScoreStatus] update error", error);
+      throw new Error("Failed to update runner score.");
+    }
+
+    return { ok: true };
+  });
+
+export const updateAdminRunnerScore = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => RunnerScoreUpdateSchema.parse(input))
+  .handler(async ({ data }) => {
+    assertAdminAccess(data.adminKey);
+
+    const { error } = await supabaseAdmin
+      .from("runner_scores")
+      .update({
+        name: data.name,
+        score: data.score,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", data.id);
+
+    if (error) {
+      console.error("[updateAdminRunnerScore] update error", error);
+      throw new Error("Failed to edit runner score.");
+    }
+
+    return { ok: true };
+  });
+
+export const deleteAdminRunnerScore = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => ReviewIdSchema.parse(input))
+  .handler(async ({ data }) => {
+    assertAdminAccess(data.adminKey);
+
+    const { error } = await supabaseAdmin.from("runner_scores").delete().eq("id", data.id);
+
+    if (error) {
+      console.error("[deleteAdminRunnerScore] delete error", error);
+      throw new Error("Failed to delete runner score.");
+    }
+
+    return { ok: true };
   });

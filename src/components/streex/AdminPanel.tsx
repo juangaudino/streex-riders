@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
-import { CalendarCheck, MessageSquareQuote, Palette, Star } from "lucide-react";
+import { CalendarCheck, Gamepad2, MessageSquareQuote, Palette, Star } from "lucide-react";
 import {
   deleteAdminReview,
+  deleteAdminRunnerScore,
   listAdminBookings,
   listAdminReviews,
+  listAdminRunnerScores,
   sendAdminQuote,
   updateAdminBookingStatus,
   updateAdminReviewStatus,
+  updateAdminRunnerScore,
+  updateAdminRunnerScoreStatus,
   updateAdminTickerTheme,
   verifyAdminKey,
 } from "@/lib/admin.functions";
@@ -15,7 +19,7 @@ import logo from "@/assets/streex-logo.png";
 
 const SESSION_KEY = "streex_admin_key";
 
-type AdminTab = "bookings" | "reviews" | "themes";
+type AdminTab = "bookings" | "reviews" | "runner" | "themes";
 type TickerStyle = "boarding" | "pill";
 
 type BookingRow = {
@@ -42,6 +46,15 @@ type ReviewRow = {
   location: string | null;
   status: "pending" | "approved" | "rejected";
   created_at: string;
+};
+
+type RunnerScoreRow = {
+  id: string;
+  name: string;
+  score: number;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+  updated_at: string;
 };
 
 const STATUS_TABS: { key: BookingRow["status"]; label: string }[] = [
@@ -126,6 +139,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
   const tabs: { key: AdminTab; label: string; icon: React.ReactNode }[] = [
     { key: "bookings", label: "Bookings", icon: <CalendarCheck className="h-4 w-4" /> },
     { key: "reviews", label: "Reviews", icon: <MessageSquareQuote className="h-4 w-4" /> },
+    { key: "runner", label: "Runner", icon: <Gamepad2 className="h-4 w-4" /> },
     { key: "themes", label: "Themes", icon: <Palette className="h-4 w-4" /> },
   ];
 
@@ -154,7 +168,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
           </button>
         </header>
 
-        <div className="grid grid-cols-3 gap-2 mb-7">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-7">
           {tabs.map((tab) => {
             const selected = tab.key === activeTab;
             return (
@@ -177,6 +191,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
 
         {activeTab === "bookings" && <AdminBookings adminKey={adminKey} />}
         {activeTab === "reviews" && <AdminReviews adminKey={adminKey} />}
+        {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}
         {activeTab === "themes" && <AdminThemes adminKey={adminKey} />}
       </div>
     </div>
@@ -524,6 +539,234 @@ function AdminReviews({ adminKey }: { adminKey: string }) {
           );
         })}
     </section>
+  );
+}
+
+function AdminRunnerScores({ adminKey }: { adminKey: string }) {
+  const [scores, setScores] = useState<RunnerScoreRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await listAdminRunnerScores({ data: { adminKey } });
+      setScores((result.scores ?? []) as RunnerScoreRow[]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load runner scores.");
+    } finally {
+      setLoading(false);
+    }
+  }, [adminKey]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const updateStatus = async (id: string, status: RunnerScoreRow["status"]) => {
+    const prev = scores;
+    setScores((items) => items.map((item) => (item.id === id ? { ...item, status } : item)));
+    try {
+      await updateAdminRunnerScoreStatus({ data: { adminKey, id, status } });
+    } catch (e) {
+      setScores(prev);
+      setError(e instanceof Error ? e.message : "Failed to update runner score.");
+    }
+  };
+
+  const editScore = async (id: string, name: string, score: number) => {
+    const prev = scores;
+    setScores((items) => items.map((item) => (item.id === id ? { ...item, name, score } : item)));
+    try {
+      await updateAdminRunnerScore({ data: { adminKey, id, name, score } });
+    } catch (e) {
+      setScores(prev);
+      setError(e instanceof Error ? e.message : "Failed to edit runner score.");
+    }
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("Delete this Runner score permanently?")) return;
+    const prev = scores;
+    setScores((items) => items.filter((item) => item.id !== id));
+    try {
+      await deleteAdminRunnerScore({ data: { adminKey, id } });
+    } catch (e) {
+      setScores(prev);
+      setError(e instanceof Error ? e.message : "Failed to delete runner score.");
+    }
+  };
+
+  const sections: { key: RunnerScoreRow["status"]; label: string }[] = [
+    { key: "pending", label: "Pending Scores" },
+    { key: "approved", label: "Approved Leaderboard" },
+    { key: "rejected", label: "Rejected Scores" },
+  ];
+
+  return (
+    <section>
+      <div className="mb-5 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+        <h2 className="text-lg font-semibold">Runner Records</h2>
+        <p className="mt-1 text-sm text-white/55">
+          Approve scores before they appear publicly in the Runner leaderboard.
+        </p>
+      </div>
+
+      {error && (
+        <div className="mb-4 text-xs text-red-400/90 border border-red-400/30 rounded-lg px-3 py-2">
+          {error}
+        </div>
+      )}
+      {loading && <p className="text-sm text-white/50">Loading...</p>}
+
+      {!loading &&
+        sections.map((section) => {
+          const items = scores.filter((score) => score.status === section.key);
+          return (
+            <section key={section.key} className="mb-10">
+              <h2 className="text-[11px] uppercase tracking-[0.18em] text-white/50 font-semibold mb-3">
+                {section.label} ({items.length})
+              </h2>
+              {items.length === 0 ? (
+                <p className="text-sm text-white/30">No records.</p>
+              ) : (
+                <div className="space-y-3">
+                  {items.map((score) => (
+                    <RunnerScoreCard
+                      key={score.id}
+                      score={score}
+                      onEdit={editScore}
+                      onStatus={updateStatus}
+                      onDelete={remove}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+          );
+        })}
+    </section>
+  );
+}
+
+function RunnerScoreCard({
+  score,
+  onEdit,
+  onStatus,
+  onDelete,
+}: {
+  score: RunnerScoreRow;
+  onEdit: (id: string, name: string, score: number) => Promise<void>;
+  onStatus: (id: string, status: RunnerScoreRow["status"]) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const [name, setName] = useState(score.name);
+  const [scoreValue, setScoreValue] = useState(String(score.score));
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    setName(score.name);
+    setScoreValue(String(score.score));
+  }, [score.name, score.score]);
+
+  const changed = name.trim() !== score.name || Number(scoreValue) !== score.score;
+
+  const saveEdit = async () => {
+    const nextName = name.trim();
+    const nextScore = Number(scoreValue);
+    if (!nextName || !Number.isInteger(nextScore) || nextScore < 0) return;
+    setBusy(true);
+    try {
+      await onEdit(score.id, nextName, nextScore);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const wrap = async (fn: () => Promise<void>) => {
+    setBusy(true);
+    try {
+      await fn();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-[#E6CE20]/80 font-semibold">
+            {score.status}
+          </span>
+          <div className="mt-1 text-xs text-white/40">
+            {new Date(score.created_at).toLocaleString()}
+          </div>
+        </div>
+        <strong className="text-3xl leading-none text-[#E6CE20]">{score.score}</strong>
+      </div>
+
+      <div className="grid grid-cols-[1fr_96px] gap-2">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          maxLength={24}
+          className="min-w-0 rounded-lg bg-white/[0.05] border border-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#E6CE20]/40"
+        />
+        <input
+          type="number"
+          min="0"
+          value={scoreValue}
+          onChange={(e) => setScoreValue(e.target.value)}
+          className="min-w-0 rounded-lg bg-white/[0.05] border border-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#E6CE20]/40"
+        />
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          disabled={busy || !changed}
+          onClick={saveEdit}
+          className="text-xs rounded-full px-3 py-1.5 bg-[#E6CE20] text-black font-semibold disabled:opacity-50"
+        >
+          Save Edit
+        </button>
+        {score.status !== "approved" && (
+          <button
+            disabled={busy}
+            onClick={() => wrap(() => onStatus(score.id, "approved"))}
+            className="text-xs rounded-full px-3 py-1.5 border border-white/20 text-white/85 disabled:opacity-60"
+          >
+            Approve
+          </button>
+        )}
+        {score.status !== "pending" && (
+          <button
+            disabled={busy}
+            onClick={() => wrap(() => onStatus(score.id, "pending"))}
+            className="text-xs rounded-full px-3 py-1.5 border border-white/20 text-white/85 disabled:opacity-60"
+          >
+            Pending
+          </button>
+        )}
+        {score.status !== "rejected" && (
+          <button
+            disabled={busy}
+            onClick={() => wrap(() => onStatus(score.id, "rejected"))}
+            className="text-xs rounded-full px-3 py-1.5 border border-white/20 text-white/85 disabled:opacity-60"
+          >
+            Reject
+          </button>
+        )}
+        <button
+          disabled={busy}
+          onClick={() => wrap(() => onDelete(score.id))}
+          className="text-xs rounded-full px-3 py-1.5 border border-red-400/30 text-red-400/90 disabled:opacity-60"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
   );
 }
 

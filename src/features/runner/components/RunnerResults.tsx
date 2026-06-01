@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CONFIG } from "@/config";
+import { listRunnerLeaderboard, submitRunnerScore } from "@/lib/runner-score.functions";
 import { RUNNER_SPRITES } from "../assets/manifest";
 import type { RunnerGameSnapshot } from "../runner.types";
 
@@ -10,7 +11,9 @@ type RunnerSavedScore = {
   createdAt: string;
 };
 
-const RUNNER_SCORES_KEY = "streex_runner_scores_v1";
+const SHARE_MESSAGE = `Think you can beat my ride? 😏🚙
+I just had fun with STREEX Runner.
+Take the challenge and discover Streex.`;
 
 type RunnerResultsProps = {
   snapshot: RunnerGameSnapshot;
@@ -20,8 +23,11 @@ type RunnerResultsProps = {
 
 export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps) {
   const [riderName, setRiderName] = useState("");
-  const [savedScores, setSavedScores] = useState<RunnerSavedScore[]>(() => loadSavedScores());
+  const [savedScores, setSavedScores] = useState<RunnerSavedScore[]>([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
   const [scoreSaved, setScoreSaved] = useState(false);
+  const [scoreSaving, setScoreSaving] = useState(false);
+  const [scoreHint, setScoreHint] = useState<string | null>(null);
   const [saveLabel, setSaveLabel] = useState("Save Card");
   const [saveHint, setSaveHint] = useState<string | null>(null);
   const [shareLabel, setShareLabel] = useState("Share Ride");
@@ -29,6 +35,35 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
   const [shareHint, setShareHint] = useState<string | null>(null);
 
   const displayName = riderName.trim() || "Streex Rider";
+  const canSaveScore = riderName.trim().length > 0;
+
+  useEffect(() => {
+    let cancelled = false;
+    setLeaderboardLoading(true);
+    listRunnerLeaderboard({ data: {} })
+      .then((result) => {
+        if (cancelled) return;
+        setSavedScores(
+          (result.scores ?? []).map((score) => ({
+            id: score.id,
+            name: score.name,
+            score: score.score,
+            createdAt: score.created_at,
+          })),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setScoreHint("Leaderboard unavailable for this session.");
+      })
+      .finally(() => {
+        if (!cancelled) setLeaderboardLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const visibleLeaderboard = useMemo(
     () => savedScores.slice().sort(sortScores).slice(0, 10),
     [savedScores],
@@ -48,18 +83,24 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
     return Math.max(1, allScores.findIndex((entry) => entry.id === "current") + 1);
   }, [displayName, savedScores, snapshot.score]);
 
-  const handleSaveScore = () => {
-    const name = displayName.slice(0, 24);
-    const nextScore: RunnerSavedScore = {
-      id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}`,
-      name,
-      score: snapshot.score,
-      createdAt: new Date().toISOString(),
-    };
-    const nextScores = [...savedScores, nextScore].slice().sort(sortScores).slice(0, 25);
-    localStorage.setItem(RUNNER_SCORES_KEY, JSON.stringify(nextScores));
-    setSavedScores(nextScores);
-    setScoreSaved(true);
+  const handleSaveScore = async () => {
+    const name = riderName.trim().slice(0, 24);
+    if (!name) {
+      setScoreHint("Add your name before saving.");
+      return;
+    }
+
+    setScoreSaving(true);
+    setScoreHint(null);
+    try {
+      await submitRunnerScore({ data: { name, score: snapshot.score } });
+      setScoreSaved(true);
+      setScoreHint("Score saved. It will appear after admin approval.");
+    } catch (error) {
+      setScoreHint(error instanceof Error ? error.message : "Failed to save score.");
+    } finally {
+      setScoreSaving(false);
+    }
   };
 
   const handleSaveCard = async () => {
@@ -96,16 +137,33 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
   const handleShareRide = async () => {
     const shareUrl = CONFIG.seoUrl || CONFIG.website;
-    const text = `${displayName} scored ${snapshot.score} in STREEX Runner. Ranked #${localRank}. Above ${snapshot.aboveRiders} riders.`;
+    const text = `${SHARE_MESSAGE}\n\n${displayName} scored ${snapshot.score}. Ranked #${localRank}.`;
     const fallbackText = `${text}\n${shareUrl}`;
+    const filename = `streex-runner-${snapshot.score}.png`;
 
     try {
+      setShareLabel("Sharing...");
+      const canvas = await createRunnerScoreCard(snapshot, displayName, localRank);
+      const blob = await canvasToBlob(canvas);
+      const file = new File([blob], filename, { type: "image/png" });
+
       if (navigator.share) {
-        await navigator.share({
-          title: "STREEX Runner",
-          text,
-          url: shareUrl,
-        });
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share({
+            title: "STREEX Runner",
+            text,
+            url: shareUrl,
+            files: [file],
+          });
+        } else {
+          await navigator.share({
+            title: "STREEX Runner",
+            text,
+            url: shareUrl,
+          });
+        }
+        setShareLabel("Shared");
+        window.setTimeout(() => setShareLabel("Share Ride"), 1400);
         return;
       }
 
@@ -116,7 +174,10 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
       window.setTimeout(() => setShareLabel("Share Ride"), 1400);
       window.setTimeout(() => setShareHint(null), 2600);
     } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setShareLabel("Share Ride");
+        return;
+      }
       setShareFallback(fallbackText);
       setShareLabel("Copy Below");
       setShareHint("This browser blocked native share. Select and copy the text below.");
@@ -171,13 +232,23 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
               placeholder="Your name"
               autoComplete="name"
             />
-            <button type="button" onClick={handleSaveScore} disabled={scoreSaved}>
-              {scoreSaved ? "Saved" : "Save Score"}
+            <button
+              type="button"
+              onClick={handleSaveScore}
+              disabled={!canSaveScore || scoreSaved || scoreSaving}
+            >
+              {scoreSaving ? "Saving" : scoreSaved ? "Pending" : "Save Score"}
             </button>
           </div>
+          {scoreHint ? <p className="runner-score-hint">{scoreHint}</p> : null}
         </div>
 
-        {visibleLeaderboard.length > 0 ? (
+        {leaderboardLoading ? (
+          <div className="runner-leaderboard">
+            <h2>Top Riders</h2>
+            <p className="runner-empty-state">Loading records...</p>
+          </div>
+        ) : visibleLeaderboard.length > 0 ? (
           <div className="runner-leaderboard">
             <h2>Top Riders</h2>
             {visibleLeaderboard.map((entry, index) => (
@@ -188,7 +259,12 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
               </div>
             ))}
           </div>
-        ) : null}
+        ) : (
+          <div className="runner-leaderboard">
+            <h2>Top Riders</h2>
+            <p className="runner-empty-state">No approved scores yet.</p>
+          </div>
+        )}
 
         <div className="runner-result-actions">
           <button className="runner-primary-button" onClick={onReplay}>
@@ -403,6 +479,14 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
         .runner-name-row button:disabled {
           opacity: 0.64;
+        }
+
+        .runner-score-hint,
+        .runner-empty-state {
+          margin: 0;
+          color: rgba(255,255,255,0.48);
+          font-size: 11px;
+          line-height: 1.35;
         }
 
         .runner-leaderboard {
@@ -769,9 +853,17 @@ function drawShareMountains(ctx: CanvasRenderingContext2D, width: number) {
   const farBase = 1290;
   ctx.moveTo(-20, farBase);
   const farPts: Array<[number, number]> = [
-    [0.06, 0.62], [0.14, 0.78], [0.22, 0.48], [0.32, 0.72],
-    [0.42, 0.36], [0.52, 0.64], [0.62, 0.4], [0.72, 0.68],
-    [0.82, 0.44], [0.92, 0.7], [1, 0.56],
+    [0.06, 0.62],
+    [0.14, 0.78],
+    [0.22, 0.48],
+    [0.32, 0.72],
+    [0.42, 0.36],
+    [0.52, 0.64],
+    [0.62, 0.4],
+    [0.72, 0.68],
+    [0.82, 0.44],
+    [0.92, 0.7],
+    [1, 0.56],
   ];
   farPts.forEach(([fx, fy]) => {
     ctx.lineTo(fx * width, farBase - (1 - fy) * 220);
@@ -786,9 +878,16 @@ function drawShareMountains(ctx: CanvasRenderingContext2D, width: number) {
   const nearBase = 1370;
   ctx.moveTo(-20, nearBase);
   const nearPts: Array<[number, number]> = [
-    [0.1, 0.5], [0.2, 0.76], [0.3, 0.3], [0.4, 0.64],
-    [0.5, 0.18], [0.6, 0.6], [0.7, 0.34], [0.8, 0.7],
-    [0.9, 0.48], [1, 0.64],
+    [0.1, 0.5],
+    [0.2, 0.76],
+    [0.3, 0.3],
+    [0.4, 0.64],
+    [0.5, 0.18],
+    [0.6, 0.6],
+    [0.7, 0.34],
+    [0.8, 0.7],
+    [0.9, 0.48],
+    [1, 0.64],
   ];
   nearPts.forEach(([fx, fy]) => {
     ctx.lineTo(fx * width, nearBase - (1 - fy) * 280);
@@ -1040,29 +1139,6 @@ function loadImage(src: string) {
     image.onerror = () => reject(new Error(`Unable to load image: ${src}`));
     image.src = src;
   });
-}
-
-function loadSavedScores(): RunnerSavedScore[] {
-  try {
-    const rawScores = localStorage.getItem(RUNNER_SCORES_KEY);
-    if (!rawScores) return [];
-    const parsed = JSON.parse(rawScores);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isSavedScore).slice().sort(sortScores).slice(0, 25);
-  } catch {
-    return [];
-  }
-}
-
-function isSavedScore(value: unknown): value is RunnerSavedScore {
-  if (!value || typeof value !== "object") return false;
-  const score = value as Partial<RunnerSavedScore>;
-  return (
-    typeof score.id === "string" &&
-    typeof score.name === "string" &&
-    typeof score.score === "number" &&
-    typeof score.createdAt === "string"
-  );
 }
 
 function sortScores(a: RunnerSavedScore, b: RunnerSavedScore) {
