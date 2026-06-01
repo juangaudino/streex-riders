@@ -27,8 +27,13 @@ import asphaltTextureClean from "./asphalt_texture_clean.png";
 import horizonGroundBlend2 from "./horizon_ground_blend2.png";
 import roadShoulderLeft from "./road_shoulder_left.png";
 import roadShoulderRight from "./road_shoulder_right.png";
+import roadsideRockCluster from "./roadside_rock_cluster.png";
 import roadsideScrub01 from "./roadside_scrub_01.png";
 import roadsideScrub02 from "./roadside_scrub_02.png";
+import roadsideTreeCluster01 from "./roadside_tree_cluster_01.png";
+import sedanVip from "./sprites/sedan_vip.png";
+import trafficPickupSilver from "./sprites/traffic_pickup_silver.png";
+import trafficSport from "./sprites/traffic_sport.png";
 
 import altImg from "./alt_img.png";
 import asphaltTextureClean2 from "./asphalt_texture_clean2.png";
@@ -40,14 +45,9 @@ import mooseAlt from "./sprites/moose_alt.png";
 import roadEdgeLeft from "./sprites/road_edge_left.png";
 import roadEdgeRight from "./sprites/road_edge_right.png";
 import roadShoulderBoth from "./road_shoulder_both.png";
-import roadsideRockCluster from "./roadside_rock_cluster.png";
 import roadsideScrubVarios from "./roadside_scrub_varios.png";
-import roadsideTreeCluster01 from "./roadside_tree_cluster_01.png";
-import sedanVip from "./sprites/sedan_vip.png";
 import skidMarks from "./sprites/skid_marks.png";
-import trafficPickupSilver from "./sprites/traffic_pickup_silver.png";
 import trafficSedanClassic from "./sprites/traffic_sedan_classic.png";
-import trafficSport from "./sprites/traffic_sport.png";
 
 export const RUNNER_SPRITES = {
   airportRide,
@@ -71,14 +71,19 @@ export const RUNNER_SPRITES = {
   roadTexture,
   roadShoulderLeft,
   roadShoulderRight,
+  roadsideRockCluster,
   roadsideScrub01,
   roadsideScrub02,
+  roadsideTreeCluster01,
   runnerLogoLockup,
+  sedanVip,
   scoreCardFrame,
   shadowSoft,
   skidMarksAlt,
   trafficPickup,
+  trafficPickupSilver,
   trafficSedan,
+  trafficSport,
   trafficSuv,
   vipRide,
 };
@@ -94,14 +99,9 @@ export const RUNNER_EXTRA_SPRITES = {
   roadEdgeLeft,
   roadEdgeRight,
   roadShoulderBoth,
-  roadsideRockCluster,
   roadsideScrubVarios,
-  roadsideTreeCluster01,
-  sedanVip,
   skidMarks,
-  trafficPickupSilver,
   trafficSedanClassic,
-  trafficSport,
 };
 
 export type RunnerSpriteKey = keyof typeof RUNNER_SPRITES;

@@ -807,11 +807,11 @@ function drawRoadsideEcosystem(
   }
   ctx.restore();
 
-  drawShoulderAssets(ctx, width, height, horizonY, offset, topLeft, topRight, sprites);
+  drawSubtleRoadShoulder(ctx, width, height, horizonY, offset, topLeft, topRight);
 
-  const spacing = 118;
-  const scroll = (offset * 3.1) % spacing;
-  for (let i = -2; i < 11; i += 1) {
+  const spacing = 156;
+  const scroll = (offset * 2.35) % spacing;
+  for (let i = -2; i < 9; i += 1) {
     const y = horizonY + i * spacing + scroll;
     if (y < horizonY - 40 || y > height + 80) continue;
 
@@ -819,11 +819,11 @@ function drawRoadsideEcosystem(
     const progress = roadDepthProgress(yPct);
     const leftRoad = lerp(topLeft, 0, progress);
     const rightRoad = lerp(topRight, width, progress);
-    const scale = 0.36 + progress * 1.18;
+    const scale = 0.22 + progress * 0.98;
 
     drawRoadsideCluster(
       ctx,
-      leftRoad - width * (0.1 + pseudoRandom(i, 3) * 0.18),
+      leftRoad - width * (0.14 + pseudoRandom(i, 3) * 0.24),
       y,
       scale,
       i,
@@ -832,7 +832,7 @@ function drawRoadsideEcosystem(
     );
     drawRoadsideCluster(
       ctx,
-      rightRoad + width * (0.1 + pseudoRandom(i, 9) * 0.18),
+      rightRoad + width * (0.14 + pseudoRandom(i, 9) * 0.24),
       y + spacing * 0.38,
       scale * 0.92,
       i + 13,
@@ -849,7 +849,7 @@ function drawRoadsideEcosystem(
   ctx.fillRect(0, horizonY - 24, width, 102);
 }
 
-function drawShoulderAssets(
+function drawSubtleRoadShoulder(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
@@ -857,93 +857,51 @@ function drawShoulderAssets(
   offset: number,
   topLeft: number,
   topRight: number,
-  sprites: RunnerLoadedSprites,
 ) {
-  if (!sprites.roadShoulderLeft && !sprites.roadShoulderRight) return;
-
-  if (sprites.roadShoulderLeft) {
-    drawPerspectiveShoulderSide(
-      ctx,
-      sprites.roadShoulderLeft,
-      width,
-      height,
-      horizonY,
-      offset,
-      topLeft,
-      "left",
-    );
-  }
-
-  if (sprites.roadShoulderRight) {
-    drawPerspectiveShoulderSide(
-      ctx,
-      sprites.roadShoulderRight,
-      width,
-      height,
-      horizonY,
-      offset,
-      topRight,
-      "right",
-    );
-  }
-}
-
-function drawPerspectiveShoulderSide(
-  ctx: CanvasRenderingContext2D,
-  image: HTMLImageElement,
-  width: number,
-  height: number,
-  horizonY: number,
-  offset: number,
-  roadTopX: number,
-  side: "left" | "right",
-) {
-  const stripHeight = 7;
-  const scroll = offset * 4.15;
-
   ctx.save();
-  ctx.globalAlpha = 0.66;
-  for (let y = horizonY; y < height; y += stripHeight) {
+  for (const side of ["left", "right"] as const) {
+    const shoulderGradient = ctx.createLinearGradient(0, horizonY, 0, height);
+    shoulderGradient.addColorStop(0, "rgba(173,151,95,0.08)");
+    shoulderGradient.addColorStop(0.55, "rgba(125,101,62,0.18)");
+    shoulderGradient.addColorStop(1, "rgba(91,76,48,0.24)");
+    ctx.fillStyle = shoulderGradient;
+    ctx.beginPath();
+    if (side === "left") {
+      ctx.moveTo(topLeft, horizonY);
+      ctx.lineTo(topLeft - width * 0.018, horizonY);
+      ctx.lineTo(width * 0.08, height);
+      ctx.lineTo(0, height);
+    } else {
+      ctx.moveTo(topRight, horizonY);
+      ctx.lineTo(topRight + width * 0.018, horizonY);
+      ctx.lineTo(width * 0.92, height);
+      ctx.lineTo(width, height);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = "rgba(230,206,32,0.11)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(topLeft, horizonY);
+  ctx.lineTo(0, height);
+  ctx.moveTo(topRight, horizonY);
+  ctx.lineTo(width, height);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255,255,255,0.03)";
+  for (let y = horizonY + ((offset * 1.35) % 48); y < height; y += 48) {
     const yPct = (y / height) * 100;
     const progress = roadDepthProgress(yPct);
-    const roadEdge =
-      side === "left" ? lerp(roadTopX, 0, progress) : lerp(roadTopX, width, progress);
-
-    const innerPad = width * (0.003 + progress * 0.012);
-    const nearWidth = width * (0.18 + progress * 0.4);
-    const farWidth = width * 0.025;
-    const shoulderWidth = lerp(farWidth, nearWidth, progress);
-    const inner = side === "left" ? roadEdge - innerPad : roadEdge + innerPad;
-    const outer = side === "left" ? inner - shoulderWidth : inner + shoulderWidth;
-    const destX = Math.min(inner, outer);
-    const destWidth = Math.max(1, Math.abs(outer - inner));
-
-    const sourceY = Math.floor((scroll + y * 1.15) % image.height);
-    const sourceHeight = Math.min(stripHeight, image.height - sourceY);
-    ctx.drawImage(
-      image,
-      0,
-      sourceY,
-      image.width,
-      sourceHeight,
-      destX,
-      y,
-      destWidth,
-      stripHeight + 1,
-    );
-    if (sourceHeight < stripHeight) {
-      ctx.drawImage(
-        image,
-        0,
-        0,
-        image.width,
-        stripHeight - sourceHeight,
-        destX,
-        y + sourceHeight,
-        destWidth,
-        stripHeight - sourceHeight + 1,
-      );
-    }
+    const leftInner = lerp(topLeft, 0, progress);
+    const rightInner = lerp(topRight, width, progress);
+    ctx.beginPath();
+    ctx.moveTo(leftInner - width * (0.02 + progress * 0.08), y);
+    ctx.lineTo(leftInner, y);
+    ctx.moveTo(rightInner, y);
+    ctx.lineTo(rightInner + width * (0.02 + progress * 0.08), y);
+    ctx.stroke();
   }
   ctx.restore();
 }
@@ -962,7 +920,15 @@ function drawRoadsideCluster(
   ctx.scale(side, 1);
   ctx.globalAlpha = Math.min(0.88, 0.28 + scale * 0.42);
 
-  const scrubSprite = seed % 2 === 0 ? sprites.roadsideScrub01 : sprites.roadsideScrub02;
+  const variant = seed % 5;
+  const scrubSprite =
+    variant === 0
+      ? sprites.roadsideTreeCluster01
+      : variant === 1
+        ? sprites.roadsideRockCluster
+        : variant % 2 === 0
+          ? sprites.roadsideScrub01
+          : sprites.roadsideScrub02;
   if (scrubSprite) {
     const scrubWidth = 82 * scale;
     const scrubHeight = scrubWidth * 1.15;
@@ -1107,7 +1073,13 @@ function drawEntity(
   }
 
   if (entity.kind === "sedan" && sprites.trafficSedan) {
-    drawSpriteCentered(ctx, sprites.trafficSedan, x, y, size * 1.34, size * 1.32);
+    const sedanSprite =
+      entity.id % 5 === 0
+        ? sprites.trafficSport
+        : entity.id % 4 === 0
+          ? sprites.sedanVip
+          : sprites.trafficSedan;
+    drawSpriteCentered(ctx, sedanSprite, x, y, size * 1.34, size * 1.32);
     return;
   }
 
@@ -1117,7 +1089,8 @@ function drawEntity(
   }
 
   if (entity.kind === "pickup" && sprites.trafficPickup) {
-    drawSpriteCentered(ctx, sprites.trafficPickup, x, y, size * 1.36, size * 1.32);
+    const pickupSprite = entity.id % 3 === 0 ? sprites.trafficPickupSilver : sprites.trafficPickup;
+    drawSpriteCentered(ctx, pickupSprite, x, y, size * 1.36, size * 1.32);
     return;
   }
 
@@ -1138,22 +1111,46 @@ function drawCollectible(
   sprites: RunnerLoadedSprites,
 ) {
   ctx.save();
-  ctx.shadowColor = RUNNER_COLORS.yellow;
-  ctx.shadowBlur = 12;
+  ctx.shadowColor =
+    kind === "vipRide"
+      ? "rgba(255,216,82,0.72)"
+      : kind === "passengerPickup"
+        ? "#FFFFFF"
+        : RUNNER_COLORS.yellow;
+  ctx.shadowBlur =
+    kind === "vipRide" ? 7 : kind === "airportRide" ? 13 : kind === "passengerPickup" ? 4 : 10;
   ctx.fillStyle = RUNNER_COLORS.yellow;
 
   if (sprites.collectGlow) {
-    drawSpriteCentered(ctx, sprites.collectGlow, x, y, size * 1.42, size * 1.42);
+    const glowScale =
+      kind === "vipRide"
+        ? 1.04
+        : kind === "airportRide"
+          ? 1.62
+          : kind === "passengerPickup"
+            ? 0.72
+            : 1.18;
+    ctx.save();
+    ctx.globalAlpha =
+      kind === "vipRide"
+        ? 0.52
+        : kind === "passengerPickup"
+          ? 0.28
+          : kind === "airportRide"
+            ? 0.78
+            : 0.58;
+    drawSpriteCentered(ctx, sprites.collectGlow, x, y, size * glowScale, size * glowScale);
+    ctx.restore();
   }
 
   if (kind === "reputationStar" && sprites.reputationStar) {
-    drawSpriteCentered(ctx, sprites.reputationStar, x, y, size * 1.05, size * 1.05);
+    drawSpriteCentered(ctx, sprites.reputationStar, x, y, size * 0.9, size * 0.9);
   } else if (kind === "passengerPickup" && sprites.passengerPickup) {
-    drawSpriteCentered(ctx, sprites.passengerPickup, x, y, size * 1.04, size * 1.04);
+    drawSpriteCentered(ctx, sprites.passengerPickup, x, y, size * 1.18, size * 1.18);
   } else if (kind === "airportRide" && sprites.airportRide) {
-    drawSpriteCentered(ctx, sprites.airportRide, x, y, size * 1.12, size * 1.02);
+    drawSpriteCentered(ctx, sprites.airportRide, x, y, size * 1.48, size * 1.34);
   } else if (kind === "vipRide" && sprites.vipRide) {
-    drawSpriteCentered(ctx, sprites.vipRide, x, y, size * 1.16, size * 1.06);
+    drawSpriteCentered(ctx, sprites.vipRide, x, y, size * 1.14, size * 1.04);
   } else if (kind === "vipRide") {
     drawDiamond(ctx, x, y, size * 0.55);
   } else if (kind === "airportRide") {
@@ -1394,7 +1391,8 @@ function roadLaneCenterX(width: number, lane: number, yPct: number) {
   const topRoadLeft = width * 0.37;
   const topRoadWidth = width * 0.26;
   const topX = topRoadLeft + topRoadWidth * ((lane + 0.5) / 3);
-  const bottomX = (laneCenter(lane) / 100) * width;
+  const bottomLaneCenters = [0.245, 0.5, 0.755];
+  const bottomX = (bottomLaneCenters[lane] ?? laneCenter(lane) / 100) * width;
   return lerp(topX, bottomX, progress);
 }
 

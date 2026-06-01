@@ -76,18 +76,19 @@ function createCollectible(
 function pickObstacleKind(stage: RunnerStage, lastKinds: string[]): RunnerObstacleKind {
   const pool: RunnerObstacleKind[] =
     stage === "legendaryDriver"
-      ? ["sedan", "suv", "pickup", "liftedTruck", "construction", "ice", "deer", "moose"]
+      ? ["sedan", "suv", "pickup", "liftedTruck", "construction", "ice"]
       : stage === "utahChaos"
-        ? ["sedan", "suv", "pickup", "construction", "ice", "deer", "moose"]
+        ? ["sedan", "suv", "pickup", "construction", "ice"]
         : stage === "trafficBuilds"
-          ? ["sedan", "suv", "pickup", "construction", "ice", "deer"]
+          ? ["sedan", "suv", "pickup", "construction", "ice"]
           : ["sedan", "suv", "construction"];
 
   const filtered = pool.filter((kind) => !lastKinds.includes(kind));
   const candidates = filtered.length > 0 ? filtered : pool;
   const rareRoll = Math.random();
 
-  if (stage === "legendaryDriver" && rareRoll > 0.94) return "moose";
+  if (stage === "legendaryDriver" && rareRoll > 0.985) return "moose";
+  if ((stage === "utahChaos" || stage === "legendaryDriver") && rareRoll > 0.965) return "deer";
   if ((stage === "utahChaos" || stage === "legendaryDriver") && rareRoll > 0.88) {
     return "liftedTruck";
   }
@@ -98,10 +99,15 @@ function pickObstacleKind(stage: RunnerStage, lastKinds: string[]): RunnerObstac
 function pickCollectibleKind(stage: RunnerStage, preferred: boolean): RunnerCollectibleKind {
   const roll = Math.random();
 
-  if (stage === "legendaryDriver" && roll > 0.965) return "vipRide";
-  if ((stage === "utahChaos" || stage === "legendaryDriver") && roll > 0.9) return "airportRide";
-  if (preferred && roll > 0.62) return "passengerPickup";
-  if (stage === "warmRide" && roll > 0.78) return "passengerPickup";
+  if (stage === "legendaryDriver" && roll > 0.96) return "vipRide";
+  if (
+    (stage === "trafficBuilds" || stage === "utahChaos" || stage === "legendaryDriver") &&
+    roll > 0.82
+  ) {
+    return "airportRide";
+  }
+  if (preferred && roll > 0.56) return "passengerPickup";
+  if (stage === "warmRide" && roll > 0.72) return "passengerPickup";
   return "reputationStar";
 }
 
