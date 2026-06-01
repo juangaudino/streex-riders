@@ -27,11 +27,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
         <div className="runner-hero" aria-hidden="true">
           <div className="runner-sky" />
           <div className="runner-stars" />
-          <img
-            className="runner-horizon"
-            src={RUNNER_SPRITES.horizonGroundBlend2}
-            alt=""
-          />
+          <img className="runner-horizon" src={RUNNER_SPRITES.horizonGroundBlend2} alt="" />
           <div className="runner-mountains runner-mountains-far" />
           <div className="runner-mountains runner-mountains-near" />
           <div className="runner-horizon-lights" />
@@ -62,9 +58,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
               <br />
               Elevated?
             </h1>
-            <p className="runner-sub">
-              A premium ride challenge built for the Streex world.
-            </p>
+            <p className="runner-sub">A premium ride challenge built for the Streex world.</p>
           </div>
 
           <div className="runner-ctas">
@@ -73,7 +67,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
               <span className="runner-primary-label">PLAY</span>
             </button>
             <button className="runner-ghost-button" onClick={onBack}>
-              Back to Streex
+              Discover Streex
             </button>
           </div>
         </div>
@@ -81,26 +75,30 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
 
       <style>{`
         .runner-shell {
-          min-height: 100vh;
+          min-height: 100svh;
           background: #050505;
           color: ${RUNNER_COLORS.white};
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 16px;
-          overflow: hidden;
+          padding:
+            max(12px, env(safe-area-inset-top))
+            14px
+            max(16px, calc(env(safe-area-inset-bottom) + 12px));
+          overflow: auto;
+          overscroll-behavior: none;
         }
 
         .runner-frame {
           position: relative;
           width: min(100%, 430px);
-          height: min(860px, calc(100vh - 32px));
-          min-height: 720px;
+          height: min(820px, calc(100svh - max(28px, env(safe-area-inset-top)) - max(34px, env(safe-area-inset-bottom))));
+          min-height: 0;
           display: flex;
           flex-direction: column;
           background: ${RUNNER_COLORS.black};
           border: 1px solid rgba(255,255,255,0.05);
-          border-radius: 36px;
+          border-radius: clamp(22px, 7vw, 36px);
           overflow: hidden;
           box-shadow:
             0 30px 80px rgba(0,0,0,0.6),
@@ -113,7 +111,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           z-index: 6;
           display: flex;
           justify-content: center;
-          padding: 26px 24px 14px;
+          padding: clamp(14px, 3svh, 24px) 24px clamp(8px, 1.8svh, 14px);
         }
 
         .runner-logo-badge {
@@ -151,7 +149,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
         .runner-hero {
           position: relative;
           flex: 1 1 auto;
-          min-height: 360px;
+          min-height: 250px;
           width: 100%;
           overflow: hidden;
         }
@@ -358,7 +356,10 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          padding: 22px 32px 30px;
+          padding:
+            clamp(16px, 2.6svh, 22px)
+            clamp(22px, 7vw, 32px)
+            clamp(18px, 3svh, 28px);
           background: ${RUNNER_COLORS.black};
           position: relative;
           z-index: 5;
@@ -377,33 +378,33 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           font-weight: 800;
           letter-spacing: 0.32em;
           text-transform: uppercase;
-          margin-bottom: 12px;
+          margin-bottom: clamp(8px, 1.5svh, 12px);
           font-family: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, monospace;
         }
 
         .runner-headline {
           margin: 0;
-          font-size: 32px;
+          font-size: clamp(26px, 7.4vw, 32px);
           line-height: 1.08;
           font-weight: 900;
-          letter-spacing: -0.02em;
+          letter-spacing: 0;
           color: ${RUNNER_COLORS.white};
           max-width: 320px;
         }
 
         .runner-sub {
-          margin: 14px 0 0;
+          margin: clamp(10px, 1.8svh, 14px) 0 0;
           max-width: 280px;
           color: rgba(255,255,255,0.5);
           font-size: 13px;
-          line-height: 1.65;
+          line-height: 1.55;
         }
 
         .runner-ctas {
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          margin-top: 22px;
+          gap: 10px;
+          margin-top: clamp(16px, 2.5svh, 22px);
         }
 
         .runner-primary-button {
@@ -432,7 +433,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           align-items: center;
           justify-content: center;
           width: 100%;
-          min-height: 54px;
+          min-height: clamp(48px, 7svh, 54px);
           border-radius: 12px;
           background: ${RUNNER_COLORS.yellow};
           color: ${RUNNER_COLORS.black};
@@ -449,7 +450,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
 
         .runner-ghost-button {
           width: 100%;
-          min-height: 48px;
+          min-height: clamp(44px, 6.5svh, 48px);
           border-radius: 12px;
           border: 1px solid rgba(255,255,255,0.14);
           background: rgba(255,255,255,0.03);
@@ -464,6 +465,61 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
         .runner-ghost-button:hover {
           background: rgba(255,255,255,0.06);
           color: ${RUNNER_COLORS.white};
+        }
+
+        @supports (height: 100dvh) {
+          .runner-shell {
+            min-height: 100dvh;
+          }
+
+          .runner-frame {
+            height: min(820px, calc(100dvh - max(28px, env(safe-area-inset-top)) - max(34px, env(safe-area-inset-bottom))));
+          }
+        }
+
+        @media (max-height: 720px) {
+          .runner-logo-badge {
+            padding: 8px 18px;
+          }
+
+          .runner-logo-lockup {
+            width: 142px;
+          }
+
+          .runner-badge-wing {
+            width: 22px;
+          }
+
+          .runner-hero {
+            min-height: 220px;
+          }
+
+          .runner-sub {
+            max-width: 250px;
+          }
+        }
+
+        @media (max-height: 640px) {
+          .runner-logo-bar {
+            padding-top: 10px;
+            padding-bottom: 6px;
+          }
+
+          .runner-logo-lockup {
+            width: 128px;
+          }
+
+          .runner-hero {
+            min-height: 180px;
+          }
+
+          .runner-eyebrow {
+            font-size: 9px;
+          }
+
+          .runner-sub {
+            display: none;
+          }
         }
       `}</style>
     </section>

@@ -22,7 +22,7 @@ export function RunnerApp() {
   const play = useCallback(() => {
     setRunId((current) => current + 1);
     setScreen("transition");
-    window.setTimeout(() => setScreen("playing"), 620);
+    window.setTimeout(() => setScreen("playing"), 520);
   }, []);
 
   const backToStreex = useCallback(() => {
