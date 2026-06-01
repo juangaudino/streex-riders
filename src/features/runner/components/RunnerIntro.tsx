@@ -1,4 +1,5 @@
 import { RUNNER_COLORS } from "../runner.config";
+import { RUNNER_SPRITES } from "../assets/manifest";
 
 type RunnerIntroProps = {
   onPlay: () => void;
@@ -16,10 +17,11 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           <div className="runner-pixel-rav4">STREEX</div>
         </div>
 
-        <div className="runner-lockup">
-          <span>STREEX</span>
-          <strong>RUNNER</strong>
-        </div>
+        <img
+          className="runner-logo-lockup"
+          src={RUNNER_SPRITES.runnerLogoLockup}
+          alt="STREEX Runner"
+        />
 
         <h1>Welcome Aboard</h1>
         <p>
@@ -120,24 +122,11 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           box-shadow: 0 12px 28px rgba(0,0,0,0.5);
         }
 
-        .runner-lockup {
-          margin-top: 28px;
-          display: grid;
-          gap: 2px;
-          letter-spacing: 0.2em;
-          line-height: 0.95;
-        }
-
-        .runner-lockup span {
-          color: ${RUNNER_COLORS.white};
-          font-size: 13px;
-          font-weight: 700;
-        }
-
-        .runner-lockup strong {
-          color: ${RUNNER_COLORS.yellow};
-          font-size: 34px;
-          font-weight: 900;
+        .runner-logo-lockup {
+          width: min(86%, 320px);
+          margin-top: 24px;
+          display: block;
+          filter: drop-shadow(0 0 22px rgba(230,206,32,0.16));
         }
 
         .runner-intro h1 {

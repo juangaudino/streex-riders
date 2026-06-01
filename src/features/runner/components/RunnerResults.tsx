@@ -140,7 +140,12 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           <span>You ranked #{localRank}</span>
           <span>Above {snapshot.aboveRiders} riders</span>
         </div>
-        <div className="runner-signature">Ride Elevated</div>
+        <div className="runner-signature">
+          <strong>Ride Elevated</strong>
+          <span>
+            {CONFIG.ownerName} · @{CONFIG.instagram} · {CONFIG.phoneDisplay}
+          </span>
+        </div>
       </div>
 
       <div className="runner-name-panel">
@@ -398,11 +403,26 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
         .runner-signature {
           margin-top: auto;
+          display: grid;
+          gap: 5px;
           color: rgba(255,255,255,0.46);
-          font-size: 12px;
-          letter-spacing: 0.18em;
           text-align: center;
           text-transform: uppercase;
+        }
+
+        .runner-signature strong {
+          color: rgba(255,255,255,0.56);
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+        }
+
+        .runner-signature span {
+          color: rgba(255,255,255,0.42);
+          font-size: 9px;
+          font-weight: 650;
+          letter-spacing: 0.08em;
+          text-transform: none;
         }
 
         .runner-result-actions {
@@ -562,6 +582,14 @@ async function createRunnerScoreCard(
   ctx.fillStyle = "rgba(255,255,255,0.38)";
   ctx.font = "500 27px Montserrat, Arial, sans-serif";
   ctx.fillText(CONFIG.website.replace(/^https?:\/\//, ""), width / 2, 1762);
+
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
+  ctx.font = "600 24px Montserrat, Arial, sans-serif";
+  ctx.fillText(
+    `${CONFIG.ownerName} · @${CONFIG.instagram} · ${CONFIG.phoneDisplay}`,
+    width / 2,
+    1818,
+  );
 
   return canvas;
 }

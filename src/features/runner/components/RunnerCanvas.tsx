@@ -383,13 +383,31 @@ function drawAmbientWorld(
   ctx.fillRect(0, 0, width, horizonY);
 
   if (sprites.mountainFar) {
-    drawParallaxImage(ctx, sprites.mountainFar, 0, horizonY - height * 0.21, width, height * 0.32);
+    const farWidth = width * 1.14;
+    const farDrift = Math.sin(time * 0.00011) * width * 0.025;
+    drawParallaxImage(
+      ctx,
+      sprites.mountainFar,
+      (width - farWidth) / 2 + farDrift,
+      horizonY - height * 0.21,
+      farWidth,
+      height * 0.32,
+    );
   } else {
     drawMountainLayer(ctx, width, horizonY, height * 0.1, RUNNER_COLORS.mountainFar, time * 0.002);
   }
 
   if (sprites.mountainNear) {
-    drawParallaxImage(ctx, sprites.mountainNear, 0, horizonY - height * 0.2, width, height * 0.38);
+    const nearWidth = width * 1.18;
+    const nearDrift = Math.sin(time * 0.00016 + 1.4) * width * 0.035;
+    drawParallaxImage(
+      ctx,
+      sprites.mountainNear,
+      (width - nearWidth) / 2 + nearDrift,
+      horizonY - height * 0.2,
+      nearWidth,
+      height * 0.38,
+    );
   } else {
     drawMountainLayer(
       ctx,
@@ -436,14 +454,16 @@ function drawRoad(
   const topLeft = width * 0.37;
   const topRight = width * 0.63;
   const shoulderGradient = ctx.createLinearGradient(0, horizonY, 0, height);
-  shoulderGradient.addColorStop(0, "#171812");
-  shoulderGradient.addColorStop(1, "#080807");
+  shoulderGradient.addColorStop(0, "#161B17");
+  shoulderGradient.addColorStop(0.5, "#0D110F");
+  shoulderGradient.addColorStop(1, "#070807");
   ctx.fillStyle = shoulderGradient;
   ctx.fillRect(0, horizonY, width, height - horizonY);
 
   const roadGradient = ctx.createLinearGradient(0, horizonY, 0, height);
-  roadGradient.addColorStop(0, RUNNER_COLORS.roadLight);
-  roadGradient.addColorStop(1, RUNNER_COLORS.road);
+  roadGradient.addColorStop(0, "#303536");
+  roadGradient.addColorStop(0.48, "#232829");
+  roadGradient.addColorStop(1, "#171B1C");
   ctx.fillStyle = roadGradient;
   ctx.beginPath();
   ctx.moveTo(topLeft, horizonY);
@@ -451,24 +471,24 @@ function drawRoad(
   ctx.lineTo(width, height);
   ctx.lineTo(0, height);
   ctx.closePath();
+  ctx.fill();
+
   if (sprites.roadTexture) {
     ctx.save();
     ctx.clip();
+    ctx.globalAlpha = 0.16;
     drawScrollingRoadTexture(ctx, sprites.roadTexture, width, height, horizonY, offset);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "rgba(24,28,29,0.5)";
+    ctx.fillRect(0, horizonY, width, height - horizonY);
     ctx.restore();
-  } else {
-    ctx.fill();
   }
 
-  if (sprites.roadEdgeAlt) {
-    drawRoadEdges(ctx, sprites.roadEdgeAlt, width, height, horizonY, offset);
-  }
-
-  const textureSpacing = 18;
+  const textureSpacing = 34;
   ctx.save();
-  ctx.strokeStyle = "rgba(255,255,255,0.035)";
+  ctx.strokeStyle = "rgba(255,255,255,0.028)";
   ctx.lineWidth = 1;
-  for (let y = horizonY + ((offset * 1.2) % textureSpacing); y < height; y += textureSpacing) {
+  for (let y = horizonY + ((offset * 0.9) % textureSpacing); y < height; y += textureSpacing) {
     const progress = roadDepthProgress((y / height) * 100);
     const left = lerp(topLeft, 0, progress);
     const right = lerp(topRight, width, progress);
@@ -479,14 +499,21 @@ function drawRoad(
   }
   ctx.restore();
 
+  ctx.save();
+  ctx.strokeStyle = "rgba(23,27,28,0.74)";
+  ctx.lineWidth = Math.max(9, width * 0.028);
+  ctx.beginPath();
+  ctx.moveTo(vanishingX, horizonY);
+  ctx.lineTo(width * 0.5, height);
+  ctx.stroke();
+  ctx.restore();
+
   for (let lane = 1; lane < 3; lane += 1) {
     const bottomX = (width / 3) * lane;
     const topX = vanishingX + (bottomX - vanishingX) * 0.26;
     ctx.save();
-    ctx.strokeStyle = "rgba(255,255,255,0.22)";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([22, 18]);
-    ctx.lineDashOffset = -offset;
+    ctx.strokeStyle = "rgba(235,239,236,0.16)";
+    ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(topX, horizonY);
     ctx.lineTo(bottomX, height);
@@ -799,46 +826,35 @@ function drawCrashFx(
   width: number,
   height: number,
   crashKind: RunnerEntity["kind"] | null,
-  sprites: RunnerLoadedSprites,
+  _sprites: RunnerLoadedSprites,
 ) {
-  ctx.fillStyle = "rgba(255,45,45,0.13)";
+  ctx.fillStyle = "rgba(255,45,45,0.055)";
   ctx.fillRect(0, 0, width, height);
-  ctx.fillStyle = "rgba(11,11,11,0.42)";
+  ctx.fillStyle = "rgba(11,11,11,0.3)";
   ctx.fillRect(0, 0, width, height);
-  if (sprites.skidMarksAlt) {
-    ctx.save();
-    ctx.globalAlpha = 0.52;
-    drawSpriteCentered(
-      ctx,
-      sprites.skidMarksAlt,
-      width / 2,
-      height * 0.74,
-      width * 0.72,
-      width * 0.42,
-    );
-    ctx.restore();
-  }
-  if (sprites.crashFlash) {
-    ctx.save();
-    ctx.globalAlpha = 0.76;
-    drawSpriteCentered(
-      ctx,
-      sprites.crashFlash,
-      width / 2,
-      height * 0.57,
-      width * 0.72,
-      width * 0.5,
-    );
-    ctx.restore();
-  }
+
+  const impact = ctx.createRadialGradient(
+    width / 2,
+    height * 0.66,
+    0,
+    width / 2,
+    height * 0.66,
+    width * 0.44,
+  );
+  impact.addColorStop(0, "rgba(230,206,32,0.22)");
+  impact.addColorStop(0.2, "rgba(230,206,32,0.08)");
+  impact.addColorStop(1, "rgba(230,206,32,0)");
+  ctx.fillStyle = impact;
+  ctx.fillRect(0, height * 0.42, width, height * 0.42);
+
   ctx.fillStyle = RUNNER_COLORS.yellow;
-  ctx.font = "900 16px Montserrat, sans-serif";
+  ctx.font = "900 13px Montserrat, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   const label = crashKind
     ? RUNNER_OBSTACLE_LABELS[crashKind as keyof typeof RUNNER_OBSTACLE_LABELS]
     : "road";
-  ctx.fillText(`Crash: ${label}`, width / 2, height * 0.2);
+  ctx.fillText(`IMPACT: ${label}`, width / 2, height * 0.2);
 }
 
 function drawStar(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) {
@@ -939,31 +955,6 @@ function drawScrollingRoadTexture(
   shade.addColorStop(1, "rgba(11,11,11,0.26)");
   ctx.fillStyle = shade;
   ctx.fillRect(0, horizonY, width, height - horizonY);
-}
-
-function drawRoadEdges(
-  ctx: CanvasRenderingContext2D,
-  image: HTMLImageElement,
-  width: number,
-  height: number,
-  horizonY: number,
-  offset: number,
-) {
-  const edgeWidth = width * 0.32;
-  const edgeHeight = Math.max(280, width * 1.35);
-  const startY = horizonY - edgeHeight + ((offset * 5) % edgeHeight);
-
-  ctx.save();
-  ctx.globalAlpha = 0.58;
-  for (let y = startY; y < height; y += edgeHeight) {
-    ctx.drawImage(image, -edgeWidth * 0.48, y, edgeWidth, edgeHeight);
-    ctx.save();
-    ctx.translate(width + edgeWidth * 0.48, y);
-    ctx.scale(-1, 1);
-    ctx.drawImage(image, 0, 0, edgeWidth, edgeHeight);
-    ctx.restore();
-  }
-  ctx.restore();
 }
 
 function roundRect(
