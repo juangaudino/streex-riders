@@ -352,8 +352,8 @@ function drawRunnerFrame(
 ) {
   ctx.clearRect(0, 0, width, height);
   drawAmbientWorld(ctx, width, height, time, sprites);
-  drawRoad(ctx, width, height, state.roadOffset);
-  drawHorizonIntegration(ctx, width, height, state.roadOffset, time);
+  drawRoad(ctx, width, height, state.roadOffset, sprites);
+  drawHorizonIntegration(ctx, width, height, state.roadOffset, time, sprites);
   state.entities
     .slice()
     .sort((a, b) => a.y - b.y)
@@ -466,7 +466,13 @@ function drawMountainLayer(
   ctx.fill();
 }
 
-function drawRoad(ctx: CanvasRenderingContext2D, width: number, height: number, offset: number) {
+function drawRoad(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  offset: number,
+  sprites: RunnerLoadedSprites,
+) {
   const horizonY = height * RUNNER_HORIZON;
   const vanishingX = width * 0.5;
   const topLeft = width * 0.37;
@@ -477,7 +483,7 @@ function drawRoad(ctx: CanvasRenderingContext2D, width: number, height: number, 
   shoulderGradient.addColorStop(1, "#10140E");
   ctx.fillStyle = shoulderGradient;
   ctx.fillRect(0, horizonY, width, height - horizonY);
-  drawRoadsideEcosystem(ctx, width, height, horizonY, offset, topLeft, topRight);
+  drawRoadsideEcosystem(ctx, width, height, horizonY, offset, topLeft, topRight, sprites);
 
   const roadGradient = ctx.createLinearGradient(0, horizonY, 0, height);
   roadGradient.addColorStop(0, "#4D514B");
@@ -492,7 +498,20 @@ function drawRoad(ctx: CanvasRenderingContext2D, width: number, height: number, 
   ctx.closePath();
   ctx.fill();
 
-  drawAsphaltWear(ctx, width, height, horizonY, offset, topLeft, topRight);
+  if (sprites.asphaltTextureClean) {
+    drawAsphaltTexture(
+      ctx,
+      sprites.asphaltTextureClean,
+      width,
+      height,
+      horizonY,
+      offset,
+      topLeft,
+      topRight,
+    );
+  } else {
+    drawAsphaltWear(ctx, width, height, horizonY, offset, topLeft, topRight);
+  }
 
   const textureSpacing = 34;
   ctx.save();
@@ -578,14 +597,70 @@ function drawAsphaltWear(
   ctx.restore();
 }
 
+function drawAsphaltTexture(
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  width: number,
+  height: number,
+  horizonY: number,
+  offset: number,
+  topLeft: number,
+  topRight: number,
+) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(topLeft, horizonY);
+  ctx.lineTo(topRight, horizonY);
+  ctx.lineTo(width, height);
+  ctx.lineTo(0, height);
+  ctx.closePath();
+  ctx.clip();
+
+  const textureHeight = Math.max(420, width * 2.05);
+  const textureWidth = width * 1.06;
+  const x = (width - textureWidth) / 2;
+  const startY = horizonY - textureHeight + ((offset * 4.2) % textureHeight);
+
+  ctx.globalAlpha = 0.68;
+  for (let y = startY; y < height; y += textureHeight) {
+    ctx.drawImage(image, x, y, textureWidth, textureHeight);
+  }
+
+  ctx.globalAlpha = 1;
+  const wash = ctx.createLinearGradient(0, horizonY, 0, height);
+  wash.addColorStop(0, "rgba(255,255,255,0.14)");
+  wash.addColorStop(0.45, "rgba(52,55,53,0.18)");
+  wash.addColorStop(1, "rgba(22,24,23,0.2)");
+  ctx.fillStyle = wash;
+  ctx.fillRect(0, horizonY, width, height - horizonY);
+  ctx.restore();
+}
+
 function drawHorizonIntegration(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
   offset: number,
   time: number,
+  sprites: RunnerLoadedSprites,
 ) {
   const horizonY = height * RUNNER_HORIZON;
+  if (sprites.horizonGroundBlend2) {
+    const blendWidth = width * 1.24;
+    const blendHeight = height * 0.34;
+    const blendX = (width - blendWidth) / 2 + Math.sin(time * 0.00012) * width * 0.025;
+    ctx.save();
+    ctx.globalAlpha = 0.46;
+    ctx.drawImage(
+      sprites.horizonGroundBlend2,
+      blendX,
+      horizonY - blendHeight * 0.54,
+      blendWidth,
+      blendHeight,
+    );
+    ctx.restore();
+  }
+
   const distantGround = ctx.createLinearGradient(0, horizonY - 18, 0, horizonY + height * 0.16);
   distantGround.addColorStop(0, "rgba(224,177,91,0.08)");
   distantGround.addColorStop(0.38, "rgba(63,75,48,0.36)");
@@ -708,6 +783,7 @@ function drawRoadsideEcosystem(
   offset: number,
   topLeft: number,
   topRight: number,
+  sprites: RunnerLoadedSprites,
 ) {
   const shoulder = ctx.createLinearGradient(0, horizonY, 0, height);
   shoulder.addColorStop(0, "rgba(117,102,67,0.12)");
@@ -731,8 +807,10 @@ function drawRoadsideEcosystem(
   }
   ctx.restore();
 
+  drawShoulderAssets(ctx, width, height, horizonY, offset, topLeft, topRight, sprites);
+
   const spacing = 118;
-  const scroll = (offset * 2.1) % spacing;
+  const scroll = (offset * 3.1) % spacing;
   for (let i = -2; i < 11; i += 1) {
     const y = horizonY + i * spacing + scroll;
     if (y < horizonY - 40 || y > height + 80) continue;
@@ -743,7 +821,15 @@ function drawRoadsideEcosystem(
     const rightRoad = lerp(topRight, width, progress);
     const scale = 0.36 + progress * 1.18;
 
-    drawRoadsideCluster(ctx, leftRoad - width * (0.1 + pseudoRandom(i, 3) * 0.18), y, scale, i, -1);
+    drawRoadsideCluster(
+      ctx,
+      leftRoad - width * (0.1 + pseudoRandom(i, 3) * 0.18),
+      y,
+      scale,
+      i,
+      -1,
+      sprites,
+    );
     drawRoadsideCluster(
       ctx,
       rightRoad + width * (0.1 + pseudoRandom(i, 9) * 0.18),
@@ -751,6 +837,7 @@ function drawRoadsideEcosystem(
       scale * 0.92,
       i + 13,
       1,
+      sprites,
     );
   }
 
@@ -762,6 +849,53 @@ function drawRoadsideEcosystem(
   ctx.fillRect(0, horizonY - 24, width, 102);
 }
 
+function drawShoulderAssets(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  horizonY: number,
+  offset: number,
+  topLeft: number,
+  topRight: number,
+  sprites: RunnerLoadedSprites,
+) {
+  if (!sprites.roadShoulderLeft && !sprites.roadShoulderRight) return;
+
+  const tileHeight = Math.max(480, width * 2.25);
+  const tileWidth = width * 0.92;
+  const startY = horizonY - tileHeight + ((offset * 3.75) % tileHeight);
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(0, horizonY);
+  ctx.lineTo(topLeft, horizonY);
+  ctx.lineTo(0, height);
+  ctx.closePath();
+  ctx.clip();
+  ctx.globalAlpha = 0.78;
+  for (let y = startY; y < height; y += tileHeight) {
+    if (sprites.roadShoulderLeft) {
+      ctx.drawImage(sprites.roadShoulderLeft, -width * 0.48, y, tileWidth, tileHeight);
+    }
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(width, horizonY);
+  ctx.lineTo(topRight, horizonY);
+  ctx.lineTo(width, height);
+  ctx.closePath();
+  ctx.clip();
+  ctx.globalAlpha = 0.78;
+  for (let y = startY; y < height; y += tileHeight) {
+    if (sprites.roadShoulderRight) {
+      ctx.drawImage(sprites.roadShoulderRight, width - tileWidth * 0.46, y, tileWidth, tileHeight);
+    }
+  }
+  ctx.restore();
+}
+
 function drawRoadsideCluster(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -769,11 +903,21 @@ function drawRoadsideCluster(
   scale: number,
   seed: number,
   side: -1 | 1,
+  sprites: RunnerLoadedSprites,
 ) {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(side, 1);
   ctx.globalAlpha = Math.min(0.88, 0.28 + scale * 0.42);
+
+  const scrubSprite = seed % 2 === 0 ? sprites.roadsideScrub01 : sprites.roadsideScrub02;
+  if (scrubSprite) {
+    const scrubWidth = 82 * scale;
+    const scrubHeight = scrubWidth * 1.15;
+    ctx.drawImage(scrubSprite, -scrubWidth / 2, -scrubHeight * 0.62, scrubWidth, scrubHeight);
+    ctx.restore();
+    return;
+  }
 
   const bushWidth = 30 * scale;
   const bushHeight = 12 * scale;
