@@ -1229,9 +1229,9 @@ function drawEntity(
   if (entity.kind === "sedan" && sprites.trafficSedan) {
     const sedanSprite =
       entity.id % 5 === 0
-        ? sprites.trafficSport
+        ? (sprites.trafficSport ?? sprites.trafficSedan)
         : entity.id % 4 === 0
-          ? sprites.sedanVip
+          ? (sprites.sedanVip ?? sprites.trafficSedan)
           : sprites.trafficSedan;
     drawSpriteCentered(ctx, sedanSprite, x, y, size * 1.22, size * 1.2);
     return;
@@ -1243,7 +1243,10 @@ function drawEntity(
   }
 
   if (entity.kind === "pickup" && sprites.trafficPickup) {
-    const pickupSprite = entity.id % 3 === 0 ? sprites.trafficPickupSilver : sprites.trafficPickup;
+    const pickupSprite =
+      entity.id % 3 === 0
+        ? (sprites.trafficPickupSilver ?? sprites.trafficPickup)
+        : sprites.trafficPickup;
     drawSpriteCentered(ctx, pickupSprite, x, y, size * 1.24, size * 1.2);
     return;
   }
