@@ -705,7 +705,7 @@ function drawPlayer(
 ) {
   const x = (playerX / 100) * width;
   const y = (playerY / 100) * height;
-  const carWidth = Math.min(width * 0.18, 76);
+  const carWidth = Math.min(width * 0.16, 68);
   const carHeight = carWidth * 0.58;
   const skid = isRecovering ? Math.sin(time * 0.04) * 4 : 0;
 
@@ -722,7 +722,7 @@ function drawPlayer(
       : sprites.playerRav4Rear;
 
   if (playerSprite) {
-    const spriteWidth = Math.min(width * 0.42, 176);
+    const spriteWidth = Math.min(width * 0.37, 156);
     const spriteHeight = spriteWidth * 1.02;
     ctx.drawImage(playerSprite, -spriteWidth / 2, -spriteHeight * 0.62, spriteWidth, spriteHeight);
     ctx.restore();
@@ -861,36 +861,88 @@ function drawShoulderAssets(
 ) {
   if (!sprites.roadShoulderLeft && !sprites.roadShoulderRight) return;
 
-  const tileHeight = Math.max(480, width * 2.25);
-  const tileWidth = width * 0.92;
-  const startY = horizonY - tileHeight + ((offset * 3.75) % tileHeight);
-
-  ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(0, horizonY);
-  ctx.lineTo(topLeft, horizonY);
-  ctx.lineTo(0, height);
-  ctx.closePath();
-  ctx.clip();
-  ctx.globalAlpha = 0.78;
-  for (let y = startY; y < height; y += tileHeight) {
-    if (sprites.roadShoulderLeft) {
-      ctx.drawImage(sprites.roadShoulderLeft, -width * 0.48, y, tileWidth, tileHeight);
-    }
+  if (sprites.roadShoulderLeft) {
+    drawPerspectiveShoulderSide(
+      ctx,
+      sprites.roadShoulderLeft,
+      width,
+      height,
+      horizonY,
+      offset,
+      topLeft,
+      "left",
+    );
   }
-  ctx.restore();
+
+  if (sprites.roadShoulderRight) {
+    drawPerspectiveShoulderSide(
+      ctx,
+      sprites.roadShoulderRight,
+      width,
+      height,
+      horizonY,
+      offset,
+      topRight,
+      "right",
+    );
+  }
+}
+
+function drawPerspectiveShoulderSide(
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  width: number,
+  height: number,
+  horizonY: number,
+  offset: number,
+  roadTopX: number,
+  side: "left" | "right",
+) {
+  const stripHeight = 7;
+  const scroll = offset * 4.15;
 
   ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(width, horizonY);
-  ctx.lineTo(topRight, horizonY);
-  ctx.lineTo(width, height);
-  ctx.closePath();
-  ctx.clip();
-  ctx.globalAlpha = 0.78;
-  for (let y = startY; y < height; y += tileHeight) {
-    if (sprites.roadShoulderRight) {
-      ctx.drawImage(sprites.roadShoulderRight, width - tileWidth * 0.46, y, tileWidth, tileHeight);
+  ctx.globalAlpha = 0.66;
+  for (let y = horizonY; y < height; y += stripHeight) {
+    const yPct = (y / height) * 100;
+    const progress = roadDepthProgress(yPct);
+    const roadEdge =
+      side === "left" ? lerp(roadTopX, 0, progress) : lerp(roadTopX, width, progress);
+
+    const innerPad = width * (0.003 + progress * 0.012);
+    const nearWidth = width * (0.18 + progress * 0.4);
+    const farWidth = width * 0.025;
+    const shoulderWidth = lerp(farWidth, nearWidth, progress);
+    const inner = side === "left" ? roadEdge - innerPad : roadEdge + innerPad;
+    const outer = side === "left" ? inner - shoulderWidth : inner + shoulderWidth;
+    const destX = Math.min(inner, outer);
+    const destWidth = Math.max(1, Math.abs(outer - inner));
+
+    const sourceY = Math.floor((scroll + y * 1.15) % image.height);
+    const sourceHeight = Math.min(stripHeight, image.height - sourceY);
+    ctx.drawImage(
+      image,
+      0,
+      sourceY,
+      image.width,
+      sourceHeight,
+      destX,
+      y,
+      destWidth,
+      stripHeight + 1,
+    );
+    if (sourceHeight < stripHeight) {
+      ctx.drawImage(
+        image,
+        0,
+        0,
+        image.width,
+        stripHeight - sourceHeight,
+        destX,
+        y + sourceHeight,
+        destWidth,
+        stripHeight - sourceHeight + 1,
+      );
     }
   }
   ctx.restore();
@@ -1013,8 +1065,9 @@ function drawEntity(
   const progress = roadDepthProgress(entity.y);
   const x = roadLaneCenterX(width, entity.lane, entity.y);
   const y = (entity.y / 100) * height;
-  const scale = 0.22 + progress * 0.92;
-  const size = Math.min(width * 0.18, 72) * scale;
+  const scale = 0.26 + progress * 0.98;
+  const baseSize = Math.min(width * 0.2, 82) * scale;
+  const size = entity.type === "collectible" ? baseSize * 0.98 : baseSize * 1.22;
 
   drawGroundShadow(ctx, x, y, size, entity.type === "collectible" ? 0.32 : 0.52, sprites);
 
@@ -1025,7 +1078,7 @@ function drawEntity(
 
   if (entity.kind === "ice") {
     if (sprites.icePatch) {
-      drawSpriteCentered(ctx, sprites.icePatch, x, y, size * 1.55, size * 0.88);
+      drawSpriteCentered(ctx, sprites.icePatch, x, y, size * 1.68, size * 0.95);
     } else {
       drawIce(ctx, x, y, size);
     }
@@ -1036,7 +1089,7 @@ function drawEntity(
     const constructionSprite =
       entity.id % 2 === 0 ? sprites.coneCluster : sprites.constructionBarrier;
     if (constructionSprite) {
-      drawSpriteCentered(ctx, constructionSprite, x, y, size * 1.18, size * 1.1);
+      drawSpriteCentered(ctx, constructionSprite, x, y, size * 1.28, size * 1.2);
     } else {
       drawConstruction(ctx, x, y, size);
     }
@@ -1046,7 +1099,7 @@ function drawEntity(
   if (entity.kind === "deer" || entity.kind === "moose") {
     const wildlifeSprite = entity.kind === "moose" ? sprites.moose : sprites.deer;
     if (wildlifeSprite) {
-      drawSpriteCentered(ctx, wildlifeSprite, x, y, size * 1.26, size * 1.12);
+      drawSpriteCentered(ctx, wildlifeSprite, x, y, size * 1.34, size * 1.2);
     } else {
       drawWildlife(ctx, x, y, size, entity.kind === "moose");
     }
@@ -1054,22 +1107,22 @@ function drawEntity(
   }
 
   if (entity.kind === "sedan" && sprites.trafficSedan) {
-    drawSpriteCentered(ctx, sprites.trafficSedan, x, y, size * 1.2, size * 1.18);
+    drawSpriteCentered(ctx, sprites.trafficSedan, x, y, size * 1.34, size * 1.32);
     return;
   }
 
   if (entity.kind === "suv" && sprites.trafficSuv) {
-    drawSpriteCentered(ctx, sprites.trafficSuv, x, y, size * 1.2, size * 1.18);
+    drawSpriteCentered(ctx, sprites.trafficSuv, x, y, size * 1.34, size * 1.32);
     return;
   }
 
   if (entity.kind === "pickup" && sprites.trafficPickup) {
-    drawSpriteCentered(ctx, sprites.trafficPickup, x, y, size * 1.22, size * 1.18);
+    drawSpriteCentered(ctx, sprites.trafficPickup, x, y, size * 1.36, size * 1.32);
     return;
   }
 
   if (entity.kind === "liftedTruck" && sprites.liftedTruck) {
-    drawSpriteCentered(ctx, sprites.liftedTruck, x, y, size * 1.36, size * 1.26);
+    drawSpriteCentered(ctx, sprites.liftedTruck, x, y, size * 1.5, size * 1.4);
     return;
   }
 
