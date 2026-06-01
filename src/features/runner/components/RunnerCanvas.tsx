@@ -1526,7 +1526,7 @@ function roadLaneCenterX(width: number, lane: number, yPct: number) {
   const topRoadLeft = width * 0.37;
   const topRoadWidth = width * 0.26;
   const topX = topRoadLeft + topRoadWidth * ((lane + 0.5) / 3);
-  const bottomLaneCenters = [0.3, 0.5, 0.7];
+  const bottomLaneCenters = [0.245, 0.5, 0.755];
   const bottomX = (bottomLaneCenters[lane] ?? laneCenter(lane) / 100) * width;
   return lerp(topX, bottomX, progress);
 }
