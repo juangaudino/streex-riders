@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { CONFIG } from "@/config";
+import { RUNNER_SPRITES } from "../assets/manifest";
 import type { RunnerGameSnapshot } from "../runner.types";
 
 type RunnerSavedScore = {
@@ -41,7 +42,9 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
         score: snapshot.score,
         createdAt: new Date().toISOString(),
       },
-    ].slice().sort(sortScores);
+    ]
+      .slice()
+      .sort(sortScores);
     return Math.max(1, allScores.findIndex((entry) => entry.id === "current") + 1);
   }, [displayName, savedScores, snapshot.score]);
 
@@ -60,7 +63,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
   };
 
   const handleSaveCard = async () => {
-    const canvas = createRunnerScoreCard(snapshot, displayName, localRank);
+    const canvas = await createRunnerScoreCard(snapshot, displayName, localRank);
     const filename = `streex-runner-${snapshot.score}.png`;
 
     try {
@@ -123,7 +126,10 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
   return (
     <section className="runner-results">
-      <div className="runner-score-card">
+      <div
+        className="runner-score-card"
+        style={{ backgroundImage: `url(${RUNNER_SPRITES.scoreCardFrame})` }}
+      >
         <div className="runner-card-snapshot">
           <span>STREEX</span>
           <strong>RUNNER</strong>
@@ -222,7 +228,9 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           border: 1px solid rgba(230,206,32,0.24);
           border-radius: 8px;
           overflow: hidden;
-          background: #111;
+          background-color: #111;
+          background-position: center;
+          background-size: cover;
           box-shadow: 0 22px 70px rgba(0,0,0,0.48);
         }
 
@@ -482,7 +490,11 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
   );
 }
 
-function createRunnerScoreCard(snapshot: RunnerGameSnapshot, riderName: string, rank: number) {
+async function createRunnerScoreCard(
+  snapshot: RunnerGameSnapshot,
+  riderName: string,
+  rank: number,
+) {
   const canvas = document.createElement("canvas");
   const width = 1080;
   const height = 1920;
@@ -492,20 +504,25 @@ function createRunnerScoreCard(snapshot: RunnerGameSnapshot, riderName: string, 
 
   if (!ctx) return canvas;
 
-  const background = ctx.createLinearGradient(0, 0, 0, height);
-  background.addColorStop(0, "#171717");
-  background.addColorStop(0.45, "#0B0B0B");
-  background.addColorStop(1, "#050505");
-  ctx.fillStyle = background;
-  ctx.fillRect(0, 0, width, height);
+  const frame = await loadImage(RUNNER_SPRITES.scoreCardFrame).catch(() => null);
+  if (frame) {
+    ctx.drawImage(frame, 0, 0, width, height);
+  } else {
+    const background = ctx.createLinearGradient(0, 0, 0, height);
+    background.addColorStop(0, "#171717");
+    background.addColorStop(0.45, "#0B0B0B");
+    background.addColorStop(1, "#050505");
+    ctx.fillStyle = background;
+    ctx.fillRect(0, 0, width, height);
 
-  const glow = ctx.createRadialGradient(width / 2, 340, 0, width / 2, 340, 720);
-  glow.addColorStop(0, "rgba(230,206,32,0.22)");
-  glow.addColorStop(1, "rgba(230,206,32,0)");
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, width, 900);
+    const glow = ctx.createRadialGradient(width / 2, 340, 0, width / 2, 340, 720);
+    glow.addColorStop(0, "rgba(230,206,32,0.22)");
+    glow.addColorStop(1, "rgba(230,206,32,0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, width, 900);
 
-  drawScoreCardSnapshot(ctx, width);
+    drawScoreCardSnapshot(ctx, width);
+  }
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#FFFFFF";
@@ -555,6 +572,15 @@ function canvasToBlob(canvas: HTMLCanvasElement) {
       if (blob) resolve(blob);
       else reject(new Error("Unable to create score card image."));
     }, "image/png");
+  });
+}
+
+function loadImage(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Unable to load image: ${src}`));
+    image.src = src;
   });
 }
 

@@ -345,11 +345,12 @@ function drawRunnerFrame(
     state.playerY,
     time,
     time < state.iceDriftUntil,
+    Boolean(state.crashUntil),
     sprites,
   );
 
   if (state.crashUntil) {
-    drawCrashFx(ctx, width, height, state.crashKind);
+    drawCrashFx(ctx, width, height, state.crashKind, sprites);
   }
 }
 
@@ -459,6 +460,10 @@ function drawRoad(
     ctx.fill();
   }
 
+  if (sprites.roadEdgeAlt) {
+    drawRoadEdges(ctx, sprites.roadEdgeAlt, width, height, horizonY, offset);
+  }
+
   const textureSpacing = 18;
   ctx.save();
   ctx.strokeStyle = "rgba(255,255,255,0.035)";
@@ -478,7 +483,7 @@ function drawRoad(
     const bottomX = (width / 3) * lane;
     const topX = vanishingX + (bottomX - vanishingX) * 0.26;
     ctx.save();
-    ctx.strokeStyle = lane === 1 ? "rgba(230,206,32,0.42)" : "rgba(255,255,255,0.24)";
+    ctx.strokeStyle = "rgba(255,255,255,0.22)";
     ctx.lineWidth = 2;
     ctx.setLineDash([22, 18]);
     ctx.lineDashOffset = -offset;
@@ -507,6 +512,7 @@ function drawPlayer(
   playerY: number,
   time: number,
   isRecovering: boolean,
+  isCrashed: boolean,
   sprites: RunnerLoadedSprites,
 ) {
   const x = (playerX / 100) * width;
@@ -522,16 +528,15 @@ function drawPlayer(
   ctx.ellipse(0, carHeight * 0.52, carWidth * 0.46, carHeight * 0.14, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  if (sprites.playerRav4Rear) {
+  const playerSprite =
+    isCrashed && sprites.playerRav4RearDamaged
+      ? sprites.playerRav4RearDamaged
+      : sprites.playerRav4Rear;
+
+  if (playerSprite) {
     const spriteWidth = Math.min(width * 0.42, 176);
     const spriteHeight = spriteWidth * 1.02;
-    ctx.drawImage(
-      sprites.playerRav4Rear,
-      -spriteWidth / 2,
-      -spriteHeight * 0.62,
-      spriteWidth,
-      spriteHeight,
-    );
+    ctx.drawImage(playerSprite, -spriteWidth / 2, -spriteHeight * 0.62, spriteWidth, spriteHeight);
     ctx.restore();
     return;
   }
@@ -595,7 +600,7 @@ function drawEntity(
   const scale = 0.22 + progress * 0.92;
   const size = Math.min(width * 0.18, 72) * scale;
 
-  drawGroundShadow(ctx, x, y, size, entity.type === "collectible" ? 0.32 : 0.52);
+  drawGroundShadow(ctx, x, y, size, entity.type === "collectible" ? 0.32 : 0.52, sprites);
 
   if (entity.type === "collectible") {
     drawCollectible(ctx, x, y, size, entity.kind, sprites);
@@ -612,8 +617,10 @@ function drawEntity(
   }
 
   if (entity.kind === "construction") {
-    if (sprites.constructionBarrier) {
-      drawSpriteCentered(ctx, sprites.constructionBarrier, x, y, size * 1.2, size * 1.1);
+    const constructionSprite =
+      entity.id % 2 === 0 ? sprites.coneCluster : sprites.constructionBarrier;
+    if (constructionSprite) {
+      drawSpriteCentered(ctx, constructionSprite, x, y, size * 1.18, size * 1.1);
     } else {
       drawConstruction(ctx, x, y, size);
     }
@@ -621,12 +628,32 @@ function drawEntity(
   }
 
   if (entity.kind === "deer" || entity.kind === "moose") {
-    drawWildlife(ctx, x, y, size, entity.kind === "moose");
+    const wildlifeSprite = entity.kind === "moose" ? sprites.moose : sprites.deer;
+    if (wildlifeSprite) {
+      drawSpriteCentered(ctx, wildlifeSprite, x, y, size * 1.26, size * 1.12);
+    } else {
+      drawWildlife(ctx, x, y, size, entity.kind === "moose");
+    }
     return;
   }
 
   if (entity.kind === "sedan" && sprites.trafficSedan) {
     drawSpriteCentered(ctx, sprites.trafficSedan, x, y, size * 1.2, size * 1.18);
+    return;
+  }
+
+  if (entity.kind === "suv" && sprites.trafficSuv) {
+    drawSpriteCentered(ctx, sprites.trafficSuv, x, y, size * 1.2, size * 1.18);
+    return;
+  }
+
+  if (entity.kind === "pickup" && sprites.trafficPickup) {
+    drawSpriteCentered(ctx, sprites.trafficPickup, x, y, size * 1.22, size * 1.18);
+    return;
+  }
+
+  if (entity.kind === "liftedTruck" && sprites.liftedTruck) {
+    drawSpriteCentered(ctx, sprites.liftedTruck, x, y, size * 1.36, size * 1.26);
     return;
   }
 
@@ -646,10 +673,18 @@ function drawCollectible(
   ctx.shadowBlur = 12;
   ctx.fillStyle = RUNNER_COLORS.yellow;
 
+  if (sprites.collectGlow) {
+    drawSpriteCentered(ctx, sprites.collectGlow, x, y, size * 1.42, size * 1.42);
+  }
+
   if (kind === "reputationStar" && sprites.reputationStar) {
     drawSpriteCentered(ctx, sprites.reputationStar, x, y, size * 1.05, size * 1.05);
   } else if (kind === "passengerPickup" && sprites.passengerPickup) {
     drawSpriteCentered(ctx, sprites.passengerPickup, x, y, size * 1.04, size * 1.04);
+  } else if (kind === "airportRide" && sprites.airportRide) {
+    drawSpriteCentered(ctx, sprites.airportRide, x, y, size * 1.12, size * 1.02);
+  } else if (kind === "vipRide" && sprites.vipRide) {
+    drawSpriteCentered(ctx, sprites.vipRide, x, y, size * 1.16, size * 1.06);
   } else if (kind === "vipRide") {
     drawDiamond(ctx, x, y, size * 0.55);
   } else if (kind === "airportRide") {
@@ -720,12 +755,18 @@ function drawGroundShadow(
   y: number,
   size: number,
   intensity: number,
+  sprites: RunnerLoadedSprites,
 ) {
   ctx.save();
-  ctx.fillStyle = `rgba(0,0,0,${intensity})`;
-  ctx.beginPath();
-  ctx.ellipse(x, y + size * 0.28, size * 0.46, size * 0.12, 0, 0, Math.PI * 2);
-  ctx.fill();
+  if (sprites.shadowSoft) {
+    ctx.globalAlpha = Math.min(0.75, intensity + 0.12);
+    drawSpriteCentered(ctx, sprites.shadowSoft, x, y + size * 0.28, size * 1.05, size * 0.42);
+  } else {
+    ctx.fillStyle = `rgba(0,0,0,${intensity})`;
+    ctx.beginPath();
+    ctx.ellipse(x, y + size * 0.28, size * 0.46, size * 0.12, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
   ctx.restore();
 }
 
@@ -758,11 +799,38 @@ function drawCrashFx(
   width: number,
   height: number,
   crashKind: RunnerEntity["kind"] | null,
+  sprites: RunnerLoadedSprites,
 ) {
   ctx.fillStyle = "rgba(255,45,45,0.13)";
   ctx.fillRect(0, 0, width, height);
   ctx.fillStyle = "rgba(11,11,11,0.42)";
   ctx.fillRect(0, 0, width, height);
+  if (sprites.skidMarksAlt) {
+    ctx.save();
+    ctx.globalAlpha = 0.52;
+    drawSpriteCentered(
+      ctx,
+      sprites.skidMarksAlt,
+      width / 2,
+      height * 0.74,
+      width * 0.72,
+      width * 0.42,
+    );
+    ctx.restore();
+  }
+  if (sprites.crashFlash) {
+    ctx.save();
+    ctx.globalAlpha = 0.76;
+    drawSpriteCentered(
+      ctx,
+      sprites.crashFlash,
+      width / 2,
+      height * 0.57,
+      width * 0.72,
+      width * 0.5,
+    );
+    ctx.restore();
+  }
   ctx.fillStyle = RUNNER_COLORS.yellow;
   ctx.font = "900 16px Montserrat, sans-serif";
   ctx.textAlign = "center";
@@ -871,6 +939,31 @@ function drawScrollingRoadTexture(
   shade.addColorStop(1, "rgba(11,11,11,0.26)");
   ctx.fillStyle = shade;
   ctx.fillRect(0, horizonY, width, height - horizonY);
+}
+
+function drawRoadEdges(
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  width: number,
+  height: number,
+  horizonY: number,
+  offset: number,
+) {
+  const edgeWidth = width * 0.32;
+  const edgeHeight = Math.max(280, width * 1.35);
+  const startY = horizonY - edgeHeight + ((offset * 5) % edgeHeight);
+
+  ctx.save();
+  ctx.globalAlpha = 0.58;
+  for (let y = startY; y < height; y += edgeHeight) {
+    ctx.drawImage(image, -edgeWidth * 0.48, y, edgeWidth, edgeHeight);
+    ctx.save();
+    ctx.translate(width + edgeWidth * 0.48, y);
+    ctx.scale(-1, 1);
+    ctx.drawImage(image, 0, 0, edgeWidth, edgeHeight);
+    ctx.restore();
+  }
+  ctx.restore();
 }
 
 function roundRect(
