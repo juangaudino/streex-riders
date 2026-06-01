@@ -96,7 +96,8 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
         .runner-frame {
           position: relative;
           width: min(100%, 430px);
-          min-height: min(860px, calc(100vh - 32px));
+          height: min(860px, calc(100vh - 32px));
+          min-height: 720px;
           display: flex;
           flex-direction: column;
           background: ${RUNNER_COLORS.black};
@@ -111,7 +112,8 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
         /* ─── Hero ─────────────────────────────────── */
         .runner-hero {
           position: relative;
-          flex: 0 0 58%;
+          flex: 1 1 auto;
+          min-height: 380px;
           width: 100%;
           overflow: hidden;
         }
@@ -277,7 +279,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
 
         /* ─── Content ───────────────────────────────── */
         .runner-content {
-          flex: 1;
+          flex: 0 0 auto;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
