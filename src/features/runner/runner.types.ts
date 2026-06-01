@@ -44,4 +44,6 @@ export type RunnerGameSnapshot = {
 
 export type RunnerControls = {
   onGameOver: (snapshot: RunnerGameSnapshot) => void;
+  onRestart: () => void;
+  onBack: () => void;
 };

@@ -17,8 +17,10 @@ export function RunnerApp() {
   const router = useRouter();
   const [screen, setScreen] = useState<RunnerScreen>("intro");
   const [result, setResult] = useState<RunnerGameSnapshot>(EMPTY_SNAPSHOT);
+  const [runId, setRunId] = useState(0);
 
   const play = useCallback(() => {
+    setRunId((current) => current + 1);
     setScreen("transition");
     window.setTimeout(() => setScreen("playing"), 620);
   }, []);
@@ -35,7 +37,14 @@ export function RunnerApp() {
   if (screen === "transition") return <RunnerTransition />;
 
   if (screen === "playing") {
-    return <RunnerCanvas key={result.score} onGameOver={handleGameOver} />;
+    return (
+      <RunnerCanvas
+        key={runId}
+        onGameOver={handleGameOver}
+        onRestart={play}
+        onBack={backToStreex}
+      />
+    );
   }
 
   if (screen === "results") {

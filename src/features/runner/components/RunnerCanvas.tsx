@@ -10,6 +10,7 @@ type RunnerLoadedSprites = Partial<Record<RunnerSpriteKey, HTMLImageElement>>;
 
 type RunnerState = {
   running: boolean;
+  paused: boolean;
   startedAt: number;
   lastFrameAt: number;
   lastSpawnAt: number;
@@ -36,7 +37,7 @@ type RunnerRewardFx = {
   until: number;
 };
 
-export function RunnerCanvas({ onGameOver }: RunnerControls) {
+export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const shellRef = useRef<HTMLDivElement | null>(null);
   const memoryRef = useRef(createSpawnMemory());
@@ -44,9 +45,11 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
   const spritesRef = useRef<RunnerLoadedSprites>({});
   const [scoreLabel, setScoreLabel] = useState(0);
   const [toastLabel, setToastLabel] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const stateRef = useRef<RunnerState>({
     running: true,
+    paused: false,
     startedAt: 0,
     lastFrameAt: 0,
     lastSpawnAt: 0,
@@ -66,9 +69,20 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
 
   const move = useCallback((direction: -1 | 1) => {
     const state = stateRef.current;
-    if (!state.running || state.crashUntil) return;
+    if (!state.running || state.paused || state.crashUntil) return;
     const nextLane = Math.max(0, Math.min(2, state.targetLane + direction)) as RunnerLane;
     state.targetLane = nextLane;
+  }, []);
+
+  const pauseGame = useCallback(() => {
+    stateRef.current.paused = true;
+    setMenuOpen(true);
+  }, []);
+
+  const resumeGame = useCallback(() => {
+    stateRef.current.paused = false;
+    stateRef.current.lastFrameAt = 0;
+    setMenuOpen(false);
   }, []);
 
   const handlePointer = useCallback(
@@ -85,13 +99,18 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (stateRef.current.paused) resumeGame();
+        else pauseGame();
+        return;
+      }
       if (event.key === "ArrowLeft") move(-1);
       if (event.key === "ArrowRight") move(1);
     };
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [move]);
+  }, [move, pauseGame, resumeGame]);
 
   useEffect(() => {
     let cancelled = false;
@@ -153,6 +172,13 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
       state.lastFrameAt = time;
       const elapsedMs = time - state.startedAt;
       const difficulty = getDifficulty(state.score, elapsedMs);
+
+      if (state.paused) {
+        state.lastFrameAt = time;
+        drawRunnerFrame(ctx, width, height, state, time, spritesRef.current);
+        animationRef.current = requestAnimationFrame(loop);
+        return;
+      }
 
       if (state.running && !state.crashUntil) {
         if (time - state.lastSpawnAt > difficulty.spawnEveryMs) {
@@ -249,10 +275,45 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
   return (
     <div ref={shellRef} className="runner-game-shell" onPointerDown={handlePointer}>
       <canvas ref={canvasRef} className="runner-canvas" />
+      <button
+        className="runner-pause-button"
+        type="button"
+        aria-label="Pause game"
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={(event) => {
+          event.stopPropagation();
+          pauseGame();
+        }}
+      >
+        Pause
+      </button>
       <div className="runner-hud" aria-live="polite">
         <span>Score</span>
         <strong>{scoreLabel}</strong>
       </div>
+      {menuOpen ? (
+        <div
+          className="runner-pause-scrim"
+          onPointerDown={(event) => event.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Runner pause menu"
+        >
+          <div className="runner-pause-panel">
+            <span>STREEX RUNNER</span>
+            <strong>Paused</strong>
+            <button type="button" onClick={resumeGame}>
+              Resume
+            </button>
+            <button type="button" onClick={onRestart}>
+              Restart
+            </button>
+            <button type="button" onClick={onBack}>
+              Back to Streex
+            </button>
+          </div>
+        </div>
+      ) : null}
       {toastLabel ? <div className="runner-toast">{toastLabel}</div> : null}
       <div className="runner-tap-left">LEFT</div>
       <div className="runner-tap-right">RIGHT</div>
@@ -272,6 +333,80 @@ export function RunnerCanvas({ onGameOver }: RunnerControls) {
           display: block;
           width: 100%;
           height: 100vh;
+        }
+
+        .runner-pause-button {
+          position: absolute;
+          top: max(18px, env(safe-area-inset-top));
+          left: 16px;
+          min-width: 58px;
+          min-height: 32px;
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 8px;
+          background: rgba(11,11,11,0.36);
+          color: rgba(255,255,255,0.56);
+          backdrop-filter: blur(12px);
+          font-family: Montserrat, ui-sans-serif, system-ui, sans-serif;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          cursor: pointer;
+        }
+
+        .runner-pause-scrim {
+          position: absolute;
+          inset: 0;
+          display: grid;
+          place-items: center;
+          padding: 24px;
+          background: rgba(5,5,5,0.38);
+          backdrop-filter: blur(8px);
+          z-index: 4;
+        }
+
+        .runner-pause-panel {
+          width: min(100%, 280px);
+          display: grid;
+          gap: 10px;
+          border: 1px solid rgba(230,206,32,0.2);
+          border-radius: 8px;
+          background: rgba(11,11,11,0.84);
+          box-shadow: 0 24px 70px rgba(0,0,0,0.42);
+          padding: 18px;
+          text-align: center;
+        }
+
+        .runner-pause-panel span {
+          color: rgba(230,206,32,0.72);
+          font-size: 10px;
+          font-weight: 850;
+          letter-spacing: 0.16em;
+        }
+
+        .runner-pause-panel strong {
+          color: white;
+          font-size: 22px;
+          font-weight: 850;
+          margin-bottom: 4px;
+        }
+
+        .runner-pause-panel button {
+          min-height: 44px;
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 8px;
+          background: rgba(255,255,255,0.055);
+          color: white;
+          font-family: Montserrat, ui-sans-serif, system-ui, sans-serif;
+          font-size: 13px;
+          font-weight: 800;
+          cursor: pointer;
+        }
+
+        .runner-pause-panel button:first-of-type {
+          border-color: rgba(230,206,32,0.42);
+          background: #e6ce20;
+          color: #0b0b0b;
         }
 
         .runner-hud {
@@ -1391,7 +1526,7 @@ function roadLaneCenterX(width: number, lane: number, yPct: number) {
   const topRoadLeft = width * 0.37;
   const topRoadWidth = width * 0.26;
   const topX = topRoadLeft + topRoadWidth * ((lane + 0.5) / 3);
-  const bottomLaneCenters = [0.245, 0.5, 0.755];
+  const bottomLaneCenters = [0.3, 0.5, 0.7];
   const bottomX = (bottomLaneCenters[lane] ?? laneCenter(lane) / 100) * width;
   return lerp(topX, bottomX, progress);
 }
