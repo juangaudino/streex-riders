@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { RUNNER_COLORS, RUNNER_HORIZON, RUNNER_OBSTACLE_LABELS } from "../runner.config";
 import type { RunnerControls, RunnerEntity, RunnerGameSnapshot, RunnerLane } from "../runner.types";
 import { RUNNER_SPRITES, type RunnerSpriteKey } from "../assets/manifest";
+import { RunnerAudio } from "../audio/runnerAudio";
 import { detectRunnerCollision, laneCenter } from "../engine/collision";
 import { getDifficulty } from "../engine/difficulty";
 import { createSpawnMemory, createSpawnWave } from "../engine/spawnEngine";
@@ -43,6 +44,7 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
   const memoryRef = useRef(createSpawnMemory());
   const animationRef = useRef<number | null>(null);
   const spritesRef = useRef<RunnerLoadedSprites>({});
+  const audioRef = useRef<RunnerAudio | null>(null);
   const [scoreLabel, setScoreLabel] = useState(0);
   const [toastLabel, setToastLabel] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -71,23 +73,28 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
     const state = stateRef.current;
     if (!state.running || state.paused || state.crashUntil) return;
     const nextLane = Math.max(0, Math.min(2, state.targetLane + direction)) as RunnerLane;
+    if (nextLane === state.targetLane) return;
     state.targetLane = nextLane;
+    void audioRef.current?.warm().then(() => audioRef.current?.laneMove());
   }, []);
 
   const pauseGame = useCallback(() => {
     stateRef.current.paused = true;
+    audioRef.current?.setPaused(true);
     setMenuOpen(true);
   }, []);
 
   const resumeGame = useCallback(() => {
     stateRef.current.paused = false;
     stateRef.current.lastFrameAt = 0;
+    audioRef.current?.setPaused(false);
     setMenuOpen(false);
   }, []);
 
   const handlePointer = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
       event.preventDefault();
+      void audioRef.current?.warm();
       const rect = shellRef.current?.getBoundingClientRect();
       if (!rect) return;
       const x = event.clientX - rect.left;
@@ -100,17 +107,26 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        void audioRef.current?.warm();
         if (stateRef.current.paused) resumeGame();
         else pauseGame();
         return;
       }
-      if (event.key === "ArrowLeft") move(-1);
-      if (event.key === "ArrowRight") move(1);
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        void audioRef.current?.warm();
+        if (event.key === "ArrowLeft") move(-1);
+        if (event.key === "ArrowRight") move(1);
+      }
     };
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [move, pauseGame, resumeGame]);
+
+  useEffect(() => {
+    audioRef.current = new RunnerAudio();
+    return () => audioRef.current?.dispose();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -214,6 +230,7 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
               until: time + getRewardFxDuration(entity.kind),
             });
             state.entities = state.entities.filter((item) => item.id !== entity.id);
+            audioRef.current?.collect(entity.kind);
             fireHaptic(entity.kind === "vipRide" ? 45 : 12);
             continue;
           }
@@ -222,6 +239,7 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
             state.iceDriftUntil = time + 620;
             state.toast = { text: "Recover", until: time + 560 };
             state.entities = state.entities.filter((item) => item.id !== entity.id);
+            audioRef.current?.skid();
             fireHaptic(24);
             continue;
           }
@@ -230,6 +248,7 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
             state.crashUntil = time + 780;
             state.crashKind = entity.kind;
             state.running = false;
+            audioRef.current?.crash();
             fireHaptic(70);
             break;
           }
