@@ -310,7 +310,7 @@ function drawRunnerFrame(
   drawAmbientWorld(ctx, width, height, time);
   drawRoad(ctx, width, height, state.roadOffset);
   state.entities
-    .toSorted((a, b) => a.y - b.y)
+    .slice().sort((a, b) => a.y - b.y)
     .forEach((entity) => drawEntity(ctx, width, height, entity));
   drawPlayer(ctx, width, height, state.playerX, state.playerY, time, time < state.iceDriftUntil);
 
