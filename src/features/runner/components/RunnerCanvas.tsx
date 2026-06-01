@@ -840,7 +840,7 @@ function drawPlayer(
 ) {
   const x = (playerX / 100) * width;
   const y = (playerY / 100) * height;
-  const carWidth = Math.min(width * 0.16, 68);
+  const carWidth = Math.min(width * 0.145, 62);
   const carHeight = carWidth * 0.58;
   const skid = isRecovering ? Math.sin(time * 0.04) * 4 : 0;
 
@@ -857,7 +857,7 @@ function drawPlayer(
       : sprites.playerRav4Rear;
 
   if (playerSprite) {
-    const spriteWidth = Math.min(width * 0.37, 156);
+    const spriteWidth = Math.min(width * 0.32, 136);
     const spriteHeight = spriteWidth * 1.02;
     ctx.drawImage(playerSprite, -spriteWidth / 2, -spriteHeight * 0.62, spriteWidth, spriteHeight);
     ctx.restore();
@@ -1168,7 +1168,7 @@ function drawEntity(
   const y = (entity.y / 100) * height;
   const scale = 0.26 + progress * 0.98;
   const baseSize = Math.min(width * 0.2, 82) * scale;
-  const size = entity.type === "collectible" ? baseSize * 0.98 : baseSize * 1.22;
+  const size = entity.type === "collectible" ? baseSize * 0.96 : baseSize * 1.08;
 
   drawGroundShadow(ctx, x, y, size, entity.type === "collectible" ? 0.32 : 0.52, sprites);
 
@@ -1179,7 +1179,7 @@ function drawEntity(
 
   if (entity.kind === "ice") {
     if (sprites.icePatch) {
-      drawSpriteCentered(ctx, sprites.icePatch, x, y, size * 1.68, size * 0.95);
+      drawSpriteCentered(ctx, sprites.icePatch, x, y, size * 1.52, size * 0.86);
     } else {
       drawIce(ctx, x, y, size);
     }
@@ -1190,7 +1190,7 @@ function drawEntity(
     const constructionSprite =
       entity.id % 2 === 0 ? sprites.coneCluster : sprites.constructionBarrier;
     if (constructionSprite) {
-      drawSpriteCentered(ctx, constructionSprite, x, y, size * 1.28, size * 1.2);
+      drawSpriteCentered(ctx, constructionSprite, x, y, size * 1.18, size * 1.1);
     } else {
       drawConstruction(ctx, x, y, size);
     }
@@ -1200,7 +1200,7 @@ function drawEntity(
   if (entity.kind === "deer" || entity.kind === "moose") {
     const wildlifeSprite = entity.kind === "moose" ? sprites.moose : sprites.deer;
     if (wildlifeSprite) {
-      drawSpriteCentered(ctx, wildlifeSprite, x, y, size * 1.34, size * 1.2);
+      drawSpriteCentered(ctx, wildlifeSprite, x, y, size * 1.24, size * 1.1);
     } else {
       drawWildlife(ctx, x, y, size, entity.kind === "moose");
     }
@@ -1214,23 +1214,23 @@ function drawEntity(
         : entity.id % 4 === 0
           ? sprites.sedanVip
           : sprites.trafficSedan;
-    drawSpriteCentered(ctx, sedanSprite, x, y, size * 1.34, size * 1.32);
+    drawSpriteCentered(ctx, sedanSprite, x, y, size * 1.22, size * 1.2);
     return;
   }
 
   if (entity.kind === "suv" && sprites.trafficSuv) {
-    drawSpriteCentered(ctx, sprites.trafficSuv, x, y, size * 1.34, size * 1.32);
+    drawSpriteCentered(ctx, sprites.trafficSuv, x, y, size * 1.22, size * 1.2);
     return;
   }
 
   if (entity.kind === "pickup" && sprites.trafficPickup) {
     const pickupSprite = entity.id % 3 === 0 ? sprites.trafficPickupSilver : sprites.trafficPickup;
-    drawSpriteCentered(ctx, pickupSprite, x, y, size * 1.36, size * 1.32);
+    drawSpriteCentered(ctx, pickupSprite, x, y, size * 1.24, size * 1.2);
     return;
   }
 
   if (entity.kind === "liftedTruck" && sprites.liftedTruck) {
-    drawSpriteCentered(ctx, sprites.liftedTruck, x, y, size * 1.5, size * 1.4);
+    drawSpriteCentered(ctx, sprites.liftedTruck, x, y, size * 1.36, size * 1.28);
     return;
   }
 
@@ -1526,7 +1526,7 @@ function roadLaneCenterX(width: number, lane: number, yPct: number) {
   const topRoadLeft = width * 0.37;
   const topRoadWidth = width * 0.26;
   const topX = topRoadLeft + topRoadWidth * ((lane + 0.5) / 3);
-  const bottomLaneCenters = [0.245, 0.5, 0.755];
+  const bottomLaneCenters = [0.25, 0.5, 0.75];
   const bottomX = (bottomLaneCenters[lane] ?? laneCenter(lane) / 100) * width;
   return lerp(topX, bottomX, progress);
 }

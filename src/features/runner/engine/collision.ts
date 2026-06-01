@@ -26,6 +26,6 @@ export function detectRunnerCollision(
 }
 
 export function laneCenter(lane: number) {
-  const insetCenters = [30, 50, 70];
+  const insetCenters = [25, 50, 75];
   return insetCenters[lane] ?? lane * (100 / RUNNER_LANES) + 100 / RUNNER_LANES / 2;
 }
