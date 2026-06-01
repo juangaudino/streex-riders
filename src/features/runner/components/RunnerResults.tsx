@@ -29,7 +29,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
   const displayName = riderName.trim() || "Streex Rider";
   const visibleLeaderboard = useMemo(
-    () => savedScores.toSorted(sortScores).slice(0, 10),
+    () => savedScores.slice().sort(sortScores).slice(0, 10),
     [savedScores],
   );
   const localRank = useMemo(() => {
@@ -41,7 +41,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
         score: snapshot.score,
         createdAt: new Date().toISOString(),
       },
-    ].toSorted(sortScores);
+    ].slice().sort(sortScores);
     return Math.max(1, allScores.findIndex((entry) => entry.id === "current") + 1);
   }, [displayName, savedScores, snapshot.score]);
 
@@ -53,7 +53,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
       score: snapshot.score,
       createdAt: new Date().toISOString(),
     };
-    const nextScores = [...savedScores, nextScore].toSorted(sortScores).slice(0, 25);
+    const nextScores = [...savedScores, nextScore].slice().sort(sortScores).slice(0, 25);
     localStorage.setItem(RUNNER_SCORES_KEY, JSON.stringify(nextScores));
     setSavedScores(nextScores);
     setScoreSaved(true);
@@ -564,7 +564,7 @@ function loadSavedScores(): RunnerSavedScore[] {
     if (!rawScores) return [];
     const parsed = JSON.parse(rawScores);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isSavedScore).toSorted(sortScores).slice(0, 25);
+    return parsed.filter(isSavedScore).slice().sort(sortScores).slice(0, 25);
   } catch {
     return [];
   }
