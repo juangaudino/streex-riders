@@ -126,109 +126,158 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
   return (
     <section className="runner-results">
-      <div
-        className="runner-score-card"
-        style={{ backgroundImage: `url(${RUNNER_SPRITES.scoreCardFrame})` }}
-      >
-        <div className="runner-card-snapshot">
-          <span>STREEX</span>
-          <strong>RUNNER</strong>
+      <div className="runner-results-shell">
+        <div className="runner-results-hero">
+          <img src={RUNNER_SPRITES.runnerLogoLockup} alt="STREEX Runner" />
+          <span>Ride Complete</span>
+          <h1>{snapshot.crashKind ? "You made the road remember." : "Ride Elevated."}</h1>
         </div>
-        <div className="runner-card-body">
-          <p>Your Score</p>
-          <strong>{snapshot.score}</strong>
-          <span>You ranked #{localRank}</span>
-          <span>Above {snapshot.aboveRiders} riders</span>
-        </div>
-        <div className="runner-signature">
-          <strong>Ride Elevated</strong>
-          <span>
-            {CONFIG.ownerName} · @{CONFIG.instagram} · {CONFIG.phoneDisplay}
-          </span>
-        </div>
-      </div>
 
-      <div className="runner-name-panel">
-        <label htmlFor="runner-rider-name">Rider name</label>
-        <div className="runner-name-row">
-          <input
-            id="runner-rider-name"
-            value={riderName}
-            onChange={(event) => setRiderName(event.target.value)}
-            maxLength={24}
-            placeholder="Your name"
-            autoComplete="name"
-          />
-          <button type="button" onClick={handleSaveScore} disabled={scoreSaved}>
-            {scoreSaved ? "Saved" : "Save Score"}
+        <div
+          className="runner-score-card"
+          style={{ backgroundImage: `url(${RUNNER_SPRITES.scoreCardFrame})` }}
+        >
+          <div className="runner-card-atmosphere" />
+          <div className="runner-card-body">
+            <p>Your Score</p>
+            <strong>{snapshot.score}</strong>
+            <span>You ranked #{localRank}</span>
+            <span>Above {snapshot.aboveRiders} riders</span>
+          </div>
+          <div className="runner-signature">
+            <strong>Ride Elevated</strong>
+            <span>
+              {CONFIG.ownerName} · @{CONFIG.instagram} · {CONFIG.phoneDisplay}
+            </span>
+          </div>
+        </div>
+
+        <div className="runner-score-summary">
+          <span>Your Score</span>
+          <strong>{snapshot.score}</strong>
+          <p>
+            Ranked #{localRank} · Above {snapshot.aboveRiders} riders
+          </p>
+        </div>
+
+        <div className="runner-name-panel">
+          <label htmlFor="runner-rider-name">Rider name</label>
+          <div className="runner-name-row">
+            <input
+              id="runner-rider-name"
+              value={riderName}
+              onChange={(event) => setRiderName(event.target.value)}
+              maxLength={24}
+              placeholder="Your name"
+              autoComplete="name"
+            />
+            <button type="button" onClick={handleSaveScore} disabled={scoreSaved}>
+              {scoreSaved ? "Saved" : "Save Score"}
+            </button>
+          </div>
+        </div>
+
+        {visibleLeaderboard.length > 0 ? (
+          <div className="runner-leaderboard">
+            <h2>Top Riders</h2>
+            {visibleLeaderboard.map((entry, index) => (
+              <div className="runner-leaderboard-row" key={entry.id}>
+                <span>{index + 1}</span>
+                <strong>{entry.name}</strong>
+                <em>{entry.score}</em>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        <div className="runner-result-actions">
+          <button className="runner-primary-button" onClick={onReplay}>
+            Play Again
+          </button>
+          <button className="runner-secondary-button" type="button" onClick={handleSaveCard}>
+            {saveLabel}
+          </button>
+          <button className="runner-secondary-button" type="button" onClick={handleShareRide}>
+            {shareLabel}
+          </button>
+          <button className="runner-ghost-button" onClick={onBack}>
+            Discover Streex
           </button>
         </div>
-      </div>
 
-      {visibleLeaderboard.length > 0 ? (
-        <div className="runner-leaderboard">
-          <h2>Top Riders</h2>
-          {visibleLeaderboard.map((entry, index) => (
-            <div className="runner-leaderboard-row" key={entry.id}>
-              <span>{index + 1}</span>
-              <strong>{entry.name}</strong>
-              <em>{entry.score}</em>
+        {saveHint ? <p className="runner-action-hint">{saveHint}</p> : null}
+
+        {shareFallback ? (
+          <div className="runner-share-panel">
+            <div>
+              <span>Share fallback</span>
+              <p>{shareHint}</p>
             </div>
-          ))}
-        </div>
-      ) : null}
-
-      <div className="runner-result-actions">
-        <button className="runner-primary-button" onClick={onReplay}>
-          Play Again
-        </button>
-        <button className="runner-secondary-button" type="button" onClick={handleSaveCard}>
-          {saveLabel}
-        </button>
-        <button className="runner-secondary-button" type="button" onClick={handleShareRide}>
-          {shareLabel}
-        </button>
-        <button className="runner-ghost-button" onClick={onBack}>
-          Back to Streex
-        </button>
-      </div>
-
-      {saveHint ? <p className="runner-action-hint">{saveHint}</p> : null}
-
-      {shareFallback ? (
-        <div className="runner-share-panel">
-          <div>
-            <span>Share fallback</span>
-            <p>{shareHint}</p>
+            <textarea
+              className="runner-share-fallback"
+              readOnly
+              value={shareFallback}
+              onClick={(event) => event.currentTarget.select()}
+              onFocus={(event) => event.currentTarget.select()}
+            />
           </div>
-          <textarea
-            className="runner-share-fallback"
-            readOnly
-            value={shareFallback}
-            onClick={(event) => event.currentTarget.select()}
-            onFocus={(event) => event.currentTarget.select()}
-          />
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
       <style>{`
         .runner-results {
           min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
+          display: grid;
           place-items: center;
-          gap: 14px;
-          padding: 28px 22px;
+          padding: 24px 20px;
           color: white;
           background:
-            radial-gradient(circle at 50% 18%, rgba(230,206,32,0.12), transparent 35%),
+            radial-gradient(circle at 50% 8%, rgba(230,206,32,0.14), transparent 34%),
+            radial-gradient(circle at 50% 80%, rgba(230,206,32,0.08), transparent 32%),
+            linear-gradient(180deg, #141711 0%, #050505 72%),
             #0b0b0b;
         }
 
+        .runner-results-shell {
+          width: min(100%, 370px);
+          display: grid;
+          justify-items: center;
+          gap: 13px;
+        }
+
+        .runner-results-hero {
+          display: grid;
+          justify-items: center;
+          gap: 8px;
+          text-align: center;
+        }
+
+        .runner-results-hero img {
+          width: min(76%, 230px);
+          filter: drop-shadow(0 0 22px rgba(230,206,32,0.16));
+        }
+
+        .runner-results-hero span {
+          color: #e6ce20;
+          font-size: 10px;
+          font-weight: 850;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+        }
+
+        .runner-results-hero h1 {
+          margin: 0;
+          max-width: 330px;
+          color: rgba(255,255,255,0.92);
+          font-size: 22px;
+          line-height: 1.16;
+          font-weight: 900;
+          letter-spacing: 0;
+        }
+
         .runner-score-card {
-          width: min(100%, 310px);
+          position: relative;
+          width: min(100%, 312px);
           aspect-ratio: 9 / 16;
           border: 1px solid rgba(230,206,32,0.24);
           border-radius: 8px;
@@ -236,7 +285,29 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           background-color: #111;
           background-position: center;
           background-size: cover;
-          box-shadow: 0 22px 70px rgba(0,0,0,0.48);
+          box-shadow:
+            0 22px 70px rgba(0,0,0,0.48),
+            0 0 42px rgba(230,206,32,0.08);
+        }
+
+        .runner-score-card::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background:
+            radial-gradient(circle at 50% 42%, rgba(230,206,32,0.18), transparent 24%),
+            linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.36));
+          pointer-events: none;
+        }
+
+        .runner-card-atmosphere {
+          position: absolute;
+          inset: 0;
+          background:
+            repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 9px),
+            radial-gradient(circle at 50% 86%, rgba(230,206,32,0.16), transparent 26%);
+          opacity: 0.56;
+          pointer-events: none;
         }
 
         .runner-name-panel,
@@ -249,6 +320,40 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
         .runner-name-panel {
           display: grid;
           gap: 8px;
+        }
+
+        .runner-score-summary {
+          width: min(100%, 312px);
+          display: grid;
+          justify-items: center;
+          gap: 4px;
+          border: 1px solid rgba(230,206,32,0.14);
+          border-radius: 8px;
+          background: rgba(255,255,255,0.035);
+          padding: 12px 16px;
+          text-align: center;
+        }
+
+        .runner-score-summary span {
+          color: rgba(230,206,32,0.8);
+          font-size: 10px;
+          font-weight: 850;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+        }
+
+        .runner-score-summary strong {
+          color: #e6ce20;
+          font-size: 46px;
+          line-height: 0.96;
+          font-weight: 950;
+        }
+
+        .runner-score-summary p {
+          margin: 0;
+          color: rgba(255,255,255,0.68);
+          font-size: 12px;
+          font-weight: 700;
         }
 
         .runner-name-panel label,
@@ -345,37 +450,15 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           font-weight: 800;
         }
 
-        .runner-card-snapshot {
-          height: 48%;
-          display: grid;
-          place-items: center;
-          align-content: center;
-          gap: 4px;
-          background:
-            linear-gradient(180deg, rgba(230,206,32,0.18), transparent 45%),
-            repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 8px),
-            linear-gradient(180deg, #1d241c, #10100e);
-          image-rendering: pixelated;
-        }
-
-        .runner-card-snapshot span {
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: 0.22em;
-        }
-
-        .runner-card-snapshot strong {
-          color: #e6ce20;
-          font-size: 34px;
-          font-weight: 900;
-          letter-spacing: 0.16em;
-        }
-
         .runner-card-body {
+          position: relative;
+          z-index: 1;
+          min-height: 76%;
           display: grid;
           justify-items: center;
-          gap: 8px;
-          padding: 28px 18px 18px;
+          align-content: center;
+          gap: 9px;
+          padding: 48px 18px 20px;
           text-align: center;
         }
 
@@ -390,18 +473,23 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
         .runner-card-body strong {
           color: #e6ce20;
-          font-size: 58px;
+          font-size: 72px;
           line-height: 0.95;
-          font-weight: 900;
+          font-weight: 950;
         }
 
         .runner-card-body span {
           color: rgba(255,255,255,0.74);
-          font-size: 14px;
-          font-weight: 650;
+          font-size: 13px;
+          font-weight: 750;
         }
 
         .runner-signature {
+          position: absolute;
+          z-index: 1;
+          left: 16px;
+          right: 16px;
+          bottom: 16px;
           margin-top: auto;
           display: grid;
           gap: 5px;
@@ -497,6 +585,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           border: 0;
           color: #0b0b0b;
           background: #e6ce20;
+          box-shadow: 0 0 28px rgba(230,206,32,0.22);
         }
 
         .runner-secondary-button,
@@ -524,74 +613,189 @@ async function createRunnerScoreCard(
 
   if (!ctx) return canvas;
 
-  const frame = await loadImage(RUNNER_SPRITES.scoreCardFrame).catch(() => null);
-  if (frame) {
-    ctx.drawImage(frame, 0, 0, width, height);
+  const [logo, horizon] = await Promise.all([
+    loadImage(RUNNER_SPRITES.runnerLogoLockup).catch(() => null),
+    loadImage(RUNNER_SPRITES.horizonGroundBlend2).catch(() => null),
+  ]);
+
+  const background = ctx.createLinearGradient(0, 0, 0, height);
+  background.addColorStop(0, "#11130F");
+  background.addColorStop(0.42, "#0B0B0B");
+  background.addColorStop(1, "#050505");
+  ctx.fillStyle = background;
+  ctx.fillRect(0, 0, width, height);
+
+  const glow = ctx.createRadialGradient(width / 2, 640, 0, width / 2, 640, 720);
+  glow.addColorStop(0, "rgba(230,206,32,0.2)");
+  glow.addColorStop(1, "rgba(230,206,32,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, width, height);
+
+  if (horizon) {
+    ctx.save();
+    ctx.globalAlpha = 0.48;
+    ctx.drawImage(horizon, -250, 250, width + 500, 760);
+    ctx.restore();
+  }
+
+  drawShareRoadScene(ctx, width, height);
+  drawShareCardBorder(ctx, width, height);
+
+  if (logo) {
+    ctx.drawImage(logo, 286, 120, 508, 338);
   } else {
-    const background = ctx.createLinearGradient(0, 0, 0, height);
-    background.addColorStop(0, "#171717");
-    background.addColorStop(0.45, "#0B0B0B");
-    background.addColorStop(1, "#050505");
-    ctx.fillStyle = background;
-    ctx.fillRect(0, 0, width, height);
-
-    const glow = ctx.createRadialGradient(width / 2, 340, 0, width / 2, 340, 720);
-    glow.addColorStop(0, "rgba(230,206,32,0.22)");
-    glow.addColorStop(1, "rgba(230,206,32,0)");
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, width, 900);
-
-    drawScoreCardSnapshot(ctx, width);
+    drawRunnerTextLogo(ctx, width / 2, 250);
   }
 
   ctx.textAlign = "center";
+
+  ctx.fillStyle = "#E6CE20";
+  ctx.font = "800 34px Montserrat, Arial, sans-serif";
+  ctx.letterSpacing = "14px";
+  ctx.fillText("RIDE ELEVATED", width / 2, 560);
+
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "700 42px Montserrat, Arial, sans-serif";
+  ctx.font = "950 214px Montserrat, Arial, sans-serif";
+  ctx.letterSpacing = "0px";
+  ctx.fillText(String(snapshot.score), width / 2, 790);
+
+  ctx.fillStyle = "#E6CE20";
+  ctx.font = "800 38px Montserrat, Arial, sans-serif";
   ctx.letterSpacing = "12px";
-  ctx.fillText("STREEX", width / 2, 860);
-
-  ctx.fillStyle = "#E6CE20";
-  ctx.font = "900 104px Montserrat, Arial, sans-serif";
-  ctx.fillText("RUNNER", width / 2, 970);
-
-  ctx.fillStyle = "rgba(255,255,255,0.52)";
-  ctx.font = "700 32px Montserrat, Arial, sans-serif";
-  ctx.fillText(riderName.toUpperCase(), width / 2, 1104);
-  ctx.fillText("YOUR SCORE", width / 2, 1160);
-
-  ctx.fillStyle = "#E6CE20";
-  ctx.font = "900 190px Montserrat, Arial, sans-serif";
-  ctx.fillText(String(snapshot.score), width / 2, 1332);
+  ctx.fillText(`YOU RANKED #${rank}`, width / 2, 920);
 
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "700 48px Montserrat, Arial, sans-serif";
-  ctx.fillText(`You ranked #${rank}`, width / 2, 1456);
-  ctx.fillText(`Above ${snapshot.aboveRiders} riders`, width / 2, 1526);
+  ctx.font = "800 40px Montserrat, Arial, sans-serif";
+  ctx.letterSpacing = "7px";
+  ctx.fillText(`ABOVE ${snapshot.aboveRiders} RIDERS`, width / 2, 1010);
 
   ctx.strokeStyle = "rgba(230,206,32,0.28)";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(230, 1628);
-  ctx.lineTo(850, 1628);
+  ctx.moveTo(230, 1408);
+  ctx.lineTo(850, 1408);
   ctx.stroke();
 
-  ctx.fillStyle = "rgba(255,255,255,0.66)";
-  ctx.font = "600 34px Montserrat, Arial, sans-serif";
-  ctx.fillText("Ride Elevated", width / 2, 1700);
+  ctx.fillStyle = "rgba(255,255,255,0.54)";
+  ctx.font = "700 31px Montserrat, Arial, sans-serif";
+  ctx.letterSpacing = "13px";
+  ctx.fillText("STREEX RIDER", width / 2, 1498);
 
-  ctx.fillStyle = "rgba(255,255,255,0.38)";
+  ctx.fillStyle = "rgba(255,255,255,0.4)";
   ctx.font = "500 27px Montserrat, Arial, sans-serif";
-  ctx.fillText(CONFIG.website.replace(/^https?:\/\//, ""), width / 2, 1762);
+  ctx.letterSpacing = "6px";
+  ctx.fillText(CONFIG.website.replace(/^https?:\/\//, ""), width / 2, 1570);
 
   ctx.fillStyle = "rgba(255,255,255,0.5)";
   ctx.font = "600 24px Montserrat, Arial, sans-serif";
+  ctx.letterSpacing = "3px";
   ctx.fillText(
     `${CONFIG.ownerName} · @${CONFIG.instagram} · ${CONFIG.phoneDisplay}`,
     width / 2,
-    1818,
+    1642,
   );
 
+  ctx.fillStyle = "#E6CE20";
+  ctx.font = "900 32px Montserrat, Arial, sans-serif";
+  ctx.letterSpacing = "0px";
+  ctx.fillText("★", width / 2, 1780);
+
   return canvas;
+}
+
+function drawShareRoadScene(ctx: CanvasRenderingContext2D, width: number, height: number) {
+  ctx.save();
+  const roadTop = 990;
+  const roadBottom = height + 120;
+  const roadGradient = ctx.createLinearGradient(0, roadTop, 0, roadBottom);
+  roadGradient.addColorStop(0, "rgba(73,78,72,0.55)");
+  roadGradient.addColorStop(0.52, "rgba(34,37,35,0.74)");
+  roadGradient.addColorStop(1, "rgba(9,9,9,0.96)");
+
+  ctx.beginPath();
+  ctx.moveTo(width * 0.44, roadTop);
+  ctx.lineTo(width * 0.56, roadTop);
+  ctx.lineTo(width * 0.92, roadBottom);
+  ctx.lineTo(width * 0.08, roadBottom);
+  ctx.closePath();
+  ctx.fillStyle = roadGradient;
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(230,206,32,0.52)";
+  ctx.lineWidth = 8;
+  ctx.setLineDash([62, 46]);
+  ctx.beginPath();
+  ctx.moveTo(width / 2, roadTop + 70);
+  ctx.lineTo(width / 2, roadBottom);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.14)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(width * 0.34, roadTop + 20);
+  ctx.lineTo(width * 0.18, roadBottom);
+  ctx.moveTo(width * 0.66, roadTop + 20);
+  ctx.lineTo(width * 0.82, roadBottom);
+  ctx.stroke();
+
+  const darkFade = ctx.createLinearGradient(0, 860, 0, height);
+  darkFade.addColorStop(0, "rgba(0,0,0,0)");
+  darkFade.addColorStop(0.72, "rgba(0,0,0,0.18)");
+  darkFade.addColorStop(1, "rgba(0,0,0,0.72)");
+  ctx.fillStyle = darkFade;
+  ctx.fillRect(0, 760, width, height - 760);
+  ctx.restore();
+}
+
+function drawShareCardBorder(ctx: CanvasRenderingContext2D, width: number, height: number) {
+  ctx.save();
+  ctx.strokeStyle = "rgba(230,206,32,0.86)";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(28, 28, width - 56, height - 56);
+
+  ctx.strokeStyle = "rgba(230,206,32,0.26)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(48, 48, width - 96, height - 96);
+
+  ctx.fillStyle = "#E6CE20";
+  const corners = [
+    [42, 42],
+    [width - 42, 42],
+    [42, height - 42],
+    [width - 42, height - 42],
+  ];
+  corners.forEach(([x, y]) => {
+    ctx.beginPath();
+    ctx.arc(x, y, 7, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  ctx.globalAlpha = 0.32;
+  for (let i = 0; i < 120; i += 1) {
+    const x = 60 + pseudoCardRandom(i, 1) * (width - 120);
+    const y = 60 + pseudoCardRandom(i, 2) * (height - 120);
+    if (y > 620 && y < 1320 && x > 240 && x < 840) continue;
+    ctx.fillRect(x, y, 3, 3);
+  }
+  ctx.restore();
+}
+
+function drawRunnerTextLogo(ctx: CanvasRenderingContext2D, centerX: number, centerY: number) {
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "900 72px Montserrat, Arial, sans-serif";
+  ctx.fillText("STREEX", centerX, centerY);
+  ctx.fillStyle = "#E6CE20";
+  ctx.font = "900 italic 54px Montserrat, Arial, sans-serif";
+  ctx.fillText("RUNNER", centerX, centerY + 62);
+  ctx.restore();
+}
+
+function pseudoCardRandom(seed: number, salt: number) {
+  const value = Math.sin(seed * 19.17 + salt * 91.7) * 10000;
+  return value - Math.floor(value);
 }
 
 function canvasToBlob(canvas: HTMLCanvasElement) {
@@ -638,57 +842,4 @@ function isSavedScore(value: unknown): value is RunnerSavedScore {
 function sortScores(a: RunnerSavedScore, b: RunnerSavedScore) {
   if (b.score !== a.score) return b.score - a.score;
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-}
-
-function drawScoreCardSnapshot(ctx: CanvasRenderingContext2D, width: number) {
-  const top = 110;
-  const height = 610;
-  ctx.save();
-  ctx.beginPath();
-  ctx.roundRect(90, top, width - 180, height, 18);
-  ctx.clip();
-  ctx.fillStyle = "#151A16";
-  ctx.fillRect(90, top, width - 180, height);
-
-  ctx.fillStyle = "#31382D";
-  ctx.beginPath();
-  ctx.moveTo(90, top + 330);
-  ctx.lineTo(230, top + 210);
-  ctx.lineTo(390, top + 330);
-  ctx.lineTo(560, top + 180);
-  ctx.lineTo(760, top + 330);
-  ctx.lineTo(990, top + 190);
-  ctx.lineTo(990, top + 390);
-  ctx.lineTo(90, top + 390);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#20201C";
-  ctx.beginPath();
-  ctx.moveTo(420, top + 280);
-  ctx.lineTo(660, top + 280);
-  ctx.lineTo(1010, top + height);
-  ctx.lineTo(70, top + height);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.strokeStyle = "rgba(230,206,32,0.45)";
-  ctx.lineWidth = 8;
-  ctx.setLineDash([48, 34]);
-  ctx.beginPath();
-  ctx.moveTo(width / 2, top + 300);
-  ctx.lineTo(width / 2, top + height);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  ctx.fillStyle = "#D8D8D2";
-  ctx.beginPath();
-  ctx.roundRect(width / 2 - 105, top + 430, 210, 116, 12);
-  ctx.fill();
-  ctx.fillStyle = "#0B0B0B";
-  ctx.font = "900 26px Montserrat, Arial, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("STREEX", width / 2, top + 500);
-
-  ctx.restore();
 }

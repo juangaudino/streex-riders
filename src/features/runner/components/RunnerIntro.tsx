@@ -11,10 +11,10 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
     <section className="runner-shell">
       <div className="runner-intro">
         <div className="runner-world-preview" aria-hidden="true">
-          <div className="runner-pixel-sky" />
-          <div className="runner-pixel-mountains" />
-          <div className="runner-pixel-road" />
-          <div className="runner-pixel-rav4">STREEX</div>
+          <img className="runner-preview-horizon" src={RUNNER_SPRITES.horizonGroundBlend2} alt="" />
+          <div className="runner-preview-road" />
+          <div className="runner-preview-pixels" />
+          <div className="runner-preview-beacon" />
         </div>
 
         <img
@@ -23,7 +23,8 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           alt="STREEX Runner"
         />
 
-        <h1>Welcome Aboard</h1>
+        <span className="runner-intro-eyebrow">Welcome Aboard</span>
+        <h1>Ready to Ride Elevated?</h1>
         <p>
           A premium ride challenge built for the Streex world. Avoid, collect, survive, and see how
           far the road takes you.
@@ -33,7 +34,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           PLAY
         </button>
         <button className="runner-ghost-button" onClick={onBack}>
-          Back to Streex
+          Discover Streex
         </button>
       </div>
 
@@ -41,8 +42,9 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
         .runner-shell {
           min-height: 100vh;
           background:
-            radial-gradient(circle at 50% 18%, rgba(230,206,32,0.13), transparent 34%),
-            linear-gradient(180deg, #141414 0%, ${RUNNER_COLORS.black} 56%, #050505 100%);
+            radial-gradient(circle at 50% 12%, rgba(230,206,32,0.16), transparent 30%),
+            radial-gradient(circle at 50% 82%, rgba(230,206,32,0.08), transparent 34%),
+            linear-gradient(180deg, #151711 0%, ${RUNNER_COLORS.black} 54%, #050505 100%);
           color: ${RUNNER_COLORS.white};
           display: grid;
           place-items: center;
@@ -62,82 +64,91 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
 
         .runner-world-preview {
           position: relative;
-          width: min(100%, 330px);
-          aspect-ratio: 1.15;
+          width: min(100%, 338px);
+          aspect-ratio: 1.05;
           overflow: hidden;
           border: 1px solid rgba(230,206,32,0.22);
           border-radius: 8px;
-          background: #0e0e0e;
-          box-shadow: 0 0 40px rgba(230,206,32,0.1);
-          image-rendering: pixelated;
-        }
-
-        .runner-pixel-sky {
-          position: absolute;
-          inset: 0 0 42%;
           background:
-            linear-gradient(180deg, #20291f, #151a16),
-            repeating-linear-gradient(90deg, transparent 0 7px, rgba(255,255,255,0.04) 7px 8px);
+            radial-gradient(circle at 50% 52%, rgba(230,206,32,0.18), transparent 38%),
+            linear-gradient(180deg, #161a15 0%, #090909 100%);
+          box-shadow:
+            0 0 48px rgba(230,206,32,0.12),
+            inset 0 0 34px rgba(0,0,0,0.56);
         }
 
-        .runner-pixel-mountains {
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 31%;
-          height: 22%;
-          background:
-            linear-gradient(135deg, transparent 0 18%, #363a2f 18% 34%, transparent 34%),
-            linear-gradient(225deg, transparent 0 24%, #24291f 24% 48%, transparent 48%),
-            linear-gradient(135deg, transparent 0 54%, #3d4235 54% 72%, transparent 72%);
-          opacity: 0.95;
-        }
-
-        .runner-pixel-road {
-          position: absolute;
-          inset: 45% 7% 0;
-          clip-path: polygon(39% 0, 61% 0, 100% 100%, 0 100%);
-          background:
-            linear-gradient(90deg, transparent 48%, rgba(230,206,32,0.42) 48% 52%, transparent 52%),
-            repeating-linear-gradient(180deg, rgba(255,255,255,0.14) 0 8px, transparent 8px 28px),
-            linear-gradient(180deg, #23231e, #11110f);
-        }
-
-        .runner-pixel-rav4 {
+        .runner-preview-horizon {
           position: absolute;
           left: 50%;
-          bottom: 16%;
+          top: 2%;
+          width: 142%;
+          height: 72%;
+          object-fit: cover;
           transform: translateX(-50%);
-          width: 86px;
-          height: 48px;
-          display: grid;
-          place-items: center;
-          color: ${RUNNER_COLORS.black};
-          background: linear-gradient(180deg, #f0f0ed, #a8aba6);
-          border: 3px solid #73766f;
-          border-radius: 5px;
-          font-size: 9px;
-          font-weight: 900;
-          letter-spacing: 0.08em;
-          box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+          opacity: 0.46;
+          filter: saturate(0.82) contrast(1.08) brightness(0.72);
+        }
+
+        .runner-preview-road {
+          position: absolute;
+          inset: 34% 5% -1%;
+          clip-path: polygon(42% 0, 58% 0, 96% 100%, 4% 100%);
+          background:
+            repeating-linear-gradient(180deg, rgba(255,255,255,0.16) 0 8px, transparent 8px 34px),
+            linear-gradient(90deg, transparent 33%, rgba(255,255,255,0.12) 33.4%, transparent 34%, transparent 66%, rgba(255,255,255,0.12) 66.6%, transparent 67%),
+            linear-gradient(180deg, #4b504a, #1c1f1d 72%, #111);
+          box-shadow: inset 0 14px 26px rgba(230,206,32,0.08);
+        }
+
+        .runner-preview-pixels {
+          position: absolute;
+          inset: 0;
+          background:
+            repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 8px),
+            radial-gradient(circle at 50% 88%, rgba(230,206,32,0.18), transparent 34%);
+          opacity: 0.62;
+        }
+
+        .runner-preview-beacon {
+          position: absolute;
+          left: 50%;
+          bottom: 17%;
+          transform: translateX(-50%);
+          width: 56px;
+          height: 14px;
+          border: 1px solid rgba(230,206,32,0.5);
+          border-radius: 999px;
+          background: rgba(230,206,32,0.12);
+          box-shadow: 0 0 30px rgba(230,206,32,0.4);
         }
 
         .runner-logo-lockup {
           width: min(86%, 320px);
-          margin-top: 24px;
+          margin-top: 22px;
           display: block;
           filter: drop-shadow(0 0 22px rgba(230,206,32,0.16));
         }
 
         .runner-intro h1 {
-          margin: 24px 0 0;
-          font-size: 28px;
+          margin: 8px 0 0;
+          max-width: 300px;
+          font-size: 30px;
+          line-height: 1.12;
           font-weight: 800;
           letter-spacing: 0;
         }
 
+        .runner-intro-eyebrow {
+          margin-top: 22px;
+          color: ${RUNNER_COLORS.yellow};
+          font-size: 10px;
+          font-weight: 850;
+          letter-spacing: 0.28em;
+          text-transform: uppercase;
+        }
+
         .runner-intro p {
-          margin: 12px 0 28px;
+          margin: 10px 0 26px;
           max-width: 320px;
           color: rgba(255,255,255,0.62);
           font-size: 14px;
