@@ -38,7 +38,7 @@ export type RunnerEntity = {
 export type RunnerGameSnapshot = {
   score: number;
   rank: number;
-  aboveRiders: number;
+  totalRiders: number;
   crashKind: RunnerEntityKind | null;
 };
 

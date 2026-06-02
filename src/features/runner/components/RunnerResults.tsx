@@ -11,6 +11,12 @@ type RunnerSavedScore = {
   createdAt: string;
 };
 
+type RunnerResultStats = {
+  rank: number;
+  totalRiders: number;
+  recordsReady: boolean;
+};
+
 const SHARE_MESSAGE = `Think you can beat my ride? 😏🚙
 I just had fun with STREEX Runner.
 Take the challenge and discover Streex.`;
@@ -24,6 +30,11 @@ type RunnerResultsProps = {
 export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps) {
   const [riderName, setRiderName] = useState("");
   const [savedScores, setSavedScores] = useState<RunnerSavedScore[]>([]);
+  const [resultStats, setResultStats] = useState<RunnerResultStats>({
+    rank: snapshot.rank,
+    totalRiders: snapshot.totalRiders,
+    recordsReady: true,
+  });
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
   const [scoreSaved, setScoreSaved] = useState(false);
   const [scoreSaving, setScoreSaving] = useState(false);
@@ -36,11 +47,14 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
   const displayName = riderName.trim() || "Streex Rider";
   const canSaveScore = riderName.trim().length > 0;
+  const resultRank = Math.max(1, resultStats.rank);
+  const totalRiders = Math.max(1, resultStats.totalRiders);
+  const riderCountLabel = totalRiders === 1 ? "1 rider" : `${totalRiders} riders`;
 
   useEffect(() => {
     let cancelled = false;
     setLeaderboardLoading(true);
-    listRunnerLeaderboard({ data: {} })
+    listRunnerLeaderboard({ data: { score: snapshot.score } })
       .then((result) => {
         if (cancelled) return;
         setSavedScores(
@@ -51,6 +65,14 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
             createdAt: score.created_at,
           })),
         );
+        setResultStats({
+          rank: result.currentRank ?? 1,
+          totalRiders: result.totalRiders ?? 1,
+          recordsReady: result.recordsReady ?? true,
+        });
+        if (result.recordsReady === false && result.message) {
+          setScoreHint(result.message);
+        }
       })
       .catch(() => {
         if (!cancelled) setScoreHint("Leaderboard unavailable for this session.");
@@ -62,27 +84,12 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [snapshot.score]);
 
   const visibleLeaderboard = useMemo(
     () => savedScores.slice().sort(sortScores).slice(0, 10),
     [savedScores],
   );
-  const localRank = useMemo(() => {
-    const allScores = [
-      ...savedScores,
-      {
-        id: "current",
-        name: displayName,
-        score: snapshot.score,
-        createdAt: new Date().toISOString(),
-      },
-    ]
-      .slice()
-      .sort(sortScores);
-    return Math.max(1, allScores.findIndex((entry) => entry.id === "current") + 1);
-  }, [displayName, savedScores, snapshot.score]);
-
   const handleSaveScore = async () => {
     const name = riderName.trim().slice(0, 24);
     if (!name) {
@@ -95,7 +102,11 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
     try {
       await submitRunnerScore({ data: { name, score: snapshot.score } });
       setScoreSaved(true);
-      setScoreHint("Score saved. It will appear after admin approval.");
+      setScoreHint(
+        resultStats.recordsReady
+          ? "Score saved. It will appear after admin approval."
+          : "Score saved. Score stats will update after Cloud records are ready.",
+      );
     } catch (error) {
       setScoreHint(error instanceof Error ? error.message : "Failed to save score.");
     } finally {
@@ -104,7 +115,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
   };
 
   const handleSaveCard = async () => {
-    const canvas = await createRunnerScoreCard(snapshot, displayName, localRank);
+    const canvas = await createRunnerScoreCard(snapshot, displayName, resultRank, totalRiders);
     const filename = `streex-runner-${snapshot.score}.png`;
 
     try {
@@ -137,13 +148,13 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
   const handleShareRide = async () => {
     const shareUrl = CONFIG.seoUrl || CONFIG.website;
-    const text = `${SHARE_MESSAGE}\n\n${displayName} scored ${snapshot.score}. Ranked #${localRank}.`;
+    const text = `${SHARE_MESSAGE}\n\n${displayName} scored ${snapshot.score}. Ranked #${resultRank} of ${totalRiders}.`;
     const fallbackText = `${text}\n${shareUrl}`;
     const filename = `streex-runner-${snapshot.score}.png`;
 
     try {
       setShareLabel("Sharing...");
-      const canvas = await createRunnerScoreCard(snapshot, displayName, localRank);
+      const canvas = await createRunnerScoreCard(snapshot, displayName, resultRank, totalRiders);
       const blob = await canvasToBlob(canvas);
       const file = new File([blob], filename, { type: "image/png" });
 
@@ -202,8 +213,8 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           <div className="runner-card-body">
             <p>Your Score</p>
             <strong>{snapshot.score}</strong>
-            <span>You ranked #{localRank}</span>
-            <span>Above {snapshot.aboveRiders} riders</span>
+            <span>You ranked #{resultRank}</span>
+            <span>Among {riderCountLabel}</span>
           </div>
           <div className="runner-signature">
             <strong>Ride Elevated</strong>
@@ -217,7 +228,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           <span>Your Score</span>
           <strong>{snapshot.score}</strong>
           <p>
-            Ranked #{localRank} · Above {snapshot.aboveRiders} riders
+            Ranked #{resultRank} of {totalRiders}
           </p>
         </div>
 
@@ -687,6 +698,7 @@ async function createRunnerScoreCard(
   snapshot: RunnerGameSnapshot,
   riderName: string,
   rank: number,
+  totalRiders: number,
 ) {
   const canvas = document.createElement("canvas");
   const width = 1080;
@@ -767,10 +779,16 @@ async function createRunnerScoreCard(
   ctx.font = "800 56px Montserrat, Arial, sans-serif";
   drawSpacedText(ctx, `YOU RANKED #${rank}`, width / 2, 1130, 8);
 
-  // ABOVE N RIDERS
+  // Real rider count
   ctx.fillStyle = "rgba(255,255,255,0.78)";
   ctx.font = "700 38px Montserrat, Arial, sans-serif";
-  drawSpacedText(ctx, `ABOVE ${snapshot.aboveRiders} RIDERS`, width / 2, 1200, 8);
+  drawSpacedText(
+    ctx,
+    `OF ${totalRiders} ${totalRiders === 1 ? "RIDER" : "RIDERS"}`,
+    width / 2,
+    1200,
+    8,
+  );
 
   // Divider
   ctx.strokeStyle = "rgba(230,206,32,0.45)";

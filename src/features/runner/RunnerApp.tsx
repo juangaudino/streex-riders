@@ -8,8 +8,8 @@ import type { RunnerGameSnapshot, RunnerScreen } from "./runner.types";
 
 const EMPTY_SNAPSHOT: RunnerGameSnapshot = {
   score: 0,
-  rank: 48,
-  aboveRiders: 0,
+  rank: 1,
+  totalRiders: 1,
   crashKind: null,
 };
 

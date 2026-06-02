@@ -214,6 +214,9 @@ export const listAdminRunnerScores = createServerFn({ method: "POST" })
 
     if (error) {
       console.error("[listAdminRunnerScores] read error", error);
+      if (isRunnerScoresMissing(error)) {
+        throw new Error(getRunnerScoresNotReadyMessage());
+      }
       throw new Error("Failed to load runner scores.");
     }
 
@@ -232,6 +235,9 @@ export const updateAdminRunnerScoreStatus = createServerFn({ method: "POST" })
 
     if (error) {
       console.error("[updateAdminRunnerScoreStatus] update error", error);
+      if (isRunnerScoresMissing(error)) {
+        throw new Error(getRunnerScoresNotReadyMessage());
+      }
       throw new Error("Failed to update runner score.");
     }
 
@@ -254,6 +260,9 @@ export const updateAdminRunnerScore = createServerFn({ method: "POST" })
 
     if (error) {
       console.error("[updateAdminRunnerScore] update error", error);
+      if (isRunnerScoresMissing(error)) {
+        throw new Error(getRunnerScoresNotReadyMessage());
+      }
       throw new Error("Failed to edit runner score.");
     }
 
@@ -269,8 +278,24 @@ export const deleteAdminRunnerScore = createServerFn({ method: "POST" })
 
     if (error) {
       console.error("[deleteAdminRunnerScore] delete error", error);
+      if (isRunnerScoresMissing(error)) {
+        throw new Error(getRunnerScoresNotReadyMessage());
+      }
       throw new Error("Failed to delete runner score.");
     }
 
     return { ok: true };
   });
+
+function isRunnerScoresMissing(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+  const candidate = error as { code?: string; message?: string; details?: string };
+  const text = `${candidate.message ?? ""} ${candidate.details ?? ""}`.toLowerCase();
+  return (
+    candidate.code === "42P01" || candidate.code === "PGRST205" || text.includes("runner_scores")
+  );
+}
+
+function getRunnerScoresNotReadyMessage() {
+  return "Runner records are not ready yet. Apply the runner_scores migration in Lovable Cloud.";
+}

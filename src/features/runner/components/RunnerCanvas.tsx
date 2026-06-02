@@ -274,8 +274,8 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
       if (state.crashUntil && time > state.crashUntil) {
         const snapshot: RunnerGameSnapshot = {
           score: Math.floor(state.score),
-          rank: Math.max(1, 48 - Math.floor(state.score / 18)),
-          aboveRiders: Math.max(0, Math.floor(state.score * 0.82) + 17),
+          rank: 1,
+          totalRiders: 1,
           crashKind: state.crashKind,
         };
         onGameOver(snapshot);
