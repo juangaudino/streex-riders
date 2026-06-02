@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Wifi, MessageSquare, Phone, UserPlus, Calendar } from "lucide-react";
+import { Wifi, MessageSquare, Phone, UserPlus, Calendar, Gamepad2 } from "lucide-react";
 import { WifiModal } from "./WifiModal";
 import { SaveContactModal } from "./SaveContactModal";
 import { BookingFormModal } from "./BookingFormModal";
 import { Reveal } from "./Reveal";
-import { RUNNER_SPRITES } from "@/features/runner/assets/manifest";
 // To customize this template, edit src/config.ts
 import { CONFIG } from "@/config";
 
@@ -16,7 +15,7 @@ function ActionCard({
   href,
   download,
   revealDelay = 0,
-  logoMode = false,
+  accent = "default",
 }: {
   icon: React.ReactNode;
   label: string;
@@ -25,13 +24,15 @@ function ActionCard({
   href?: string;
   download?: boolean;
   revealDelay?: number;
-  logoMode?: boolean;
+  accent?: "default" | "runner";
 }) {
   const content = (
     <div className="streex-glass p-5 h-full flex flex-col gap-3 cursor-pointer">
       <div
-        className={`flex items-center justify-center bg-[#E6CE20]/12 border border-[#E6CE20]/25 ${
-          logoMode ? "h-16 w-full rounded-xl px-4" : "h-10 w-10 rounded-full"
+        className={`h-10 w-10 rounded-full flex items-center justify-center border ${
+          accent === "runner"
+            ? "bg-cyan-300/12 border-cyan-200/30 text-cyan-100 shadow-[0_0_24px_rgba(103,232,249,0.28)]"
+            : "bg-[#E6CE20]/12 border-[#E6CE20]/25"
         }`}
       >
         {icon}
@@ -151,11 +152,11 @@ export function QuickActions() {
         )}
         {CONFIG.sections.moreOptions && (
           <ActionCard
-            icon={<img src={RUNNER_SPRITES.runnerLogoLockup} alt="" className="h-auto w-full" />}
+            icon={<Gamepad2 className="h-5 w-5" />}
             label="STREEX Runner"
             description="Play the Challenge"
             href="/runner-lab"
-            logoMode
+            accent="runner"
             revealDelay={450}
           />
         )}

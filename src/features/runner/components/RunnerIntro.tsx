@@ -85,9 +85,9 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           align-items: center;
           justify-content: center;
           padding:
-            max(12px, env(safe-area-inset-top))
+            max(8px, env(safe-area-inset-top))
             14px
-            max(16px, calc(env(safe-area-inset-bottom) + 12px));
+            max(10px, calc(env(safe-area-inset-bottom) + 8px));
           overflow: auto;
           overscroll-behavior: none;
         }
@@ -95,7 +95,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
         .runner-frame {
           position: relative;
           width: min(100%, 430px);
-          height: min(820px, calc(100svh - max(28px, env(safe-area-inset-top)) - max(34px, env(safe-area-inset-bottom))));
+          height: min(790px, calc(100svh - max(18px, env(safe-area-inset-top)) - max(22px, env(safe-area-inset-bottom))));
           min-height: 0;
           display: flex;
           flex-direction: column;
@@ -113,7 +113,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           z-index: 6;
           display: flex;
           justify-content: center;
-          padding: clamp(12px, 2.5svh, 22px) 18px clamp(6px, 1.5svh, 12px);
+          padding: clamp(8px, 1.8svh, 16px) 18px clamp(4px, 1svh, 8px);
         }
 
         .runner-logo-mark {
@@ -122,12 +122,12 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           align-items: center;
           justify-content: center;
           width: 100%;
-          min-height: clamp(72px, 11svh, 96px);
+          min-height: clamp(56px, 8svh, 76px);
           padding: 0;
         }
 
         .runner-logo-lockup {
-          width: min(90%, 330px);
+          width: min(82%, 286px);
           height: auto;
           display: block;
           filter: drop-shadow(0 0 34px rgba(230,206,32,0.3));
@@ -137,7 +137,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
         .runner-hero {
           position: relative;
           flex: 1 1 auto;
-          min-height: 250px;
+          min-height: 210px;
           width: 100%;
           overflow: hidden;
         }
@@ -345,9 +345,9 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           flex-direction: column;
           justify-content: space-between;
           padding:
-            clamp(16px, 2.6svh, 22px)
+            clamp(12px, 2svh, 18px)
             clamp(22px, 7vw, 32px)
-            clamp(18px, 3svh, 28px);
+            clamp(14px, 2.2svh, 22px);
           background: ${RUNNER_COLORS.black};
           position: relative;
           z-index: 5;
@@ -372,7 +372,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
 
         .runner-headline {
           margin: 0;
-          font-size: clamp(26px, 7.4vw, 32px);
+          font-size: clamp(24px, 6.8vw, 30px);
           line-height: 1.08;
           font-weight: 900;
           letter-spacing: 0;
@@ -384,15 +384,15 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           margin: clamp(10px, 1.8svh, 14px) 0 0;
           max-width: 280px;
           color: rgba(255,255,255,0.5);
-          font-size: 13px;
-          line-height: 1.55;
+          font-size: 12px;
+          line-height: 1.45;
         }
 
         .runner-ctas {
           display: flex;
           flex-direction: column;
-          gap: 10px;
-          margin-top: clamp(16px, 2.5svh, 22px);
+          gap: 8px;
+          margin-top: clamp(12px, 2svh, 18px);
         }
 
         .runner-primary-button {
@@ -421,7 +421,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           align-items: center;
           justify-content: center;
           width: 100%;
-          min-height: clamp(48px, 7svh, 54px);
+          min-height: clamp(44px, 6svh, 50px);
           border-radius: 12px;
           background: ${RUNNER_COLORS.yellow};
           color: ${RUNNER_COLORS.black};
@@ -438,7 +438,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
 
         .runner-ghost-button {
           width: 100%;
-          min-height: clamp(44px, 6.5svh, 48px);
+          min-height: clamp(40px, 5.6svh, 46px);
           border-radius: 12px;
           border: 1px solid rgba(255,255,255,0.14);
           background: rgba(255,255,255,0.03);
@@ -461,17 +461,17 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           }
 
           .runner-frame {
-            height: min(820px, calc(100dvh - max(28px, env(safe-area-inset-top)) - max(34px, env(safe-area-inset-bottom))));
+            height: min(790px, calc(100dvh - max(18px, env(safe-area-inset-top)) - max(22px, env(safe-area-inset-bottom))));
           }
         }
 
         @media (max-height: 720px) {
           .runner-logo-lockup {
-            width: min(84%, 280px);
+            width: min(74%, 246px);
           }
 
           .runner-hero {
-            min-height: 220px;
+            min-height: 190px;
           }
 
           .runner-sub {
@@ -481,16 +481,16 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
 
         @media (max-height: 640px) {
           .runner-logo-bar {
-            padding-top: 10px;
-            padding-bottom: 6px;
+            padding-top: 6px;
+            padding-bottom: 4px;
           }
 
           .runner-logo-lockup {
-            width: min(76%, 238px);
+            width: min(68%, 210px);
           }
 
           .runner-hero {
-            min-height: 180px;
+            min-height: 150px;
           }
 
           .runner-eyebrow {
