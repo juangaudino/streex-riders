@@ -1,4 +1,5 @@
 import { Reveal } from "./Reveal";
+import { MessageCircle } from "lucide-react";
 // To customize this template, edit src/config.ts
 import { CONFIG } from "@/config";
 
@@ -45,6 +46,12 @@ type SocialButton = {
 
 const BUTTONS: SocialButton[] = [
   {
+    icon: <MessageCircle width={28} height={28} strokeWidth={2} />,
+    label: "WhatsApp",
+    href: CONFIG.whatsapp,
+    active: true,
+  },
+  {
     icon: <InstagramIcon />,
     label: "Instagram",
     href: CONFIG.instagramUrl,
@@ -69,16 +76,18 @@ export function FindUsSection() {
     <Reveal>
       <section className="px-6 mt-16">
         <h2 className="text-2xl font-bold mb-5">Find Us</h2>
-        <div className="flex items-start justify-center gap-3">
+        <div className="flex flex-nowrap items-start justify-center gap-2 sm:gap-3">
           {BUTTONS.map((b) => {
             const content = (
               <div
-                className={`streex-glass flex flex-col items-center justify-center gap-2 py-4 px-3 flex-1 min-w-0 ${
+                className={`streex-glass flex flex-col items-center justify-center gap-2 py-4 px-2 sm:px-3 flex-1 min-w-0 ${
                   b.active ? "active:scale-[0.97] cursor-pointer" : "cursor-default opacity-45"
                 }`}
-                style={{ borderRadius: 16 }}
+                style={{ borderRadius: 14 }}
               >
-                <div className={`flex items-center justify-center ${b.active ? "text-[#E6CE20]" : "text-white/40"}`}>
+                <div
+                  className={`flex items-center justify-center ${b.active ? "text-[#E6CE20]" : "text-white/40"}`}
+                >
                   {b.icon}
                 </div>
                 <div
@@ -86,8 +95,9 @@ export function FindUsSection() {
                   style={{
                     fontFamily: "'Montserrat', sans-serif",
                     fontWeight: 500,
-                    fontSize: 11,
+                    fontSize: "clamp(9px, 2.45vw, 11px)",
                     color: "rgba(255,255,255,0.7)",
+                    lineHeight: 1.15,
                   }}
                 >
                   {b.label}
@@ -108,7 +118,13 @@ export function FindUsSection() {
             );
 
             return b.active ? (
-              <a key={b.label} href={b.href} target="_blank" rel="noreferrer" className="flex-1 min-w-0">
+              <a
+                key={b.label}
+                href={b.href}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 min-w-0"
+              >
                 {content}
               </a>
             ) : (

@@ -10,16 +10,13 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
   return (
     <section className="runner-shell">
       <div className="runner-frame">
-        {/* ─── Logo Badge (top) ─────────────────── */}
         <div className="runner-logo-bar">
-          <div className="runner-logo-badge">
-            <span className="runner-badge-wing runner-badge-wing-l" aria-hidden="true" />
+          <div className="runner-logo-mark">
             <img
               className="runner-logo-lockup"
               src={RUNNER_SPRITES.runnerLogoLockup}
               alt="STREEX Runner"
             />
-            <span className="runner-badge-wing runner-badge-wing-r" aria-hidden="true" />
           </div>
         </div>
 
@@ -54,11 +51,17 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           <div className="runner-copy">
             <span className="runner-eyebrow">Welcome Aboard</span>
             <h1 className="runner-headline">
-              Ready to Ride
+              Private rides.
               <br />
-              Elevated?
+              Elevated play.
             </h1>
-            <p className="runner-sub">A premium ride challenge built for the Streex world.</p>
+            <p className="runner-sub">
+              Quick ride.
+              <br />
+              Tough road.
+              <br />
+              Ride Elevated.
+            </p>
           </div>
 
           <div className="runner-ctas">
@@ -105,7 +108,6 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
             0 0 0 1px rgba(230,206,32,0.04);
         }
 
-        /* ─── Logo Bar / Badge ─────────────────── */
         .runner-logo-bar {
           position: relative;
           z-index: 6;
@@ -114,36 +116,22 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           padding: clamp(14px, 3svh, 24px) 24px clamp(8px, 1.8svh, 14px);
         }
 
-        .runner-logo-badge {
+        .runner-logo-mark {
           position: relative;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
-          padding: 10px 22px;
-          border: 1.5px solid ${RUNNER_COLORS.yellow};
-          border-radius: 14px;
-          background: rgba(11,11,11,0.92);
-          box-shadow:
-            0 0 0 4px rgba(11,11,11,0.9),
-            0 0 32px rgba(230,206,32,0.28),
-            inset 0 0 18px rgba(230,206,32,0.08);
+          width: 100%;
+          min-height: 58px;
+          padding: 2px 12px;
         }
 
         .runner-logo-lockup {
-          width: 160px;
+          width: min(72%, 238px);
           height: auto;
           display: block;
+          filter: drop-shadow(0 0 26px rgba(230,206,32,0.24));
         }
-
-        .runner-badge-wing {
-          width: 28px;
-          height: 14px;
-          background:
-            linear-gradient(90deg, transparent 0 6%, ${RUNNER_COLORS.yellow} 6% 18%, transparent 18% 28%, ${RUNNER_COLORS.yellow} 28% 46%, transparent 46% 58%, ${RUNNER_COLORS.yellow} 58% 82%, transparent 82% 100%);
-          opacity: 0.9;
-        }
-        .runner-badge-wing-l { transform: scaleX(-1); }
 
         /* ─── Hero ─────────────────────────────────── */
         .runner-hero {
@@ -478,16 +466,8 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
         }
 
         @media (max-height: 720px) {
-          .runner-logo-badge {
-            padding: 8px 18px;
-          }
-
           .runner-logo-lockup {
-            width: 142px;
-          }
-
-          .runner-badge-wing {
-            width: 22px;
+            width: min(66%, 204px);
           }
 
           .runner-hero {
@@ -506,7 +486,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           }
 
           .runner-logo-lockup {
-            width: 128px;
+            width: min(60%, 180px);
           }
 
           .runner-hero {

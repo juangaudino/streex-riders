@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Wifi, MessageSquare, Phone, UserPlus, Calendar, LayoutGrid } from "lucide-react";
+import { Wifi, MessageSquare, Phone, UserPlus, Calendar } from "lucide-react";
 import { WifiModal } from "./WifiModal";
-import { MoreOptionsSheet } from "./MoreOptionsSheet";
 import { SaveContactModal } from "./SaveContactModal";
 import { BookingFormModal } from "./BookingFormModal";
 import { Reveal } from "./Reveal";
+import { RUNNER_SPRITES } from "@/features/runner/assets/manifest";
 // To customize this template, edit src/config.ts
 import { CONFIG } from "@/config";
 
@@ -16,6 +16,7 @@ function ActionCard({
   href,
   download,
   revealDelay = 0,
+  logoMode = false,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -24,10 +25,15 @@ function ActionCard({
   href?: string;
   download?: boolean;
   revealDelay?: number;
+  logoMode?: boolean;
 }) {
   const content = (
     <div className="streex-glass p-5 h-full flex flex-col gap-3 cursor-pointer">
-      <div className="h-10 w-10 rounded-full flex items-center justify-center bg-[#E6CE20]/12 border border-[#E6CE20]/25">
+      <div
+        className={`flex items-center justify-center bg-[#E6CE20]/12 border border-[#E6CE20]/25 ${
+          logoMode ? "h-10 w-28 rounded-xl px-3" : "h-10 w-10 rounded-full"
+        }`}
+      >
         {icon}
       </div>
       <div>
@@ -67,7 +73,6 @@ const STREEX_VCARD = [
 
 export function QuickActions() {
   const [wifiOpen, setWifiOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
 
@@ -146,17 +151,17 @@ export function QuickActions() {
         )}
         {CONFIG.sections.moreOptions && (
           <ActionCard
-            icon={<LayoutGrid className={iconCls} />}
-            label="More Options"
-            description="WhatsApp & Instagram"
-            onClick={() => setMoreOpen(true)}
+            icon={<img src={RUNNER_SPRITES.runnerLogoLockup} alt="" className="h-auto w-full" />}
+            label="STREEX Runner"
+            description="Play the ride challenge"
+            href="/runner-lab"
+            logoMode
             revealDelay={450}
           />
         )}
       </div>
 
       <WifiModal open={wifiOpen} onOpenChange={setWifiOpen} />
-      <MoreOptionsSheet open={moreOpen} onOpenChange={setMoreOpen} />
       <SaveContactModal open={contactOpen} onOpenChange={setContactOpen} vcard={STREEX_VCARD} />
       <BookingFormModal open={bookingOpen} onOpenChange={setBookingOpen} />
     </section>
