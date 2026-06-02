@@ -113,7 +113,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           z-index: 6;
           display: flex;
           justify-content: center;
-          padding: clamp(14px, 3svh, 24px) 24px clamp(8px, 1.8svh, 14px);
+          padding: clamp(12px, 2.5svh, 22px) 18px clamp(6px, 1.5svh, 12px);
         }
 
         .runner-logo-mark {
@@ -122,15 +122,15 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           align-items: center;
           justify-content: center;
           width: 100%;
-          min-height: 58px;
-          padding: 2px 12px;
+          min-height: clamp(72px, 11svh, 96px);
+          padding: 0;
         }
 
         .runner-logo-lockup {
-          width: min(72%, 238px);
+          width: min(90%, 330px);
           height: auto;
           display: block;
-          filter: drop-shadow(0 0 26px rgba(230,206,32,0.24));
+          filter: drop-shadow(0 0 34px rgba(230,206,32,0.3));
         }
 
         /* ─── Hero ─────────────────────────────────── */
@@ -467,7 +467,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
 
         @media (max-height: 720px) {
           .runner-logo-lockup {
-            width: min(66%, 204px);
+            width: min(84%, 280px);
           }
 
           .runner-hero {
@@ -486,7 +486,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           }
 
           .runner-logo-lockup {
-            width: min(60%, 180px);
+            width: min(76%, 238px);
           }
 
           .runner-hero {

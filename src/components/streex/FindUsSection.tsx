@@ -59,7 +59,7 @@ const BUTTONS: SocialButton[] = [
   },
   {
     icon: <GoogleIcon />,
-    label: "Google Reviews",
+    label: "Google",
     href: CONFIG.googleReviews || "#",
     active: true,
   },
@@ -75,7 +75,7 @@ export function FindUsSection() {
   return (
     <Reveal>
       <section className="px-6 mt-16">
-        <h2 className="text-2xl font-bold mb-5">Find Us</h2>
+        <h2 className="text-2xl font-bold mb-5">More Ways to Connect</h2>
         <div className="flex flex-nowrap items-start justify-center gap-2 sm:gap-3">
           {BUTTONS.map((b) => {
             const content = (

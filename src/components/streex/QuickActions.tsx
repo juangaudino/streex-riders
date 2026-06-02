@@ -31,7 +31,7 @@ function ActionCard({
     <div className="streex-glass p-5 h-full flex flex-col gap-3 cursor-pointer">
       <div
         className={`flex items-center justify-center bg-[#E6CE20]/12 border border-[#E6CE20]/25 ${
-          logoMode ? "h-10 w-28 rounded-xl px-3" : "h-10 w-10 rounded-full"
+          logoMode ? "h-16 w-full rounded-xl px-4" : "h-10 w-10 rounded-full"
         }`}
       >
         {icon}
@@ -153,7 +153,7 @@ export function QuickActions() {
           <ActionCard
             icon={<img src={RUNNER_SPRITES.runnerLogoLockup} alt="" className="h-auto w-full" />}
             label="STREEX Runner"
-            description="Play the ride challenge"
+            description="Play the Challenge"
             href="/runner-lab"
             logoMode
             revealDelay={450}
