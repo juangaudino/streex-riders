@@ -85,14 +85,18 @@ function useTickerStyle() {
     let cancelled = false;
 
     async function loadTickerStyle() {
-      const { data, error } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "ticker_style")
-        .maybeSingle();
+      try {
+        const { data, error } = await supabase
+          .from("app_settings")
+          .select("value")
+          .eq("key", "ticker_style")
+          .maybeSingle();
 
-      if (!cancelled && !error && isTickerStyle(data?.value)) {
-        setTickerStyle(data.value);
+        if (!cancelled && !error && isTickerStyle(data?.value)) {
+          setTickerStyle(data.value);
+        }
+      } catch (error) {
+        console.warn("[ServiceTicker] Using default ticker style.", error);
       }
     }
 

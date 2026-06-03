@@ -15,7 +15,7 @@ export function RunnerLogo({ className = "", compact = false }: RunnerLogoProps)
       <style>{`
         .runner-official-logo {
           width: min(82vw, 300px);
-          aspect-ratio: 3.4 / 1;
+          aspect-ratio: 2.55 / 1;
           position: relative;
           overflow: hidden;
           filter:
@@ -37,7 +37,7 @@ export function RunnerLogo({ className = "", compact = false }: RunnerLogoProps)
           background-image: url(${RUNNER_SPRITES.scoreCardFrame});
           background-repeat: no-repeat;
           background-size: 100% auto;
-          background-position: center top;
+          background-position: center 0;
         }
 
         .sr-only {

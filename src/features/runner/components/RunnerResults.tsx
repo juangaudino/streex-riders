@@ -3,7 +3,6 @@ import { CONFIG } from "@/config";
 import { listRunnerLeaderboard, submitRunnerScore } from "@/lib/runner-score.functions";
 import { RUNNER_SPRITES } from "../assets/manifest";
 import type { RunnerGameSnapshot } from "../runner.types";
-import { RunnerLogo } from "./RunnerLogo";
 
 type RunnerSavedScore = {
   id: string;
@@ -201,7 +200,6 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
     <section className="runner-results">
       <div className="runner-results-shell">
         <div className="runner-results-hero">
-          <RunnerLogo compact />
           <span>Ride Complete</span>
           <h1>{snapshot.crashKind ? "You made the road remember." : "Ride Elevated."}</h1>
         </div>
@@ -723,29 +721,24 @@ async function createRunnerScoreCard(
     7,
   );
 
-  ctx.fillStyle = "rgba(255,255,255,0.58)";
-  ctx.font = "800 34px Montserrat, Arial, sans-serif";
-  drawSpacedText(ctx, "RIDE ELEVATED", width / 2, 1450, 10);
+  ctx.fillStyle = "#E6CE20";
+  ctx.font = "750 36px Montserrat, Arial, sans-serif";
+  drawSpacedText(ctx, CONFIG.website.replace(/^https?:\/\//, ""), width / 2, 1510, 3);
+
+  ctx.fillStyle = "rgba(255,255,255,0.78)";
+  ctx.font = "700 34px Montserrat, Arial, sans-serif";
+  ctx.fillText(`${riderName}   ${CONFIG.ownerName}   @${CONFIG.instagram}`, width / 2, 1598);
+  ctx.fillText(CONFIG.phoneDisplay, width / 2, 1650);
 
   ctx.fillStyle = "#E6CE20";
-  ctx.font = "700 24px Montserrat, Arial, sans-serif";
-  drawSpacedText(ctx, CONFIG.website.replace(/^https?:\/\//, ""), width / 2, 1540, 4);
-
-  ctx.fillStyle = "rgba(255,255,255,0.55)";
-  ctx.font = "600 24px Montserrat, Arial, sans-serif";
-  drawSpacedText(
-    ctx,
-    `${riderName}   ${CONFIG.ownerName}   @${CONFIG.instagram}   ${CONFIG.phoneDisplay}`,
-    width / 2,
-    1625,
-    3,
-  );
+  ctx.font = "900 42px Montserrat, Arial, sans-serif";
+  drawSpacedText(ctx, "RIDE ELEVATED", width / 2, 1782, 9);
 
   ctx.fillStyle = "#E6CE20";
   ctx.font = "900 44px Montserrat, Arial, sans-serif";
   ctx.shadowColor = "rgba(230,206,32,0.6)";
   ctx.shadowBlur = 24;
-  ctx.fillText("★", width / 2, 1808);
+  ctx.fillText("★", width / 2, 1840);
   ctx.shadowBlur = 0;
 
   return canvas;
