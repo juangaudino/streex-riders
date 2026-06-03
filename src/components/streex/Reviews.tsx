@@ -1,6 +1,6 @@
 import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
-import { listPublicReviews } from "@/lib/review.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 type Review = {
   name: string;
@@ -36,10 +36,17 @@ export function Reviews() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const result = await listPublicReviews({ data: {} }).catch(() => null);
-      if (cancelled || !result?.reviews || result.reviews.length === 0) return;
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("name, rating, message, location, created_at")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false });
+      if (error) {
+        console.error("[Reviews] approved reviews read error", error);
+      }
+      if (cancelled || error || !data || data.length === 0) return;
       setReviews(
-        result.reviews.map((r) => ({
+        data.map((r) => ({
           name: r.name?.trim() || "Streex Passenger",
           location: r.location,
           stars: r.rating,

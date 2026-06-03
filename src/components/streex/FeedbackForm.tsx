@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Star, Check } from "lucide-react";
-import { submitPassengerReview } from "@/lib/review.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export function FeedbackForm() {
   const [rating, setRating] = useState(0);
@@ -25,23 +25,24 @@ export function FeedbackForm() {
     }
     setSubmitting(true);
     try {
-      await submitPassengerReview({
-        data: {
-          name: name.trim() || null,
-          rating,
-          message: trimmedMessage.slice(0, 1000),
-        },
+      const { error: insertError } = await supabase.from("reviews").insert({
+        name: name.trim() || null,
+        rating,
+        message: trimmedMessage.slice(0, 1000),
+        status: "pending",
       });
+      if (insertError) {
+        console.error("[FeedbackForm] review insert error", insertError);
+        setError("Something went wrong. Please try again.");
+        return;
+      }
       setSubmitted(true);
       setName("");
       setText("");
       setRating(0);
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Something went wrong. Please try again.",
-      );
+    } catch (error) {
+      console.error("[FeedbackForm] review submit error", error);
+      setError("Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
