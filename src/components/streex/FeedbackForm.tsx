@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Star, Check } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { submitPassengerReview } from "@/lib/review.functions";
 
 export function FeedbackForm() {
   const [rating, setRating] = useState(0);
@@ -12,6 +12,7 @@ export function FeedbackForm() {
   const [error, setError] = useState<string | null>(null);
 
   const onSubmit = async () => {
+    if (submitting) return;
     setError(null);
     if (rating < 1 || rating > 5) {
       setError("Please select a rating.");
@@ -23,26 +24,33 @@ export function FeedbackForm() {
       return;
     }
     setSubmitting(true);
-    const { error: insertError } = await supabase.from("reviews").insert({
-      name: name.trim() || null,
-      rating,
-      message: trimmedMessage.slice(0, 1000),
-      status: "pending",
-    });
-    setSubmitting(false);
-    if (insertError) {
-      setError("Something went wrong. Please try again.");
-      return;
+    try {
+      await submitPassengerReview({
+        data: {
+          name: name.trim() || null,
+          rating,
+          message: trimmedMessage.slice(0, 1000),
+        },
+      });
+      setSubmitted(true);
+      setName("");
+      setText("");
+      setRating(0);
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitted(true);
   };
 
   return (
     <section className="px-6 mt-16">
       <h2 className="text-2xl font-bold mb-2">Share Your Experience</h2>
-      <p className="text-sm text-white/60 mb-5">
-        Your feedback helps us improve every ride.
-      </p>
+      <p className="text-sm text-white/60 mb-5">Your feedback helps us improve every ride.</p>
 
       <div className="streex-glass p-6">
         {submitted ? (
@@ -96,9 +104,7 @@ export function FeedbackForm() {
               className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-[14px] text-white placeholder:text-white/40 focus:outline-none focus:border-[#E6CE20]/50 resize-none"
             />
 
-            {error && (
-              <p className="text-xs text-red-400/90 text-center">{error}</p>
-            )}
+            {error && <p className="text-xs text-red-400/90 text-center">{error}</p>}
 
             <button
               type="button"

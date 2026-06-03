@@ -1,5 +1,6 @@
 import { RUNNER_COLORS } from "../runner.config";
 import { RUNNER_SPRITES } from "../assets/manifest";
+import { RunnerLogo } from "./RunnerLogo";
 
 type RunnerIntroProps = {
   onPlay: () => void;
@@ -12,11 +13,7 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
       <div className="runner-frame">
         <div className="runner-logo-bar">
           <div className="runner-logo-mark">
-            <img
-              className="runner-logo-lockup"
-              src={RUNNER_SPRITES.runnerLogoLockup}
-              alt="STREEX Runner"
-            />
+            <RunnerLogo />
           </div>
         </div>
 
@@ -124,13 +121,6 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           width: 100%;
           min-height: clamp(56px, 8svh, 76px);
           padding: 0;
-        }
-
-        .runner-logo-lockup {
-          width: min(82%, 286px);
-          height: auto;
-          display: block;
-          filter: drop-shadow(0 0 34px rgba(230,206,32,0.3));
         }
 
         /* ─── Hero ─────────────────────────────────── */

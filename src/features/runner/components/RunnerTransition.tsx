@@ -1,4 +1,4 @@
-import { RUNNER_SPRITES } from "../assets/manifest";
+import { RunnerLogo } from "./RunnerLogo";
 
 export function RunnerTransition() {
   return (
@@ -7,7 +7,7 @@ export function RunnerTransition() {
       <div className="runner-transition-pixels" aria-hidden="true" />
 
       <div className="runner-transition-card">
-        <img src={RUNNER_SPRITES.runnerLogoLockup} alt="STREEX Runner" />
+        <RunnerLogo compact />
         <span>Preparing Your Ride</span>
       </div>
 
@@ -60,13 +60,6 @@ export function RunnerTransition() {
           padding: 26px 30px;
           text-align: center;
           animation: runnerTransitionLift 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-
-        .runner-transition-card img {
-          width: min(68vw, 232px);
-          height: auto;
-          display: block;
-          filter: drop-shadow(0 0 26px rgba(230,206,32,0.24));
         }
 
         .runner-transition-card span {

@@ -3,6 +3,7 @@ import { CONFIG } from "@/config";
 import { listRunnerLeaderboard, submitRunnerScore } from "@/lib/runner-score.functions";
 import { RUNNER_SPRITES } from "../assets/manifest";
 import type { RunnerGameSnapshot } from "../runner.types";
+import { RunnerLogo } from "./RunnerLogo";
 
 type RunnerSavedScore = {
   id: string;
@@ -200,7 +201,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
     <section className="runner-results">
       <div className="runner-results-shell">
         <div className="runner-results-hero">
-          <img src={RUNNER_SPRITES.runnerLogoLockup} alt="STREEX Runner" />
+          <RunnerLogo compact />
           <span>Ride Complete</span>
           <h1>{snapshot.crashKind ? "You made the road remember." : "Ride Elevated."}</h1>
         </div>
@@ -215,12 +216,6 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
             <strong>{snapshot.score}</strong>
             <span>You ranked #{resultRank}</span>
             <span>Among {riderCountLabel}</span>
-          </div>
-          <div className="runner-signature">
-            <strong>Ride Elevated</strong>
-            <span>
-              {CONFIG.ownerName} · @{CONFIG.instagram} · {CONFIG.phoneDisplay}
-            </span>
           </div>
         </div>
 
@@ -337,11 +332,6 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           justify-items: center;
           gap: 8px;
           text-align: center;
-        }
-
-        .runner-results-hero img {
-          width: min(76%, 230px);
-          filter: drop-shadow(0 0 22px rgba(230,206,32,0.16));
         }
 
         .runner-results-hero span {
@@ -579,35 +569,6 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           font-weight: 750;
         }
 
-        .runner-signature {
-          position: absolute;
-          z-index: 1;
-          left: 16px;
-          right: 16px;
-          bottom: 16px;
-          margin-top: auto;
-          display: grid;
-          gap: 5px;
-          color: rgba(255,255,255,0.46);
-          text-align: center;
-          text-transform: uppercase;
-        }
-
-        .runner-signature strong {
-          color: rgba(255,255,255,0.56);
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: 0.18em;
-        }
-
-        .runner-signature span {
-          color: rgba(255,255,255,0.42);
-          font-size: 9px;
-          font-weight: 650;
-          letter-spacing: 0.08em;
-          text-transform: none;
-        }
-
         .runner-result-actions {
           width: min(100%, 310px);
           display: grid;
@@ -709,122 +670,82 @@ async function createRunnerScoreCard(
 
   if (!ctx) return canvas;
 
-  const [logo, horizon] = await Promise.all([
-    loadImage(RUNNER_SPRITES.runnerLogoLockup).catch(() => null),
-    loadImage(RUNNER_SPRITES.horizonGroundBlend2).catch(() => null),
-  ]);
+  const frame = await loadImage(RUNNER_SPRITES.scoreCardFrame).catch(() => null);
 
-  void riderName;
-
-  // ─── Deep night sky ──────────────────────────
-  const sky = ctx.createLinearGradient(0, 0, 0, height);
-  sky.addColorStop(0, "#02030a");
-  sky.addColorStop(0.4, "#07080d");
-  sky.addColorStop(0.75, "#100f08");
-  sky.addColorStop(1, "#1a1606");
-  ctx.fillStyle = sky;
+  ctx.fillStyle = "#0b0b0b";
   ctx.fillRect(0, 0, width, height);
 
-  drawShareStars(ctx, width, height);
-
-  // ─── Horizon photo blended in ────────────────
-  if (horizon) {
-    ctx.save();
-    ctx.globalAlpha = 0.55;
-    ctx.globalCompositeOperation = "screen";
-    ctx.drawImage(horizon, -200, 760, width + 400, 540);
-    ctx.restore();
+  if (frame) {
+    ctx.drawImage(frame, 0, 0, width, height);
+  } else {
+    const fallback = ctx.createLinearGradient(0, 0, 0, height);
+    fallback.addColorStop(0, "#050505");
+    fallback.addColorStop(0.58, "#101108");
+    fallback.addColorStop(1, "#050505");
+    ctx.fillStyle = fallback;
+    ctx.fillRect(0, 0, width, height);
   }
 
-  drawShareMountains(ctx, width);
-  drawShareHorizonLights(ctx, width);
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  ctx.fillRect(0, 560, width, 770);
 
-  // ─── Central horizon glow ────────────────────
-  const glow = ctx.createRadialGradient(width / 2, 1230, 20, width / 2, 1230, 560);
-  glow.addColorStop(0, "rgba(230,206,32,0.45)");
-  glow.addColorStop(1, "rgba(230,206,32,0)");
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, width, height);
-
-  drawShareRoadScene(ctx, width, height);
-
-  // ─── Dark bottom fade for text legibility ────
-  const fade = ctx.createLinearGradient(0, height * 0.42, 0, height);
-  fade.addColorStop(0, "rgba(0,0,0,0)");
-  fade.addColorStop(0.5, "rgba(0,0,0,0.55)");
-  fade.addColorStop(1, "rgba(0,0,0,0.92)");
-  ctx.fillStyle = fade;
-  ctx.fillRect(0, height * 0.42, width, height * 0.58);
-
-  drawShareCardBorder(ctx, width, height);
-  drawShareLogoBadge(ctx, width, logo);
+  const atmosphere = ctx.createLinearGradient(0, 520, 0, 1320);
+  atmosphere.addColorStop(0, "rgba(0,0,0,0.08)");
+  atmosphere.addColorStop(0.5, "rgba(0,0,0,0.18)");
+  atmosphere.addColorStop(1, "rgba(0,0,0,0.08)");
+  ctx.fillStyle = atmosphere;
+  ctx.fillRect(0, 520, width, 820);
 
   ctx.textAlign = "center";
 
-  // RIDE ELEVATED eyebrow
-  ctx.fillStyle = "#E6CE20";
-  ctx.font = "800 42px Montserrat, Arial, sans-serif";
-  drawSpacedText(ctx, "RIDE ELEVATED", width / 2, 740, 18);
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
+  ctx.font = "800 34px Montserrat, Arial, sans-serif";
+  drawSpacedText(ctx, "YOUR SCORE", width / 2, 730, 12);
 
-  // HUGE SCORE
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "950 320px Montserrat, Arial, sans-serif";
+  ctx.fillStyle = "#E6CE20";
+  ctx.font = "950 260px Montserrat, Arial, sans-serif";
   ctx.shadowColor = "rgba(230,206,32,0.45)";
-  ctx.shadowBlur = 60;
-  ctx.fillText(String(snapshot.score), width / 2, 1030);
+  ctx.shadowBlur = 54;
+  ctx.fillText(String(snapshot.score), width / 2, 970);
   ctx.shadowBlur = 0;
 
-  // YOU RANKED #N
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "800 56px Montserrat, Arial, sans-serif";
-  drawSpacedText(ctx, `YOU RANKED #${rank}`, width / 2, 1130, 8);
+  ctx.font = "800 46px Montserrat, Arial, sans-serif";
+  drawSpacedText(ctx, `YOU RANKED #${rank}`, width / 2, 1090, 7);
 
-  // Real rider count
   ctx.fillStyle = "rgba(255,255,255,0.78)";
-  ctx.font = "700 38px Montserrat, Arial, sans-serif";
+  ctx.font = "700 34px Montserrat, Arial, sans-serif";
   drawSpacedText(
     ctx,
     `OF ${totalRiders} ${totalRiders === 1 ? "RIDER" : "RIDERS"}`,
     width / 2,
-    1200,
-    8,
+    1170,
+    7,
   );
 
-  // Divider
-  ctx.strokeStyle = "rgba(230,206,32,0.45)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(280, 1500);
-  ctx.lineTo(800, 1500);
-  ctx.stroke();
+  ctx.fillStyle = "rgba(255,255,255,0.58)";
+  ctx.font = "800 34px Montserrat, Arial, sans-serif";
+  drawSpacedText(ctx, "RIDE ELEVATED", width / 2, 1450, 10);
 
-  // STREEX RIDER
-  ctx.fillStyle = "rgba(255,255,255,0.74)";
-  ctx.font = "800 38px Montserrat, Arial, sans-serif";
-  drawSpacedText(ctx, "STREEX RIDER", width / 2, 1580, 14);
-
-  // Domain
   ctx.fillStyle = "#E6CE20";
-  ctx.font = "600 30px Montserrat, Arial, sans-serif";
-  drawSpacedText(ctx, CONFIG.website.replace(/^https?:\/\//, ""), width / 2, 1640, 4);
+  ctx.font = "700 24px Montserrat, Arial, sans-serif";
+  drawSpacedText(ctx, CONFIG.website.replace(/^https?:\/\//, ""), width / 2, 1540, 4);
 
-  // Contact line
   ctx.fillStyle = "rgba(255,255,255,0.55)";
-  ctx.font = "600 26px Montserrat, Arial, sans-serif";
+  ctx.font = "600 24px Montserrat, Arial, sans-serif";
   drawSpacedText(
     ctx,
-    `${CONFIG.ownerName}   @${CONFIG.instagram}   ${CONFIG.phoneDisplay}`,
+    `${riderName}   ${CONFIG.ownerName}   @${CONFIG.instagram}   ${CONFIG.phoneDisplay}`,
     width / 2,
-    1720,
+    1625,
     3,
   );
 
-  // Star
   ctx.fillStyle = "#E6CE20";
   ctx.font = "900 44px Montserrat, Arial, sans-serif";
   ctx.shadowColor = "rgba(230,206,32,0.6)";
   ctx.shadowBlur = 24;
-  ctx.fillText("★", width / 2, 1830);
+  ctx.fillText("★", width / 2, 1808);
   ctx.shadowBlur = 0;
 
   return canvas;
@@ -848,297 +769,6 @@ function drawSpacedText(
     x += widths[i] + spacing;
   });
   ctx.textAlign = prevAlign;
-}
-
-function drawShareStars(ctx: CanvasRenderingContext2D, width: number, height: number) {
-  ctx.save();
-  ctx.fillStyle = "#ffffff";
-  for (let i = 0; i < 90; i += 1) {
-    const x = pseudoCardRandom(i, 11) * width;
-    const y = pseudoCardRandom(i, 13) * (height * 0.5);
-    const a = 0.25 + pseudoCardRandom(i, 17) * 0.55;
-    ctx.globalAlpha = a;
-    ctx.fillRect(x, y, 2, 2);
-  }
-  ctx.restore();
-}
-
-function drawShareMountains(ctx: CanvasRenderingContext2D, width: number) {
-  ctx.save();
-  // Far mountains
-  ctx.fillStyle = "#15170f";
-  ctx.beginPath();
-  const farBase = 1290;
-  ctx.moveTo(-20, farBase);
-  const farPts: Array<[number, number]> = [
-    [0.06, 0.62],
-    [0.14, 0.78],
-    [0.22, 0.48],
-    [0.32, 0.72],
-    [0.42, 0.36],
-    [0.52, 0.64],
-    [0.62, 0.4],
-    [0.72, 0.68],
-    [0.82, 0.44],
-    [0.92, 0.7],
-    [1, 0.56],
-  ];
-  farPts.forEach(([fx, fy]) => {
-    ctx.lineTo(fx * width, farBase - (1 - fy) * 220);
-  });
-  ctx.lineTo(width + 20, farBase);
-  ctx.closePath();
-  ctx.fill();
-
-  // Near mountains
-  ctx.fillStyle = "#050505";
-  ctx.beginPath();
-  const nearBase = 1370;
-  ctx.moveTo(-20, nearBase);
-  const nearPts: Array<[number, number]> = [
-    [0.1, 0.5],
-    [0.2, 0.76],
-    [0.3, 0.3],
-    [0.4, 0.64],
-    [0.5, 0.18],
-    [0.6, 0.6],
-    [0.7, 0.34],
-    [0.8, 0.7],
-    [0.9, 0.48],
-    [1, 0.64],
-  ];
-  nearPts.forEach(([fx, fy]) => {
-    ctx.lineTo(fx * width, nearBase - (1 - fy) * 280);
-  });
-  ctx.lineTo(width + 20, nearBase);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-}
-
-function drawShareHorizonLights(ctx: CanvasRenderingContext2D, width: number) {
-  ctx.save();
-  const y = 1340;
-  const positions = [0.12, 0.22, 0.32, 0.42, 0.48, 0.52, 0.58, 0.68, 0.78, 0.88];
-  positions.forEach((p, i) => {
-    const x = p * width;
-    const central = i >= 4 && i <= 5;
-    ctx.fillStyle = central ? "#fff5b8" : "#e6ce20";
-    ctx.shadowColor = "rgba(230,206,32,0.9)";
-    ctx.shadowBlur = central ? 28 : 18;
-    ctx.beginPath();
-    ctx.arc(x, y, central ? 5 : 4, 0, Math.PI * 2);
-    ctx.fill();
-  });
-  ctx.restore();
-}
-
-function drawShareLogoBadge(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  logo: HTMLImageElement | null,
-) {
-  const cx = width / 2;
-  const top = 200;
-  const w = 560;
-  const h = 290;
-  const x = cx - w / 2;
-
-  ctx.save();
-  ctx.shadowColor = "rgba(230,206,32,0.45)";
-  ctx.shadowBlur = 42;
-  ctx.fillStyle = "rgba(11,11,11,0.95)";
-  roundRect(ctx, x, top, w, h, 26);
-  ctx.fill();
-  ctx.restore();
-
-  ctx.save();
-  ctx.strokeStyle = "#e6ce20";
-  ctx.lineWidth = 4;
-  roundRect(ctx, x, top, w, h, 26);
-  ctx.stroke();
-  ctx.restore();
-
-  ctx.save();
-  ctx.strokeStyle = "rgba(230,206,32,0.28)";
-  ctx.lineWidth = 1;
-  roundRect(ctx, x + 10, top + 10, w - 20, h - 20, 20);
-  ctx.stroke();
-  ctx.restore();
-
-  drawWing(ctx, x - 100, top + h / 2 - 14, 80, 28, false);
-  drawWing(ctx, x + w + 20, top + h / 2 - 14, 80, 28, true);
-
-  if (logo) {
-    const lw = 460;
-    const lh = (logo.height / logo.width) * lw;
-    ctx.drawImage(logo, cx - lw / 2, top + h / 2 - lh / 2, lw, lh);
-  } else {
-    drawRunnerTextLogo(ctx, cx, top + h / 2 + 20);
-  }
-}
-
-function drawWing(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  flip: boolean,
-) {
-  ctx.save();
-  ctx.translate(x + (flip ? w : 0), y);
-  if (flip) ctx.scale(-1, 1);
-  const segs: Array<[number, number]> = [
-    [0.06, 0.18],
-    [0.26, 0.44],
-    [0.54, 0.82],
-  ];
-  ctx.fillStyle = "#e6ce20";
-  segs.forEach(([a, b]) => {
-    ctx.fillRect(a * w, 0, (b - a) * w, h);
-  });
-  ctx.restore();
-}
-
-function roundRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number,
-) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
-
-function drawShareRoadScene(ctx: CanvasRenderingContext2D, width: number, height: number) {
-  ctx.save();
-  const roadTop = 1360;
-  const roadBottom = height + 160;
-  const roadGradient = ctx.createLinearGradient(0, roadTop, 0, roadBottom);
-  roadGradient.addColorStop(0, "rgba(46,48,40,0.85)");
-  roadGradient.addColorStop(0.45, "rgba(22,22,18,0.95)");
-  roadGradient.addColorStop(1, "rgba(5,5,5,1)");
-
-  ctx.beginPath();
-  ctx.moveTo(width * 0.46, roadTop);
-  ctx.lineTo(width * 0.54, roadTop);
-  ctx.lineTo(width * 0.96, roadBottom);
-  ctx.lineTo(width * 0.04, roadBottom);
-  ctx.closePath();
-  ctx.fillStyle = roadGradient;
-  ctx.fill();
-
-  // Glowing yellow side rails
-  ctx.strokeStyle = "rgba(230,206,32,0.55)";
-  ctx.lineWidth = 4;
-  ctx.shadowColor = "rgba(230,206,32,0.7)";
-  ctx.shadowBlur = 18;
-  ctx.beginPath();
-  ctx.moveTo(width * 0.46, roadTop);
-  ctx.lineTo(width * 0.04, roadBottom);
-  ctx.moveTo(width * 0.54, roadTop);
-  ctx.lineTo(width * 0.96, roadBottom);
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  // Center dashed line with perspective widening
-  ctx.strokeStyle = "#e6ce20";
-  ctx.shadowColor = "rgba(230,206,32,0.9)";
-  ctx.shadowBlur = 22;
-  const segments = 9;
-  for (let i = 0; i < segments; i += 1) {
-    const t1 = i / segments;
-    const t2 = (i + 0.55) / segments;
-    const y1 = roadTop + (roadBottom - roadTop) * t1;
-    const y2 = roadTop + (roadBottom - roadTop) * t2;
-    ctx.lineWidth = 4 + t1 * 22;
-    ctx.beginPath();
-    ctx.moveTo(width / 2, y1);
-    ctx.lineTo(width / 2, y2);
-    ctx.stroke();
-  }
-  ctx.shadowBlur = 0;
-  ctx.restore();
-}
-
-function drawShareCardBorder(ctx: CanvasRenderingContext2D, width: number, height: number) {
-  ctx.save();
-  // Main yellow frame
-  ctx.strokeStyle = "#e6ce20";
-  ctx.lineWidth = 5;
-  ctx.shadowColor = "rgba(230,206,32,0.4)";
-  ctx.shadowBlur = 22;
-  roundRect(ctx, 36, 36, width - 72, height - 72, 28);
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  // Inner thin frame
-  ctx.strokeStyle = "rgba(230,206,32,0.32)";
-  ctx.lineWidth = 1;
-  roundRect(ctx, 60, 60, width - 120, height - 120, 20);
-  ctx.stroke();
-  ctx.restore();
-
-  // Checker corner blocks
-  drawCheckerBlock(ctx, 60, 60, 120, 60, false, false);
-  drawCheckerBlock(ctx, width - 60 - 120, 60, 120, 60, true, false);
-  drawCheckerBlock(ctx, 60, height - 60 - 60, 120, 60, false, true);
-  drawCheckerBlock(ctx, width - 60 - 120, height - 60 - 60, 120, 60, true, true);
-}
-
-function drawCheckerBlock(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  flipX: boolean,
-  flipY: boolean,
-) {
-  ctx.save();
-  ctx.fillStyle = "#e6ce20";
-  const cell = 14;
-  const cols = Math.floor(w / cell);
-  const rows = Math.floor(h / cell);
-  for (let r = 0; r < rows; r += 1) {
-    for (let c = 0; c < cols; c += 1) {
-      if ((r + c) % 2 !== 0) continue;
-      const distC = flipX ? cols - 1 - c : c;
-      const distR = flipY ? rows - 1 - r : r;
-      if (distC + distR > cols - 1) continue;
-      ctx.fillRect(x + c * cell, y + r * cell, cell - 1, cell - 1);
-    }
-  }
-  ctx.restore();
-}
-
-function drawRunnerTextLogo(ctx: CanvasRenderingContext2D, centerX: number, centerY: number) {
-  ctx.save();
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "900 72px Montserrat, Arial, sans-serif";
-  ctx.fillText("STREEX", centerX, centerY);
-  ctx.fillStyle = "#E6CE20";
-  ctx.font = "900 italic 54px Montserrat, Arial, sans-serif";
-  ctx.fillText("RUNNER", centerX, centerY + 62);
-  ctx.restore();
-}
-
-function pseudoCardRandom(seed: number, salt: number) {
-  const value = Math.sin(seed * 19.17 + salt * 91.7) * 10000;
-  return value - Math.floor(value);
 }
 
 function canvasToBlob(canvas: HTMLCanvasElement) {
