@@ -15,6 +15,7 @@ import playerRav4RearDamaged from "./sprites/player_rav4_rear_damaged.png";
 import reputationStar from "./sprites/reputation_star.png";
 import roadEdgeAlt from "./sprites/road_edge_alt.png";
 import roadTexture from "./sprites/road_texture.png";
+import runnerLogoOfficial from "./sprites/runner_logo_official.png";
 import scoreCardFrame from "./sprites/score_card_frame.png";
 import shadowSoft from "./sprites/shadow_soft.png";
 import skidMarksAlt from "./sprites/skid_marks_alt.png";
@@ -68,6 +69,7 @@ export const RUNNER_SPRITES = {
   reputationStar,
   roadEdgeAlt,
   roadTexture,
+  runnerLogoOfficial,
   roadShoulderLeft,
   roadShoulderRight,
   roadsideRockCluster,

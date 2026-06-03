@@ -10,12 +10,12 @@ export function RunnerLogo({ className = "", compact = false }: RunnerLogoProps)
     <div
       className={`runner-official-logo ${compact ? "runner-official-logo-compact" : ""} ${className}`}
     >
-      <div className="runner-official-logo-crop" aria-hidden="true" />
+      <img className="runner-official-logo-image" src={RUNNER_SPRITES.runnerLogoOfficial} alt="" />
       <span className="sr-only">STREEX Runner</span>
       <style>{`
         .runner-official-logo {
-          width: min(74vw, 286px);
-          aspect-ratio: 3.3 / 1;
+          width: min(78vw, 320px);
+          aspect-ratio: 3.6 / 1;
           position: relative;
           overflow: hidden;
           border-radius: 16px;
@@ -25,20 +25,19 @@ export function RunnerLogo({ className = "", compact = false }: RunnerLogoProps)
         }
 
         .runner-official-logo-compact {
-          width: min(58vw, 226px);
+          width: min(64vw, 250px);
         }
 
-        .runner-official-logo-crop {
+        .runner-official-logo-image {
           position: absolute;
           left: 50%;
-          top: 0;
-          width: 100%;
-          height: 100%;
-          transform: translateX(-50%);
-          background-image: url(${RUNNER_SPRITES.scoreCardFrame});
-          background-repeat: no-repeat;
-          background-size: 185% auto;
-          background-position: center 3.7%;
+          top: 50%;
+          width: 148%;
+          height: auto;
+          transform: translate(-50%, -50%);
+          display: block;
+          pointer-events: none;
+          user-select: none;
         }
 
         .sr-only {
