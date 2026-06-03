@@ -115,7 +115,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
   };
 
   const handleSaveCard = async () => {
-    const canvas = await createRunnerScoreCard(snapshot, displayName, resultRank, totalRiders);
+    const canvas = await createRunnerScoreCard(snapshot, resultRank, totalRiders);
     const filename = `streex-runner-${snapshot.score}.png`;
 
     try {
@@ -154,7 +154,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
     try {
       setShareLabel("Sharing...");
-      const canvas = await createRunnerScoreCard(snapshot, displayName, resultRank, totalRiders);
+      const canvas = await createRunnerScoreCard(snapshot, resultRank, totalRiders);
       const blob = await canvasToBlob(canvas);
       const file = new File([blob], filename, { type: "image/png" });
 
@@ -655,7 +655,6 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
 async function createRunnerScoreCard(
   snapshot: RunnerGameSnapshot,
-  riderName: string,
   rank: number,
   totalRiders: number,
 ) {
@@ -725,21 +724,10 @@ async function createRunnerScoreCard(
   ctx.font = "750 36px Montserrat, Arial, sans-serif";
   drawSpacedText(ctx, CONFIG.website.replace(/^https?:\/\//, ""), width / 2, 1510, 3);
 
-  ctx.fillStyle = "rgba(255,255,255,0.78)";
+  ctx.fillStyle = "rgba(255,255,255,0.86)";
   ctx.font = "700 34px Montserrat, Arial, sans-serif";
-  ctx.fillText(`${riderName}   ${CONFIG.ownerName}   @${CONFIG.instagram}`, width / 2, 1598);
+  ctx.fillText(`${CONFIG.ownerName}   @${CONFIG.instagram}`, width / 2, 1598);
   ctx.fillText(CONFIG.phoneDisplay, width / 2, 1650);
-
-  ctx.fillStyle = "#E6CE20";
-  ctx.font = "900 42px Montserrat, Arial, sans-serif";
-  drawSpacedText(ctx, "RIDE ELEVATED", width / 2, 1782, 9);
-
-  ctx.fillStyle = "#E6CE20";
-  ctx.font = "900 44px Montserrat, Arial, sans-serif";
-  ctx.shadowColor = "rgba(230,206,32,0.6)";
-  ctx.shadowBlur = 24;
-  ctx.fillText("★", width / 2, 1840);
-  ctx.shadowBlur = 0;
 
   return canvas;
 }

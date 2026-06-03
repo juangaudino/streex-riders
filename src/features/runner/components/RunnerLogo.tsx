@@ -14,17 +14,18 @@ export function RunnerLogo({ className = "", compact = false }: RunnerLogoProps)
       <span className="sr-only">STREEX Runner</span>
       <style>{`
         .runner-official-logo {
-          width: min(82vw, 300px);
-          aspect-ratio: 2.55 / 1;
+          width: min(74vw, 286px);
+          aspect-ratio: 3.3 / 1;
           position: relative;
           overflow: hidden;
+          border-radius: 16px;
           filter:
             drop-shadow(0 0 18px rgba(230,206,32,0.24))
             drop-shadow(0 0 38px rgba(230,206,32,0.12));
         }
 
         .runner-official-logo-compact {
-          width: min(62vw, 230px);
+          width: min(58vw, 226px);
         }
 
         .runner-official-logo-crop {
@@ -36,8 +37,8 @@ export function RunnerLogo({ className = "", compact = false }: RunnerLogoProps)
           transform: translateX(-50%);
           background-image: url(${RUNNER_SPRITES.scoreCardFrame});
           background-repeat: no-repeat;
-          background-size: 100% auto;
-          background-position: center 0;
+          background-size: 185% auto;
+          background-position: center 3.7%;
         }
 
         .sr-only {
