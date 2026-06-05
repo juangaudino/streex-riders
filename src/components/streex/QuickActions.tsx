@@ -5,7 +5,8 @@ import { BookingFormModal } from "./BookingFormModal";
 import { Reveal } from "./Reveal";
 // To customize this template, edit src/config.ts
 import { CONFIG } from "@/config";
-import playerRav4 from "@/features/runner/assets/sprites/player_rav4_rear.webp";
+import runnerQuickActionBg from "@/features/runner/assets/quick-action/runner_quick_action_bg.webp";
+import runnerQuickActionRav4 from "@/features/runner/assets/quick-action/runner_quick_action_rav4.webp";
 import runnerLogo from "@/features/runner/assets/sprites/runner_logo_official.webp";
 
 function ActionCard({
@@ -58,23 +59,28 @@ function RunnerFeaturedCard({ revealDelay = 0 }: { revealDelay?: number }) {
     <Reveal delay={revealDelay} className="col-span-2">
       <a
         href="/runner-lab"
-        className="streex-glass relative h-full min-h-[116px] overflow-hidden p-5 grid grid-cols-[minmax(104px,0.86fr)_minmax(0,1fr)_auto] items-center gap-3 sm:gap-4 group"
+        className="streex-glass relative h-full min-h-[136px] overflow-hidden p-5 grid grid-cols-[minmax(104px,0.82fr)_minmax(0,1fr)_auto] items-center gap-3 sm:min-h-[148px] sm:gap-4 group"
         aria-label="Play STREEX Runner"
       >
-        <div className="pointer-events-none absolute inset-0 opacity-95" aria-hidden="true">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_25%,rgba(230,206,32,0.14),transparent_30%),linear-gradient(118deg,rgba(230,206,32,0.08),transparent_42%),linear-gradient(90deg,rgba(255,255,255,0.035),transparent_34%,rgba(230,206,32,0.055)_72%,transparent)]" />
-          <div className="absolute inset-y-0 right-0 w-[58%] bg-[radial-gradient(ellipse_at_76%_42%,rgba(230,206,32,0.2),transparent_30%),linear-gradient(180deg,rgba(11,11,11,0)_0%,rgba(11,11,11,0.5)_78%)]" />
-          <div className="absolute bottom-0 right-[3%] h-[74%] w-[47%] origin-bottom skew-x-[-10deg] bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.015)),linear-gradient(90deg,transparent_0_20%,rgba(230,206,32,0.22)_49%,rgba(230,206,32,0.22)_51%,transparent_80%)] opacity-60 [clip-path:polygon(46%_0,58%_0,100%_100%,0_100%)]" />
-          <div className="absolute bottom-7 right-[19%] h-[1px] w-[34%] bg-[#E6CE20]/30 shadow-[0_0_16px_rgba(230,206,32,0.35)]" />
-          <div className="absolute bottom-0 right-0 h-full w-full bg-[linear-gradient(180deg,transparent_0_58%,rgba(0,0,0,0.62)_100%)]" />
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <img
+            src={runnerQuickActionBg}
+            alt=""
+            className="h-full w-full object-cover object-[58%_58%] opacity-90 saturate-[0.95]"
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,11,11,0.92)_0%,rgba(11,11,11,0.68)_34%,rgba(11,11,11,0.18)_61%,rgba(11,11,11,0.46)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_50%,rgba(230,206,32,0.18),transparent_27%),radial-gradient(circle_at_77%_58%,rgba(230,206,32,0.22),transparent_28%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/72 to-transparent" />
         </div>
 
         <div className="relative z-10 min-w-0 flex items-center">
-          <div className="absolute -inset-5 bg-[#E6CE20]/12 blur-2xl opacity-75 transition-opacity group-hover:opacity-100" />
+          <div className="absolute -inset-5 bg-[#E6CE20]/14 blur-2xl opacity-80 transition-opacity group-hover:opacity-100" />
           <img
             src={runnerLogo}
             alt="STREEX Runner"
-            className="relative w-full max-w-[138px] sm:max-w-[174px] object-contain drop-shadow-[0_0_18px_rgba(230,206,32,0.24)]"
+            className="relative w-full max-w-[132px] object-contain drop-shadow-[0_0_18px_rgba(230,206,32,0.3)] sm:max-w-[166px]"
             loading="lazy"
             decoding="async"
           />
@@ -89,10 +95,10 @@ function RunnerFeaturedCard({ revealDelay = 0 }: { revealDelay?: number }) {
         </div>
 
         <img
-          src={playerRav4}
+          src={runnerQuickActionRav4}
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute bottom-1 right-[52px] z-[1] w-[68px] opacity-70 drop-shadow-[0_12px_20px_rgba(0,0,0,0.65)] transition-transform duration-300 group-hover:-translate-y-0.5 sm:right-[72px] sm:w-[84px] sm:opacity-85"
+          className="pointer-events-none absolute -bottom-5 right-[42px] z-[1] w-[112px] opacity-95 drop-shadow-[0_16px_22px_rgba(0,0,0,0.72)] transition-transform duration-300 group-hover:-translate-y-1 sm:-bottom-7 sm:right-[74px] sm:w-[148px]"
           loading="lazy"
           decoding="async"
         />
