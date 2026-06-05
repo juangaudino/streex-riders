@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "@/assets/streex-logo.png";
+import logo from "@/assets/streex-logo.webp";
 
 export function Header() {
   const [show, setShow] = useState(false);

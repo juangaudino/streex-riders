@@ -1,4 +1,4 @@
-import logo from "@/assets/streex-logo.png";
+import logo from "@/assets/streex-logo.webp";
 
 export function Splash() {
   return (

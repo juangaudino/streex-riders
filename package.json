@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "check": "bun run typecheck && bun run build",
     "check:full": "bun run typecheck && bun run lint && bun run build",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "optimize:images": "node scripts/optimize-images.mjs"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
@@ -86,6 +87,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
     "prettier": "^3.7.3",
+    "sharp": "^0.34.5",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1"

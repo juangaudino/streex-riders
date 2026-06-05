@@ -1,18 +1,12 @@
 import { Check, AlertCircle } from "lucide-react";
-import logo from "@/assets/streex-logo.png";
+import logo from "@/assets/streex-logo.webp";
 
-export type ResponseVariant =
-  | "accepted"
-  | "declined"
-  | "already"
-  | "not_found"
-  | "error";
+export type ResponseVariant = "accepted" | "declined" | "already" | "not_found" | "error";
 
 export function BookingResponseShell({ variant }: { variant: ResponseVariant }) {
   const isPositive = variant === "accepted";
   const isNeutral = variant === "declined";
-  const isError =
-    variant === "not_found" || variant === "error" || variant === "already";
+  const isError = variant === "not_found" || variant === "error" || variant === "already";
 
   const titles: Record<ResponseVariant, string> = {
     accepted: "Your ride is confirmed.",
@@ -47,8 +41,8 @@ export function BookingResponseShell({ variant }: { variant: ResponseVariant }) 
             isPositive
               ? "bg-[#E6CE20]/15 border-[#E6CE20]/40"
               : isNeutral
-              ? "bg-white/[0.05] border-white/15"
-              : "bg-white/[0.04] border-white/10"
+                ? "bg-white/[0.05] border-white/15"
+                : "bg-white/[0.04] border-white/10"
           }`}
         >
           {isPositive ? (
@@ -67,16 +61,10 @@ export function BookingResponseShell({ variant }: { variant: ResponseVariant }) 
           <div className="text-[10px] uppercase tracking-[0.22em] text-white/45 font-semibold mb-2">
             Juan &mdash; Streex Rides
           </div>
-          <a
-            href="tel:+18017974971"
-            className="block text-base font-semibold text-white"
-          >
+          <a href="tel:+18017974971" className="block text-base font-semibold text-white">
             (801) 797-4971
           </a>
-          <a
-            href="mailto:streex.rides@gmail.com"
-            className="block text-sm text-white/70 mt-1"
-          >
+          <a href="mailto:streex.rides@gmail.com" className="block text-sm text-white/70 mt-1">
             streex.rides@gmail.com
           </a>
         </div>

@@ -15,7 +15,7 @@ import {
   verifyAdminKey,
 } from "@/lib/admin.functions";
 import { CONFIG } from "@/config";
-import logo from "@/assets/streex-logo.png";
+import logo from "@/assets/streex-logo.webp";
 
 const SESSION_KEY = "streex_admin_key";
 

@@ -5,8 +5,8 @@ import { BookingFormModal } from "./BookingFormModal";
 import { Reveal } from "./Reveal";
 // To customize this template, edit src/config.ts
 import { CONFIG } from "@/config";
-import playerRav4 from "@/features/runner/assets/sprites/player_rav4_rear.png";
-import runnerLogo from "@/features/runner/assets/sprites/runner_logo_official.png";
+import playerRav4 from "@/features/runner/assets/sprites/player_rav4_rear.webp";
+import runnerLogo from "@/features/runner/assets/sprites/runner_logo_official.webp";
 
 function ActionCard({
   icon,

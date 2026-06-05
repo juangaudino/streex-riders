@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import logo from "@/assets/streex-logo.png";
+import logo from "@/assets/streex-logo.webp";
 // To customize this template, edit src/config.ts
 import { CONFIG } from "@/config";
 import { Splash } from "@/components/streex/Splash";
@@ -98,7 +98,10 @@ function Index() {
 
       <main className="mx-auto max-w-md pb-16">
         {/* HERO */}
-        <section className="relative px-6 pb-6 flex flex-col items-center text-center" style={{ paddingTop: 16 }}>
+        <section
+          className="relative px-6 pb-6 flex flex-col items-center text-center"
+          style={{ paddingTop: 16 }}
+        >
           <img
             src={logo}
             alt={CONFIG.brandName}
@@ -133,19 +136,31 @@ function Index() {
         <QuickActions />
 
         {/* PAYMENT OPTIONS */}
-        {CONFIG.sections.paymentOptions && <Reveal><PaymentOptions /></Reveal>}
+        {CONFIG.sections.paymentOptions && (
+          <Reveal>
+            <PaymentOptions />
+          </Reveal>
+        )}
 
         {/* FIND US */}
         {CONFIG.sections.findUs && <FindUsSection />}
 
         {/* EXPERIENCE GALLERY */}
-        {CONFIG.sections.experienceGallery && <Reveal><ExperienceGallery /></Reveal>}
+        {CONFIG.sections.experienceGallery && (
+          <Reveal>
+            <ExperienceGallery />
+          </Reveal>
+        )}
 
         {/* OUR SERVICES */}
         {CONFIG.sections.servicesGrid && <ServicesSection />}
 
         {/* REVIEWS */}
-        {CONFIG.sections.reviews && <Reveal><Reviews /></Reveal>}
+        {CONFIG.sections.reviews && (
+          <Reveal>
+            <Reviews />
+          </Reveal>
+        )}
 
         {/* ABOUT */}
         {CONFIG.sections.whyStreex && (
@@ -189,14 +204,16 @@ function Index() {
         {CONFIG.sections.meetJuan && <MeetJuan />}
 
         {/* FEEDBACK FORM */}
-        {CONFIG.sections.feedbackForm && <Reveal><FeedbackForm /></Reveal>}
+        {CONFIG.sections.feedbackForm && (
+          <Reveal>
+            <FeedbackForm />
+          </Reveal>
+        )}
 
         {/* FOOTER */}
         <footer className="px-6 mt-20 pt-10 pb-8 flex flex-col items-center text-center border-t border-white/5">
           <img src={logo} alt={CONFIG.brandName} className="h-10 w-auto mb-3 opacity-90" />
-          <p className="text-[11px] uppercase streex-tracking text-white/60">
-            {CONFIG.tagline}
-          </p>
+          <p className="text-[11px] uppercase streex-tracking text-white/60">{CONFIG.tagline}</p>
           <p className="mt-4 text-xs text-white/30">© 2026 {CONFIG.brandName}</p>
         </footer>
       </main>
