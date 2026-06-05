@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { ArrowRight, Calendar, MessageSquare, Phone, UserPlus } from "lucide-react";
+import { Calendar, MessageSquare, Phone, UserPlus } from "lucide-react";
 import { SaveContactModal } from "./SaveContactModal";
 import { BookingFormModal } from "./BookingFormModal";
 import { Reveal } from "./Reveal";
 // To customize this template, edit src/config.ts
 import { CONFIG } from "@/config";
-import runnerQuickActionBg from "@/features/runner/assets/quick-action/runner_quick_action_bg.webp";
-import runnerQuickActionRav4 from "@/features/runner/assets/quick-action/runner_quick_action_rav4.webp";
+import playStreex from "@/features/runner/assets/quick-action/play_streex.webp";
+import runnerQuickActionBg from "@/features/runner/assets/quick-action/runner_quick_action_bg_with_rav4.webp";
 import runnerLogo from "@/features/runner/assets/sprites/runner_logo_official.webp";
 
 function ActionCard({
@@ -59,52 +59,38 @@ function RunnerFeaturedCard({ revealDelay = 0 }: { revealDelay?: number }) {
     <Reveal delay={revealDelay} className="col-span-2">
       <a
         href="/runner-lab"
-        className="streex-glass relative h-full min-h-[136px] overflow-hidden p-5 grid grid-cols-[minmax(104px,0.82fr)_minmax(0,1fr)_auto] items-center gap-3 sm:min-h-[148px] sm:gap-4 group"
+        className="streex-glass relative h-full min-h-[168px] overflow-hidden p-5 group"
         aria-label="Play STREEX Runner"
       >
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <img
             src={runnerQuickActionBg}
             alt=""
-            className="h-full w-full object-cover object-[58%_58%] opacity-90 saturate-[0.95]"
+            className="h-full w-full object-cover object-[56%_58%] opacity-95 saturate-[0.96]"
             loading="lazy"
             decoding="async"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,11,11,0.92)_0%,rgba(11,11,11,0.68)_34%,rgba(11,11,11,0.18)_61%,rgba(11,11,11,0.46)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_50%,rgba(230,206,32,0.18),transparent_27%),radial-gradient(circle_at_77%_58%,rgba(230,206,32,0.22),transparent_28%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/72 to-transparent" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,11,11,0.72)_0%,rgba(11,11,11,0.2)_48%,rgba(11,11,11,0.28)_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/76 to-transparent" />
         </div>
 
-        <div className="relative z-10 min-w-0 flex items-center">
-          <div className="absolute -inset-5 bg-[#E6CE20]/14 blur-2xl opacity-80 transition-opacity group-hover:opacity-100" />
-          <img
-            src={runnerLogo}
-            alt="STREEX Runner"
-            className="relative w-full max-w-[132px] object-contain drop-shadow-[0_0_18px_rgba(230,206,32,0.3)] sm:max-w-[166px]"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-
-        <div className="relative z-10 min-w-0">
-          <div className="text-[15px] font-semibold text-white leading-tight">STREEX Runner</div>
-          <div className="text-xs text-white/55 mt-1 leading-snug">Play the Challenge</div>
-          <div className="mt-2 hidden sm:inline-flex items-center rounded-full border border-[#E6CE20]/20 bg-[#E6CE20]/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-[#E6CE20]/80">
-            Ride Elevated
+        <div className="relative z-10 flex h-full min-h-[128px] flex-col justify-center">
+          <div className="max-w-[58%] sm:max-w-[54%]">
+            <img
+              src={runnerLogo}
+              alt="STREEX Runner"
+              className="w-full max-w-[235px] object-contain drop-shadow-[0_0_22px_rgba(230,206,32,0.36)]"
+              loading="lazy"
+              decoding="async"
+            />
+            <img
+              src={playStreex}
+              alt="Play"
+              className="mt-3 w-[132px] object-contain drop-shadow-[0_0_18px_rgba(230,206,32,0.32)] transition-transform duration-300 group-hover:translate-y-[-1px] sm:w-[154px]"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
-        </div>
-
-        <img
-          src={runnerQuickActionRav4}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-5 right-[42px] z-[1] w-[112px] opacity-95 drop-shadow-[0_16px_22px_rgba(0,0,0,0.72)] transition-transform duration-300 group-hover:-translate-y-1 sm:-bottom-7 sm:right-[74px] sm:w-[148px]"
-          loading="lazy"
-          decoding="async"
-        />
-
-        <div className="relative z-10 h-10 w-10 rounded-full border border-[#E6CE20]/35 bg-[#E6CE20]/14 text-[#E6CE20] flex items-center justify-center shadow-[0_0_20px_rgba(230,206,32,0.12)] transition-transform group-hover:translate-x-0.5">
-          <ArrowRight className="h-4 w-4" />
         </div>
       </a>
     </Reveal>
@@ -155,13 +141,14 @@ export function QuickActions() {
         Quick Actions
       </h2>
       <div className="grid grid-cols-2 gap-3">
+        {CONFIG.sections.moreOptions && <RunnerFeaturedCard revealDelay={0} />}
         {CONFIG.sections.textMe && (
           <ActionCard
             icon={<MessageSquare className={iconCls} />}
             label="Text Me"
             description="Schedule a ride by SMS"
             href={`sms:${CONFIG.phone}?&body=${encodeURIComponent(`Hi ${CONFIG.ownerName}! I'd like to schedule a ride.`)}`}
-            revealDelay={0}
+            revealDelay={90}
           />
         )}
         {CONFIG.sections.callMe && (
@@ -170,7 +157,7 @@ export function QuickActions() {
             label="Call Me"
             description={`Reach ${CONFIG.ownerName} directly`}
             href={`tel:${CONFIG.phone}`}
-            revealDelay={90}
+            revealDelay={180}
           />
         )}
         {CONFIG.sections.saveContact && (
@@ -179,7 +166,7 @@ export function QuickActions() {
             label="Save Contact"
             description="Add to your phone"
             onClick={saveContact}
-            revealDelay={180}
+            revealDelay={270}
           />
         )}
         {CONFIG.sections.scheduleRide && (
@@ -188,10 +175,9 @@ export function QuickActions() {
             label="Schedule Ride"
             description="Book ahead"
             onClick={() => setBookingOpen(true)}
-            revealDelay={270}
+            revealDelay={360}
           />
         )}
-        {CONFIG.sections.moreOptions && <RunnerFeaturedCard revealDelay={360} />}
       </div>
 
       <SaveContactModal open={contactOpen} onOpenChange={setContactOpen} vcard={STREEX_VCARD} />
