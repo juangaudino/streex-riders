@@ -5,9 +5,9 @@ import { BookingFormModal } from "./BookingFormModal";
 import { Reveal } from "./Reveal";
 // To customize this template, edit src/config.ts
 import { CONFIG } from "@/config";
-import playStreex from "@/features/runner/assets/quick-action/play_streex.webp";
+import playStreex from "@/features/runner/assets/quick-action/play_streex_card.webp";
 import runnerQuickActionBg from "@/features/runner/assets/quick-action/runner_quick_action_bg_with_rav4.webp";
-import runnerLogo from "@/features/runner/assets/sprites/runner_logo_official.webp";
+import runnerLogo from "@/features/runner/assets/quick-action/runner_logo_official_card.webp";
 
 function ActionCard({
   icon,
@@ -59,34 +59,34 @@ function RunnerFeaturedCard({ revealDelay = 0 }: { revealDelay?: number }) {
     <Reveal delay={revealDelay} className="col-span-2">
       <a
         href="/runner-lab"
-        className="streex-glass relative h-full min-h-[168px] overflow-hidden p-5 group"
+        className="streex-glass relative h-full min-h-[184px] overflow-hidden p-5 group sm:min-h-[198px]"
         aria-label="Play STREEX Runner"
       >
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <img
             src={runnerQuickActionBg}
             alt=""
-            className="h-full w-full object-cover object-[56%_58%] opacity-95 saturate-[0.96]"
+            className="h-full w-full object-cover object-[58%_55%] opacity-100 saturate-[0.98]"
             loading="lazy"
             decoding="async"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,11,11,0.72)_0%,rgba(11,11,11,0.2)_48%,rgba(11,11,11,0.28)_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/76 to-transparent" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,11,11,0.54)_0%,rgba(11,11,11,0.16)_48%,rgba(11,11,11,0.22)_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/62 to-transparent" />
         </div>
 
-        <div className="relative z-10 flex h-full min-h-[128px] flex-col justify-center">
-          <div className="max-w-[58%] sm:max-w-[54%]">
+        <div className="relative z-10 flex h-full min-h-[144px] flex-col justify-center sm:min-h-[158px]">
+          <div className="w-[60%] max-w-[250px] sm:w-[54%] sm:max-w-[285px]">
             <img
               src={runnerLogo}
               alt="STREEX Runner"
-              className="w-full max-w-[235px] object-contain drop-shadow-[0_0_22px_rgba(230,206,32,0.36)]"
+              className="w-full object-contain drop-shadow-[0_0_24px_rgba(230,206,32,0.4)]"
               loading="lazy"
               decoding="async"
             />
             <img
               src={playStreex}
               alt="Play"
-              className="mt-3 w-[132px] object-contain drop-shadow-[0_0_18px_rgba(230,206,32,0.32)] transition-transform duration-300 group-hover:translate-y-[-1px] sm:w-[154px]"
+              className="mt-3 w-[68%] max-w-[156px] object-contain drop-shadow-[0_0_20px_rgba(230,206,32,0.36)] transition-transform duration-300 group-hover:translate-y-[-1px] sm:max-w-[176px]"
               loading="lazy"
               decoding="async"
             />
