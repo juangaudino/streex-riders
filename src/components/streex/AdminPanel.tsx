@@ -15,6 +15,7 @@ import {
   verifyAdminKey,
 } from "@/lib/admin.functions";
 import { CONFIG } from "@/config";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/streex-logo.webp";
 
 const SESSION_KEY = "streex_admin_key";
@@ -771,11 +772,30 @@ function RunnerScoreCard({
 }
 
 function AdminThemes({ adminKey }: { adminKey: string }) {
-  const [tickerStyle, setTickerStyle] = useState<TickerStyle>(
-    CONFIG.tickerStyle === "pill" ? "pill" : "boarding",
-  );
+  const fallback: TickerStyle = CONFIG.tickerStyle === "pill" ? "pill" : "boarding";
+  const [tickerStyle, setTickerStyle] = useState<TickerStyle>(fallback);
+  const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "ticker_style")
+        .maybeSingle();
+      if (cancelled) return;
+      if (!error && (data?.value === "pill" || data?.value === "boarding")) {
+        setTickerStyle(data.value);
+      }
+      setLoaded(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const themeOptions: Array<{
     key: TickerStyle;
     label: string;
@@ -796,14 +816,21 @@ function AdminThemes({ adminKey }: { adminKey: string }) {
   const saveTheme = async (nextStyle: TickerStyle) => {
     setSaving(nextStyle);
     setMessage(null);
+    const previous = tickerStyle;
     try {
-      await updateAdminTickerTheme({ data: { adminKey, tickerStyle: nextStyle } });
+      const result = await updateAdminTickerTheme({
+        data: { adminKey, tickerStyle: nextStyle },
+      });
+      if (!result?.ok || result.tickerStyle !== nextStyle) {
+        throw new Error("Server did not confirm the theme change.");
+      }
       setTickerStyle(nextStyle);
       window.dispatchEvent(
         new CustomEvent("streex:ticker-theme-changed", { detail: { tickerStyle: nextStyle } }),
       );
       setMessage("Theme saved.");
     } catch (e) {
+      setTickerStyle(previous);
       setMessage(e instanceof Error ? e.message : "Failed to save theme.");
     } finally {
       setSaving(null);
@@ -815,7 +842,8 @@ function AdminThemes({ adminKey }: { adminKey: string }) {
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
         <h2 className="text-lg font-semibold">Ticker Theme</h2>
         <p className="mt-1 text-sm text-white/55">
-          Current theme: <span className="text-[#E6CE20]">{tickerStyle}</span>
+          Current theme:{" "}
+          <span className="text-[#E6CE20]">{loaded ? tickerStyle : "loading…"}</span>
         </p>
         <p className="mt-3 text-xs text-white/40">
           This saves the active ticker style in Lovable Cloud. The code config remains the fallback.
