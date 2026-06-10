@@ -188,15 +188,20 @@ export const updateAdminTickerTheme = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     assertAdminAccess(data.adminKey);
 
-    const { error } = await supabaseAdmin.from("app_settings").upsert({
-      key: "ticker_style",
-      value: data.tickerStyle,
-      updated_at: new Date().toISOString(),
-    });
+    const { error } = await supabaseAdmin
+      .from("app_settings")
+      .upsert(
+        {
+          key: "ticker_style",
+          value: data.tickerStyle,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "key" },
+      );
 
     if (error) {
       console.error("[updateAdminTickerTheme] update error", error);
-      throw new Error("Failed to update ticker theme.");
+      throw new Error(`Failed to update ticker theme: ${error.message}`);
     }
 
     return { ok: true, tickerStyle: data.tickerStyle };
