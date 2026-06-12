@@ -14,8 +14,8 @@ import {
   updateAdminTickerTheme,
   verifyAdminKey,
 } from "@/lib/admin.functions";
+import { getTickerTheme } from "@/lib/ticker-theme.functions";
 import { CONFIG } from "@/config";
-import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/streex-logo.webp";
 
 const SESSION_KEY = "streex_admin_key";
@@ -781,16 +781,14 @@ function AdminThemes({ adminKey }: { adminKey: string }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data, error } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "ticker_style")
-        .maybeSingle();
-      if (cancelled) return;
-      if (!error && (data?.value === "pill" || data?.value === "boarding")) {
-        setTickerStyle(data.value);
+      try {
+        const result = await getTickerTheme();
+        if (!cancelled) setTickerStyle(result.tickerStyle);
+      } catch (error) {
+        console.warn("[AdminThemes] Using default ticker style.", error);
+      } finally {
+        if (!cancelled) setLoaded(true);
       }
-      setLoaded(true);
     })();
     return () => {
       cancelled = true;
@@ -842,8 +840,7 @@ function AdminThemes({ adminKey }: { adminKey: string }) {
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
         <h2 className="text-lg font-semibold">Ticker Theme</h2>
         <p className="mt-1 text-sm text-white/55">
-          Current theme:{" "}
-          <span className="text-[#E6CE20]">{loaded ? tickerStyle : "loading…"}</span>
+          Current theme: <span className="text-[#E6CE20]">{loaded ? tickerStyle : "loading…"}</span>
         </p>
         <p className="mt-3 text-xs text-white/40">
           This saves the active ticker style in Lovable Cloud. The code config remains the fallback.

@@ -1,7 +1,7 @@
 // To customize this template, edit src/config.ts
 import { useEffect, useState } from "react";
 import { CONFIG } from "@/config";
-import { supabase } from "@/integrations/supabase/client";
+import { getTickerTheme } from "@/lib/ticker-theme.functions";
 
 const SERVICES = CONFIG.tickerServices;
 type TickerStyle = "boarding" | "pill";
@@ -86,14 +86,9 @@ function useTickerStyle() {
 
     async function loadTickerStyle() {
       try {
-        const { data, error } = await supabase
-          .from("app_settings")
-          .select("value")
-          .eq("key", "ticker_style")
-          .maybeSingle();
-
-        if (!cancelled && !error && isTickerStyle(data?.value)) {
-          setTickerStyle(data.value);
+        const result = await getTickerTheme();
+        if (!cancelled && isTickerStyle(result.tickerStyle)) {
+          setTickerStyle(result.tickerStyle);
         }
       } catch (error) {
         console.warn("[ServiceTicker] Using default ticker style.", error);
