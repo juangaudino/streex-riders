@@ -7,28 +7,23 @@ type Experience = {
 const EXPERIENCES: Experience[] = [
   {
     label: "Salt Lake City",
-    image:
-      "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/slc.jpg",
+    image: "/images/streex/slc.jpg",
   },
   {
     label: "Park City",
-    image:
-      "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/park-city.jpg",
+    image: "/images/streex/park-city.jpg",
   },
   {
     label: "SLC Airport",
-    image:
-      "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/airport.jpg",
+    image: "/images/streex/airport.jpg",
   },
   {
     label: "Mountain Routes",
-    image:
-      "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/mountains.jpg",
+    image: "/images/streex/mountains.jpg",
   },
   {
     label: "Your Ride",
-    image:
-      "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/rav4.jpg",
+    image: "/images/streex/rav4.jpg",
     microLabel: "✦ Toyota RAV4 • Spacious SUV",
   },
 ];
@@ -54,8 +49,7 @@ export function ExperienceGallery() {
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background:
-                  "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 55%)",
+                background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 55%)",
               }}
             />
             {e.microLabel && (
@@ -82,10 +76,7 @@ export function ExperienceGallery() {
             )}
             <div className="absolute bottom-4 left-4 right-4">
               <div className="h-[2px] w-8 bg-[#E6CE20] mb-2" />
-              <div
-                className="text-white streex-gallery-caption"
-                style={{ fontSize: 14 }}
-              >
+              <div className="text-white streex-gallery-caption" style={{ fontSize: 14 }}>
                 {e.label}
               </div>
             </div>

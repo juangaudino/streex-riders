@@ -54,24 +54,74 @@ export const CONFIG = {
   ],
 
   // ─── HERO CHIPS ──────────────────────────────
-  heroChips: [
-    "Airport Rides",
-    "Scheduled Rides",
-    "Park City",
-    "Long Distance",
-    "Hourly Service",
-  ],
+  heroChips: ["Airport Rides", "Scheduled Rides", "Park City", "Long Distance", "Hourly Service"],
 
   // ─── SERVICES GRID ───────────────────────────
   services: [
-    { id: "airport", icon: "PlaneTakeoff", name: "Airport Transfers", price: "From $40", subtitle: null as string | null, enabled: true },
-    { id: "parkcity", icon: "Mountain", name: "Park City", price: "From $80", subtitle: null as string | null, enabled: true },
-    { id: "scheduled", icon: "CalendarCheck", name: "Scheduled Rides", price: "From $40", subtitle: null as string | null, enabled: true },
-    { id: "hourly", icon: "Clock", name: "Hourly Service", price: "$60/hr · 40 mi included", subtitle: "$1 per additional mile" as string | null, enabled: true },
-    { id: "corporate", icon: "Briefcase", name: "Corporate Travel", price: "Contact for quote", subtitle: null as string | null, enabled: true },
-    { id: "longdistance", icon: "MapPin", name: "Long Distance", price: "Contact for quote", subtitle: null as string | null, enabled: true },
-    { id: "lasvegas", icon: "Sparkles", name: "Las Vegas", price: "Contact for quote", subtitle: null as string | null, enabled: false }, // CONFIG: set true to activate
-    { id: "privateevents", icon: "Star", name: "Private Events", price: "Contact for quote", subtitle: null as string | null, enabled: false }, // CONFIG: set true to activate
+    {
+      id: "airport",
+      icon: "PlaneTakeoff",
+      name: "Airport Transfers",
+      price: "From $40",
+      subtitle: null as string | null,
+      enabled: true,
+    },
+    {
+      id: "parkcity",
+      icon: "Mountain",
+      name: "Park City",
+      price: "From $80",
+      subtitle: null as string | null,
+      enabled: true,
+    },
+    {
+      id: "scheduled",
+      icon: "CalendarCheck",
+      name: "Scheduled Rides",
+      price: "From $40",
+      subtitle: null as string | null,
+      enabled: true,
+    },
+    {
+      id: "hourly",
+      icon: "Clock",
+      name: "Hourly Service",
+      price: "$60/hr · 40 mi included",
+      subtitle: "$1 per additional mile" as string | null,
+      enabled: true,
+    },
+    {
+      id: "corporate",
+      icon: "Briefcase",
+      name: "Corporate Travel",
+      price: "Contact for quote",
+      subtitle: null as string | null,
+      enabled: true,
+    },
+    {
+      id: "longdistance",
+      icon: "MapPin",
+      name: "Long Distance",
+      price: "Contact for quote",
+      subtitle: null as string | null,
+      enabled: true,
+    },
+    {
+      id: "lasvegas",
+      icon: "Sparkles",
+      name: "Las Vegas",
+      price: "Contact for quote",
+      subtitle: null as string | null,
+      enabled: false,
+    }, // CONFIG: set true to activate
+    {
+      id: "privateevents",
+      icon: "Star",
+      name: "Private Events",
+      price: "Contact for quote",
+      subtitle: null as string | null,
+      enabled: false,
+    }, // CONFIG: set true to activate
   ],
 
   // ─── SECTIONS VISIBILITY ─────────────────────
@@ -101,7 +151,7 @@ export const CONFIG = {
 
   // ─── MEET OWNER ──────────────────────────────
   meetTitle: "Meet Juan",
-  meetPhoto: "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/juan.jpg",
+  meetPhoto: "/images/streex/juan.jpg",
   meetBody: [
     "Hi, I'm Juan — creator of Streex Rides.",
     "I believe transportation can be more than a ride — it can be a genuinely comfortable and thoughtful experience.",
@@ -118,6 +168,5 @@ export const CONFIG = {
   seoDescription:
     "Premium private transportation across Salt Lake City & Park City. Airport rides, ski trips, scheduled rides and more.",
   seoUrl: "https://rides.getstreex.com",
-  ogImage:
-    "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/streex-og-preview.jpg",
+  ogImage: "https://rides.getstreex.com/images/streex/streex-og-preview.jpg",
 };

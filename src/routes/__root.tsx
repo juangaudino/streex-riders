@@ -78,19 +78,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Streex" },
-      { name: "description", content: "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service." },
+      {
+        name: "description",
+        content:
+          "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
+      },
       { name: "author", content: "Lovable" },
       { name: "google-site-verification", content: "Li1UygnAqd-GVqjtntcBG4J8ApZzJGwIfFJsjZ6WLh4" },
       { property: "og:title", content: "Streex Rides — Private rides. Elevated." },
-      { property: "og:description", content: "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service." },
+      {
+        property: "og:description",
+        content:
+          "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://rides.getstreex.com" },
       { property: "og:site_name", content: "Streex Rides" },
-      { property: "og:image", content: "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/streex-og-preview.jpg" },
+      {
+        property: "og:image",
+        content: "https://rides.getstreex.com/images/streex/streex-og-preview.jpg",
+      },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Streex Rides — Private rides. Elevated." },
-      { name: "twitter:description", content: "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service." },
-      { name: "twitter:image", content: "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/streex-og-preview.jpg" },
+      {
+        name: "twitter:description",
+        content:
+          "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
+      },
+      {
+        name: "twitter:image",
+        content: "https://rides.getstreex.com/images/streex/streex-og-preview.jpg",
+      },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
