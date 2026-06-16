@@ -17,12 +17,8 @@ export function loadGoogleMaps(): Promise<typeof google> {
   }
   if (loadPromise) return loadPromise;
 
-  const key = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as
-    | string
-    | undefined;
-  const channel = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as
-    | string
-    | undefined;
+  const key = import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
+  const channel = import.meta.env.VITE_GOOGLE_MAPS_TRACKING_ID as string | undefined;
 
   if (!key) {
     return Promise.reject(new Error("Google Maps browser key is missing"));

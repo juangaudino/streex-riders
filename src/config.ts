@@ -12,7 +12,7 @@ export const CONFIG = {
   phone: "+18017974971",
   phoneDisplay: "(801) 797-4971",
   email: "streex.rides@gmail.com",
-  website: "https://streex-riders.lovable.app",
+  website: "https://rides.getstreex.com",
 
   // ─── SOCIAL ──────────────────────────────────
   instagram: "streex.rides",
@@ -117,7 +117,7 @@ export const CONFIG = {
   seoTitle: "Streex Rides — Private rides. Elevated.",
   seoDescription:
     "Premium private transportation across Salt Lake City & Park City. Airport rides, ski trips, scheduled rides and more.",
-  seoUrl: "https://streex-riders.lovable.app",
+  seoUrl: "https://rides.getstreex.com",
   ogImage:
     "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/streex-og-preview.jpg",
 };

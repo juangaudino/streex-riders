@@ -1,10 +1,9 @@
-// Server-only: sends emails via the Resend connector gateway.
+// Server-only: sends transactional emails through Resend.
 // Imported only from server functions / server routes.
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const FROM = "Streex Rides <onboarding@resend.dev>";
-const ADMIN_EMAIL = "streex.rides@gmail.com";
-const SITE_URL = "https://streex-riders.lovable.app";
+const FROM = process.env.EMAIL_FROM || "Streex Rides <onboarding@resend.dev>";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "streex.rides@gmail.com";
+const SITE_URL = process.env.SITE_URL || "https://rides.getstreex.com";
 const JUAN_PHONE = "(801) 797-4971";
 
 export { ADMIN_EMAIL, SITE_URL, JUAN_PHONE };
@@ -16,20 +15,20 @@ type SendArgs = {
 };
 
 export async function sendEmail({ to, subject, html }: SendArgs) {
-  const LOVABLE_API_KEY = process.env.LOVABLE_API_KEY;
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
-  if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
+  if (!RESEND_API_KEY) {
+    console.warn("[Resend] RESEND_API_KEY is not configured. Skipping email send.");
+    return { skipped: true };
+  }
 
-  const res = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+  const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${LOVABLE_API_KEY}`,
-      "X-Connection-Api-Key": RESEND_API_KEY,
+      Authorization: `Bearer ${RESEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: "Streex Rides <onboarding@resend.dev>",
+      from: FROM,
       to: Array.isArray(to) ? to : [to],
       subject,
       html,

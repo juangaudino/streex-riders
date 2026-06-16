@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Streex Rides — Private rides. Elevated." },
       { property: "og:description", content: "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service." },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://streexrides.lovable.app" },
+      { property: "og:url", content: "https://rides.getstreex.com" },
       { property: "og:site_name", content: "Streex Rides" },
       { property: "og:image", content: "https://scqjdsugrgsglkabdflu.supabase.co/storage/v1/object/public/images/streex-og-preview.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
