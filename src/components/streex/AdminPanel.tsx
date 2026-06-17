@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   CalendarCheck,
+  CalendarClock,
   Gamepad2,
   MessageSquareQuote,
   Palette,
@@ -29,7 +30,7 @@ import logo from "@/assets/streex-logo.webp";
 
 const SESSION_KEY = "streex_admin_key";
 
-type AdminTab = "bookings" | "reviews" | "runner" | "themes" | "config";
+type AdminTab = "bookings" | "reviews" | "runner" | "themes" | "config" | "availability";
 type TickerStyle = "boarding" | "pill";
 
 type BookingRow = {
@@ -152,6 +153,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
     { key: "runner", label: "Runner", icon: <Gamepad2 className="h-4 w-4" /> },
     { key: "themes", label: "Themes", icon: <Palette className="h-4 w-4" /> },
     { key: "config", label: "Config", icon: <Settings2 className="h-4 w-4" /> },
+    { key: "availability", label: "Availability", icon: <CalendarClock className="h-4 w-4" /> },
   ];
 
   return (
@@ -179,7 +181,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
           </button>
         </header>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-7">
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 mb-7">
           {tabs.map((tab) => {
             const selected = tab.key === activeTab;
             return (
@@ -205,6 +207,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
         {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}
         {activeTab === "themes" && <AdminThemes adminKey={adminKey} />}
         {activeTab === "config" && <AdminConfig adminKey={adminKey} />}
+        {activeTab === "availability" && <AdminAvailability />}
       </div>
     </div>
   );
