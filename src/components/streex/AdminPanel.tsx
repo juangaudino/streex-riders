@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { CalendarCheck, Gamepad2, MessageSquareQuote, Palette, Star } from "lucide-react";
+import {
+  CalendarCheck,
+  Gamepad2,
+  MessageSquareQuote,
+  Palette,
+  Settings2,
+  Star,
+} from "lucide-react";
 import {
   deleteAdminReview,
   deleteAdminRunnerScore,
@@ -20,7 +27,7 @@ import logo from "@/assets/streex-logo.webp";
 
 const SESSION_KEY = "streex_admin_key";
 
-type AdminTab = "bookings" | "reviews" | "runner" | "themes";
+type AdminTab = "bookings" | "reviews" | "runner" | "themes" | "config";
 type TickerStyle = "boarding" | "pill";
 
 type BookingRow = {
@@ -142,6 +149,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
     { key: "reviews", label: "Reviews", icon: <MessageSquareQuote className="h-4 w-4" /> },
     { key: "runner", label: "Runner", icon: <Gamepad2 className="h-4 w-4" /> },
     { key: "themes", label: "Themes", icon: <Palette className="h-4 w-4" /> },
+    { key: "config", label: "Config", icon: <Settings2 className="h-4 w-4" /> },
   ];
 
   return (
@@ -169,7 +177,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
           </button>
         </header>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-7">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-7">
           {tabs.map((tab) => {
             const selected = tab.key === activeTab;
             return (
@@ -194,6 +202,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
         {activeTab === "reviews" && <AdminReviews adminKey={adminKey} />}
         {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}
         {activeTab === "themes" && <AdminThemes adminKey={adminKey} />}
+        {activeTab === "config" && <AdminConfig />}
       </div>
     </div>
   );
