@@ -22,8 +22,6 @@ import {
   updateAdminTickerTheme,
   verifyAdminKey,
 } from "@/lib/admin.functions";
-import { getAdminSiteConfig, updateAdminSiteConfig } from "@/lib/site-config.functions";
-import { normalizeInstagram, normalizePhone, type SiteConfigOverride } from "@/lib/site-config";
 import { getTickerTheme } from "@/lib/ticker-theme.functions";
 import { CONFIG } from "@/config";
 import logo from "@/assets/streex-logo.webp";
@@ -206,7 +204,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
         {activeTab === "reviews" && <AdminReviews adminKey={adminKey} />}
         {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}
         {activeTab === "themes" && <AdminThemes adminKey={adminKey} />}
-        {activeTab === "config" && <AdminConfig adminKey={adminKey} />}
+        {activeTab === "config" && <AdminConfig />}
         {activeTab === "availability" && <AdminAvailability />}
       </div>
     </div>
@@ -333,12 +331,10 @@ function AdminAvailability() {
   const [draft, setDraft] = useState<AvailabilityBlock>(emptyBlock());
   const [adding, setAdding] = useState(false);
 
-  const toggleDay = (key: DayKey) =>
-    setActiveDays((d) => ({ ...d, [key]: !d[key] }));
+  const toggleDay = (key: DayKey) => setActiveDays((d) => ({ ...d, [key]: !d[key] }));
 
   const saveWindow = () => {
     // UI-only: backend wiring comes later.
-    // eslint-disable-next-line no-console
     console.info("[availability] draft window", {
       activeDays,
       startTime,
@@ -359,8 +355,7 @@ function AdminAvailability() {
     setAdding(false);
   };
 
-  const removeBlock = (id: string) =>
-    setBlocks((b) => b.filter((x) => x.id !== id));
+  const removeBlock = (id: string) => setBlocks((b) => b.filter((x) => x.id !== id));
 
   return (
     <section className="flex flex-col gap-5">
@@ -630,7 +625,7 @@ function emptyBlock(): AvailabilityBlock {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-function AdminConfig({ adminKey }: { adminKey: string }) {
+function AdminConfig() {
   type ServiceDraft = {
     id: string;
     name: string;
@@ -665,59 +660,10 @@ function AdminConfig({ adminKey }: { adminKey: string }) {
     () => ({ ...CONFIG.sections }) as Record<string, boolean>,
   );
 
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const hydrateFromConfig = useCallback((config: typeof CONFIG) => {
-    setProfile({
-      brandName: config.brandName,
-      ownerName: config.ownerName,
-      phone: config.phoneDisplay,
-      email: config.email,
-      website: config.website,
-      instagram: config.instagram,
-      whatsapp: config.whatsapp,
-      google: config.googleReviews,
-      nextdoor: config.nextdoor,
-      tagline: config.tagline,
-      subheadline: config.subheadline,
-    });
-    setServices(
-      config.services.map((s) => ({
-        id: s.id,
-        name: s.name,
-        price: s.price,
-        enabled: s.enabled,
-      })),
-    );
-    setSections({ ...config.sections } as Record<string, boolean>);
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadConfig() {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await getAdminSiteConfig({ data: { adminKey } });
-        if (!cancelled) hydrateFromConfig(result.config);
-      } catch (e) {
-        if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Failed to load config.");
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    loadConfig();
-    return () => {
-      cancelled = true;
-    };
-  }, [adminKey, hydrateFromConfig]);
 
   const updateProfile = (key: keyof typeof profile, value: string) =>
     setProfile((p) => ({ ...p, [key]: value }));
@@ -733,32 +679,11 @@ function AdminConfig({ adminKey }: { adminKey: string }) {
     setError(null);
     setMessage(null);
     try {
-      const instagram = normalizeInstagram(profile.instagram);
-      const config: SiteConfigOverride = {
-        brandName: profile.brandName,
-        ownerName: profile.ownerName,
-        tagline: profile.tagline,
-        subheadline: profile.subheadline,
-        phone: normalizePhone(profile.phone),
-        phoneDisplay: profile.phone,
-        email: profile.email,
-        website: profile.website,
-        instagram,
-        instagramUrl: instagram ? `https://instagram.com/${instagram}` : "",
-        instagramDM: instagram ? `https://ig.me/m/${instagram}` : "",
-        whatsapp: profile.whatsapp,
-        googleReviews: profile.google,
-        nextdoor: profile.nextdoor,
-        services,
-        sections,
-      };
-
-      const result = await updateAdminSiteConfig({ data: { adminKey, config } });
-      hydrateFromConfig(result.config);
-      setMessage("Config saved. Public landing will use these values.");
+      console.info("[config-v2] draft profile", { profile, services, sections });
+      setMessage("Draft saved locally for UI exploration.");
       window.setTimeout(() => setMessage(null), 3200);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save config.");
+      setError(e instanceof Error ? e.message : "Failed to save draft.");
     } finally {
       setSaving(false);
     }
@@ -957,7 +882,7 @@ function AdminConfig({ adminKey }: { adminKey: string }) {
       <div className="sticky bottom-3 z-10 -mx-1">
         <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]">
           <p className="text-[11px] text-white/50">
-            {message ? "Saved to Supabase." : "Changes affect the public landing page."}
+            {message ? "Draft saved locally." : "UI exploration only — backend later."}
           </p>
           <button
             type="submit"
