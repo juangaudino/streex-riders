@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   CalendarCheck,
+  CalendarClock,
   Gamepad2,
   MessageSquareQuote,
   Palette,
@@ -29,7 +30,7 @@ import logo from "@/assets/streex-logo.webp";
 
 const SESSION_KEY = "streex_admin_key";
 
-type AdminTab = "bookings" | "reviews" | "runner" | "themes" | "config";
+type AdminTab = "bookings" | "reviews" | "runner" | "themes" | "config" | "availability";
 type TickerStyle = "boarding" | "pill";
 
 type BookingRow = {
@@ -152,6 +153,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
     { key: "runner", label: "Runner", icon: <Gamepad2 className="h-4 w-4" /> },
     { key: "themes", label: "Themes", icon: <Palette className="h-4 w-4" /> },
     { key: "config", label: "Config", icon: <Settings2 className="h-4 w-4" /> },
+    { key: "availability", label: "Availability", icon: <CalendarClock className="h-4 w-4" /> },
   ];
 
   return (
@@ -179,7 +181,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
           </button>
         </header>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-7">
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 mb-7">
           {tabs.map((tab) => {
             const selected = tab.key === activeTab;
             return (
@@ -205,6 +207,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
         {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}
         {activeTab === "themes" && <AdminThemes adminKey={adminKey} />}
         {activeTab === "config" && <AdminConfig adminKey={adminKey} />}
+        {activeTab === "availability" && <AdminAvailability />}
       </div>
     </div>
   );
@@ -286,6 +289,344 @@ function AdminBookings({ adminKey }: { adminKey: string }) {
       </div>
     </section>
   );
+}
+
+type DayKey = "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
+
+type AvailabilityBlock = {
+  id: string;
+  startDate: string;
+  startTime: string;
+  endDate: string;
+  endTime: string;
+  reason: string;
+};
+
+const DAY_LABELS: { key: DayKey; label: string }[] = [
+  { key: "sun", label: "Sun" },
+  { key: "mon", label: "Mon" },
+  { key: "tue", label: "Tue" },
+  { key: "wed", label: "Wed" },
+  { key: "thu", label: "Thu" },
+  { key: "fri", label: "Fri" },
+  { key: "sat", label: "Sat" },
+];
+
+function AdminAvailability() {
+  const [activeDays, setActiveDays] = useState<Record<DayKey, boolean>>({
+    sun: false,
+    mon: true,
+    tue: true,
+    wed: true,
+    thu: true,
+    fri: true,
+    sat: true,
+  });
+  const [startTime, setStartTime] = useState("07:00");
+  const [endTime, setEndTime] = useState("23:00");
+  const [minNotice, setMinNotice] = useState(3);
+  const [slotDuration, setSlotDuration] = useState(30);
+  const [rideDuration, setRideDuration] = useState(45);
+  const [savedFlash, setSavedFlash] = useState(false);
+
+  const [blocks, setBlocks] = useState<AvailabilityBlock[]>([]);
+  const [draft, setDraft] = useState<AvailabilityBlock>(emptyBlock());
+  const [adding, setAdding] = useState(false);
+
+  const toggleDay = (key: DayKey) =>
+    setActiveDays((d) => ({ ...d, [key]: !d[key] }));
+
+  const saveWindow = () => {
+    // UI-only: backend wiring comes later.
+    // eslint-disable-next-line no-console
+    console.info("[availability] draft window", {
+      activeDays,
+      startTime,
+      endTime,
+      minNotice,
+      slotDuration,
+      rideDuration,
+      timezone: "America/Denver",
+    });
+    setSavedFlash(true);
+    window.setTimeout(() => setSavedFlash(false), 2000);
+  };
+
+  const addBlock = () => {
+    if (!draft.startDate || !draft.endDate) return;
+    setBlocks((b) => [...b, { ...draft, id: crypto.randomUUID() }]);
+    setDraft(emptyBlock());
+    setAdding(false);
+  };
+
+  const removeBlock = (id: string) =>
+    setBlocks((b) => b.filter((x) => x.id !== id));
+
+  return (
+    <section className="flex flex-col gap-5">
+      <AvailabilityCard
+        title="Default availability window"
+        subtitle="Hours and rules used when no manual block applies."
+      >
+        <div>
+          <p className="text-[10px] uppercase streex-tracking text-white/40 mb-2">Active days</p>
+          <div className="grid grid-cols-7 gap-1.5">
+            {DAY_LABELS.map((d) => {
+              const on = activeDays[d.key];
+              return (
+                <button
+                  key={d.key}
+                  type="button"
+                  onClick={() => toggleDay(d.key)}
+                  className={`h-10 rounded-lg text-[11px] font-semibold transition-colors ${
+                    on
+                      ? "bg-[#E6CE20] text-black"
+                      : "bg-white/[0.04] text-white/55 border border-white/10 hover:text-white"
+                  }`}
+                >
+                  {d.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <AvField label="Start time">
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className={avInput}
+            />
+          </AvField>
+          <AvField label="End time">
+            <input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className={avInput}
+            />
+          </AvField>
+          <AvField label="Min. notice (hours)">
+            <input
+              type="number"
+              min={0}
+              value={minNotice}
+              onChange={(e) => setMinNotice(Number(e.target.value))}
+              className={avInput}
+            />
+          </AvField>
+          <AvField label="Slot duration (min)">
+            <input
+              type="number"
+              min={5}
+              step={5}
+              value={slotDuration}
+              onChange={(e) => setSlotDuration(Number(e.target.value))}
+              className={avInput}
+            />
+          </AvField>
+          <AvField label="Default ride (min)">
+            <input
+              type="number"
+              min={5}
+              step={5}
+              value={rideDuration}
+              onChange={(e) => setRideDuration(Number(e.target.value))}
+              className={avInput}
+            />
+          </AvField>
+          <AvField label="Timezone">
+            <div className={`${avInput} flex items-center text-white/70`}>America/Denver</div>
+          </AvField>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 pt-1">
+          <p className="text-[11px] text-white/40">
+            {savedFlash ? "Draft saved locally." : "Saved here for layout only — backend later."}
+          </p>
+          <button
+            type="button"
+            onClick={saveWindow}
+            className="rounded-xl bg-[#E6CE20] text-black text-xs font-semibold px-4 py-2 hover:bg-[#E6CE20]/90"
+          >
+            Save window
+          </button>
+        </div>
+      </AvailabilityCard>
+
+      <AvailabilityCard
+        title="Manual blocks"
+        subtitle="Hold time off the calendar for personal commitments or maintenance."
+      >
+        {blocks.length === 0 && !adding && (
+          <p className="text-xs text-white/40">No manual blocks. Add one below.</p>
+        )}
+
+        {blocks.length > 0 && (
+          <ul className="flex flex-col gap-2">
+            {blocks.map((b) => (
+              <li
+                key={b.id}
+                className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 flex items-start justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-white">
+                    {b.startDate} {b.startTime} → {b.endDate} {b.endTime}
+                  </p>
+                  {b.reason && (
+                    <p className="text-[11px] text-white/50 mt-0.5 truncate">{b.reason}</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeBlock(b.id)}
+                  className="shrink-0 text-[11px] text-white/50 hover:text-red-300"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {adding ? (
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <AvField label="Start date">
+                <input
+                  type="date"
+                  value={draft.startDate}
+                  onChange={(e) => setDraft({ ...draft, startDate: e.target.value })}
+                  className={avInput}
+                />
+              </AvField>
+              <AvField label="Start time">
+                <input
+                  type="time"
+                  value={draft.startTime}
+                  onChange={(e) => setDraft({ ...draft, startTime: e.target.value })}
+                  className={avInput}
+                />
+              </AvField>
+              <AvField label="End date">
+                <input
+                  type="date"
+                  value={draft.endDate}
+                  onChange={(e) => setDraft({ ...draft, endDate: e.target.value })}
+                  className={avInput}
+                />
+              </AvField>
+              <AvField label="End time">
+                <input
+                  type="time"
+                  value={draft.endTime}
+                  onChange={(e) => setDraft({ ...draft, endTime: e.target.value })}
+                  className={avInput}
+                />
+              </AvField>
+            </div>
+            <AvField label="Reason (optional)">
+              <input
+                type="text"
+                value={draft.reason}
+                placeholder="e.g. Family commitment"
+                onChange={(e) => setDraft({ ...draft, reason: e.target.value })}
+                className={avInput}
+              />
+            </AvField>
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAdding(false);
+                  setDraft(emptyBlock());
+                }}
+                className="rounded-lg px-3 py-2 text-xs text-white/60 hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={addBlock}
+                className="rounded-lg bg-[#E6CE20] text-black text-xs font-semibold px-3 py-2 hover:bg-[#E6CE20]/90"
+              >
+                Add block
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setAdding(true)}
+            className="self-start rounded-xl border border-dashed border-white/15 px-3 py-2 text-xs text-white/70 hover:border-[#E6CE20]/50 hover:text-white"
+          >
+            + Add block
+          </button>
+        )}
+      </AvailabilityCard>
+
+      <div className="rounded-2xl border border-[#E6CE20]/20 bg-[#E6CE20]/[0.05] px-4 py-3">
+        <p className="text-[11px] uppercase streex-tracking text-[#E6CE20]/80 mb-1">
+          Booking protection
+        </p>
+        <p className="text-xs text-white/70 leading-relaxed">
+          Confirmed and quoted rides block availability automatically.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 opacity-60">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-white/80">Google Calendar sync</p>
+            <p className="text-[11px] text-white/40 mt-0.5">
+              Two-way sync with your personal calendar — coming later.
+            </p>
+          </div>
+          <span className="rounded-full border border-white/15 px-2.5 py-1 text-[10px] uppercase streex-tracking text-white/50">
+            Soon
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const avInput =
+  "w-full rounded-lg bg-white/[0.04] border border-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#E6CE20]/40 transition-colors";
+
+function AvField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-[10px] uppercase streex-tracking text-white/40">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function AvailabilityCard({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-4 sm:p-5 flex flex-col gap-4">
+      <header>
+        <h2 className="text-base font-semibold text-white">{title}</h2>
+        {subtitle && <p className="text-[11px] text-white/45 mt-1">{subtitle}</p>}
+      </header>
+      {children}
+    </section>
+  );
+}
+
+function emptyBlock(): AvailabilityBlock {
+  return { id: "", startDate: "", startTime: "08:00", endDate: "", endTime: "10:00", reason: "" };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
