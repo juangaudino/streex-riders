@@ -3,8 +3,7 @@ import { Calendar, MessageSquare, Phone, UserPlus } from "lucide-react";
 import { SaveContactModal } from "./SaveContactModal";
 import { BookingFormModal } from "./BookingFormModal";
 import { Reveal } from "./Reveal";
-// To customize this template, edit src/config.ts
-import { CONFIG } from "@/config";
+import type { AppConfig } from "@/config";
 import runnerQuickActionCard from "@/features/runner/assets/quick-action/runner_quick_action_card.webp";
 
 function ActionCard({
@@ -72,33 +71,36 @@ function RunnerFeaturedCard({ revealDelay = 0 }: { revealDelay?: number }) {
   );
 }
 
-const STREEX_VCARD = [
-  "BEGIN:VCARD",
-  "VERSION:3.0",
-  `FN:${CONFIG.ownerName} - ${CONFIG.brandName}`,
-  `N:${CONFIG.brandName};${CONFIG.ownerName};;;`,
-  `ORG:${CONFIG.brandName}`,
-  `TEL;TYPE=WORK,VOICE:${CONFIG.phone}`,
-  `EMAIL;TYPE=WORK:${CONFIG.email}`,
-  `URL:${CONFIG.website}`,
-  "END:VCARD",
-].join("\r\n");
+function buildVcard(config: AppConfig) {
+  return [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    `FN:${config.ownerName} - ${config.brandName}`,
+    `N:${config.brandName};${config.ownerName};;;`,
+    `ORG:${config.brandName}`,
+    `TEL;TYPE=WORK,VOICE:${config.phone}`,
+    `EMAIL;TYPE=WORK:${config.email}`,
+    `URL:${config.website}`,
+    "END:VCARD",
+  ].join("\r\n");
+}
 
-export function QuickActions() {
+export function QuickActions({ config }: { config: AppConfig }) {
   const [contactOpen, setContactOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
 
   const iconCls = "h-5 w-5 text-[#E6CE20]";
+  const vcard = buildVcard(config);
 
   const saveContact = () => {
     try {
-      const blob = new Blob([STREEX_VCARD], { type: "text/vcard" });
+      const blob = new Blob([vcard], { type: "text/vcard" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute(
         "download",
-        `${CONFIG.ownerName}-${CONFIG.brandName.replace(/\s+/g, "")}.vcf`,
+        `${config.ownerName}-${config.brandName.replace(/\s+/g, "")}.vcf`,
       );
       link.setAttribute("type", "text/vcard");
       document.body.appendChild(link);
@@ -116,26 +118,26 @@ export function QuickActions() {
         Quick Actions
       </h2>
       <div className="grid grid-cols-2 gap-3">
-        {CONFIG.sections.moreOptions && <RunnerFeaturedCard revealDelay={0} />}
-        {CONFIG.sections.textMe && (
+        {config.sections.moreOptions && <RunnerFeaturedCard revealDelay={0} />}
+        {config.sections.textMe && (
           <ActionCard
             icon={<MessageSquare className={iconCls} />}
             label="Text Me"
             description="Schedule a ride by SMS"
-            href={`sms:${CONFIG.phone}?&body=${encodeURIComponent(`Hi ${CONFIG.ownerName}! I'd like to schedule a ride.`)}`}
+            href={`sms:${config.phone}?&body=${encodeURIComponent(`Hi ${config.ownerName}! I'd like to schedule a ride.`)}`}
             revealDelay={90}
           />
         )}
-        {CONFIG.sections.callMe && (
+        {config.sections.callMe && (
           <ActionCard
             icon={<Phone className={iconCls} />}
             label="Call Me"
-            description={`Reach ${CONFIG.ownerName} directly`}
-            href={`tel:${CONFIG.phone}`}
+            description={`Reach ${config.ownerName} directly`}
+            href={`tel:${config.phone}`}
             revealDelay={180}
           />
         )}
-        {CONFIG.sections.saveContact && (
+        {config.sections.saveContact && (
           <ActionCard
             icon={<UserPlus className={iconCls} />}
             label="Save Contact"
@@ -144,7 +146,7 @@ export function QuickActions() {
             revealDelay={270}
           />
         )}
-        {CONFIG.sections.scheduleRide && (
+        {config.sections.scheduleRide && (
           <ActionCard
             icon={<Calendar className={iconCls} />}
             label="Schedule Ride"
@@ -155,7 +157,12 @@ export function QuickActions() {
         )}
       </div>
 
-      <SaveContactModal open={contactOpen} onOpenChange={setContactOpen} vcard={STREEX_VCARD} />
+      <SaveContactModal
+        open={contactOpen}
+        onOpenChange={setContactOpen}
+        vcard={vcard}
+        config={config}
+      />
       <BookingFormModal open={bookingOpen} onOpenChange={setBookingOpen} />
     </section>
   );

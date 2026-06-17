@@ -1,7 +1,6 @@
 import { Reveal } from "./Reveal";
 import { MessageCircle } from "lucide-react";
-// To customize this template, edit src/config.ts
-import { CONFIG } from "@/config";
+import type { AppConfig } from "@/config";
 
 const InstagramIcon = () => (
   <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
@@ -44,40 +43,44 @@ type SocialButton = {
   active: boolean;
 };
 
-const BUTTONS: SocialButton[] = [
-  {
-    icon: <MessageCircle width={28} height={28} strokeWidth={2} />,
-    label: "WhatsApp",
-    href: CONFIG.whatsapp,
-    active: true,
-  },
-  {
-    icon: <InstagramIcon />,
-    label: "Instagram",
-    href: CONFIG.instagramUrl,
-    active: true,
-  },
-  {
-    icon: <GoogleIcon />,
-    label: "Google",
-    href: CONFIG.googleReviews || "#",
-    active: true,
-  },
-  {
-    icon: <NextdoorIcon />,
-    label: "Nextdoor",
-    href: CONFIG.nextdoor || "#",
-    active: true,
-  },
-];
+function getButtons(config: AppConfig): SocialButton[] {
+  return [
+    {
+      icon: <MessageCircle width={28} height={28} strokeWidth={2} />,
+      label: "WhatsApp",
+      href: config.whatsapp,
+      active: Boolean(config.whatsapp),
+    },
+    {
+      icon: <InstagramIcon />,
+      label: "Instagram",
+      href: config.instagramUrl,
+      active: Boolean(config.instagramUrl),
+    },
+    {
+      icon: <GoogleIcon />,
+      label: "Google",
+      href: config.googleReviews || "#",
+      active: Boolean(config.googleReviews),
+    },
+    {
+      icon: <NextdoorIcon />,
+      label: "Nextdoor",
+      href: config.nextdoor || "#",
+      active: Boolean(config.nextdoor),
+    },
+  ];
+}
 
-export function FindUsSection() {
+export function FindUsSection({ config }: { config: AppConfig }) {
+  const buttons = getButtons(config);
+
   return (
     <Reveal>
       <section className="px-6 mt-16">
         <h2 className="text-2xl font-bold mb-5">More Ways to Connect</h2>
         <div className="flex flex-nowrap items-start justify-center gap-2 sm:gap-3">
-          {BUTTONS.map((b) => {
+          {buttons.map((b) => {
             const content = (
               <div
                 className={`streex-glass flex flex-col items-center justify-center gap-2 py-4 px-2 sm:px-3 flex-1 min-w-0 ${

@@ -170,3 +170,5 @@ export const CONFIG = {
   seoUrl: "https://rides.getstreex.com",
   ogImage: "https://rides.getstreex.com/images/streex/streex-og-preview.jpg",
 };
+
+export type AppConfig = typeof CONFIG;

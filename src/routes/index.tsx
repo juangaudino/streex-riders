@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import logo from "@/assets/streex-logo.webp";
-// To customize this template, edit src/config.ts
-import { CONFIG } from "@/config";
+import { CONFIG, type AppConfig } from "@/config";
 import { Splash } from "@/components/streex/Splash";
 import { Header } from "@/components/streex/Header";
 import { QuickActions } from "@/components/streex/QuickActions";
@@ -15,6 +14,7 @@ import { PaymentOptions } from "@/components/streex/PaymentOptions";
 import { FindUsSection } from "@/components/streex/FindUsSection";
 import { ServiceTicker } from "@/components/streex/ServiceTicker";
 import { Reveal } from "@/components/streex/Reveal";
+import { getPublicSiteConfig } from "@/lib/site-config.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -76,6 +76,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [showSplash, setShowSplash] = useState(true);
   const [fadingOut, setFadingOut] = useState(false);
+  const [siteConfig, setSiteConfig] = useState<AppConfig>(CONFIG);
 
   useEffect(() => {
     const fadeT = setTimeout(() => setFadingOut(true), 1800);
@@ -83,6 +84,24 @@ function Index() {
     return () => {
       clearTimeout(fadeT);
       clearTimeout(hideT);
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadConfig() {
+      try {
+        const result = await getPublicSiteConfig();
+        if (!cancelled) setSiteConfig(result.config);
+      } catch (error) {
+        console.warn("[Index] Using fallback config.", error);
+      }
+    }
+
+    loadConfig();
+    return () => {
+      cancelled = true;
     };
   }, []);
 
@@ -104,13 +123,13 @@ function Index() {
         >
           <img
             src={logo}
-            alt={CONFIG.brandName}
+            alt={siteConfig.brandName}
             className="h-auto streex-logo-glow"
             style={{ width: 192, display: "block", marginBottom: 12 }}
           />
           <h1 className="text-3xl font-bold leading-tight tracking-tight">
             {(() => {
-              const words = CONFIG.tagline.trim().split(/\s+/);
+              const words = siteConfig.tagline.trim().split(/\s+/);
               const last = words.pop() ?? "";
               const first = words.join(" ");
               return (
@@ -123,51 +142,51 @@ function Index() {
             })()}
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-white/60 max-w-xs">
-            {CONFIG.subheadline}
+            {siteConfig.subheadline}
           </p>
         </section>
 
         {/* SERVICE TICKER */}
         <div className="mt-3">
-          <ServiceTicker />
+          <ServiceTicker config={siteConfig} />
         </div>
 
         {/* QUICK ACTIONS */}
-        <QuickActions />
+        <QuickActions config={siteConfig} />
 
         {/* PAYMENT OPTIONS */}
-        {CONFIG.sections.paymentOptions && (
+        {siteConfig.sections.paymentOptions && (
           <Reveal>
-            <PaymentOptions />
+            <PaymentOptions config={siteConfig} />
           </Reveal>
         )}
 
         {/* FIND US */}
-        {CONFIG.sections.findUs && <FindUsSection />}
+        {siteConfig.sections.findUs && <FindUsSection config={siteConfig} />}
 
         {/* EXPERIENCE GALLERY */}
-        {CONFIG.sections.experienceGallery && (
+        {siteConfig.sections.experienceGallery && (
           <Reveal>
             <ExperienceGallery />
           </Reveal>
         )}
 
         {/* OUR SERVICES */}
-        {CONFIG.sections.servicesGrid && <ServicesSection />}
+        {siteConfig.sections.servicesGrid && <ServicesSection config={siteConfig} />}
 
         {/* REVIEWS */}
-        {CONFIG.sections.reviews && (
+        {siteConfig.sections.reviews && (
           <Reveal>
             <Reviews />
           </Reveal>
         )}
 
         {/* ABOUT */}
-        {CONFIG.sections.whyStreex && (
+        {siteConfig.sections.whyStreex && (
           <Reveal as="section" className="px-6 mt-16">
             <div className="streex-divider w-16 mb-5" />
-            <h2 className="text-2xl font-bold mb-5">{CONFIG.whyStreexTitle}</h2>
-            {CONFIG.whyStreexBody.map((p, i) => (
+            <h2 className="text-2xl font-bold mb-5">{siteConfig.whyStreexTitle}</h2>
+            {siteConfig.whyStreexBody.map((p, i) => (
               <p
                 key={i}
                 className={
@@ -201,10 +220,10 @@ function Index() {
         </section> */}
 
         {/* MEET JUAN */}
-        {CONFIG.sections.meetJuan && <MeetJuan />}
+        {siteConfig.sections.meetJuan && <MeetJuan config={siteConfig} />}
 
         {/* FEEDBACK FORM */}
-        {CONFIG.sections.feedbackForm && (
+        {siteConfig.sections.feedbackForm && (
           <Reveal>
             <FeedbackForm />
           </Reveal>
@@ -212,9 +231,11 @@ function Index() {
 
         {/* FOOTER */}
         <footer className="px-6 mt-20 pt-10 pb-8 flex flex-col items-center text-center border-t border-white/5">
-          <img src={logo} alt={CONFIG.brandName} className="h-10 w-auto mb-3 opacity-90" />
-          <p className="text-[11px] uppercase streex-tracking text-white/60">{CONFIG.tagline}</p>
-          <p className="mt-4 text-xs text-white/30">© 2026 {CONFIG.brandName}</p>
+          <img src={logo} alt={siteConfig.brandName} className="h-10 w-auto mb-3 opacity-90" />
+          <p className="text-[11px] uppercase streex-tracking text-white/60">
+            {siteConfig.tagline}
+          </p>
+          <p className="mt-4 text-xs text-white/30">© 2026 {siteConfig.brandName}</p>
         </footer>
       </main>
     </div>

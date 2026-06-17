@@ -1,5 +1,4 @@
-// To customize this template, edit src/config.ts
-import { CONFIG } from "@/config";
+import type { AppConfig } from "@/config";
 
 type Payment = {
   label: string;
@@ -26,35 +25,37 @@ const ApplePayIcon = () => (
   </svg>
 );
 
-const PAYMENTS: Payment[] = [
-  {
-    label: "Venmo",
-    href: CONFIG.venmo,
-    external: true,
-    icon: <VenmoIcon />,
-  },
-  {
-    label: "Cash App",
-    href: CONFIG.cashapp,
-    external: true,
-    icon: <CashAppIcon />,
-  },
-  {
-    label: "Apple Pay",
-    href: `tel:${CONFIG.applePayPhone}`,
-    icon: <ApplePayIcon />,
-  },
-];
+function getPayments(config: AppConfig): Payment[] {
+  return [
+    {
+      label: "Venmo",
+      href: config.venmo,
+      external: true,
+      icon: <VenmoIcon />,
+    },
+    {
+      label: "Cash App",
+      href: config.cashapp,
+      external: true,
+      icon: <CashAppIcon />,
+    },
+    {
+      label: "Apple Pay",
+      href: `tel:${config.applePayPhone}`,
+      icon: <ApplePayIcon />,
+    },
+  ];
+}
 
-export function PaymentOptions() {
+export function PaymentOptions({ config }: { config: AppConfig }) {
+  const payments = getPayments(config);
+
   return (
     <section className="px-5 mt-8">
       <h2 className="text-2xl font-bold mb-1 px-1">Payment Options</h2>
-      <p className="text-sm text-white/55 mb-6 px-1">
-        Quick and convenient payment methods.
-      </p>
+      <p className="text-sm text-white/55 mb-6 px-1">Quick and convenient payment methods.</p>
       <div className="flex items-center justify-center gap-6">
-        {PAYMENTS.map((p) => (
+        {payments.map((p) => (
           <a
             key={p.label}
             href={p.href}

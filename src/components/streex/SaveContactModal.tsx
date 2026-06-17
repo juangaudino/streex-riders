@@ -7,30 +7,34 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Copy, Check } from "lucide-react";
-// To customize this template, edit src/config.ts
-import { CONFIG } from "@/config";
-
-const CONTACT_LINES: { label: string; value: string; href?: string }[] = [
-  { label: "Name", value: `${CONFIG.ownerName} — ${CONFIG.brandName}` },
-  { label: "Phone", value: CONFIG.phoneDisplay, href: `tel:${CONFIG.phone}` },
-  { label: "Email", value: CONFIG.email, href: `mailto:${CONFIG.email}` },
-  { label: "Website", value: CONFIG.website.replace(/^https?:\/\//, ""), href: CONFIG.website },
-];
+import type { AppConfig } from "@/config";
 
 export function SaveContactModal({
   open,
   onOpenChange,
   vcard,
+  config,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   vcard: string;
+  config: AppConfig;
 }) {
   const [copied, setCopied] = useState(false);
+  const contactLines: { label: string; value: string; href?: string }[] = [
+    { label: "Name", value: `${config.ownerName} — ${config.brandName}` },
+    { label: "Phone", value: config.phoneDisplay, href: `tel:${config.phone}` },
+    { label: "Email", value: config.email, href: `mailto:${config.email}` },
+    {
+      label: "Website",
+      value: config.website.replace(/^https?:\/\//, ""),
+      href: config.website,
+    },
+  ];
 
   const copyPhone = async () => {
     try {
-      await navigator.clipboard.writeText(CONFIG.phoneDisplay);
+      await navigator.clipboard.writeText(config.phoneDisplay);
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
@@ -38,8 +42,7 @@ export function SaveContactModal({
     }
   };
 
-  const dataUrl =
-    "data:text/vcard;charset=utf-8," + encodeURIComponent(vcard);
+  const dataUrl = "data:text/vcard;charset=utf-8," + encodeURIComponent(vcard);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -47,17 +50,15 @@ export function SaveContactModal({
         <DialogHeader>
           <DialogTitle className="text-white">Save Juan's Contact</DialogTitle>
           <DialogDescription className="text-white/55">
-            If the contact didn't open automatically, copy the details below or
-            download the card manually.
+            If the contact didn't open automatically, copy the details below or download the card
+            manually.
           </DialogDescription>
         </DialogHeader>
 
         <div className="streex-glass p-4 space-y-3">
-          {CONTACT_LINES.map((c) => (
+          {contactLines.map((c) => (
             <div key={c.label}>
-              <div className="text-[10px] uppercase streex-tracking text-white/40">
-                {c.label}
-              </div>
+              <div className="text-[10px] uppercase streex-tracking text-white/40">{c.label}</div>
               {c.href ? (
                 <a
                   href={c.href}

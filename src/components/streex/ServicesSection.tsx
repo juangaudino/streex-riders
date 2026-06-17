@@ -1,5 +1,4 @@
-// To customize this template, edit src/config.ts
-import { CONFIG } from "@/config";
+import type { AppConfig } from "@/config";
 import { resolveIcon } from "@/lib/icon-map";
 import { Reveal } from "./Reveal";
 
@@ -31,14 +30,24 @@ function ServiceCard({
           </div>
           <div
             className="mt-1"
-            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, fontSize: 13, color: "#E6CE20" }}
+            style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 600,
+              fontSize: 13,
+              color: "#E6CE20",
+            }}
           >
             {price}
           </div>
           {subtitle && (
             <div
               className="mt-0.5"
-              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 500, fontSize: 11, color: "rgba(255,255,255,0.4)" }}
+              style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontWeight: 500,
+                fontSize: 11,
+                color: "rgba(255,255,255,0.4)",
+              }}
             >
               {subtitle}
             </div>
@@ -49,8 +58,8 @@ function ServiceCard({
   );
 }
 
-export function ServicesSection() {
-  const visible = CONFIG.services.filter((s) => s.enabled);
+export function ServicesSection({ config }: { config: AppConfig }) {
+  const visible = config.services.filter((s) => s.enabled);
 
   return (
     <section className="px-6 mt-16">

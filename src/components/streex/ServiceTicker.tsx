@@ -1,9 +1,7 @@
-// To customize this template, edit src/config.ts
 import { useEffect, useState } from "react";
-import { CONFIG } from "@/config";
+import { CONFIG, type AppConfig } from "@/config";
 import { getTickerTheme } from "@/lib/ticker-theme.functions";
 
-const SERVICES = CONFIG.tickerServices;
 type TickerStyle = "boarding" | "pill";
 
 function isTickerStyle(value: string | null | undefined): value is TickerStyle {
@@ -64,10 +62,10 @@ function ServiceTickerItem({
   );
 }
 
-function TickerRow({ tickerStyle }: { tickerStyle: TickerStyle }) {
+function TickerRow({ tickerStyle, services }: { tickerStyle: TickerStyle; services: string[] }) {
   return (
     <>
-      {SERVICES.map((service, i) => {
+      {services.map((service, i) => {
         return (
           <ServiceTickerItem key={service} service={service} index={i} tickerStyle={tickerStyle} />
         );
@@ -112,8 +110,9 @@ function useTickerStyle() {
   return tickerStyle;
 }
 
-export function ServiceTicker() {
+export function ServiceTicker({ config }: { config: AppConfig }) {
   const tickerStyle = useTickerStyle();
+  const services = config.tickerServices;
 
   return (
     <div
@@ -133,10 +132,10 @@ export function ServiceTicker() {
     >
       <div className="streex-ticker-track" style={{ display: "inline-flex", whiteSpace: "nowrap" }}>
         <div style={{ display: "inline-flex" }}>
-          <TickerRow tickerStyle={tickerStyle} />
+          <TickerRow tickerStyle={tickerStyle} services={services} />
         </div>
         <div style={{ display: "inline-flex" }}>
-          <TickerRow tickerStyle={tickerStyle} />
+          <TickerRow tickerStyle={tickerStyle} services={services} />
         </div>
       </div>
     </div>

@@ -17,6 +17,11 @@ Current baseline:
 - `runner_scores`
 - `app_settings`
 
+`app_settings` currently stores:
+
+- `ticker_style`: active public service ticker style.
+- `site_config_v2`: JSON overrides for editable public landing configuration.
+
 Admin access is still handled by `ADMIN_ACCESS_KEY` in server functions. Future product admin should move to Supabase Auth with explicit roles:
 
 - `creator`

@@ -60,6 +60,10 @@ insert into public.app_settings (key, value)
 values ('ticker_style', 'boarding')
 on conflict (key) do nothing;
 
+insert into public.app_settings (key, value)
+values ('site_config_v2', '{}')
+on conflict (key) do nothing;
+
 create index if not exists idx_bookings_status_created
   on public.bookings(status, created_at desc);
 

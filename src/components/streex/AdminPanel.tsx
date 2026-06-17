@@ -21,6 +21,8 @@ import {
   updateAdminTickerTheme,
   verifyAdminKey,
 } from "@/lib/admin.functions";
+import { getAdminSiteConfig, updateAdminSiteConfig } from "@/lib/site-config.functions";
+import { normalizeInstagram, normalizePhone, type SiteConfigOverride } from "@/lib/site-config";
 import { getTickerTheme } from "@/lib/ticker-theme.functions";
 import { CONFIG } from "@/config";
 import logo from "@/assets/streex-logo.webp";
@@ -202,7 +204,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
         {activeTab === "reviews" && <AdminReviews adminKey={adminKey} />}
         {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}
         {activeTab === "themes" && <AdminThemes adminKey={adminKey} />}
-        {activeTab === "config" && <AdminConfig />}
+        {activeTab === "config" && <AdminConfig adminKey={adminKey} />}
       </div>
     </div>
   );
@@ -287,14 +289,7 @@ function AdminBookings({ adminKey }: { adminKey: string }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// AdminConfig — VISUAL EXPLORATION ONLY (CONFIG v2)
-//
-// Scope: UI / mock state only. No backend writes, no Supabase calls, and
-// src/config.ts behavior is intentionally untouched. Codex will wire the
-// backend later. Saving here only logs to the console and shows a toast-style
-// confirmation locally.
-// ─────────────────────────────────────────────────────────────────────────────
-function AdminConfig() {
+function AdminConfig({ adminKey }: { adminKey: string }) {
   type ServiceDraft = {
     id: string;
     name: string;
@@ -329,7 +324,59 @@ function AdminConfig() {
     () => ({ ...CONFIG.sections }) as Record<string, boolean>,
   );
 
-  const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const hydrateFromConfig = useCallback((config: typeof CONFIG) => {
+    setProfile({
+      brandName: config.brandName,
+      ownerName: config.ownerName,
+      phone: config.phoneDisplay,
+      email: config.email,
+      website: config.website,
+      instagram: config.instagram,
+      whatsapp: config.whatsapp,
+      google: config.googleReviews,
+      nextdoor: config.nextdoor,
+      tagline: config.tagline,
+      subheadline: config.subheadline,
+    });
+    setServices(
+      config.services.map((s) => ({
+        id: s.id,
+        name: s.name,
+        price: s.price,
+        enabled: s.enabled,
+      })),
+    );
+    setSections({ ...config.sections } as Record<string, boolean>);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadConfig() {
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await getAdminSiteConfig({ data: { adminKey } });
+        if (!cancelled) hydrateFromConfig(result.config);
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : "Failed to load config.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadConfig();
+    return () => {
+      cancelled = true;
+    };
+  }, [adminKey, hydrateFromConfig]);
 
   const updateProfile = (key: keyof typeof profile, value: string) =>
     setProfile((p) => ({ ...p, [key]: value }));
@@ -337,15 +384,43 @@ function AdminConfig() {
   const updateService = (id: string, patch: Partial<ServiceDraft>) =>
     setServices((list) => list.map((s) => (s.id === id ? { ...s, ...patch } : s)));
 
-  const toggleSection = (key: string) =>
-    setSections((s) => ({ ...s, [key]: !s[key] }));
+  const toggleSection = (key: string) => setSections((s) => ({ ...s, [key]: !s[key] }));
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    // UI-only: do not persist. Codex will wire this to Lovable Cloud later.
-    console.info("[AdminConfig draft]", { profile, services, sections });
-    setSavedAt(Date.now());
-    window.setTimeout(() => setSavedAt(null), 2400);
+    setSaving(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const instagram = normalizeInstagram(profile.instagram);
+      const config: SiteConfigOverride = {
+        brandName: profile.brandName,
+        ownerName: profile.ownerName,
+        tagline: profile.tagline,
+        subheadline: profile.subheadline,
+        phone: normalizePhone(profile.phone),
+        phoneDisplay: profile.phone,
+        email: profile.email,
+        website: profile.website,
+        instagram,
+        instagramUrl: instagram ? `https://instagram.com/${instagram}` : "",
+        instagramDM: instagram ? `https://ig.me/m/${instagram}` : "",
+        whatsapp: profile.whatsapp,
+        googleReviews: profile.google,
+        nextdoor: profile.nextdoor,
+        services,
+        sections,
+      };
+
+      const result = await updateAdminSiteConfig({ data: { adminKey, config } });
+      hydrateFromConfig(result.config);
+      setMessage("Config saved. Public landing will use these values.");
+      window.setTimeout(() => setMessage(null), 3200);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save config.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const sectionLabels: Record<string, string> = {
@@ -372,19 +447,41 @@ function AdminConfig() {
           <Settings2 className="h-4 w-4 mt-0.5 text-[#E6CE20]" />
           <div>
             <p className="text-[11px] uppercase streex-tracking text-[#E6CE20]/90 font-semibold">
-              Config v2 · Preview
+              Config v2
             </p>
             <p className="mt-1 text-xs text-white/55 leading-relaxed">
-              Edit your public Streex profile. Changes here are a visual draft —
-              persistence will be wired up shortly.
+              Edit the public Streex profile. The landing uses these saved values with code config
+              as fallback.
             </p>
           </div>
         </div>
       </div>
 
+      {loading && <p className="text-sm text-white/50">Loading config...</p>}
+
+      {error && (
+        <div className="text-xs text-red-400/90 border border-red-400/30 rounded-lg px-3 py-2">
+          {error}
+        </div>
+      )}
+
+      {message && (
+        <div className="text-xs text-[#E6CE20] border border-[#E6CE20]/25 rounded-lg px-3 py-2">
+          {message}
+        </div>
+      )}
+
       <ConfigGroup title="Identity" subtitle="How Streex is presented to passengers.">
-        <ConfigField label="Business name" value={profile.brandName} onChange={(v) => updateProfile("brandName", v)} />
-        <ConfigField label="Driver name" value={profile.ownerName} onChange={(v) => updateProfile("ownerName", v)} />
+        <ConfigField
+          label="Business name"
+          value={profile.brandName}
+          onChange={(v) => updateProfile("brandName", v)}
+        />
+        <ConfigField
+          label="Driver name"
+          value={profile.ownerName}
+          onChange={(v) => updateProfile("ownerName", v)}
+        />
         <ConfigField
           label="Tagline"
           value={profile.tagline}
@@ -401,13 +498,43 @@ function AdminConfig() {
 
       <ConfigGroup title="Contact" subtitle="Direct lines passengers can use.">
         <div className="grid gap-3 sm:grid-cols-2">
-          <ConfigField label="Phone" value={profile.phone} onChange={(v) => updateProfile("phone", v)} />
-          <ConfigField label="Email" value={profile.email} onChange={(v) => updateProfile("email", v)} type="email" />
-          <ConfigField label="Website" value={profile.website} onChange={(v) => updateProfile("website", v)} />
-          <ConfigField label="Instagram" value={profile.instagram} onChange={(v) => updateProfile("instagram", v)} prefix="@" />
-          <ConfigField label="WhatsApp" value={profile.whatsapp} onChange={(v) => updateProfile("whatsapp", v)} />
-          <ConfigField label="Google link" value={profile.google} onChange={(v) => updateProfile("google", v)} />
-          <ConfigField label="Nextdoor link" value={profile.nextdoor} onChange={(v) => updateProfile("nextdoor", v)} />
+          <ConfigField
+            label="Phone"
+            value={profile.phone}
+            onChange={(v) => updateProfile("phone", v)}
+          />
+          <ConfigField
+            label="Email"
+            value={profile.email}
+            onChange={(v) => updateProfile("email", v)}
+            type="email"
+          />
+          <ConfigField
+            label="Website"
+            value={profile.website}
+            onChange={(v) => updateProfile("website", v)}
+          />
+          <ConfigField
+            label="Instagram"
+            value={profile.instagram}
+            onChange={(v) => updateProfile("instagram", v)}
+            prefix="@"
+          />
+          <ConfigField
+            label="WhatsApp"
+            value={profile.whatsapp}
+            onChange={(v) => updateProfile("whatsapp", v)}
+          />
+          <ConfigField
+            label="Google link"
+            value={profile.google}
+            onChange={(v) => updateProfile("google", v)}
+          />
+          <ConfigField
+            label="Nextdoor link"
+            value={profile.nextdoor}
+            onChange={(v) => updateProfile("nextdoor", v)}
+          />
         </div>
       </ConfigGroup>
 
@@ -419,9 +546,7 @@ function AdminConfig() {
               className="rounded-xl border border-white/10 bg-white/[0.03] p-3 backdrop-blur-xl"
             >
               <div className="flex items-center justify-between gap-3 mb-3">
-                <span className="text-[10px] uppercase streex-tracking text-white/40">
-                  {s.id}
-                </span>
+                <span className="text-[10px] uppercase streex-tracking text-white/40">{s.id}</span>
                 <button
                   type="button"
                   onClick={() => updateService(s.id, { enabled: !s.enabled })}
@@ -455,10 +580,7 @@ function AdminConfig() {
         </div>
       </ConfigGroup>
 
-      <ConfigGroup
-        title="Sections"
-        subtitle="Show or hide sections on the public landing page."
-      >
+      <ConfigGroup title="Sections" subtitle="Show or hide sections on the public landing page.">
         <div className="grid gap-2 sm:grid-cols-2">
           {Object.keys(sectionLabels).map((key) => {
             const on = !!sections[key];
@@ -494,15 +616,14 @@ function AdminConfig() {
       <div className="sticky bottom-3 z-10 -mx-1">
         <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]">
           <p className="text-[11px] text-white/50">
-            {savedAt
-              ? "Draft captured locally."
-              : "Visual draft · backend wiring pending."}
+            {message ? "Saved to Supabase." : "Changes affect the public landing page."}
           </p>
           <button
             type="submit"
+            disabled={saving || loading}
             className="rounded-full bg-[#E6CE20] text-black text-xs font-semibold px-4 py-2 hover:bg-[#E6CE20]/90 transition-colors"
           >
-            Save draft
+            {saving ? "Saving..." : "Save config"}
           </button>
         </div>
       </div>
