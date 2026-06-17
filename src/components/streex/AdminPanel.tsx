@@ -331,12 +331,10 @@ function AdminAvailability() {
   const [draft, setDraft] = useState<AvailabilityBlock>(emptyBlock());
   const [adding, setAdding] = useState(false);
 
-  const toggleDay = (key: DayKey) =>
-    setActiveDays((d) => ({ ...d, [key]: !d[key] }));
+  const toggleDay = (key: DayKey) => setActiveDays((d) => ({ ...d, [key]: !d[key] }));
 
   const saveWindow = () => {
     // UI-only: backend wiring comes later.
-    // eslint-disable-next-line no-console
     console.info("[availability] draft window", {
       activeDays,
       startTime,
@@ -357,8 +355,7 @@ function AdminAvailability() {
     setAdding(false);
   };
 
-  const removeBlock = (id: string) =>
-    setBlocks((b) => b.filter((x) => x.id !== id));
+  const removeBlock = (id: string) => setBlocks((b) => b.filter((x) => x.id !== id));
 
   return (
     <section className="flex flex-col gap-5">
