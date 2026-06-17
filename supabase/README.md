@@ -13,6 +13,8 @@ The files in `supabase/migrations/` are the historical Lovable-era migration tra
 Current baseline:
 
 - `bookings`
+- `tenant_availability`
+- `blocked_slots`
 - `reviews`
 - `runner_scores`
 - `app_settings`
@@ -26,3 +28,27 @@ Admin access is still handled by `ADMIN_ACCESS_KEY` in server functions. Future 
 
 - `creator`
 - `driver`
+
+## Incremental production updates
+
+If the clean baseline was already applied before native availability existed, apply:
+
+```txt
+supabase/availability_phase_4_1.sql
+```
+
+This adds:
+
+- schedule fields to `bookings`: `tenant_id`, `start_at`, `end_at`, `estimated_duration_minutes`
+- `tenant_availability`: default availability window and booking rules
+- `blocked_slots`: manual driver blocks
+
+Availability Phase 4.1 intentionally does not include Google Calendar OAuth yet. The current blocking rules are:
+
+- passenger requests can only select generated available slots
+- pending requests do not block availability
+- quoted and confirmed rides block availability
+- default ride duration: 60 minutes
+- slot duration: 30 minutes
+- minimum notice: 12 hours
+- timezone: `America/Denver`

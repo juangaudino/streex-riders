@@ -12,6 +12,7 @@ import {
   buildPassengerDeclined,
   buildAdminDeclined,
 } from "./booking-emails.server";
+import { resolveBookingSlot } from "./availability.functions";
 
 type BookingRow = Tables<"bookings">;
 
@@ -30,9 +31,12 @@ const CreateSchema = z.object({
 export const createBooking = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => CreateSchema.parse(input))
   .handler(async ({ data }) => {
+    const slot = await resolveBookingSlot(data.date, data.time);
+
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
       .insert({
+        tenant_id: "streex",
         name: data.name,
         phone: data.phone,
         email: data.email,
@@ -42,6 +46,9 @@ export const createBooking = createServerFn({ method: "POST" })
         time: data.time,
         passengers: data.passengers,
         notes: data.notes?.trim() ? data.notes.trim() : null,
+        start_at: slot.startAt,
+        end_at: slot.endAt,
+        estimated_duration_minutes: slot.durationMinutes,
         status: "pending",
       })
       .select("*")

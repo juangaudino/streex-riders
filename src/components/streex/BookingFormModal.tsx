@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Check, Minus, Plus } from "lucide-react";
 import { createBooking } from "@/lib/booking.functions";
+import { getAvailableSlots, type AvailableSlot } from "@/lib/availability.functions";
 import { PlacesAutocompleteInput } from "./PlacesAutocompleteInput";
 
 type Props = {
@@ -66,6 +67,9 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState<string | null>(null);
   const minRideDate = todayLocalISO();
 
   useEffect(() => {
@@ -84,8 +88,42 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
       setForm(EMPTY);
       setCountryCode("+1");
       setCustomCode("");
+      setAvailableSlots([]);
+      setSlotsError(null);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!open || !form.date) {
+      setAvailableSlots([]);
+      setSlotsError(null);
+      setSlotsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setSlotsLoading(true);
+    setSlotsError(null);
+
+    getAvailableSlots({ data: { date: form.date } })
+      .then((result) => {
+        if (cancelled) return;
+        setAvailableSlots(result.slots);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error(err);
+        setAvailableSlots([]);
+        setSlotsError("Available times could not be loaded. Please try another date.");
+      })
+      .finally(() => {
+        if (!cancelled) setSlotsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [form.date, open]);
 
   if (!open || typeof document === "undefined") return null;
 
@@ -146,7 +184,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
       setSubmitted(true);
     } catch (err) {
       console.error(err);
-      setError("Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -305,29 +343,49 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                   type="date"
                   min={minRideDate}
                   value={form.date}
-                  onChange={(e) => set("date", e.target.value)}
+                  onChange={(e) => setForm((f) => ({ ...f, date: e.target.value, time: "" }))}
                   required
                 />
               </div>
               <div>
                 <label className={labelCls}>Time</label>
-                <input
-                  className={fieldCls}
-                  style={{
-                    ...fieldStyle,
-                    display: "block",
-                    width: "100%",
-                    maxWidth: "100%",
-                    minWidth: "0",
-                    boxSizing: "border-box",
-                    WebkitAppearance: "none",
-                    appearance: "none",
-                  }}
-                  type="time"
-                  value={form.time}
-                  onChange={(e) => set("time", e.target.value)}
-                  required
-                />
+                {!form.date ? (
+                  <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/40">
+                    Choose a date first.
+                  </div>
+                ) : slotsLoading ? (
+                  <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/45">
+                    Loading available times...
+                  </div>
+                ) : slotsError ? (
+                  <div className="rounded-xl border border-red-400/25 bg-red-400/[0.05] px-4 py-3 text-sm text-red-300">
+                    {slotsError}
+                  </div>
+                ) : availableSlots.length === 0 ? (
+                  <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/45">
+                    No available times for this date. Please choose another date.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {availableSlots.map((slot) => {
+                      const selected = form.time === slot.time;
+                      return (
+                        <button
+                          key={slot.startAt}
+                          type="button"
+                          onClick={() => set("time", slot.time)}
+                          className={`rounded-xl border px-3 py-3 text-sm font-semibold transition-colors ${
+                            selected
+                              ? "border-[#E6CE20] bg-[#E6CE20] text-black"
+                              : "border-white/10 bg-white/[0.04] text-white/75 hover:border-[#E6CE20]/40 hover:text-white"
+                          }`}
+                        >
+                          {slot.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
               <div>
                 <label className={labelCls}>Passengers</label>
@@ -379,7 +437,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
 
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || slotsLoading}
                 className="w-full rounded-xl bg-[#E6CE20] text-black font-semibold text-sm py-3.5 hover:bg-[#E6CE20]/90 transition-colors disabled:opacity-60"
               >
                 {submitting ? "Sending..." : "Request Ride"}

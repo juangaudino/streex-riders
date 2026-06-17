@@ -13,6 +13,7 @@ end $$;
 
 create table if not exists public.bookings (
   id uuid primary key default gen_random_uuid(),
+  tenant_id text not null default 'streex',
   name text not null,
   phone text not null,
   email text not null,
@@ -20,12 +21,39 @@ create table if not exists public.bookings (
   destination text not null,
   date text not null,
   time text not null,
+  start_at timestamptz,
+  end_at timestamptz,
+  estimated_duration_minutes integer not null default 60
+    check (estimated_duration_minutes between 5 and 1440),
   passengers integer not null check (passengers between 1 and 8),
   notes text,
   price numeric(10,2),
   status text not null default 'pending'
     check (status in ('pending','quoted','confirmed','declined','completed','cancelled')),
   created_at timestamptz not null default now()
+);
+
+create table if not exists public.tenant_availability (
+  tenant_id text primary key,
+  days_active integer[] not null default '{0,1,2,3,4,5,6}',
+  start_time time not null default '00:00',
+  end_time time not null default '23:59',
+  min_notice_hours integer not null default 12 check (min_notice_hours between 0 and 720),
+  slot_duration_minutes integer not null default 30 check (slot_duration_minutes between 5 and 240),
+  default_ride_duration_minutes integer not null default 60
+    check (default_ride_duration_minutes between 5 and 1440),
+  timezone text not null default 'America/Denver',
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.blocked_slots (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id text not null default 'streex',
+  start_at timestamptz not null,
+  end_at timestamptz not null,
+  reason text,
+  created_at timestamptz not null default now(),
+  constraint blocked_slots_range_check check (end_at > start_at)
 );
 
 create table if not exists public.reviews (
@@ -64,8 +92,18 @@ insert into public.app_settings (key, value)
 values ('site_config_v2', '{}')
 on conflict (key) do nothing;
 
+insert into public.tenant_availability (tenant_id)
+values ('streex')
+on conflict (tenant_id) do nothing;
+
 create index if not exists idx_bookings_status_created
   on public.bookings(status, created_at desc);
+
+create index if not exists idx_bookings_tenant_schedule
+  on public.bookings(tenant_id, start_at, end_at, status);
+
+create index if not exists idx_blocked_slots_tenant_range
+  on public.blocked_slots(tenant_id, start_at, end_at);
 
 create index if not exists idx_reviews_status_created_at
   on public.reviews(status, created_at desc);
@@ -82,11 +120,15 @@ grant all on public.bookings to service_role;
 grant all on public.reviews to service_role;
 grant all on public.runner_scores to service_role;
 grant all on public.app_settings to service_role;
+grant all on public.tenant_availability to service_role;
+grant all on public.blocked_slots to service_role;
 
 alter table public.bookings enable row level security;
 alter table public.reviews enable row level security;
 alter table public.runner_scores enable row level security;
 alter table public.app_settings enable row level security;
+alter table public.tenant_availability enable row level security;
+alter table public.blocked_slots enable row level security;
 
 drop policy if exists "Service role can manage bookings" on public.bookings;
 create policy "Service role can manage bookings"
@@ -115,6 +157,22 @@ with check (true);
 drop policy if exists "Service role can manage app settings" on public.app_settings;
 create policy "Service role can manage app settings"
 on public.app_settings
+for all
+to service_role
+using (true)
+with check (true);
+
+drop policy if exists "Service role can manage tenant availability" on public.tenant_availability;
+create policy "Service role can manage tenant availability"
+on public.tenant_availability
+for all
+to service_role
+using (true)
+with check (true);
+
+drop policy if exists "Service role can manage blocked slots" on public.blocked_slots;
+create policy "Service role can manage blocked slots"
+on public.blocked_slots
 for all
 to service_role
 using (true)

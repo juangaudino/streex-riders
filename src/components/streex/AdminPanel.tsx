@@ -9,6 +9,12 @@ import {
   Star,
 } from "lucide-react";
 import {
+  createAdminBlockedSlot,
+  deleteAdminBlockedSlot,
+  getAdminAvailability,
+  updateAdminAvailability,
+} from "@/lib/availability.functions";
+import {
   deleteAdminReview,
   deleteAdminRunnerScore,
   listAdminBookings,
@@ -205,7 +211,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
         {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}
         {activeTab === "themes" && <AdminThemes adminKey={adminKey} />}
         {activeTab === "config" && <AdminConfig />}
-        {activeTab === "availability" && <AdminAvailability />}
+        {activeTab === "availability" && <AdminAvailability adminKey={adminKey} />}
       </div>
     </div>
   );
@@ -293,6 +299,29 @@ type DayKey = "sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat";
 
 type AvailabilityBlock = {
   id: string;
+  startAt: string;
+  endAt: string;
+  reason: string | null;
+  createdAt: string;
+};
+
+type AgendaBooking = {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  pickup: string;
+  destination: string;
+  date: string;
+  time: string;
+  startAt: string | null;
+  endAt: string | null;
+  passengers: number;
+  price: number | null;
+  status: string;
+};
+
+type BlockDraft = {
   startDate: string;
   startTime: string;
   endDate: string;
@@ -310,9 +339,9 @@ const DAY_LABELS: { key: DayKey; label: string }[] = [
   { key: "sat", label: "Sat" },
 ];
 
-function AdminAvailability() {
+function AdminAvailability({ adminKey }: { adminKey: string }) {
   const [activeDays, setActiveDays] = useState<Record<DayKey, boolean>>({
-    sun: false,
+    sun: true,
     mon: true,
     tue: true,
     wed: true,
@@ -320,48 +349,134 @@ function AdminAvailability() {
     fri: true,
     sat: true,
   });
-  const [startTime, setStartTime] = useState("07:00");
-  const [endTime, setEndTime] = useState("23:00");
-  const [minNotice, setMinNotice] = useState(3);
+  const [startTime, setStartTime] = useState("00:00");
+  const [endTime, setEndTime] = useState("23:59");
+  const [minNotice, setMinNotice] = useState(12);
   const [slotDuration, setSlotDuration] = useState(30);
-  const [rideDuration, setRideDuration] = useState(45);
-  const [savedFlash, setSavedFlash] = useState(false);
+  const [rideDuration, setRideDuration] = useState(60);
+  const [timezone, setTimezone] = useState("America/Denver");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const [blocks, setBlocks] = useState<AvailabilityBlock[]>([]);
-  const [draft, setDraft] = useState<AvailabilityBlock>(emptyBlock());
+  const [agenda, setAgenda] = useState<AgendaBooking[]>([]);
+  const [draft, setDraft] = useState<BlockDraft>(emptyBlock());
   const [adding, setAdding] = useState(false);
+  const [blockSaving, setBlockSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await getAdminAvailability({ data: { adminKey } });
+      const days = result.settings.daysActive;
+      setActiveDays(indexesToDays(days));
+      setStartTime(result.settings.startTime);
+      setEndTime(result.settings.endTime);
+      setMinNotice(result.settings.minNoticeHours);
+      setSlotDuration(result.settings.slotDurationMinutes);
+      setRideDuration(result.settings.defaultRideDurationMinutes);
+      setTimezone(result.settings.timezone);
+      setBlocks(result.blocks);
+      setAgenda(result.agenda);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load availability.");
+    } finally {
+      setLoading(false);
+    }
+  }, [adminKey]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const toggleDay = (key: DayKey) => setActiveDays((d) => ({ ...d, [key]: !d[key] }));
 
-  const saveWindow = () => {
-    // UI-only: backend wiring comes later.
-    console.info("[availability] draft window", {
-      activeDays,
-      startTime,
-      endTime,
-      minNotice,
-      slotDuration,
-      rideDuration,
-      timezone: "America/Denver",
-    });
-    setSavedFlash(true);
-    window.setTimeout(() => setSavedFlash(false), 2000);
+  const saveWindow = async () => {
+    setSaving(true);
+    setError(null);
+    setMessage(null);
+    try {
+      await updateAdminAvailability({
+        data: {
+          adminKey,
+          daysActive: daysToIndexes(activeDays),
+          startTime,
+          endTime,
+          minNoticeHours: minNotice,
+          slotDurationMinutes: slotDuration,
+          defaultRideDurationMinutes: rideDuration,
+          timezone,
+        },
+      });
+      setMessage("Availability saved.");
+      window.setTimeout(() => setMessage(null), 2500);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save availability.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const addBlock = () => {
+  const addBlock = async () => {
     if (!draft.startDate || !draft.endDate) return;
-    setBlocks((b) => [...b, { ...draft, id: crypto.randomUUID() }]);
-    setDraft(emptyBlock());
-    setAdding(false);
+    setBlockSaving(true);
+    setError(null);
+    try {
+      await createAdminBlockedSlot({
+        data: {
+          adminKey,
+          startDate: draft.startDate,
+          startTime: draft.startTime,
+          endDate: draft.endDate,
+          endTime: draft.endTime,
+          reason: draft.reason,
+        },
+      });
+      setDraft(emptyBlock());
+      setAdding(false);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to add block.");
+    } finally {
+      setBlockSaving(false);
+    }
   };
 
-  const removeBlock = (id: string) => setBlocks((b) => b.filter((x) => x.id !== id));
+  const removeBlock = async (id: string) => {
+    if (!confirm("Delete this manual block?")) return;
+    setError(null);
+    const prev = blocks;
+    setBlocks((b) => b.filter((x) => x.id !== id));
+    try {
+      await deleteAdminBlockedSlot({ data: { adminKey, id } });
+      await load();
+    } catch (e) {
+      setBlocks(prev);
+      setError(e instanceof Error ? e.message : "Failed to delete block.");
+    }
+  };
 
   return (
     <section className="flex flex-col gap-5">
+      {error && (
+        <div className="text-xs text-red-400/90 border border-red-400/30 rounded-lg px-3 py-2">
+          {error}
+        </div>
+      )}
+      {message && (
+        <div className="text-xs text-[#E6CE20] border border-[#E6CE20]/25 rounded-lg px-3 py-2">
+          {message}
+        </div>
+      )}
+      {loading && <p className="text-sm text-white/50">Loading availability...</p>}
+
       <AvailabilityCard
         title="Default availability window"
-        subtitle="Hours and rules used when no manual block applies."
+        subtitle="Passengers can request available slots inside this window. You still decide whether to quote and accept."
       >
         <div>
           <p className="text-[10px] uppercase streex-tracking text-white/40 mb-2">Active days</p>
@@ -433,22 +548,61 @@ function AdminAvailability() {
             />
           </AvField>
           <AvField label="Timezone">
-            <div className={`${avInput} flex items-center text-white/70`}>America/Denver</div>
+            <div className={`${avInput} flex items-center text-white/70`}>{timezone}</div>
           </AvField>
         </div>
 
         <div className="flex items-center justify-between gap-3 pt-1">
           <p className="text-[11px] text-white/40">
-            {savedFlash ? "Draft saved locally." : "Saved here for layout only — backend later."}
+            Quoted and confirmed rides block availability. Pending requests do not.
           </p>
           <button
             type="button"
             onClick={saveWindow}
-            className="rounded-xl bg-[#E6CE20] text-black text-xs font-semibold px-4 py-2 hover:bg-[#E6CE20]/90"
+            disabled={saving || loading}
+            className="rounded-xl bg-[#E6CE20] text-black text-xs font-semibold px-4 py-2 hover:bg-[#E6CE20]/90 disabled:opacity-60"
           >
-            Save window
+            {saving ? "Saving..." : "Save window"}
           </button>
         </div>
+      </AvailabilityCard>
+
+      <AvailabilityCard
+        title="Driver agenda"
+        subtitle="Upcoming quoted and confirmed rides that are blocking availability."
+      >
+        {agenda.length === 0 ? (
+          <p className="text-xs text-white/40">No quoted or confirmed rides on the agenda.</p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {agenda.map((ride) => (
+              <li
+                key={ride.id}
+                className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-white">{ride.name}</p>
+                    <p className="mt-1 text-xs text-white/55">
+                      {formatDateTime(ride.startAt)} · {ride.passengers} passenger
+                      {ride.passengers === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                  <span className="shrink-0 rounded-full border border-[#E6CE20]/25 bg-[#E6CE20]/10 px-2.5 py-1 text-[10px] uppercase streex-tracking text-[#E6CE20]">
+                    {ride.status}
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-white/65">
+                  <span className="text-white/40">From</span> {ride.pickup}{" "}
+                  <span className="text-white/40">→</span> {ride.destination}
+                </p>
+                {ride.price != null && (
+                  <p className="mt-1 text-xs text-[#E6CE20]">${Number(ride.price).toFixed(2)}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
       </AvailabilityCard>
 
       <AvailabilityCard
@@ -468,7 +622,7 @@ function AdminAvailability() {
               >
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-white">
-                    {b.startDate} {b.startTime} → {b.endDate} {b.endTime}
+                    {formatDateTime(b.startAt)} → {formatDateTime(b.endAt)}
                   </p>
                   {b.reason && (
                     <p className="text-[11px] text-white/50 mt-0.5 truncate">{b.reason}</p>
@@ -476,7 +630,7 @@ function AdminAvailability() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => removeBlock(b.id)}
+                  onClick={() => void removeBlock(b.id)}
                   className="shrink-0 text-[11px] text-white/50 hover:text-red-300"
                 >
                   Delete
@@ -545,9 +699,10 @@ function AdminAvailability() {
               <button
                 type="button"
                 onClick={addBlock}
-                className="rounded-lg bg-[#E6CE20] text-black text-xs font-semibold px-3 py-2 hover:bg-[#E6CE20]/90"
+                disabled={blockSaving}
+                className="rounded-lg bg-[#E6CE20] text-black text-xs font-semibold px-3 py-2 hover:bg-[#E6CE20]/90 disabled:opacity-60"
               >
-                Add block
+                {blockSaving ? "Adding..." : "Add block"}
               </button>
             </div>
           </div>
@@ -620,8 +775,37 @@ function AvailabilityCard({
   );
 }
 
-function emptyBlock(): AvailabilityBlock {
-  return { id: "", startDate: "", startTime: "08:00", endDate: "", endTime: "10:00", reason: "" };
+function emptyBlock(): BlockDraft {
+  return { startDate: "", startTime: "08:00", endDate: "", endTime: "10:00", reason: "" };
+}
+
+function indexesToDays(days: number[]): Record<DayKey, boolean> {
+  return {
+    sun: days.includes(0),
+    mon: days.includes(1),
+    tue: days.includes(2),
+    wed: days.includes(3),
+    thu: days.includes(4),
+    fri: days.includes(5),
+    sat: days.includes(6),
+  };
+}
+
+function daysToIndexes(days: Record<DayKey, boolean>) {
+  return DAY_LABELS.map((day, index) => (days[day.key] ? index : null)).filter(
+    (day): day is number => day !== null,
+  );
+}
+
+function formatDateTime(value: string | null) {
+  if (!value) return "Time not set";
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
