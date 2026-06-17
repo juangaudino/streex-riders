@@ -286,6 +286,302 @@ function AdminBookings({ adminKey }: { adminKey: string }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// AdminConfig — VISUAL EXPLORATION ONLY (CONFIG v2)
+//
+// Scope: UI / mock state only. No backend writes, no Supabase calls, and
+// src/config.ts behavior is intentionally untouched. Codex will wire the
+// backend later. Saving here only logs to the console and shows a toast-style
+// confirmation locally.
+// ─────────────────────────────────────────────────────────────────────────────
+function AdminConfig() {
+  type ServiceDraft = {
+    id: string;
+    name: string;
+    price: string;
+    enabled: boolean;
+  };
+
+  const [profile, setProfile] = useState({
+    brandName: CONFIG.brandName,
+    ownerName: CONFIG.ownerName,
+    phone: CONFIG.phoneDisplay,
+    email: CONFIG.email,
+    website: CONFIG.website,
+    instagram: CONFIG.instagram,
+    whatsapp: CONFIG.whatsapp,
+    google: CONFIG.googleReviews,
+    nextdoor: CONFIG.nextdoor,
+    tagline: CONFIG.tagline,
+    subheadline: CONFIG.subheadline,
+  });
+
+  const [services, setServices] = useState<ServiceDraft[]>(
+    CONFIG.services.map((s) => ({
+      id: s.id,
+      name: s.name,
+      price: s.price,
+      enabled: s.enabled,
+    })),
+  );
+
+  const [sections, setSections] = useState<Record<string, boolean>>(
+    () => ({ ...CONFIG.sections }) as Record<string, boolean>,
+  );
+
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  const updateProfile = (key: keyof typeof profile, value: string) =>
+    setProfile((p) => ({ ...p, [key]: value }));
+
+  const updateService = (id: string, patch: Partial<ServiceDraft>) =>
+    setServices((list) => list.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+
+  const toggleSection = (key: string) =>
+    setSections((s) => ({ ...s, [key]: !s[key] }));
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    // UI-only: do not persist. Codex will wire this to Lovable Cloud later.
+    console.info("[AdminConfig draft]", { profile, services, sections });
+    setSavedAt(Date.now());
+    window.setTimeout(() => setSavedAt(null), 2400);
+  };
+
+  const sectionLabels: Record<string, string> = {
+    wifi: "Wi-Fi",
+    textMe: "Text Me",
+    callMe: "Call Me",
+    saveContact: "Save Contact",
+    scheduleRide: "Schedule Ride",
+    moreOptions: "More Options",
+    experienceGallery: "Experience Gallery",
+    servicesGrid: "Services Grid",
+    reviews: "Reviews",
+    whyStreex: "Why Streex",
+    meetJuan: "Meet Juan",
+    paymentOptions: "Payment Options",
+    findUs: "Find Us",
+    feedbackForm: "Feedback Form",
+  };
+
+  return (
+    <form onSubmit={handleSave} className="relative space-y-6">
+      <div className="rounded-2xl border border-[#E6CE20]/15 bg-[#E6CE20]/[0.04] px-4 py-3">
+        <div className="flex items-start gap-3">
+          <Settings2 className="h-4 w-4 mt-0.5 text-[#E6CE20]" />
+          <div>
+            <p className="text-[11px] uppercase streex-tracking text-[#E6CE20]/90 font-semibold">
+              Config v2 · Preview
+            </p>
+            <p className="mt-1 text-xs text-white/55 leading-relaxed">
+              Edit your public Streex profile. Changes here are a visual draft —
+              persistence will be wired up shortly.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <ConfigGroup title="Identity" subtitle="How Streex is presented to passengers.">
+        <ConfigField label="Business name" value={profile.brandName} onChange={(v) => updateProfile("brandName", v)} />
+        <ConfigField label="Driver name" value={profile.ownerName} onChange={(v) => updateProfile("ownerName", v)} />
+        <ConfigField
+          label="Tagline"
+          value={profile.tagline}
+          onChange={(v) => updateProfile("tagline", v)}
+          placeholder="Private rides. Elevated."
+        />
+        <ConfigField
+          label="Subheadline"
+          value={profile.subheadline}
+          onChange={(v) => updateProfile("subheadline", v)}
+          multiline
+        />
+      </ConfigGroup>
+
+      <ConfigGroup title="Contact" subtitle="Direct lines passengers can use.">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <ConfigField label="Phone" value={profile.phone} onChange={(v) => updateProfile("phone", v)} />
+          <ConfigField label="Email" value={profile.email} onChange={(v) => updateProfile("email", v)} type="email" />
+          <ConfigField label="Website" value={profile.website} onChange={(v) => updateProfile("website", v)} />
+          <ConfigField label="Instagram" value={profile.instagram} onChange={(v) => updateProfile("instagram", v)} prefix="@" />
+          <ConfigField label="WhatsApp" value={profile.whatsapp} onChange={(v) => updateProfile("whatsapp", v)} />
+          <ConfigField label="Google link" value={profile.google} onChange={(v) => updateProfile("google", v)} />
+          <ConfigField label="Nextdoor link" value={profile.nextdoor} onChange={(v) => updateProfile("nextdoor", v)} />
+        </div>
+      </ConfigGroup>
+
+      <ConfigGroup title="Services" subtitle="Toggle and name what appears in the services grid.">
+        <div className="space-y-2">
+          {services.map((s) => (
+            <div
+              key={s.id}
+              className="rounded-xl border border-white/10 bg-white/[0.03] p-3 backdrop-blur-xl"
+            >
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <span className="text-[10px] uppercase streex-tracking text-white/40">
+                  {s.id}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => updateService(s.id, { enabled: !s.enabled })}
+                  className={`relative h-5 w-9 rounded-full transition-colors ${
+                    s.enabled ? "bg-[#E6CE20]" : "bg-white/15"
+                  }`}
+                  aria-pressed={s.enabled}
+                  aria-label={`Toggle ${s.name}`}
+                >
+                  <span
+                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-black transition-transform ${
+                      s.enabled ? "translate-x-4" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+                <input
+                  value={s.name}
+                  onChange={(e) => updateService(s.id, { name: e.target.value })}
+                  className="w-full rounded-lg bg-white/[0.04] border border-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#E6CE20]/40"
+                />
+                <input
+                  value={s.price}
+                  onChange={(e) => updateService(s.id, { price: e.target.value })}
+                  className="w-full sm:w-44 rounded-lg bg-white/[0.04] border border-white/10 px-3 py-2 text-sm text-[#E6CE20] placeholder:text-white/30 focus:outline-none focus:border-[#E6CE20]/40"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </ConfigGroup>
+
+      <ConfigGroup
+        title="Sections"
+        subtitle="Show or hide sections on the public landing page."
+      >
+        <div className="grid gap-2 sm:grid-cols-2">
+          {Object.keys(sectionLabels).map((key) => {
+            const on = !!sections[key];
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => toggleSection(key)}
+                className={`flex items-center justify-between rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                  on
+                    ? "border-[#E6CE20]/40 bg-[#E6CE20]/10"
+                    : "border-white/10 bg-white/[0.03] hover:border-white/20"
+                }`}
+              >
+                <span className="text-sm text-white/85">{sectionLabels[key]}</span>
+                <span
+                  className={`relative h-5 w-9 rounded-full transition-colors ${
+                    on ? "bg-[#E6CE20]" : "bg-white/15"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-black transition-transform ${
+                      on ? "translate-x-4" : "translate-x-0.5"
+                    }`}
+                  />
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </ConfigGroup>
+
+      <div className="sticky bottom-3 z-10 -mx-1">
+        <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]">
+          <p className="text-[11px] text-white/50">
+            {savedAt
+              ? "Draft captured locally."
+              : "Visual draft · backend wiring pending."}
+          </p>
+          <button
+            type="submit"
+            className="rounded-full bg-[#E6CE20] text-black text-xs font-semibold px-4 py-2 hover:bg-[#E6CE20]/90 transition-colors"
+          >
+            Save draft
+          </button>
+        </div>
+      </div>
+    </form>
+  );
+}
+
+function ConfigGroup({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-xl p-4 sm:p-5">
+      <header className="mb-4">
+        <h3 className="text-sm font-semibold text-white">{title}</h3>
+        {subtitle && <p className="text-xs text-white/45 mt-1">{subtitle}</p>}
+      </header>
+      {children}
+    </section>
+  );
+}
+
+function ConfigField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  multiline,
+  type = "text",
+  prefix,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  multiline?: boolean;
+  type?: string;
+  prefix?: string;
+}) {
+  const base =
+    "w-full rounded-lg bg-white/[0.04] border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#E6CE20]/40 transition-colors";
+  return (
+    <label className="block">
+      <span className="block text-[10px] uppercase streex-tracking text-white/45 mb-1.5">
+        {label}
+      </span>
+      {multiline ? (
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          rows={3}
+          className={`${base} px-3 py-2 resize-none`}
+        />
+      ) : (
+        <div className="relative">
+          {prefix && (
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm">
+              {prefix}
+            </span>
+          )}
+          <input
+            type={type}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            className={`${base} ${prefix ? "pl-7 pr-3" : "px-3"} py-2`}
+          />
+        </div>
+      )}
+    </label>
+  );
+}
+
 function BookingCard({
   booking,
   adminKey,
