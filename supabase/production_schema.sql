@@ -14,6 +14,8 @@ end $$;
 create table if not exists public.bookings (
   id uuid primary key default gen_random_uuid(),
   tenant_id text not null default 'streex',
+  service_type text not null default 'ride'
+    check (service_type in ('ride','hourly')),
   name text not null,
   phone text not null,
   email text not null,

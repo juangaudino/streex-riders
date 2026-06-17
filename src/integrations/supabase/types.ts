@@ -41,6 +41,7 @@ export type Database = {
           phone: string;
           pickup: string;
           price: number | null;
+          service_type: string;
           start_at: string | null;
           status: string;
           tenant_id: string;
@@ -60,6 +61,7 @@ export type Database = {
           phone: string;
           pickup: string;
           price?: number | null;
+          service_type?: string;
           start_at?: string | null;
           status?: string;
           tenant_id?: string;
@@ -79,6 +81,7 @@ export type Database = {
           phone?: string;
           pickup?: string;
           price?: number | null;
+          service_type?: string;
           start_at?: string | null;
           status?: string;
           tenant_id?: string;

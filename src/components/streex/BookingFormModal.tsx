@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Check, Minus, Plus } from "lucide-react";
+import { X, Check, ChevronDown, Minus, Plus } from "lucide-react";
 import { createBooking } from "@/lib/booking.functions";
 import { getAvailableSlots, type AvailableSlot } from "@/lib/availability.functions";
 import { PlacesAutocompleteInput } from "./PlacesAutocompleteInput";
@@ -11,6 +11,7 @@ type Props = {
 };
 
 type FormState = {
+  serviceType: "ride" | "hourly";
   name: string;
   phone: string;
   email: string;
@@ -18,11 +19,13 @@ type FormState = {
   destination: string;
   date: string;
   time: string;
+  durationHours: number;
   passengers: number;
   notes: string;
 };
 
 const EMPTY: FormState = {
+  serviceType: "ride",
   name: "",
   phone: "",
   email: "",
@@ -30,6 +33,7 @@ const EMPTY: FormState = {
   destination: "",
   date: "",
   time: "",
+  durationHours: 2,
   passengers: 1,
   notes: "",
 };
@@ -48,6 +52,8 @@ const COUNTRY_CODES = [
   { label: "🇦🇷 +54 — Argentina", value: "+54" },
   { label: "🌍 Other", value: "other" },
 ];
+
+const HOURLY_OPTIONS = [1, 2, 3, 4, 5, 6, 8, 10, 12];
 
 const fieldCls =
   "block w-full box-border rounded-xl bg-white/[0.04] border border-white/10 text-sm text-white placeholder:text-white/30 backdrop-blur-xl focus:outline-none focus:border-[#E6CE20]/50 transition-colors";
@@ -105,7 +111,12 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
     setSlotsLoading(true);
     setSlotsError(null);
 
-    getAvailableSlots({ data: { date: form.date } })
+    getAvailableSlots({
+      data: {
+        date: form.date,
+        durationMinutes: form.serviceType === "hourly" ? form.durationHours * 60 : undefined,
+      },
+    })
       .then((result) => {
         if (cancelled) return;
         setAvailableSlots(result.slots);
@@ -123,7 +134,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [form.date, open]);
+  }, [form.date, form.durationHours, form.serviceType, open]);
 
   if (!open || typeof document === "undefined") return null;
 
@@ -140,13 +151,18 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
     const fullPhone = codeDigits && numberDigits ? `+${codeDigits}${numberDigits}` : "";
 
     const trimmed = {
+      serviceType: form.serviceType,
       name: form.name.trim(),
       phone: fullPhone,
       email: form.email.trim(),
       pickup: form.pickup.trim(),
-      destination: form.destination.trim(),
+      destination:
+        form.serviceType === "hourly"
+          ? form.destination.trim() || "Hourly service"
+          : form.destination.trim(),
       date: form.date.trim(),
       time: form.time.trim(),
+      durationMinutes: form.serviceType === "hourly" ? form.durationHours * 60 : undefined,
       passengers: Number(form.passengers),
       notes: form.notes.trim() || null,
     };
@@ -158,7 +174,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
       !numberDigits ||
       !trimmed.email ||
       !trimmed.pickup ||
-      !trimmed.destination ||
+      (trimmed.serviceType === "ride" && !trimmed.destination) ||
       !trimmed.date ||
       !trimmed.time
     ) {
@@ -240,6 +256,44 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
           ) : (
             <form onSubmit={onSubmit} className="space-y-4">
               <div>
+                <label className={labelCls}>Service Type</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    {
+                      key: "ride" as const,
+                      label: "Point to Point",
+                      sub: "Pickup and destination",
+                    },
+                    { key: "hourly" as const, label: "Hourly", sub: "Reserve by time" },
+                  ].map((option) => {
+                    const selected = form.serviceType === option.key;
+                    return (
+                      <button
+                        key={option.key}
+                        type="button"
+                        onClick={() =>
+                          setForm((f) => ({
+                            ...f,
+                            serviceType: option.key,
+                            time: "",
+                          }))
+                        }
+                        className={`rounded-xl border px-3 py-3 text-left transition-colors ${
+                          selected
+                            ? "border-[#E6CE20] bg-[#E6CE20]/15"
+                            : "border-white/10 bg-white/[0.04] hover:border-white/20"
+                        }`}
+                      >
+                        <span className="block text-sm font-semibold text-white">
+                          {option.label}
+                        </span>
+                        <span className="mt-0.5 block text-[11px] text-white/45">{option.sub}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
                 <label className={labelCls}>Name</label>
                 <input
                   className={fieldCls}
@@ -316,16 +370,49 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 />
               </div>
               <div>
-                <label className={labelCls}>Destination</label>
+                <label className={labelCls}>
+                  {form.serviceType === "hourly" ? "Itinerary / Area (optional)" : "Destination"}
+                </label>
                 <PlacesAutocompleteInput
                   className={fieldCls}
                   style={fieldStyle}
                   value={form.destination}
                   onChange={(v) => set("destination", v)}
-                  placeholder="Where to?"
-                  required
+                  placeholder={
+                    form.serviceType === "hourly" ? "Optional route or service area" : "Where to?"
+                  }
+                  required={form.serviceType === "ride"}
                 />
               </div>
+              {form.serviceType === "hourly" && (
+                <div>
+                  <label className={labelCls}>Reserved Time</label>
+                  <div className="relative">
+                    <select
+                      className={`${fieldCls} appearance-none`}
+                      style={fieldStyle}
+                      value={form.durationHours}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          durationHours: Number(e.target.value),
+                          time: "",
+                        }))
+                      }
+                    >
+                      {HOURLY_OPTIONS.map((hours) => (
+                        <option key={hours} value={hours} className="bg-[#0F0F0F] text-white">
+                          {hours} {hours === 1 ? "hour" : "hours"}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+                  </div>
+                  <p className="mt-2 text-[11px] leading-relaxed text-white/40">
+                    Availability will reserve the full time window.
+                  </p>
+                </div>
+              )}
               <div>
                 <label className={labelCls}>Date</label>
                 <input
@@ -348,7 +435,9 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 />
               </div>
               <div>
-                <label className={labelCls}>Time</label>
+                <label className={labelCls}>
+                  {form.serviceType === "hourly" ? "Start Time" : "Pickup Time"}
+                </label>
                 {!form.date ? (
                   <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/40">
                     Choose a date first.
@@ -366,24 +455,30 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                     No available times for this date. Please choose another date.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    {availableSlots.map((slot) => {
-                      const selected = form.time === slot.time;
-                      return (
-                        <button
-                          key={slot.startAt}
-                          type="button"
-                          onClick={() => set("time", slot.time)}
-                          className={`rounded-xl border px-3 py-3 text-sm font-semibold transition-colors ${
-                            selected
-                              ? "border-[#E6CE20] bg-[#E6CE20] text-black"
-                              : "border-white/10 bg-white/[0.04] text-white/75 hover:border-[#E6CE20]/40 hover:text-white"
-                          }`}
-                        >
-                          {slot.label}
-                        </button>
-                      );
-                    })}
+                  <div className="relative">
+                    <select
+                      className={`${fieldCls} appearance-none font-semibold`}
+                      style={fieldStyle}
+                      value={form.time}
+                      onChange={(e) => set("time", e.target.value)}
+                      required
+                    >
+                      <option value="" className="bg-[#0F0F0F] text-white">
+                        Select available time
+                      </option>
+                      {availableSlots.map((slot) => {
+                        return (
+                          <option
+                            key={slot.startAt}
+                            value={slot.time}
+                            className="bg-[#0F0F0F] text-white"
+                          >
+                            {slot.label}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
                   </div>
                 )}
               </div>

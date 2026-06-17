@@ -81,6 +81,7 @@ const button = (label: string, href: string, variant: "primary" | "secondary" = 
 
 type Booking = {
   id: string;
+  service_type?: string | null;
   name: string;
   phone: string;
   email: string;
@@ -88,6 +89,7 @@ type Booking = {
   destination: string;
   date: string;
   time: string;
+  estimated_duration_minutes?: number | null;
   passengers: number;
   notes: string | null;
   price: number | null;
@@ -95,10 +97,16 @@ type Booking = {
 
 const detailsTable = (b: Booking, opts: { showPrice?: boolean } = {}) => `
 <table style="width:100%;border-collapse:collapse;margin:8px 0 18px;">
+  ${detailRow("Service", b.service_type === "hourly" ? "Hourly Service" : "Point to Point")}
   ${detailRow("From", b.pickup)}
   ${detailRow("To", b.destination)}
   ${detailRow("Date", b.date)}
   ${detailRow("Time", b.time)}
+  ${
+    b.service_type === "hourly" && b.estimated_duration_minutes
+      ? detailRow("Reserved", `${Math.round(b.estimated_duration_minutes / 60)} hr`)
+      : ""
+  }
   ${detailRow("Passengers", String(b.passengers))}
   ${opts.showPrice && b.price != null ? detailRow("Price", `$${Number(b.price).toFixed(2)}`) : ""}
 </table>`;
@@ -128,10 +136,16 @@ export function buildAdminNewRequest(b: Booking) {
         ${detailRow("Name", b.name)}
         ${detailRow("Phone", b.phone)}
         ${detailRow("Email", b.email)}
+        ${detailRow("Service", b.service_type === "hourly" ? "Hourly Service" : "Point to Point")}
         ${detailRow("From", b.pickup)}
         ${detailRow("To", b.destination)}
         ${detailRow("Date", b.date)}
         ${detailRow("Time", b.time)}
+        ${
+          b.service_type === "hourly" && b.estimated_duration_minutes
+            ? detailRow("Reserved", `${Math.round(b.estimated_duration_minutes / 60)} hr`)
+            : ""
+        }
         ${detailRow("Passengers", String(b.passengers))}
         ${b.notes ? detailRow("Notes", b.notes) : ""}
       </table>

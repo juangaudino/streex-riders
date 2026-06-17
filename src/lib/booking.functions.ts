@@ -17,6 +17,7 @@ import { resolveBookingSlot } from "./availability.functions";
 type BookingRow = Tables<"bookings">;
 
 const CreateSchema = z.object({
+  serviceType: z.enum(["ride", "hourly"]).default("ride"),
   name: z.string().trim().min(1).max(120),
   phone: z.string().trim().min(5).max(40),
   email: z.string().trim().email().max(200),
@@ -24,6 +25,7 @@ const CreateSchema = z.object({
   destination: z.string().trim().min(1).max(300),
   date: z.string().trim().min(1).max(40),
   time: z.string().trim().min(1).max(20),
+  durationMinutes: z.number().int().min(60).max(720).optional(),
   passengers: z.number().int().min(1).max(8),
   notes: z.string().trim().max(1000).optional().nullable(),
 });
@@ -31,12 +33,15 @@ const CreateSchema = z.object({
 export const createBooking = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => CreateSchema.parse(input))
   .handler(async ({ data }) => {
-    const slot = await resolveBookingSlot(data.date, data.time);
+    const durationMinutes =
+      data.serviceType === "hourly" ? (data.durationMinutes ?? 120) : undefined;
+    const slot = await resolveBookingSlot(data.date, data.time, durationMinutes);
 
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
       .insert({
         tenant_id: "streex",
+        service_type: data.serviceType,
         name: data.name,
         phone: data.phone,
         email: data.email,

@@ -138,7 +138,7 @@ async function readAvailability(tenantId = TENANT_ID): Promise<AvailabilityRow> 
   return data ?? { ...DEFAULT_AVAILABILITY, tenant_id: tenantId };
 }
 
-async function calculateAvailableSlots(tenantId: string, date: string) {
+async function calculateAvailableSlots(tenantId: string, date: string, durationMinutes?: number) {
   const settings = await readAvailability(tenantId);
   const timezone = settings.timezone || "America/Denver";
   const day = weekdayForLocalDate(date);
@@ -149,7 +149,7 @@ async function calculateAvailableSlots(tenantId: string, date: string) {
 
   const startMinutes = timeToMinutes(settings.start_time);
   const endMinutes = timeToMinutes(settings.end_time);
-  const rideDuration = settings.default_ride_duration_minutes;
+  const rideDuration = durationMinutes ?? settings.default_ride_duration_minutes;
   const slotDuration = settings.slot_duration_minutes;
   const latestStart = endMinutes - rideDuration;
 
@@ -210,15 +210,21 @@ async function calculateAvailableSlots(tenantId: string, date: string) {
       startAt: start.toISOString(),
       endAt: end.toISOString(),
       time: minutesToTime(minute),
-      label: formatSlotLabel(start, timezone),
+      label: durationMinutes
+        ? `${formatSlotLabel(start, timezone)} - ${formatSlotLabel(end, timezone)}`
+        : formatSlotLabel(start, timezone),
     });
   }
 
   return { settings, slots };
 }
 
-export async function resolveBookingSlotServer(date: string, time: string) {
-  const { settings, slots } = await calculateAvailableSlots(TENANT_ID, date);
+export async function resolveBookingSlotServer(
+  date: string,
+  time: string,
+  durationMinutes?: number,
+) {
+  const { settings, slots } = await calculateAvailableSlots(TENANT_ID, date, durationMinutes);
   const selected = slots.find((slot) => slot.time === time);
 
   if (!selected) {
@@ -228,12 +234,20 @@ export async function resolveBookingSlotServer(date: string, time: string) {
   return {
     startAt: selected.startAt,
     endAt: selected.endAt,
-    durationMinutes: settings.default_ride_duration_minutes,
+    durationMinutes: durationMinutes ?? settings.default_ride_duration_minutes,
   };
 }
 
-export async function getAvailableSlotsServer(tenantId: string | undefined, date: string) {
-  const { settings, slots } = await calculateAvailableSlots(tenantId ?? TENANT_ID, date);
+export async function getAvailableSlotsServer(
+  tenantId: string | undefined,
+  date: string,
+  durationMinutes?: number,
+) {
+  const { settings, slots } = await calculateAvailableSlots(
+    tenantId ?? TENANT_ID,
+    date,
+    durationMinutes,
+  );
 
   return {
     slots,
@@ -380,6 +394,8 @@ function serializeAgendaBooking(booking: BookingRow) {
     time: booking.time,
     startAt: booking.start_at,
     endAt: booking.end_at,
+    serviceType: booking.service_type,
+    estimatedDurationMinutes: booking.estimated_duration_minutes,
     passengers: booking.passengers,
     price: booking.price,
     status: booking.status,

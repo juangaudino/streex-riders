@@ -35,11 +35,13 @@ If the clean baseline was already applied before native availability existed, ap
 
 ```txt
 supabase/availability_phase_4_1.sql
+supabase/booking_service_type_phase_4_2.sql
 ```
 
 This adds:
 
 - schedule fields to `bookings`: `tenant_id`, `start_at`, `end_at`, `estimated_duration_minutes`
+- service fields to `bookings`: `service_type`
 - `tenant_availability`: default availability window and booking rules
 - `blocked_slots`: manual driver blocks
 

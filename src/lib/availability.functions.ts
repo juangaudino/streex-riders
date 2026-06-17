@@ -8,6 +8,7 @@ const AdminSchema = z.object({
 const DateSchema = z.object({
   tenantId: z.string().trim().min(1).max(80).optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  durationMinutes: z.number().int().min(5).max(1440).optional(),
 });
 
 const AvailabilitySettingsSchema = AdminSchema.extend({
@@ -39,16 +40,16 @@ export type AvailableSlot = {
   label: string;
 };
 
-export async function resolveBookingSlot(date: string, time: string) {
+export async function resolveBookingSlot(date: string, time: string, durationMinutes?: number) {
   const { resolveBookingSlotServer } = await import("./availability.server");
-  return resolveBookingSlotServer(date, time);
+  return resolveBookingSlotServer(date, time, durationMinutes);
 }
 
 export const getAvailableSlots = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => DateSchema.parse(input))
   .handler(async ({ data }) => {
     const { getAvailableSlotsServer } = await import("./availability.server");
-    return getAvailableSlotsServer(data.tenantId, data.date);
+    return getAvailableSlotsServer(data.tenantId, data.date, data.durationMinutes);
   });
 
 export const getAdminAvailability = createServerFn({ method: "POST" })

@@ -39,6 +39,7 @@ type TickerStyle = "boarding" | "pill";
 
 type BookingRow = {
   id: string;
+  service_type?: string | null;
   name: string;
   phone: string;
   email: string;
@@ -47,6 +48,7 @@ type BookingRow = {
   date: string;
   time: string;
   passengers: number;
+  estimated_duration_minutes?: number | null;
   notes: string | null;
   price: number | null;
   status: "pending" | "quoted" | "confirmed" | "declined" | "completed" | "cancelled";
@@ -316,6 +318,8 @@ type AgendaBooking = {
   time: string;
   startAt: string | null;
   endAt: string | null;
+  serviceType?: string | null;
+  estimatedDurationMinutes?: number | null;
   passengers: number;
   price: number | null;
   status: string;
@@ -584,6 +588,7 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-white">{ride.name}</p>
                     <p className="mt-1 text-xs text-white/55">
+                      {formatServiceLabel(ride.serviceType, ride.estimatedDurationMinutes)} ·{" "}
                       {formatDateTime(ride.startAt)} · {ride.passengers} passenger
                       {ride.passengers === 1 ? "" : "s"}
                     </p>
@@ -806,6 +811,15 @@ function formatDateTime(value: string | null) {
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(value));
+}
+
+function formatServiceLabel(serviceType?: string | null, duration?: number | null) {
+  if (serviceType === "hourly") {
+    const hours = duration ? Math.round(duration / 60) : null;
+    return `Hourly Service${hours ? ` · ${hours} hr` : ""}`;
+  }
+
+  return "Point to Point";
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1212,6 +1226,7 @@ function BookingCard({
         <span className="text-white/55">→</span> {booking.destination}
       </div>
       <div className="text-xs text-white/60 mb-2">
+        {formatServiceLabel(booking.service_type, booking.estimated_duration_minutes)} &middot;{" "}
         {booking.date} at {booking.time} &middot; {booking.passengers} passenger
         {booking.passengers === 1 ? "" : "s"}
         {booking.price != null && (
