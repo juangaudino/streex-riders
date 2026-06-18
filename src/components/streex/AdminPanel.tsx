@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { Component, useCallback, useEffect, useState, type ReactNode } from "react";
 import {
   CalendarCheck,
   CalendarClock,
@@ -31,6 +31,13 @@ import {
 import { getTickerTheme } from "@/lib/ticker-theme.functions";
 import { CONFIG } from "@/config";
 import logo from "@/assets/streex-logo.webp";
+import { useAdminTheme } from "./admin/useAdminTheme";
+import { AdminThemeControl } from "./admin/AdminThemeControl";
+import { AdminCalendar } from "./admin/AdminCalendar";
+import {
+  AdminCalendarEventSheet,
+  type CalendarSheetItem,
+} from "./admin/AdminCalendarEventSheet";
 
 const SESSION_KEY = "streex_admin_key";
 
@@ -89,6 +96,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
+  const { preference, resolved, setPreference } = useAdminTheme();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -114,7 +122,10 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
 
   if (!adminKey) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B0B] px-6">
+      <div
+        className="streex-admin-scope fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B0B] px-6"
+        data-admin-theme={resolved}
+      >
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -163,7 +174,10 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white px-5 sm:px-6 py-10">
+    <div
+      className="streex-admin-scope min-h-screen bg-black text-white px-5 sm:px-6 py-10"
+      data-admin-theme={resolved}
+    >
       <div className="mx-auto max-w-3xl">
         <header className="mb-6 flex items-start justify-between gap-4">
           <div>
@@ -175,16 +189,19 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
               Manage bookings, passenger reviews, and display themes.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              sessionStorage.removeItem(SESSION_KEY);
-              setAdminKey(null);
-            }}
-            className="text-xs rounded-full px-3 py-1.5 border border-white/15 text-white/70 hover:text-white"
-          >
-            Sign out
-          </button>
+          <div className="flex items-center gap-2">
+            <AdminThemeControl value={preference} onChange={setPreference} />
+            <button
+              type="button"
+              onClick={() => {
+                sessionStorage.removeItem(SESSION_KEY);
+                setAdminKey(null);
+              }}
+              className="text-xs rounded-full px-3 py-1.5 border border-white/15 text-white/70 hover:text-white"
+            >
+              Sign out
+            </button>
+          </div>
         </header>
 
         <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 mb-7">
@@ -369,6 +386,8 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
   const [draft, setDraft] = useState<BlockDraft>(emptyBlock());
   const [adding, setAdding] = useState(false);
   const [blockSaving, setBlockSaving] = useState(false);
+  const [sheetItem, setSheetItem] = useState<CalendarSheetItem | null>(null);
+  const [calendarError, setCalendarError] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -464,6 +483,28 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
     }
   };
 
+  const calendarAgenda = agenda
+    .filter((a) => a.startAt)
+    .map((a) => ({
+      id: a.id,
+      name: a.name,
+      status: a.status,
+      startAt: a.startAt,
+      endAt: a.endAt,
+      serviceType: a.serviceType,
+      estimatedDurationMinutes: a.estimatedDurationMinutes,
+      pickup: a.pickup,
+      destination: a.destination,
+      passengers: a.passengers,
+      price: a.price,
+    }));
+  const calendarBlocks = blocks.map((b) => ({
+    id: b.id,
+    startAt: b.startAt,
+    endAt: b.endAt,
+    reason: b.reason,
+  }));
+
   return (
     <section className="flex flex-col gap-5">
       {error && (
@@ -477,6 +518,36 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
         </div>
       )}
       {loading && <p className="text-sm text-white/50">Loading availability...</p>}
+
+      <AvailabilityCard
+        title="Driver calendar"
+        subtitle="Week view of confirmed, quoted, and blocked time in America/Denver."
+      >
+        {calendarError ? (
+          <p className="text-xs text-white/45">
+            Calendar failed to render. The list view below still shows your agenda.
+          </p>
+        ) : (
+          <CalendarBoundary onError={() => setCalendarError(true)}>
+            <AdminCalendar
+              agenda={calendarAgenda}
+              blocks={calendarBlocks}
+              onSelect={setSheetItem}
+            />
+          </CalendarBoundary>
+        )}
+        <div className="flex flex-wrap items-center gap-3 text-[11px] text-white/55 pt-1">
+          <LegendDot className="bg-[#E6CE20] text-black" label="Confirmed" />
+          <LegendDot
+            className="bg-[#E6CE20]/15 border border-[#E6CE20]/45 text-[#E6CE20]"
+            label="Quoted"
+          />
+          <LegendDot
+            className="bg-white/[0.08] border border-dashed border-white/25"
+            label="Manual block"
+          />
+        </div>
+      </AvailabilityCard>
 
       <AvailabilityCard
         title="Default availability window"
@@ -744,8 +815,46 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
           </span>
         </div>
       </div>
+
+      <AdminCalendarEventSheet
+        item={sheetItem}
+        open={sheetItem !== null}
+        onClose={() => setSheetItem(null)}
+        onComplete={() => setSheetItem(null)}
+        onCancel={() => setSheetItem(null)}
+        onDeleteBlock={(id) => {
+          setSheetItem(null);
+          void removeBlock(id);
+        }}
+      />
     </section>
   );
+}
+
+function LegendDot({ className, label }: { className: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className={`inline-block h-3 w-5 rounded ${className}`} />
+      <span>{label}</span>
+    </span>
+  );
+}
+
+class CalendarBoundary extends Component<
+  { children: ReactNode; onError: () => void },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch() {
+    this.props.onError();
+  }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
 }
 
 const avInput =
