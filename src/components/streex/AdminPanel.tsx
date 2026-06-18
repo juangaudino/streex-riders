@@ -31,6 +31,13 @@ import {
 import { getTickerTheme } from "@/lib/ticker-theme.functions";
 import { CONFIG } from "@/config";
 import logo from "@/assets/streex-logo.webp";
+import { useAdminTheme } from "./admin/useAdminTheme";
+import { AdminThemeControl } from "./admin/AdminThemeControl";
+import { AdminCalendar } from "./admin/AdminCalendar";
+import {
+  AdminCalendarEventSheet,
+  type CalendarSheetItem,
+} from "./admin/AdminCalendarEventSheet";
 
 const SESSION_KEY = "streex_admin_key";
 
@@ -89,6 +96,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
+  const { preference, resolved, setPreference } = useAdminTheme();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -114,7 +122,10 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
 
   if (!adminKey) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B0B] px-6">
+      <div
+        className="streex-admin-scope fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B0B] px-6"
+        data-admin-theme={resolved}
+      >
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -163,7 +174,10 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white px-5 sm:px-6 py-10">
+    <div
+      className="streex-admin-scope min-h-screen bg-black text-white px-5 sm:px-6 py-10"
+      data-admin-theme={resolved}
+    >
       <div className="mx-auto max-w-3xl">
         <header className="mb-6 flex items-start justify-between gap-4">
           <div>
@@ -175,16 +189,19 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
               Manage bookings, passenger reviews, and display themes.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              sessionStorage.removeItem(SESSION_KEY);
-              setAdminKey(null);
-            }}
-            className="text-xs rounded-full px-3 py-1.5 border border-white/15 text-white/70 hover:text-white"
-          >
-            Sign out
-          </button>
+          <div className="flex items-center gap-2">
+            <AdminThemeControl value={preference} onChange={setPreference} />
+            <button
+              type="button"
+              onClick={() => {
+                sessionStorage.removeItem(SESSION_KEY);
+                setAdminKey(null);
+              }}
+              className="text-xs rounded-full px-3 py-1.5 border border-white/15 text-white/70 hover:text-white"
+            >
+              Sign out
+            </button>
+          </div>
         </header>
 
         <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 mb-7">
