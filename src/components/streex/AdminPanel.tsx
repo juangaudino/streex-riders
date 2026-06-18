@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { Component, useCallback, useEffect, useState, type ReactNode } from "react";
 import {
   CalendarCheck,
   CalendarClock,
@@ -840,8 +840,8 @@ function LegendDot({ className, label }: { className: string; label: string }) {
   );
 }
 
-class CalendarBoundary extends (require("react") as typeof import("react")).Component<
-  { children: React.ReactNode; onError: () => void },
+class CalendarBoundary extends Component<
+  { children: ReactNode; onError: () => void },
   { hasError: boolean }
 > {
   state = { hasError: false };
