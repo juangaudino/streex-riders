@@ -399,3 +399,174 @@ input[type="time"] {
   -webkit-appearance: none !important;
   appearance: none !important;
 }
+
+/* ─── Admin theme system (scoped to .streex-admin-scope only) ─────────── */
+.streex-admin-scope {
+  --admin-bg: #0b0b0b;
+  --admin-surface: rgba(255, 255, 255, 0.04);
+  --admin-surface-2: rgba(255, 255, 255, 0.06);
+  --admin-border: rgba(255, 255, 255, 0.1);
+  --admin-border-strong: rgba(255, 255, 255, 0.18);
+  --admin-fg: #ffffff;
+  --admin-fg-muted: rgba(255, 255, 255, 0.6);
+  --admin-fg-subtle: rgba(255, 255, 255, 0.4);
+  --streex-yellow: #e6ce20;
+  background-color: var(--admin-bg);
+  color: var(--admin-fg);
+}
+
+.streex-admin-scope[data-admin-theme="light"] {
+  --admin-bg: #f3f5f8;
+  --admin-surface: #ffffff;
+  --admin-surface-2: #fafbfc;
+  --admin-border: rgba(15, 23, 42, 0.08);
+  --admin-border-strong: rgba(15, 23, 42, 0.16);
+  --admin-fg: #0f172a;
+  --admin-fg-muted: rgba(15, 23, 42, 0.65);
+  --admin-fg-subtle: rgba(15, 23, 42, 0.45);
+  color-scheme: light;
+}
+
+/* Map existing dark-mode utility classes onto the light tokens. Scoped. */
+.streex-admin-scope[data-admin-theme="light"] .bg-black,
+.streex-admin-scope[data-admin-theme="light"] [class*="bg-[#0B0B0B]"],
+.streex-admin-scope[data-admin-theme="light"] [class*="bg-[#0b0b0b]"] {
+  background-color: var(--admin-bg) !important;
+}
+.streex-admin-scope[data-admin-theme="light"] [class*="bg-white/"] {
+  background-color: var(--admin-surface) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.streex-admin-scope[data-admin-theme="light"] [class*="border-white/"] {
+  border-color: var(--admin-border) !important;
+}
+.streex-admin-scope[data-admin-theme="light"] .text-white {
+  color: var(--admin-fg) !important;
+}
+.streex-admin-scope[data-admin-theme="light"] [class*="text-white/8"] {
+  color: rgba(15, 23, 42, 0.85) !important;
+}
+.streex-admin-scope[data-admin-theme="light"] [class*="text-white/7"] {
+  color: rgba(15, 23, 42, 0.75) !important;
+}
+.streex-admin-scope[data-admin-theme="light"] [class*="text-white/6"] {
+  color: rgba(15, 23, 42, 0.65) !important;
+}
+.streex-admin-scope[data-admin-theme="light"] [class*="text-white/5"] {
+  color: rgba(15, 23, 42, 0.55) !important;
+}
+.streex-admin-scope[data-admin-theme="light"] [class*="text-white/4"] {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+.streex-admin-scope[data-admin-theme="light"] [class*="text-white/3"] {
+  color: rgba(15, 23, 42, 0.45) !important;
+}
+.streex-admin-scope[data-admin-theme="light"] [class*="placeholder:text-white/"]::placeholder {
+  color: rgba(15, 23, 42, 0.35) !important;
+}
+
+/* Calendar wrapper card */
+.streex-admin-calendar {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  padding: 12px;
+}
+.streex-admin-calendar .fc {
+  font-family: inherit;
+  --fc-border-color: var(--admin-border);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: var(--admin-surface-2);
+  --fc-list-event-hover-bg-color: var(--admin-surface-2);
+  --fc-today-bg-color: rgba(230, 206, 32, 0.06);
+  --fc-now-indicator-color: var(--streex-yellow);
+  color: var(--admin-fg);
+}
+.streex-admin-calendar .fc .fc-toolbar-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.streex-admin-calendar .fc .fc-button {
+  background: var(--admin-surface-2);
+  border: 1px solid var(--admin-border);
+  color: var(--admin-fg);
+  text-transform: none;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  box-shadow: none;
+}
+.streex-admin-calendar .fc .fc-button:hover {
+  background: var(--admin-surface);
+  border-color: var(--admin-border-strong);
+}
+.streex-admin-calendar .fc .fc-button-primary:not(:disabled).fc-button-active,
+.streex-admin-calendar .fc .fc-button-primary:not(:disabled):active {
+  background: var(--streex-yellow);
+  color: #0b0b0b;
+  border-color: var(--streex-yellow);
+}
+.streex-admin-calendar .fc-col-header-cell-cushion,
+.streex-admin-calendar .fc-timegrid-axis-cushion,
+.streex-admin-calendar .fc-timegrid-slot-label-cushion {
+  color: var(--admin-fg-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+}
+.streex-admin-calendar .fc-event {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+.streex-admin-calendar .streex-evt {
+  border-radius: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+  overflow: hidden;
+}
+.streex-admin-calendar .streex-evt-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.15;
+}
+.streex-admin-calendar .streex-evt-title {
+  font-size: 11px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.streex-admin-calendar .streex-evt-meta {
+  font-size: 10px;
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.streex-admin-calendar .streex-evt-confirmed {
+  background: var(--streex-yellow);
+  color: #0b0b0b;
+}
+.streex-admin-calendar .streex-evt-quoted {
+  background: rgba(230, 206, 32, 0.12);
+  color: var(--streex-yellow);
+  border: 1px solid rgba(230, 206, 32, 0.45);
+}
+.streex-admin-scope[data-admin-theme="light"] .streex-evt-quoted {
+  color: #8a7400;
+}
+.streex-admin-calendar .streex-evt-block {
+  background: rgba(120, 130, 145, 0.18);
+  color: var(--admin-fg-muted);
+  border: 1px dashed var(--admin-border-strong);
+}
+.streex-admin-calendar .fc .fc-list-event-dot {
+  border-color: var(--streex-yellow);
+}
+.streex-admin-calendar .fc-list-day-cushion {
+  background: var(--admin-surface-2) !important;
+}
