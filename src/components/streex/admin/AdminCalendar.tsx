@@ -5,6 +5,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { intlNamedTimeZonePlugin } from "@/lib/fullcalendar-intl-timezone";
 import type { CalendarSheetItem } from "./AdminCalendarEventSheet";
 
 export type CalendarAgendaItem = {
@@ -98,7 +99,7 @@ export function AdminCalendar({
     <div className="streex-admin-calendar">
       <FullCalendar
         ref={calendarRef}
-        plugins={[timeGridPlugin, listPlugin, interactionPlugin]}
+        plugins={[timeGridPlugin, listPlugin, interactionPlugin, intlNamedTimeZonePlugin]}
         initialView={isMobile ? "listWeek" : "timeGridWeek"}
         headerToolbar={{ left: "prev,next today", center: "title", right: "" }}
         timeZone="America/Denver"
