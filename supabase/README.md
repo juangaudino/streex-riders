@@ -36,6 +36,7 @@ If the clean baseline was already applied before native availability existed, ap
 ```txt
 supabase/availability_phase_4_1.sql
 supabase/booking_service_type_phase_4_2.sql
+supabase/migrations/20260619035636_prevent_schedule_overlaps.sql
 ```
 
 This adds:
@@ -54,3 +55,15 @@ Availability Phase 4.1 intentionally does not include Google Calendar OAuth yet.
 - slot duration: 30 minutes
 - minimum notice: 12 hours
 - timezone: `America/Denver`
+
+The schedule-overlap migration adds the database-level safety boundary:
+
+- the first overlapping request promoted to `quoted` or `confirmed` wins
+- later overlapping promotions are rejected atomically
+- quoted/confirmed rides cannot overlap manual blocks
+- manual blocks cannot be created over quoted/confirmed rides
+- pending requests may still overlap by design
+
+Run `supabase/tests/prevent_schedule_overlaps.sql` after applying the migration to verify the rules without leaving test data.
+
+Google Calendar is intentionally deferred. See `docs/GOOGLE_CALENDAR_ROADMAP.md` for the next-session plan.

@@ -8,6 +8,7 @@ import {
   buildPassengerQuote,
   sendEmail,
 } from "./booking-emails.server";
+import { bookingConflictMessage } from "./schedule-conflicts";
 
 const AdminSchema = z.object({
   adminKey: z.string().min(1),
@@ -86,7 +87,7 @@ export const sendAdminQuote = createServerFn({ method: "POST" })
 
     if (error || !booking) {
       console.error("[sendAdminQuote] update error", error);
-      throw new Error("Failed to send quote.");
+      throw new Error(bookingConflictMessage(error) ?? "Failed to send quote.");
     }
 
     const msg = buildPassengerQuote(booking);
@@ -106,7 +107,7 @@ export const updateAdminBookingStatus = createServerFn({ method: "POST" })
 
     if (error) {
       console.error("[updateAdminBookingStatus] update error", error);
-      throw new Error("Failed to update booking.");
+      throw new Error(bookingConflictMessage(error) ?? "Failed to update booking.");
     }
 
     return { ok: true };
@@ -188,16 +189,14 @@ export const updateAdminTickerTheme = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     assertAdminAccess(data.adminKey);
 
-    const { error } = await supabaseAdmin
-      .from("app_settings")
-      .upsert(
-        {
-          key: "ticker_style",
-          value: data.tickerStyle,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "key" },
-      );
+    const { error } = await supabaseAdmin.from("app_settings").upsert(
+      {
+        key: "ticker_style",
+        value: data.tickerStyle,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" },
+    );
 
     if (error) {
       console.error("[updateAdminTickerTheme] update error", error);

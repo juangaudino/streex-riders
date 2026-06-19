@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Tables } from "@/integrations/supabase/types";
 import { assertAdminAccess } from "./admin-auth.server";
 import type { AvailableSlot } from "./availability.functions";
+import { manualBlockConflictMessage } from "./schedule-conflicts";
 
 const TENANT_ID = "streex";
 const BLOCKING_BOOKING_STATUSES = ["quoted", "confirmed"];
@@ -354,7 +355,7 @@ export async function createAdminBlockedSlotServer(data: CreateBlockInput) {
 
   if (error) {
     console.error("[createAdminBlockedSlot] insert error", error);
-    throw new Error("Failed to add block.");
+    throw new Error(manualBlockConflictMessage(error) ?? "Failed to add block.");
   }
 
   return { ok: true };

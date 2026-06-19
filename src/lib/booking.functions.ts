@@ -13,6 +13,7 @@ import {
   buildAdminDeclined,
 } from "./booking-emails.server";
 import { resolveBookingSlot } from "./availability.functions";
+import { isScheduleConflictError } from "./schedule-conflicts";
 
 type BookingRow = Tables<"bookings">;
 
@@ -112,6 +113,11 @@ async function processResponse(id: string, action: "accept" | "decline"): Promis
 
   if (updErr || !updated) {
     console.error("[processResponse] update error", updErr);
+    if (isScheduleConflictError(updErr)) {
+      throw new Error(
+        "This ride is no longer available because another booking now occupies that time. Please contact STREEX to choose another time.",
+      );
+    }
     throw new Error("Unable to process this request.");
   }
 
