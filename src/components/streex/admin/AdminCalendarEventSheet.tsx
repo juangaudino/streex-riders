@@ -65,7 +65,10 @@ export function AdminCalendarEventSheet({
       >
         {item?.kind === "ride" && (
           <div className="flex flex-col">
-            <DialogHeader className="px-5 pt-5 pb-3 border-b" style={{ borderColor: "var(--admin-border)" }}>
+            <DialogHeader
+              className="px-5 pt-5 pb-3 border-b"
+              style={{ borderColor: "var(--admin-border)" }}
+            >
               <div className="flex items-center justify-between gap-3">
                 <DialogTitle className="text-base">{item.name}</DialogTitle>
                 <span
@@ -124,7 +127,7 @@ export function AdminCalendarEventSheet({
                   Cancel ride
                 </button>
               )}
-              {onComplete && (
+              {onComplete && item.status === "confirmed" && (
                 <button
                   type="button"
                   onClick={() => onComplete(item.id)}
@@ -140,7 +143,10 @@ export function AdminCalendarEventSheet({
 
         {item?.kind === "block" && (
           <div className="flex flex-col">
-            <DialogHeader className="px-5 pt-5 pb-3 border-b" style={{ borderColor: "var(--admin-border)" }}>
+            <DialogHeader
+              className="px-5 pt-5 pb-3 border-b"
+              style={{ borderColor: "var(--admin-border)" }}
+            >
               <DialogTitle className="text-base">Manual block</DialogTitle>
             </DialogHeader>
             <div className="px-5 py-4 space-y-3 text-sm">

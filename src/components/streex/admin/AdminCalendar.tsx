@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import type { EventClickArg, EventInput } from "@fullcalendar/core";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -45,6 +45,10 @@ export function AdminCalendar({
   const calendarRef = useRef<FullCalendar | null>(null);
   const isMobile = useIsMobile();
 
+  useEffect(() => {
+    calendarRef.current?.getApi().changeView(isMobile ? "listWeek" : "timeGridWeek");
+  }, [isMobile]);
+
   const events: EventInput[] = useMemo(() => {
     const rideEvents: EventInput[] = agenda
       .filter((r) => r.startAt)
@@ -55,8 +59,7 @@ export function AdminCalendar({
         end:
           r.endAt ||
           new Date(
-            new Date(r.startAt!).getTime() +
-              (r.estimatedDurationMinutes ?? 60) * 60000,
+            new Date(r.startAt!).getTime() + (r.estimatedDurationMinutes ?? 60) * 60000,
           ).toISOString(),
         classNames: [
           "streex-evt",

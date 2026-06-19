@@ -34,10 +34,7 @@ import logo from "@/assets/streex-logo.webp";
 import { useAdminTheme } from "./admin/useAdminTheme";
 import { AdminThemeControl } from "./admin/AdminThemeControl";
 import { AdminCalendar } from "./admin/AdminCalendar";
-import {
-  AdminCalendarEventSheet,
-  type CalendarSheetItem,
-} from "./admin/AdminCalendarEventSheet";
+import { AdminCalendarEventSheet, type CalendarSheetItem } from "./admin/AdminCalendarEventSheet";
 
 const SESSION_KEY = "streex_admin_key";
 
@@ -483,6 +480,21 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
     }
   };
 
+  const updateCalendarRideStatus = async (id: string, status: "completed" | "cancelled") => {
+    const previousAgenda = agenda;
+    setError(null);
+    setSheetItem(null);
+    setAgenda((items) => items.filter((item) => item.id !== id));
+
+    try {
+      await updateAdminBookingStatus({ data: { adminKey, id, status } });
+      await load();
+    } catch (e) {
+      setAgenda(previousAgenda);
+      setError(e instanceof Error ? e.message : "Failed to update booking.");
+    }
+  };
+
   const calendarAgenda = agenda
     .filter((a) => a.startAt)
     .map((a) => ({
@@ -820,8 +832,8 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
         item={sheetItem}
         open={sheetItem !== null}
         onClose={() => setSheetItem(null)}
-        onComplete={() => setSheetItem(null)}
-        onCancel={() => setSheetItem(null)}
+        onComplete={(id) => void updateCalendarRideStatus(id, "completed")}
+        onCancel={(id) => void updateCalendarRideStatus(id, "cancelled")}
         onDeleteBlock={(id) => {
           setSheetItem(null);
           void removeBlock(id);
