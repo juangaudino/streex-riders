@@ -32,12 +32,41 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_slots: {
+        Row: {
+          created_at: string
+          end_at: string
+          id: string
+          reason: string | null
+          start_at: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_at: string
+          id?: string
+          reason?: string | null
+          start_at: string
+          tenant_id?: string
+        }
+        Update: {
+          created_at?: string
+          end_at?: string
+          id?: string
+          reason?: string | null
+          start_at?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           created_at: string
           date: string
           destination: string
           email: string
+          end_at: string | null
+          estimated_duration_minutes: number
           id: string
           name: string
           notes: string | null
@@ -45,7 +74,10 @@ export type Database = {
           phone: string
           pickup: string
           price: number | null
+          service_type: string
+          start_at: string | null
           status: string
+          tenant_id: string
           time: string
         }
         Insert: {
@@ -53,6 +85,8 @@ export type Database = {
           date: string
           destination: string
           email: string
+          end_at?: string | null
+          estimated_duration_minutes?: number
           id?: string
           name: string
           notes?: string | null
@@ -60,7 +94,10 @@ export type Database = {
           phone: string
           pickup: string
           price?: number | null
+          service_type?: string
+          start_at?: string | null
           status?: string
+          tenant_id?: string
           time: string
         }
         Update: {
@@ -68,6 +105,8 @@ export type Database = {
           date?: string
           destination?: string
           email?: string
+          end_at?: string | null
+          estimated_duration_minutes?: number
           id?: string
           name?: string
           notes?: string | null
@@ -75,7 +114,10 @@ export type Database = {
           phone?: string
           pickup?: string
           price?: number | null
+          service_type?: string
+          start_at?: string | null
           status?: string
+          tenant_id?: string
           time?: string
         }
         Relationships: []
@@ -133,6 +175,42 @@ export type Database = {
           name?: string
           score?: number
           status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tenant_availability: {
+        Row: {
+          days_active: number[]
+          default_ride_duration_minutes: number
+          end_time: string
+          min_notice_hours: number
+          slot_duration_minutes: number
+          start_time: string
+          tenant_id: string
+          timezone: string
+          updated_at: string
+        }
+        Insert: {
+          days_active?: number[]
+          default_ride_duration_minutes?: number
+          end_time?: string
+          min_notice_hours?: number
+          slot_duration_minutes?: number
+          start_time?: string
+          tenant_id: string
+          timezone?: string
+          updated_at?: string
+        }
+        Update: {
+          days_active?: number[]
+          default_ride_duration_minutes?: number
+          end_time?: string
+          min_notice_hours?: number
+          slot_duration_minutes?: number
+          start_time?: string
+          tenant_id?: string
+          timezone?: string
           updated_at?: string
         }
         Relationships: []
