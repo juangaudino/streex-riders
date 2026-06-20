@@ -694,24 +694,47 @@ function drawRoad(
   for (let lane = 1; lane < 3; lane += 1) {
     const bottomX = (width / 3) * lane;
     const topX = vanishingX + (bottomX - vanishingX) * 0.26;
+    // Dashed lane separator following projected geometry. Width and alpha grow
+    // toward the camera so the lane reads as depth without changing geometry.
+    const segments = 14;
+    const flow = ((offset * 0.012) % 1 + 1) % 1;
     ctx.save();
-    ctx.strokeStyle = "rgba(235,239,236,0.16)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(topX, horizonY);
-    ctx.lineTo(bottomX, height);
-    ctx.stroke();
+    for (let i = -1; i < segments; i += 1) {
+      const t0 = (i + flow) / segments;
+      const t1 = t0 + 0.55 / segments;
+      if (t1 <= 0 || t0 >= 1) continue;
+      const a = Math.max(0, t0);
+      const b = Math.min(1, t1);
+      const x0 = topX + (bottomX - topX) * a;
+      const y0 = horizonY + (height - horizonY) * a;
+      const x1 = topX + (bottomX - topX) * b;
+      const y1 = horizonY + (height - horizonY) * b;
+      const depth = (a + b) * 0.5;
+      ctx.strokeStyle = `rgba(235,239,236,${0.06 + depth * 0.46})`;
+      ctx.lineWidth = 0.6 + depth * 2.2;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
-  ctx.strokeStyle = "rgba(230,206,32,0.18)";
-  ctx.lineWidth = 2;
+  // Yellow rim light along projected road borders — gradient strengthens toward camera.
+  const rim = ctx.createLinearGradient(0, horizonY, 0, height);
+  rim.addColorStop(0, "rgba(230,206,32,0.05)");
+  rim.addColorStop(0.55, "rgba(230,206,32,0.22)");
+  rim.addColorStop(1, "rgba(230,206,32,0.5)");
+  ctx.save();
+  ctx.strokeStyle = rim;
+  ctx.lineWidth = 2.2;
   ctx.beginPath();
   ctx.moveTo(topLeft, horizonY);
   ctx.lineTo(0, height);
   ctx.moveTo(topRight, horizonY);
   ctx.lineTo(width, height);
   ctx.stroke();
+  ctx.restore();
 }
 
 function drawAsphaltWear(
@@ -791,9 +814,10 @@ function drawAsphaltTexture(
 
   ctx.globalAlpha = 1;
   const wash = ctx.createLinearGradient(0, horizonY, 0, height);
-  wash.addColorStop(0, "rgba(255,255,255,0.14)");
-  wash.addColorStop(0.45, "rgba(52,55,53,0.18)");
-  wash.addColorStop(1, "rgba(22,24,23,0.2)");
+  // Veil the texture near the horizon, let it breathe near the camera.
+  wash.addColorStop(0, "rgba(20,22,18,0.42)");
+  wash.addColorStop(0.45, "rgba(34,36,33,0.1)");
+  wash.addColorStop(1, "rgba(255,255,255,0.07)");
   ctx.fillStyle = wash;
   ctx.fillRect(0, horizonY, width, height - horizonY);
   ctx.restore();
