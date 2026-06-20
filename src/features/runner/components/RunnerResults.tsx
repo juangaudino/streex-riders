@@ -44,6 +44,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
   const [shareLabel, setShareLabel] = useState("Share Ride");
   const [shareFallback, setShareFallback] = useState<string | null>(null);
   const [shareHint, setShareHint] = useState<string | null>(null);
+  const [showAllRiders, setShowAllRiders] = useState(false);
 
   const displayName = riderName.trim() || "Streex Rider";
   const canSaveScore = riderName.trim().length > 0;
@@ -90,6 +91,8 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
     () => savedScores.slice().sort(sortScores).slice(0, 10),
     [savedScores],
   );
+  const topRiders = visibleLeaderboard.slice(0, 3);
+  const restRiders = visibleLeaderboard.slice(3);
   const handleSaveScore = async () => {
     const name = riderName.trim().slice(0, 24);
     if (!name) {
@@ -199,30 +202,21 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
   return (
     <section className="runner-results">
       <div className="runner-results-shell">
-        <div className="runner-results-hero">
-          <span>Ride Complete</span>
-          <h1>{snapshot.crashKind ? "You made the road remember." : "Ride Elevated."}</h1>
-        </div>
-
         <div
           className="runner-score-card"
           style={{ backgroundImage: `url(${RUNNER_SPRITES.scoreCardFrame})` }}
         >
           <div className="runner-card-atmosphere" />
           <div className="runner-card-body">
-            <p>Your Score</p>
-            <strong>{snapshot.score}</strong>
-            <span>You ranked #{resultRank}</span>
-            <span>Among {riderCountLabel}</span>
+            <span className="runner-card-eyebrow">Ride Complete</span>
+            <h1 className="runner-card-headline">
+              {snapshot.crashKind ? "You made the road remember." : "Ride Elevated."}
+            </h1>
+            <p className="runner-card-label">Your Score</p>
+            <strong className="runner-card-score">{snapshot.score}</strong>
+            <span className="runner-card-rank">You ranked #{resultRank}</span>
+            <span className="runner-card-rank-sub">Among {riderCountLabel}</span>
           </div>
-        </div>
-
-        <div className="runner-score-summary">
-          <span>Your Score</span>
-          <strong>{snapshot.score}</strong>
-          <p>
-            Ranked #{resultRank} of {totalRiders}
-          </p>
         </div>
 
         <div className="runner-name-panel">
@@ -255,13 +249,32 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
         ) : visibleLeaderboard.length > 0 ? (
           <div className="runner-leaderboard">
             <h2>Top Riders</h2>
-            {visibleLeaderboard.map((entry, index) => (
+            {topRiders.map((entry, index) => (
               <div className="runner-leaderboard-row" key={entry.id}>
                 <span>{index + 1}</span>
                 <strong>{entry.name}</strong>
                 <em>{entry.score}</em>
               </div>
             ))}
+            {showAllRiders
+              ? restRiders.map((entry, index) => (
+                  <div className="runner-leaderboard-row" key={entry.id}>
+                    <span>{index + 4}</span>
+                    <strong>{entry.name}</strong>
+                    <em>{entry.score}</em>
+                  </div>
+                ))
+              : null}
+            {restRiders.length > 0 ? (
+              <button
+                type="button"
+                className="runner-view-all"
+                onClick={() => setShowAllRiders((value) => !value)}
+                aria-expanded={showAllRiders}
+              >
+                {showAllRiders ? "Hide" : `View all (${visibleLeaderboard.length})`}
+              </button>
+            ) : null}
           </div>
         ) : (
           <div className="runner-leaderboard">
@@ -271,16 +284,32 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
         )}
 
         <div className="runner-result-actions">
-          <button className="runner-primary-button" onClick={onReplay}>
+          <button
+            className="runner-primary-button runner-action-primary"
+            onClick={onReplay}
+          >
             Play Again
           </button>
-          <button className="runner-secondary-button" type="button" onClick={handleSaveCard}>
-            {saveLabel}
-          </button>
-          <button className="runner-secondary-button" type="button" onClick={handleShareRide}>
-            {shareLabel}
-          </button>
-          <button className="runner-ghost-button" onClick={onBack}>
+          <div className="runner-action-secondary-row">
+            <button
+              className="runner-secondary-button"
+              type="button"
+              onClick={handleSaveCard}
+            >
+              {saveLabel}
+            </button>
+            <button
+              className="runner-secondary-button"
+              type="button"
+              onClick={handleShareRide}
+            >
+              {shareLabel}
+            </button>
+          </div>
+          <button
+            className="runner-ghost-button runner-action-tertiary"
+            onClick={onBack}
+          >
             Discover Streex
           </button>
         </div>
