@@ -1,5 +1,5 @@
 import { Check, AlertCircle } from "lucide-react";
-import logo from "@/assets/brand/streex-rides-primary-black.webp";
+import logo from "@/assets/brand/streex-rides-transparent.webp";
 
 export type ResponseVariant = "accepted" | "declined" | "already" | "not_found" | "error";
 

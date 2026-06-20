@@ -15,8 +15,8 @@ import playerRav4RearDamaged from "./sprites/player_rav4_rear_damaged.webp";
 import reputationStar from "./sprites/reputation_star.webp";
 import roadEdgeAlt from "./sprites/road_edge_alt.webp";
 import roadTexture from "./sprites/road_texture.webp";
-import runnerLogoOfficial from "./sprites/runner_logo_official.webp";
-import scoreCardFrame from "./sprites/score_card_frame.webp";
+import horizonLogo from "./horizon_logo.webp";
+import scoreCardFrame from "./sprites/horizon_score_card.webp";
 import shadowSoft from "./sprites/shadow_soft.webp";
 import skidMarksAlt from "./sprites/skid_marks_alt.webp";
 import trafficPickup from "./sprites/traffic_pickup.webp";
@@ -69,7 +69,7 @@ export const RUNNER_SPRITES = {
   reputationStar,
   roadEdgeAlt,
   roadTexture,
-  runnerLogoOfficial,
+  horizonLogo,
   roadShoulderLeft,
   roadShoulderRight,
   roadsideRockCluster,

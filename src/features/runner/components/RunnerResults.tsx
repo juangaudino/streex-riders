@@ -18,7 +18,7 @@ type RunnerResultStats = {
 };
 
 const SHARE_MESSAGE = `Think you can beat my ride? 😏🚙
-I just had fun with STREEX Runner.
+I just had fun with Streex Horizon.
 Take the challenge and discover Streex.`;
 
 type RunnerResultsProps = {
@@ -116,7 +116,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
 
   const handleSaveCard = async () => {
     const canvas = await createRunnerScoreCard(snapshot, resultRank, totalRiders);
-    const filename = `streex-runner-${snapshot.score}.png`;
+    const filename = `streex-horizon-${snapshot.score}.png`;
 
     try {
       const blob = await canvasToBlob(canvas);
@@ -150,7 +150,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
     const shareUrl = CONFIG.seoUrl || CONFIG.website;
     const text = `${SHARE_MESSAGE}\n\n${displayName} scored ${snapshot.score}. Ranked #${resultRank} of ${totalRiders}.`;
     const fallbackText = `${text}\n${shareUrl}`;
-    const filename = `streex-runner-${snapshot.score}.png`;
+    const filename = `streex-horizon-${snapshot.score}.png`;
 
     try {
       setShareLabel("Sharing...");
@@ -161,14 +161,14 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
       if (navigator.share) {
         if (navigator.canShare?.({ files: [file] })) {
           await navigator.share({
-            title: "STREEX Runner",
+            title: "Streex Horizon",
             text,
             url: shareUrl,
             files: [file],
           });
         } else {
           await navigator.share({
-            title: "STREEX Runner",
+            title: "Streex Horizon",
             text,
             url: shareUrl,
           });

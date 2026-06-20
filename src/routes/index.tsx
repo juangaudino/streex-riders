@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import logo from "@/assets/brand/streex-rides-primary-black.webp";
+import logo from "@/assets/brand/streex-rides-transparent.webp";
 import { CONFIG, type AppConfig } from "@/config";
 import { Splash } from "@/components/streex/Splash";
 import { Header } from "@/components/streex/Header";

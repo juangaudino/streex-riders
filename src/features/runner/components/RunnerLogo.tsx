@@ -10,12 +10,12 @@ export function RunnerLogo({ className = "", compact = false }: RunnerLogoProps)
     <div
       className={`runner-official-logo ${compact ? "runner-official-logo-compact" : ""} ${className}`}
     >
-      <img className="runner-official-logo-image" src={RUNNER_SPRITES.runnerLogoOfficial} alt="" />
-      <span className="sr-only">STREEX Runner</span>
+      <img className="runner-official-logo-image" src={RUNNER_SPRITES.horizonLogo} alt="" />
+      <span className="sr-only">Streex Horizon</span>
       <style>{`
         .runner-official-logo {
-          width: min(78vw, 320px);
-          aspect-ratio: 3.6 / 1;
+          width: min(82vw, 360px);
+          aspect-ratio: 888 / 419;
           position: relative;
           overflow: hidden;
           border-radius: 16px;
@@ -32,8 +32,9 @@ export function RunnerLogo({ className = "", compact = false }: RunnerLogoProps)
           position: absolute;
           left: 50%;
           top: 50%;
-          width: 148%;
-          height: auto;
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
           transform: translate(-50%, -50%);
           display: block;
           pointer-events: none;

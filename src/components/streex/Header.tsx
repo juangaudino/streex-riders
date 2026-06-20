@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "@/assets/brand/streex-rides-primary-black.webp";
+import logo from "@/assets/brand/streex-rides-transparent.webp";
 
 export function Header() {
   const [show, setShow] = useState(false);

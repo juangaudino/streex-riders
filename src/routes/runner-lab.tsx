@@ -4,10 +4,10 @@ import { RunnerApp } from "@/features/runner/RunnerApp";
 export const Route = createFileRoute("/runner-lab")({
   head: () => ({
     meta: [
-      { title: "STREEX Runner Lab" },
+      { title: "Streex Horizon" },
       {
         name: "description",
-        content: "Hidden development route for STREEX Runner.",
+        content: "Play Streex Horizon, the Streex Rides road challenge.",
       },
       { name: "robots", content: "noindex,nofollow" },
     ],

@@ -121,5 +121,5 @@ function isRunnerScoresMissing(error: unknown) {
 }
 
 function getRunnerScoresNotReadyMessage() {
-  return "Runner records are not ready yet. Apply the runner_scores migration in Lovable Cloud.";
+  return "Horizon records are not ready yet. Apply the runner_scores migration in Lovable Cloud.";
 }

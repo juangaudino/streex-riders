@@ -30,7 +30,7 @@ import {
 } from "@/lib/admin.functions";
 import { getTickerTheme } from "@/lib/ticker-theme.functions";
 import { CONFIG } from "@/config";
-import logo from "@/assets/brand/streex-rides-primary-black.webp";
+import logo from "@/assets/brand/streex-rides-transparent.webp";
 import { useAdminTheme } from "./admin/useAdminTheme";
 import { AdminThemeControl } from "./admin/AdminThemeControl";
 import { AdminCalendar } from "./admin/AdminCalendar";
@@ -164,7 +164,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
   const tabs: { key: AdminTab; label: string; icon: React.ReactNode }[] = [
     { key: "bookings", label: "Bookings", icon: <CalendarCheck className="h-4 w-4" /> },
     { key: "reviews", label: "Reviews", icon: <MessageSquareQuote className="h-4 w-4" /> },
-    { key: "runner", label: "Runner", icon: <Gamepad2 className="h-4 w-4" /> },
+    { key: "runner", label: "Horizon", icon: <Gamepad2 className="h-4 w-4" /> },
     { key: "themes", label: "Themes", icon: <Palette className="h-4 w-4" /> },
     { key: "config", label: "Config", icon: <Settings2 className="h-4 w-4" /> },
     { key: "availability", label: "Availability", icon: <CalendarClock className="h-4 w-4" /> },
@@ -1567,7 +1567,7 @@ function AdminRunnerScores({ adminKey }: { adminKey: string }) {
       const result = await listAdminRunnerScores({ data: { adminKey } });
       setScores((result.scores ?? []) as RunnerScoreRow[]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load runner scores.");
+      setError(e instanceof Error ? e.message : "Failed to load Horizon scores.");
     } finally {
       setLoading(false);
     }
@@ -1584,7 +1584,7 @@ function AdminRunnerScores({ adminKey }: { adminKey: string }) {
       await updateAdminRunnerScoreStatus({ data: { adminKey, id, status } });
     } catch (e) {
       setScores(prev);
-      setError(e instanceof Error ? e.message : "Failed to update runner score.");
+      setError(e instanceof Error ? e.message : "Failed to update Horizon score.");
     }
   };
 
@@ -1595,19 +1595,19 @@ function AdminRunnerScores({ adminKey }: { adminKey: string }) {
       await updateAdminRunnerScore({ data: { adminKey, id, name, score } });
     } catch (e) {
       setScores(prev);
-      setError(e instanceof Error ? e.message : "Failed to edit runner score.");
+      setError(e instanceof Error ? e.message : "Failed to edit Horizon score.");
     }
   };
 
   const remove = async (id: string) => {
-    if (!confirm("Delete this Runner score permanently?")) return;
+    if (!confirm("Delete this Horizon score permanently?")) return;
     const prev = scores;
     setScores((items) => items.filter((item) => item.id !== id));
     try {
       await deleteAdminRunnerScore({ data: { adminKey, id } });
     } catch (e) {
       setScores(prev);
-      setError(e instanceof Error ? e.message : "Failed to delete runner score.");
+      setError(e instanceof Error ? e.message : "Failed to delete Horizon score.");
     }
   };
 
@@ -1620,9 +1620,9 @@ function AdminRunnerScores({ adminKey }: { adminKey: string }) {
   return (
     <section>
       <div className="mb-5 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-        <h2 className="text-lg font-semibold">Runner Records</h2>
+        <h2 className="text-lg font-semibold">Horizon Records</h2>
         <p className="mt-1 text-sm text-white/55">
-          Approve scores before they appear publicly in the Runner leaderboard.
+          Approve scores before they appear publicly in the Horizon leaderboard.
         </p>
       </div>
 

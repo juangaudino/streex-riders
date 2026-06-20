@@ -316,10 +316,10 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           onPointerDown={(event) => event.stopPropagation()}
           role="dialog"
           aria-modal="true"
-          aria-label="Runner pause menu"
+          aria-label="Horizon pause menu"
         >
           <div className="runner-pause-panel">
-            <span>STREEX RUNNER</span>
+            <span>STREEX HORIZON</span>
             <strong>Paused</strong>
             <button type="button" onClick={resumeGame}>
               Resume

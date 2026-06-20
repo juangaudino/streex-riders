@@ -4,7 +4,7 @@ import { SaveContactModal } from "./SaveContactModal";
 import { BookingFormModal } from "./BookingFormModal";
 import { Reveal } from "./Reveal";
 import type { AppConfig } from "@/config";
-import runnerQuickActionCard from "@/features/runner/assets/quick-action/runner_quick_action_card.webp";
+import horizonQuickActionCard from "@/features/runner/assets/quick-action/horizon_quick_action_card.webp";
 
 function ActionCard({
   icon,
@@ -57,11 +57,11 @@ function RunnerFeaturedCard({ revealDelay = 0 }: { revealDelay?: number }) {
       <a
         href="/runner-lab"
         className="streex-glass block overflow-hidden p-0 group"
-        aria-label="Play STREEX Runner"
+        aria-label="Play Streex Horizon"
       >
         <img
-          src={runnerQuickActionCard}
-          alt="STREEX Runner. Play the challenge."
+          src={horizonQuickActionCard}
+          alt="Streex Horizon. Play the challenge."
           className="block aspect-[1200/509] w-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
           loading="lazy"
           decoding="async"

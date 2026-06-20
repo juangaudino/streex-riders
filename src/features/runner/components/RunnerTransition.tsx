@@ -2,7 +2,7 @@ import { RunnerLogo } from "./RunnerLogo";
 
 export function RunnerTransition() {
   return (
-    <div className="runner-transition" aria-label="Entering STREEX Runner">
+    <div className="runner-transition" aria-label="Entering Streex Horizon">
       <div className="runner-transition-glow" aria-hidden="true" />
       <div className="runner-transition-pixels" aria-hidden="true" />
 
