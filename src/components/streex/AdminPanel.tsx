@@ -30,7 +30,7 @@ import {
 } from "@/lib/admin.functions";
 import { getTickerTheme } from "@/lib/ticker-theme.functions";
 import { CONFIG } from "@/config";
-import logo from "@/assets/streex-logo.webp";
+import logo from "@/assets/brand/streex-rides-primary-black.webp";
 import { useAdminTheme } from "./admin/useAdminTheme";
 import { AdminThemeControl } from "./admin/AdminThemeControl";
 import { AdminCalendar } from "./admin/AdminCalendar";

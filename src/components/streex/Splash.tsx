@@ -1,4 +1,4 @@
-import logo from "@/assets/streex-logo.webp";
+import logo from "@/assets/brand/streex-rides-primary-black.webp";
 
 export function Splash() {
   return (

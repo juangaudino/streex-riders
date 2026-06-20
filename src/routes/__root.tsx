@@ -96,7 +96,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Streex Rides" },
       {
         property: "og:image",
-        content: "https://rides.getstreex.com/images/streex/streex-og-preview.jpg",
+        content: "https://rides.getstreex.com/images/streex/streex-og-preview-v2.jpg",
       },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Streex Rides — Private rides. Elevated." },
@@ -107,7 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         name: "twitter:image",
-        content: "https://rides.getstreex.com/images/streex/streex-og-preview.jpg",
+        content: "https://rides.getstreex.com/images/streex/streex-og-preview-v2.jpg",
       },
     ],
     links: [
@@ -129,34 +129,34 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "icon",
         type: "image/png",
         sizes: "16x16",
-        href: "/icons/streex-app-icon-16.png",
+        href: "/icons/streex-mark-black-16.png",
       },
       {
         rel: "icon",
         type: "image/png",
         sizes: "32x32",
-        href: "/icons/streex-app-icon-32.png",
+        href: "/icons/streex-mark-black-32.png",
       },
       {
         rel: "icon",
         type: "image/png",
         sizes: "48x48",
-        href: "/icons/streex-app-icon-48.png",
+        href: "/icons/streex-mark-black-48.png",
       },
       {
         rel: "apple-touch-icon",
         sizes: "180x180",
-        href: "/icons/streex-app-icon-180.png",
+        href: "/icons/streex-mark-black-180.png",
       },
       {
         rel: "apple-touch-icon",
         sizes: "167x167",
-        href: "/icons/streex-app-icon-167.png",
+        href: "/icons/streex-mark-black-167.png",
       },
       {
         rel: "apple-touch-icon",
         sizes: "152x152",
-        href: "/icons/streex-app-icon-152.png",
+        href: "/icons/streex-mark-black-152.png",
       },
       {
         rel: "manifest",

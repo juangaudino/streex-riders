@@ -6,7 +6,7 @@ export const CONFIG = {
   tagline: "Private rides. Elevated.",
   subheadline:
     "Premium private rides across Salt Lake City & Park City. Reliable, comfortable and personalized transportation — designed to elevate your journey.",
-  logoSrc: "/streex-logo.png",
+  logoSrc: "/images/streex/streex-rides-primary-black.png",
 
   // ─── CONTACT ─────────────────────────────────
   phone: "+18017974971",
@@ -168,7 +168,7 @@ export const CONFIG = {
   seoDescription:
     "Premium private transportation across Salt Lake City & Park City. Airport rides, ski trips, scheduled rides and more.",
   seoUrl: "https://rides.getstreex.com",
-  ogImage: "https://rides.getstreex.com/images/streex/streex-og-preview.jpg",
+  ogImage: "https://rides.getstreex.com/images/streex/streex-og-preview-v2.jpg",
 };
 
 export type AppConfig = typeof CONFIG;

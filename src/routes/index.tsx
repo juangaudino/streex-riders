@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import logo from "@/assets/streex-logo.webp";
+import logo from "@/assets/brand/streex-rides-primary-black.webp";
 import { CONFIG, type AppConfig } from "@/config";
 import { Splash } from "@/components/streex/Splash";
 import { Header } from "@/components/streex/Header";
@@ -41,6 +41,8 @@ export const Route = createFileRoute("/")({
           name: CONFIG.brandName,
           description: CONFIG.seoDescription,
           url: CONFIG.seoUrl,
+          logo: `${CONFIG.website}${CONFIG.logoSrc}`,
+          image: CONFIG.ogImage,
           telephone: CONFIG.phone,
           email: CONFIG.email,
           address: {
