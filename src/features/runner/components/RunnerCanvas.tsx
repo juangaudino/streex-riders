@@ -313,11 +313,15 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           pauseGame();
         }}
       >
-        Pause
+        <span className="runner-pause-icon" aria-hidden="true">
+          <i />
+          <i />
+        </span>
       </button>
       <div className="runner-hud" aria-live="polite">
         <span>Score</span>
         <strong>{scoreLabel}</strong>
+        <span className="runner-hud-divider" aria-hidden="true" />
       </div>
       {menuOpen ? (
         <div
@@ -328,6 +332,8 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           aria-label="Horizon pause menu"
         >
           <div className="runner-pause-panel">
+            <span className="runner-pause-checker runner-pause-checker-tl" aria-hidden="true" />
+            <span className="runner-pause-checker runner-pause-checker-br" aria-hidden="true" />
             <span>STREEX HORIZON</span>
             <strong>Paused</strong>
             <button type="button" onClick={resumeGame}>
@@ -367,19 +373,37 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           position: absolute;
           top: max(18px, env(safe-area-inset-top));
           left: 16px;
-          min-width: 58px;
-          min-height: 32px;
-          border: 1px solid rgba(255,255,255,0.12);
-          border-radius: 8px;
-          background: rgba(11,11,11,0.36);
-          color: rgba(255,255,255,0.56);
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          border: 1px solid rgba(230,206,32,0.42);
+          background: rgba(11,11,11,0.74);
+          color: #e6ce20;
           backdrop-filter: blur(12px);
-          font-family: Montserrat, ui-sans-serif, system-ui, sans-serif;
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
+          display: grid;
+          place-items: center;
+          padding: 0;
           cursor: pointer;
+          box-shadow: 0 0 0 1px rgba(230,206,32,0.08), 0 6px 18px rgba(0,0,0,0.4);
+          transition: transform 0.15s ease, background 0.2s ease;
+        }
+
+        .runner-pause-button:active {
+          transform: scale(0.94);
+        }
+
+        .runner-pause-icon {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .runner-pause-icon i {
+          display: block;
+          width: 4px;
+          height: 14px;
+          background: #e6ce20;
+          border-radius: 1px;
         }
 
         .runner-pause-scrim {
@@ -394,6 +418,7 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
         }
 
         .runner-pause-panel {
+          position: relative;
           width: min(100%, 280px);
           display: grid;
           gap: 10px;
@@ -404,6 +429,21 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           padding: 18px;
           text-align: center;
         }
+
+        .runner-pause-checker {
+          position: absolute;
+          width: 28px;
+          height: 10px;
+          background-image:
+            linear-gradient(45deg, #e6ce20 25%, transparent 25%, transparent 75%, #e6ce20 75%),
+            linear-gradient(45deg, #e6ce20 25%, transparent 25%, transparent 75%, #e6ce20 75%);
+          background-size: 6px 6px;
+          background-position: 0 0, 3px 3px;
+          opacity: 0.72;
+          pointer-events: none;
+        }
+        .runner-pause-checker-tl { top: -5px; left: 10px; }
+        .runner-pause-checker-br { bottom: -5px; right: 10px; }
 
         .runner-pause-panel span {
           color: rgba(230,206,32,0.72);
@@ -443,6 +483,7 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           right: 18px;
           display: grid;
           justify-items: end;
+          gap: 2px;
           pointer-events: none;
         }
 
@@ -459,6 +500,15 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           font-size: 28px;
           font-weight: 900;
           line-height: 1;
+        }
+
+        .runner-hud-divider {
+          margin-top: 4px;
+          width: 36px;
+          height: 2px;
+          background: #e6ce20;
+          border-radius: 1px;
+          box-shadow: 0 0 8px rgba(230,206,32,0.55);
         }
 
         .runner-toast {
