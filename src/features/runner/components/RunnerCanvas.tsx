@@ -517,11 +517,13 @@ function drawRunnerFrame(
   drawAmbientWorld(ctx, width, height, time, sprites);
   drawRoad(ctx, width, height, state.roadOffset, sprites);
   drawHorizonIntegration(ctx, width, height, state.roadOffset, time, sprites);
+  drawDustParticles(ctx, width, height, state.roadOffset, time);
   state.entities
     .slice()
     .sort((a, b) => a.y - b.y)
     .forEach((entity) => drawEntity(ctx, width, height, entity, sprites));
   state.rewardFx.forEach((fx) => drawRewardFx(ctx, width, height, fx, time));
+  const auraIntensity = computePlayerAura(state.rewardFx, time);
   drawPlayer(
     ctx,
     width,
@@ -532,6 +534,7 @@ function drawRunnerFrame(
     time < state.iceDriftUntil,
     Boolean(state.crashUntil),
     sprites,
+    auraIntensity,
   );
 
   if (state.crashUntil) {
@@ -889,12 +892,25 @@ function drawPlayer(
   isRecovering: boolean,
   isCrashed: boolean,
   sprites: RunnerLoadedSprites,
+  auraIntensity = 0,
 ) {
   const x = (playerX / 100) * width;
   const y = (playerY / 100) * height;
   const carWidth = Math.min(width * 0.145, 62);
   const carHeight = carWidth * 0.58;
   const skid = isRecovering ? Math.sin(time * 0.04) * 4 : 0;
+
+  if (auraIntensity > 0 && !isCrashed) {
+    ctx.save();
+    const auraRadius = Math.max(width * 0.18, 70);
+    const aura = ctx.createRadialGradient(x + skid, y, 0, x + skid, y, auraRadius);
+    aura.addColorStop(0, `rgba(255,235,110,${0.32 * auraIntensity})`);
+    aura.addColorStop(0.45, `rgba(230,206,32,${0.18 * auraIntensity})`);
+    aura.addColorStop(1, "rgba(230,206,32,0)");
+    ctx.fillStyle = aura;
+    ctx.fillRect(x + skid - auraRadius, y - auraRadius, auraRadius * 2, auraRadius * 2);
+    ctx.restore();
+  }
 
   ctx.save();
   ctx.translate(x + skid, y);
@@ -1599,6 +1615,56 @@ function lerp(start: number, end: number, progress: number) {
 function pseudoRandom(seed: number, salt: number) {
   const value = Math.sin(seed * 12.9898 + salt * 78.233) * 43758.5453;
   return value - Math.floor(value);
+}
+
+function drawDustParticles(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  offset: number,
+  time: number,
+) {
+  const horizonY = height * RUNNER_HORIZON;
+  const bandHeight = height - horizonY;
+  if (bandHeight <= 0) return;
+  ctx.save();
+  ctx.fillStyle = "rgba(234,210,140,0.42)";
+  for (let i = 0; i < DUST_PARTICLES.length; i += 1) {
+    const p = DUST_PARTICLES[i];
+    // Deterministic vertical scroll driven by time + roadOffset (no Math.random).
+    const travel = (time * 0.00018 * p.speed + offset * 0.0035 + p.phase) % 1;
+    const t = (travel + 1) % 1;
+    const y = horizonY + t * bandHeight;
+    const depth = t; // 0 near horizon, 1 near camera
+    const driftWidth = 0.04 + depth * 0.6;
+    const x = (p.xPct - 0.5) * width * driftWidth + width * 0.5
+      + Math.sin((time * 0.0005 + p.phase) * Math.PI * 2) * (4 + depth * 10);
+    const radius = p.size * (0.4 + depth * 1.4);
+    ctx.globalAlpha = 0.08 + depth * 0.32;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function computePlayerAura(
+  rewardFx: RunnerRewardFx[],
+  time: number,
+) {
+  if (rewardFx.length === 0) return 0;
+  let total = 0;
+  for (let i = 0; i < rewardFx.length; i += 1) {
+    const fx = rewardFx[i];
+    const lifetime = fx.until - fx.startedAt;
+    if (lifetime <= 0) continue;
+    const t = (time - fx.startedAt) / lifetime;
+    if (t < 0 || t > 1) continue;
+    const fade = 1 - t;
+    const weight = fx.kind === "vipRide" ? 1.4 : fx.kind === "airportRide" ? 1.1 : 0.85;
+    total += fade * weight;
+  }
+  return Math.min(1, total);
 }
 
 function getRewardFxDuration(kind: RunnerEntity["kind"]) {
