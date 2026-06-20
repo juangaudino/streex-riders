@@ -7,6 +7,15 @@ import { detectRunnerCollision, laneCenter } from "../engine/collision";
 import { getDifficulty } from "../engine/difficulty";
 import { createSpawnMemory, createSpawnWave } from "../engine/spawnEngine";
 
+// Deterministic dust particles — module-level so no allocations per frame.
+const DUST_PARTICLES = Array.from({ length: 22 }, (_, i) => ({
+  xPct: ((i * 137 + 23) % 1000) / 1000,
+  yBand: ((i * 53 + 11) % 100) / 100,
+  speed: 0.55 + (((i * 17) % 50) / 100),
+  size: 0.7 + (((i * 7) % 18) / 18) * 1.4,
+  phase: ((i * 211) % 1000) / 1000,
+}));
+
 type RunnerLoadedSprites = Partial<Record<RunnerSpriteKey, HTMLImageElement>>;
 
 type RunnerState = {
