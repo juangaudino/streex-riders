@@ -136,9 +136,9 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           position: absolute;
           inset: 0;
           background:
-            radial-gradient(ellipse at 50% 62%, rgba(230,206,32,0.18), transparent 48%),
-            radial-gradient(ellipse at 50% 95%, rgba(230,206,32,0.14), transparent 38%),
-            linear-gradient(180deg, #02030a 0%, #07080d 45%, #0d0d09 78%, #181508 100%);
+            radial-gradient(ellipse at 50% 60%, rgba(230,206,32,0.22), transparent 46%),
+            radial-gradient(ellipse at 50% 95%, rgba(230,206,32,0.16), transparent 38%),
+            linear-gradient(180deg, #0a0d09 0%, #151711 42%, #1B2018 74%, #25281E 100%);
         }
 
         .runner-stars {

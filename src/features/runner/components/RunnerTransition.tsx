@@ -6,9 +6,11 @@ export function RunnerTransition() {
       <div className="runner-transition-glow" aria-hidden="true" />
       <div className="runner-transition-pixels" aria-hidden="true" />
 
-      <div className="runner-transition-card">
-        <RunnerLogo compact />
-        <span>Preparing Your Ride</span>
+      <div className="runner-transition-stage">
+        <div className="runner-transition-card">
+          <RunnerLogo compact />
+          <span>Preparing Your Ride</span>
+        </div>
       </div>
 
       <style>{`
@@ -20,21 +22,21 @@ export function RunnerTransition() {
           overflow: hidden;
           color: white;
           background:
-            radial-gradient(circle at 50% 52%, rgba(230,206,32,0.16), transparent 34%),
-            linear-gradient(180deg, #080908 0%, #050505 100%);
+            radial-gradient(ellipse at 50% 58%, rgba(230,206,32,0.22), transparent 42%),
+            linear-gradient(180deg, #25281E 0%, #1B2018 55%, #151711 100%);
           animation: runnerTransitionFade 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
         .runner-transition-glow {
           position: absolute;
           left: 50%;
-          top: 50%;
+          top: 56%;
           width: min(78vw, 340px);
-          height: min(78vw, 340px);
+          height: min(60vw, 260px);
           transform: translate(-50%, -50%);
           border-radius: 999px;
           background:
-            radial-gradient(circle, rgba(230,206,32,0.28), rgba(230,206,32,0.08) 38%, transparent 70%);
+            radial-gradient(ellipse, rgba(230,206,32,0.32), rgba(230,206,32,0.1) 42%, transparent 72%);
           filter: blur(14px);
           opacity: 0.86;
           animation: runnerTransitionGlow 520ms ease both;
@@ -47,13 +49,20 @@ export function RunnerTransition() {
           background:
             repeating-linear-gradient(90deg, rgba(255,255,255,0.18) 0 1px, transparent 1px 12px),
             repeating-linear-gradient(0deg, rgba(255,255,255,0.14) 0 1px, transparent 1px 12px);
-          mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 68%);
+          mask-image: radial-gradient(circle at 50% 58%, #000 0%, transparent 64%);
           pointer-events: none;
+        }
+
+        .runner-transition-stage {
+          position: relative;
+          z-index: 1;
+          transform-origin: 50% 58%;
+          animation: runnerTransitionZoom 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+          will-change: transform, opacity;
         }
 
         .runner-transition-card {
           position: relative;
-          z-index: 1;
           display: grid;
           justify-items: center;
           gap: 18px;
@@ -91,6 +100,25 @@ export function RunnerTransition() {
         @keyframes runnerTransitionGlow {
           0% { transform: translate(-50%, -50%) scale(0.82); opacity: 0; }
           100% { transform: translate(-50%, -50%) scale(1); opacity: 0.86; }
+        }
+
+        @keyframes runnerTransitionZoom {
+          0% { transform: scale(1); opacity: 0; }
+          22% { opacity: 1; }
+          100% { transform: scale(1.85); opacity: 0.92; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .runner-transition-stage {
+            animation: runnerTransitionLift 520ms ease both;
+            transform: none;
+          }
+          .runner-transition-glow {
+            animation: none;
+          }
+          .runner-transition {
+            animation: runnerTransitionFade 520ms ease both;
+          }
         }
       `}</style>
     </div>
