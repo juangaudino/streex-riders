@@ -750,7 +750,11 @@ function drawRoad(
     // Dashed lane separator following projected geometry. Width and alpha grow
     // toward the camera so the lane reads as depth without changing geometry.
     const segments = 14;
-    const flow = ((offset * 0.012) % 1 + 1) % 1;
+    // Visual-only multiplier so dashes scroll in sync with the asphalt texture
+    // near the camera. Sourced from roadOffset — never used for gameplay,
+    // entities, scoring, or collisions. Tune between 1.5 and 2.0 if needed.
+    const ROAD_DASH_VISUAL_SPEED = 1.75;
+    const flow = ((offset * 0.012 * ROAD_DASH_VISUAL_SPEED) % 1 + 1) % 1;
     ctx.save();
     for (let i = -1; i < segments; i += 1) {
       const t0 = (i + flow) / segments;
