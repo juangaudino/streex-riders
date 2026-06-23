@@ -14,7 +14,7 @@ export const RUNNER_COLORS = {
 };
 
 export const RUNNER_LANES = 3;
-export const RUNNER_HORIZON = 0.32;
+export const RUNNER_HORIZON = 0.28;
 
 export const RUNNER_ASSET_SLOTS = {
   playerVehicle: {
