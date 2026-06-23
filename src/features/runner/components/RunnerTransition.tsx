@@ -9,6 +9,9 @@ export function RunnerTransition() {
       <div className="runner-transition-card">
         <RunnerLogo compact />
         <span>Preparing Your Ride</span>
+        <div className="runner-transition-line" aria-hidden="true">
+          <span />
+        </div>
       </div>
 
       <style>{`
@@ -68,6 +71,49 @@ export function RunnerTransition() {
           font-weight: 850;
           letter-spacing: 0.3em;
           text-transform: uppercase;
+        }
+
+        .runner-transition-line {
+          position: relative;
+          width: min(58vw, 220px);
+          height: 2px;
+          margin-top: 4px;
+          border-radius: 999px;
+          overflow: hidden;
+          background: linear-gradient(
+            90deg,
+            rgba(255,255,255,0.04) 0%,
+            rgba(230,206,32,0.14) 50%,
+            rgba(255,255,255,0.04) 100%
+          );
+        }
+
+        .runner-transition-line span {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: -40%;
+          width: 40%;
+          background: linear-gradient(
+            90deg,
+            rgba(230,206,32,0) 0%,
+            rgba(230,206,32,0.85) 50%,
+            rgba(230,206,32,0) 100%
+          );
+          animation: runnerTransitionShimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes runnerTransitionShimmer {
+          0% { left: -40%; }
+          100% { left: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .runner-transition-line span {
+            animation: none;
+            left: 30%;
+            opacity: 0.6;
+          }
         }
 
         @supports (height: 100dvh) {
