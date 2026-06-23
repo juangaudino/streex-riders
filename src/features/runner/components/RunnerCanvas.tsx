@@ -777,18 +777,24 @@ function drawRoad(
     ctx.restore();
   }
 
-  // Yellow rim light along projected road borders — gradient strengthens toward camera.
+  // Yellow rim light along projected road borders — fully fades into the
+  // horizon haze so the road edges no longer hit the mountains as hard lines.
   const rim = ctx.createLinearGradient(0, horizonY, 0, height);
-  rim.addColorStop(0, "rgba(230,206,32,0.05)");
+  rim.addColorStop(0, "rgba(230,206,32,0)");
+  rim.addColorStop(0.18, "rgba(230,206,32,0.04)");
   rim.addColorStop(0.55, "rgba(230,206,32,0.22)");
   rim.addColorStop(1, "rgba(230,206,32,0.5)");
   ctx.save();
   ctx.strokeStyle = rim;
   ctx.lineWidth = 2.2;
+  // Start a few pixels below horizonY so the apex never reads as a hard pin.
+  const rimStartY = horizonY + 6;
+  const rimStartLeft = topLeft + (0 - topLeft) * (6 / (height - horizonY));
+  const rimStartRight = topRight + (width - topRight) * (6 / (height - horizonY));
   ctx.beginPath();
-  ctx.moveTo(topLeft, horizonY);
+  ctx.moveTo(rimStartLeft, rimStartY);
   ctx.lineTo(0, height);
-  ctx.moveTo(topRight, horizonY);
+  ctx.moveTo(rimStartRight, rimStartY);
   ctx.lineTo(width, height);
   ctx.stroke();
   ctx.restore();
