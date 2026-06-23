@@ -926,6 +926,32 @@ function drawHorizonIntegration(
   ctx.fillStyle = dust;
   ctx.fillRect(0, horizonY - 30, width, 106);
 
+  // Cinematic atmospheric veil over the road's birth point — softens the
+  // hard trapezoid edge where asphalt meets the valley fog.
+  const valleyFog = ctx.createLinearGradient(0, horizonY - 6, 0, horizonY + height * 0.14);
+  valleyFog.addColorStop(0, "rgba(28,32,24,0.55)");
+  valleyFog.addColorStop(0.45, "rgba(34,40,30,0.22)");
+  valleyFog.addColorStop(1, "rgba(34,40,30,0)");
+  ctx.fillStyle = valleyFog;
+  ctx.fillRect(0, horizonY - 6, width, height * 0.16);
+
+  // Soft radial bloom centered on the vanishing point — bleeds the road
+  // tip into the sky instead of stamping a sharp corner.
+  const vanishingX = width * 0.5;
+  const vanishGlow = ctx.createRadialGradient(
+    vanishingX,
+    horizonY + 2,
+    0,
+    vanishingX,
+    horizonY + 2,
+    Math.max(width * 0.42, 160),
+  );
+  vanishGlow.addColorStop(0, "rgba(214,196,150,0.22)");
+  vanishGlow.addColorStop(0.5, "rgba(120,118,90,0.08)");
+  vanishGlow.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = vanishGlow;
+  ctx.fillRect(0, horizonY - 40, width, height * 0.22);
+
   ctx.save();
   ctx.globalAlpha = 0.12;
   ctx.strokeStyle = "rgba(255,239,180,0.62)";
