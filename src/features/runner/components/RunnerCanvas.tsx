@@ -349,8 +349,14 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
         </div>
       ) : null}
       {toastLabel ? <div className="runner-toast">{toastLabel}</div> : null}
-      <div className="runner-tap-left">LEFT</div>
-      <div className="runner-tap-right">RIGHT</div>
+      <div className="runner-tap runner-tap-left" aria-hidden="true">
+        <span className="runner-tap-chevron">‹</span>
+        <span className="runner-tap-label">Left</span>
+      </div>
+      <div className="runner-tap runner-tap-right" aria-hidden="true">
+        <span className="runner-tap-label">Right</span>
+        <span className="runner-tap-chevron">›</span>
+      </div>
       <style>{`
         .runner-game-shell {
           position: relative;
@@ -531,19 +537,43 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           animation: runnerToastRise 760ms ease both;
         }
 
-        .runner-tap-left,
-        .runner-tap-right {
+        .runner-tap {
           position: absolute;
           bottom: max(26px, env(safe-area-inset-bottom));
-          color: rgba(255,255,255,0.18);
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: 0.16em;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 10px;
+          border-radius: 999px;
+          border: 1px solid rgba(230,206,32,0.32);
+          background: rgba(11,11,11,0.6);
+          color: rgba(230,206,32,0.85);
+          backdrop-filter: blur(8px);
+          box-shadow:
+            0 0 0 1px rgba(230,206,32,0.05),
+            0 0 12px rgba(230,206,32,0.08),
+            0 6px 16px rgba(0,0,0,0.35);
           pointer-events: none;
+          text-transform: uppercase;
         }
 
-        .runner-tap-left { left: 22px; }
-        .runner-tap-right { right: 22px; }
+        .runner-tap-label {
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: 0.22em;
+          line-height: 1;
+        }
+
+        .runner-tap-chevron {
+          font-family: ui-sans-serif, system-ui, sans-serif;
+          font-size: 14px;
+          line-height: 1;
+          color: #e6ce20;
+          opacity: 0.9;
+        }
+
+        .runner-tap-left { left: 14px; }
+        .runner-tap-right { right: 14px; }
 
         @keyframes runnerToastRise {
           from { opacity: 0; transform: translateX(-50%) translateY(8px); }
