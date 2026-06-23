@@ -44,6 +44,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
   const [shareLabel, setShareLabel] = useState("Share Ride");
   const [shareFallback, setShareFallback] = useState<string | null>(null);
   const [shareHint, setShareHint] = useState<string | null>(null);
+  const [showAllRiders, setShowAllRiders] = useState(false);
 
   const displayName = riderName.trim() || "Streex Rider";
   const canSaveScore = riderName.trim().length > 0;
@@ -90,6 +91,8 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
     () => savedScores.slice().sort(sortScores).slice(0, 10),
     [savedScores],
   );
+  const topRiders = visibleLeaderboard.slice(0, 3);
+  const restRiders = visibleLeaderboard.slice(3);
   const handleSaveScore = async () => {
     const name = riderName.trim().slice(0, 24);
     if (!name) {
@@ -199,30 +202,21 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
   return (
     <section className="runner-results">
       <div className="runner-results-shell">
-        <div className="runner-results-hero">
-          <span>Ride Complete</span>
-          <h1>{snapshot.crashKind ? "You made the road remember." : "Ride Elevated."}</h1>
-        </div>
-
         <div
           className="runner-score-card"
           style={{ backgroundImage: `url(${RUNNER_SPRITES.scoreCardFrame})` }}
         >
           <div className="runner-card-atmosphere" />
           <div className="runner-card-body">
-            <p>Your Score</p>
-            <strong>{snapshot.score}</strong>
-            <span>You ranked #{resultRank}</span>
-            <span>Among {riderCountLabel}</span>
+            <span className="runner-card-eyebrow">Ride Complete</span>
+            <h1 className="runner-card-headline">
+              {snapshot.crashKind ? "You made the road remember." : "Ride Elevated."}
+            </h1>
+            <p className="runner-card-label">Your Score</p>
+            <strong className="runner-card-score">{snapshot.score}</strong>
+            <span className="runner-card-rank">You ranked #{resultRank}</span>
+            <span className="runner-card-rank-sub">Among {riderCountLabel}</span>
           </div>
-        </div>
-
-        <div className="runner-score-summary">
-          <span>Your Score</span>
-          <strong>{snapshot.score}</strong>
-          <p>
-            Ranked #{resultRank} of {totalRiders}
-          </p>
         </div>
 
         <div className="runner-name-panel">
@@ -255,13 +249,32 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
         ) : visibleLeaderboard.length > 0 ? (
           <div className="runner-leaderboard">
             <h2>Top Riders</h2>
-            {visibleLeaderboard.map((entry, index) => (
+            {topRiders.map((entry, index) => (
               <div className="runner-leaderboard-row" key={entry.id}>
                 <span>{index + 1}</span>
                 <strong>{entry.name}</strong>
                 <em>{entry.score}</em>
               </div>
             ))}
+            {showAllRiders
+              ? restRiders.map((entry, index) => (
+                  <div className="runner-leaderboard-row" key={entry.id}>
+                    <span>{index + 4}</span>
+                    <strong>{entry.name}</strong>
+                    <em>{entry.score}</em>
+                  </div>
+                ))
+              : null}
+            {restRiders.length > 0 ? (
+              <button
+                type="button"
+                className="runner-view-all"
+                onClick={() => setShowAllRiders((value) => !value)}
+                aria-expanded={showAllRiders}
+              >
+                {showAllRiders ? "Hide" : `View all (${visibleLeaderboard.length})`}
+              </button>
+            ) : null}
           </div>
         ) : (
           <div className="runner-leaderboard">
@@ -271,16 +284,32 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
         )}
 
         <div className="runner-result-actions">
-          <button className="runner-primary-button" onClick={onReplay}>
+          <button
+            className="runner-primary-button runner-action-primary"
+            onClick={onReplay}
+          >
             Play Again
           </button>
-          <button className="runner-secondary-button" type="button" onClick={handleSaveCard}>
-            {saveLabel}
-          </button>
-          <button className="runner-secondary-button" type="button" onClick={handleShareRide}>
-            {shareLabel}
-          </button>
-          <button className="runner-ghost-button" onClick={onBack}>
+          <div className="runner-action-secondary-row">
+            <button
+              className="runner-secondary-button"
+              type="button"
+              onClick={handleSaveCard}
+            >
+              {saveLabel}
+            </button>
+            <button
+              className="runner-secondary-button"
+              type="button"
+              onClick={handleShareRide}
+            >
+              {shareLabel}
+            </button>
+          </div>
+          <button
+            className="runner-ghost-button runner-action-tertiary"
+            onClick={onBack}
+          >
             Discover Streex
           </button>
         </div>
@@ -323,31 +352,6 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           display: grid;
           justify-items: center;
           gap: 13px;
-        }
-
-        .runner-results-hero {
-          display: grid;
-          justify-items: center;
-          gap: 8px;
-          text-align: center;
-        }
-
-        .runner-results-hero span {
-          color: #e6ce20;
-          font-size: 10px;
-          font-weight: 850;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
-        }
-
-        .runner-results-hero h1 {
-          margin: 0;
-          max-width: 330px;
-          color: rgba(255,255,255,0.92);
-          font-size: 22px;
-          line-height: 1.16;
-          font-weight: 900;
-          letter-spacing: 0;
         }
 
         .runner-score-card {
@@ -395,40 +399,6 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
         .runner-name-panel {
           display: grid;
           gap: 8px;
-        }
-
-        .runner-score-summary {
-          width: min(100%, 312px);
-          display: grid;
-          justify-items: center;
-          gap: 4px;
-          border: 1px solid rgba(230,206,32,0.14);
-          border-radius: 8px;
-          background: rgba(255,255,255,0.035);
-          padding: 12px 16px;
-          text-align: center;
-        }
-
-        .runner-score-summary span {
-          color: rgba(230,206,32,0.8);
-          font-size: 10px;
-          font-weight: 850;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-        }
-
-        .runner-score-summary strong {
-          color: #e6ce20;
-          font-size: 46px;
-          line-height: 0.96;
-          font-weight: 950;
-        }
-
-        .runner-score-summary p {
-          margin: 0;
-          color: rgba(255,255,255,0.68);
-          font-size: 12px;
-          font-weight: 700;
         }
 
         .runner-name-panel label,
@@ -491,8 +461,6 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
         .runner-leaderboard {
           display: grid;
           gap: 6px;
-          max-height: 170px;
-          overflow: auto;
         }
 
         .runner-leaderboard h2 {
@@ -540,38 +508,89 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           display: grid;
           justify-items: center;
           align-content: center;
-          gap: 9px;
-          padding: 48px 18px 20px;
+          gap: 7px;
+          padding: 38px 18px 22px;
           text-align: center;
         }
 
-        .runner-card-body p {
-          margin: 0;
-          color: rgba(255,255,255,0.5);
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.18em;
+        .runner-card-eyebrow {
+          color: #e6ce20;
+          font-size: 10px;
+          font-weight: 850;
+          letter-spacing: 0.28em;
           text-transform: uppercase;
         }
 
-        .runner-card-body strong {
-          color: #e6ce20;
-          font-size: 72px;
-          line-height: 0.95;
-          font-weight: 950;
+        .runner-card-headline {
+          margin: 0;
+          max-width: 240px;
+          color: rgba(255,255,255,0.94);
+          font-size: 18px;
+          line-height: 1.18;
+          font-weight: 900;
         }
 
-        .runner-card-body span {
-          color: rgba(255,255,255,0.74);
+        .runner-card-label {
+          margin: 6px 0 -2px;
+          color: rgba(255,255,255,0.5);
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+        }
+
+        .runner-card-score {
+          color: #e6ce20;
+          font-size: 80px;
+          line-height: 0.92;
+          font-weight: 950;
+          text-shadow: 0 0 32px rgba(230,206,32,0.32);
+        }
+
+        .runner-card-rank {
+          color: rgba(255,255,255,0.86);
           font-size: 13px;
-          font-weight: 750;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+        }
+
+        .runner-card-rank-sub {
+          color: rgba(255,255,255,0.6);
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.04em;
         }
 
         .runner-result-actions {
           width: min(100%, 310px);
           display: grid;
+          gap: 10px;
+        }
+
+        .runner-action-secondary-row {
+          display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 10px;
+        }
+
+        .runner-view-all {
+          margin-top: 4px;
+          min-height: 32px;
+          border: 1px solid rgba(230,206,32,0.32);
+          border-radius: 8px;
+          background: transparent;
+          color: #e6ce20;
+          font-family: Montserrat, ui-sans-serif, system-ui, sans-serif;
+          font-size: 10px;
+          font-weight: 850;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+
+        .runner-view-all:hover {
+          background: rgba(230,206,32,0.08);
         }
 
         .runner-action-hint {
@@ -620,11 +639,6 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           line-height: 1.45;
         }
 
-        .runner-result-actions .runner-primary-button,
-        .runner-result-actions .runner-ghost-button {
-          grid-column: 1 / -1;
-        }
-
         .runner-primary-button,
         .runner-secondary-button,
         .runner-ghost-button {
@@ -633,20 +647,72 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           font-family: Montserrat, ui-sans-serif, system-ui, sans-serif;
           font-weight: 850;
           cursor: pointer;
+          transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+                      box-shadow 0.2s ease,
+                      background 0.2s ease,
+                      border-color 0.2s ease;
         }
 
         .runner-primary-button {
           border: 0;
           color: #0b0b0b;
-          background: #e6ce20;
-          box-shadow: 0 0 28px rgba(230,206,32,0.22);
+          background: linear-gradient(180deg, #f5db3a 0%, #e6ce20 52%, #c9b416 100%);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.45),
+            inset 0 -1px 0 rgba(0,0,0,0.16),
+            0 10px 28px rgba(230,206,32,0.22);
+        }
+        .runner-primary-button:hover {
+          transform: scale(1.01);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.55),
+            inset 0 -1px 0 rgba(0,0,0,0.16),
+            0 12px 32px rgba(230,206,32,0.3);
+        }
+        .runner-primary-button:active {
+          transform: scale(0.985);
+        }
+
+        .runner-action-primary {
+          width: 100%;
+          font-size: 15px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+        }
+
+        .runner-action-tertiary {
+          margin-top: 2px;
+          min-height: 40px;
+          font-size: 12px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.7);
+          background: linear-gradient(180deg, rgba(24,24,26,0.55) 0%, rgba(11,11,11,0.75) 100%);
+          border-color: rgba(230,206,32,0.12);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
         }
 
         .runner-secondary-button,
         .runner-ghost-button {
-          border: 1px solid rgba(255,255,255,0.14);
-          color: white;
-          background: rgba(255,255,255,0.045);
+          border: 1px solid rgba(230,206,32,0.18);
+          color: rgba(255,255,255,0.92);
+          background: linear-gradient(180deg, #1a1a1c 0%, #0d0d0d 100%);
+          font-size: 11px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.06),
+            0 4px 14px rgba(0,0,0,0.42);
+        }
+        .runner-secondary-button:hover,
+        .runner-ghost-button:hover {
+          border-color: rgba(230,206,32,0.32);
+          background: linear-gradient(180deg, #222224 0%, #121212 100%);
+          color: ${"#fff"};
+        }
+        .runner-secondary-button:active,
+        .runner-ghost-button:active {
+          transform: scale(0.99);
         }
       `}</style>
     </section>

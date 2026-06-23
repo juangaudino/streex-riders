@@ -7,6 +7,15 @@ import { detectRunnerCollision, laneCenter } from "../engine/collision";
 import { getDifficulty } from "../engine/difficulty";
 import { createSpawnMemory, createSpawnWave } from "../engine/spawnEngine";
 
+// Deterministic dust particles — module-level so no allocations per frame.
+const DUST_PARTICLES = Array.from({ length: 22 }, (_, i) => ({
+  xPct: ((i * 137 + 23) % 1000) / 1000,
+  yBand: ((i * 53 + 11) % 100) / 100,
+  speed: 0.55 + (((i * 17) % 50) / 100),
+  size: 0.7 + (((i * 7) % 18) / 18) * 1.4,
+  phase: ((i * 211) % 1000) / 1000,
+}));
+
 type RunnerLoadedSprites = Partial<Record<RunnerSpriteKey, HTMLImageElement>>;
 
 type RunnerState = {
@@ -48,6 +57,8 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
   const [scoreLabel, setScoreLabel] = useState(0);
   const [toastLabel, setToastLabel] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [fullscreenSupported, setFullscreenSupported] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const stateRef = useRef<RunnerState>({
     running: true,
@@ -126,6 +137,39 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
   useEffect(() => {
     audioRef.current = new RunnerAudio();
     return () => audioRef.current?.dispose();
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const docEl = document.documentElement as HTMLElement & {
+      webkitRequestFullscreen?: () => Promise<void>;
+    };
+    const supported = Boolean(
+      docEl.requestFullscreen || docEl.webkitRequestFullscreen,
+    );
+    setFullscreenSupported(supported);
+    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (typeof document === "undefined") return;
+    const docEl = document.documentElement as HTMLElement & {
+      webkitRequestFullscreen?: () => Promise<void>;
+    };
+    const docAny = document as Document & {
+      webkitExitFullscreen?: () => Promise<void>;
+    };
+    if (document.fullscreenElement) {
+      (document.exitFullscreen?.() ?? docAny.webkitExitFullscreen?.())?.catch(
+        () => {},
+      );
+    } else {
+      (docEl.requestFullscreen?.() ?? docEl.webkitRequestFullscreen?.())?.catch(
+        () => {},
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -304,11 +348,53 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           pauseGame();
         }}
       >
-        Pause
+        <span className="runner-pause-icon" aria-hidden="true">
+          <i />
+          <i />
+        </span>
       </button>
+      {fullscreenSupported ? (
+        <button
+          className="runner-fullscreen-button"
+          type="button"
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          aria-pressed={isFullscreen}
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={(event) => {
+            event.stopPropagation();
+            toggleFullscreen();
+          }}
+        >
+          <svg
+            className="runner-fullscreen-icon"
+            viewBox="0 0 16 16"
+            aria-hidden="true"
+            focusable="false"
+          >
+            {isFullscreen ? (
+              <path
+                d="M6 2v2.5a1.5 1.5 0 0 1-1.5 1.5H2M10 2v2.5A1.5 1.5 0 0 0 11.5 6H14M6 14v-2.5A1.5 1.5 0 0 0 4.5 10H2M10 14v-2.5a1.5 1.5 0 0 1 1.5-1.5H14"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
+            ) : (
+              <path
+                d="M2 6V2.8A.8.8 0 0 1 2.8 2H6M14 6V2.8A.8.8 0 0 0 13.2 2H10M2 10v3.2a.8.8 0 0 0 .8.8H6M14 10v3.2a.8.8 0 0 1-.8.8H10"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
+            )}
+          </svg>
+        </button>
+      ) : null}
       <div className="runner-hud" aria-live="polite">
         <span>Score</span>
         <strong>{scoreLabel}</strong>
+        <span className="runner-hud-divider" aria-hidden="true" />
       </div>
       {menuOpen ? (
         <div
@@ -319,6 +405,8 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           aria-label="Horizon pause menu"
         >
           <div className="runner-pause-panel">
+            <span className="runner-pause-checker runner-pause-checker-tl" aria-hidden="true" />
+            <span className="runner-pause-checker runner-pause-checker-br" aria-hidden="true" />
             <span>STREEX HORIZON</span>
             <strong>Paused</strong>
             <button type="button" onClick={resumeGame}>
@@ -334,8 +422,14 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
         </div>
       ) : null}
       {toastLabel ? <div className="runner-toast">{toastLabel}</div> : null}
-      <div className="runner-tap-left">LEFT</div>
-      <div className="runner-tap-right">RIGHT</div>
+      <div className="runner-tap runner-tap-left" aria-hidden="true">
+        <span className="runner-tap-chevron">‹</span>
+        <span className="runner-tap-label">Left</span>
+      </div>
+      <div className="runner-tap runner-tap-right" aria-hidden="true">
+        <span className="runner-tap-label">Right</span>
+        <span className="runner-tap-chevron">›</span>
+      </div>
       <style>{`
         .runner-game-shell {
           position: relative;
@@ -358,19 +452,73 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           position: absolute;
           top: max(18px, env(safe-area-inset-top));
           left: 16px;
-          min-width: 58px;
-          min-height: 32px;
-          border: 1px solid rgba(255,255,255,0.12);
-          border-radius: 8px;
-          background: rgba(11,11,11,0.36);
-          color: rgba(255,255,255,0.56);
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          border: 1px solid rgba(230,206,32,0.42);
+          background: rgba(11,11,11,0.74);
+          color: #e6ce20;
           backdrop-filter: blur(12px);
-          font-family: Montserrat, ui-sans-serif, system-ui, sans-serif;
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
+          display: grid;
+          place-items: center;
+          padding: 0;
           cursor: pointer;
+          box-shadow: 0 0 0 1px rgba(230,206,32,0.08), 0 6px 18px rgba(0,0,0,0.4);
+          transition: transform 0.15s ease, background 0.2s ease;
+        }
+
+        .runner-pause-button:active {
+          transform: scale(0.94);
+        }
+
+        .runner-fullscreen-button {
+          position: absolute;
+          top: max(18px, env(safe-area-inset-top));
+          left: 66px;
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          border: 1px solid rgba(230,206,32,0.28);
+          background: linear-gradient(180deg, rgba(28,28,30,0.78) 0%, rgba(11,11,11,0.85) 100%);
+          color: rgba(230,206,32,0.85);
+          backdrop-filter: blur(10px);
+          display: grid;
+          place-items: center;
+          padding: 0;
+          cursor: pointer;
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.06),
+            0 4px 14px rgba(0,0,0,0.36);
+          transition: transform 0.15s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        .runner-fullscreen-button:hover {
+          border-color: rgba(230,206,32,0.48);
+          color: #e6ce20;
+        }
+        .runner-fullscreen-button:active { transform: scale(0.94); }
+        .runner-fullscreen-icon { width: 14px; height: 14px; display: block; }
+
+        @media (max-width: 380px) {
+          .runner-fullscreen-button {
+            width: 30px;
+            height: 30px;
+            left: 62px;
+            opacity: 0.85;
+          }
+        }
+
+        .runner-pause-icon {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .runner-pause-icon i {
+          display: block;
+          width: 4px;
+          height: 14px;
+          background: #e6ce20;
+          border-radius: 1px;
         }
 
         .runner-pause-scrim {
@@ -385,6 +533,7 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
         }
 
         .runner-pause-panel {
+          position: relative;
           width: min(100%, 280px);
           display: grid;
           gap: 10px;
@@ -395,6 +544,21 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           padding: 18px;
           text-align: center;
         }
+
+        .runner-pause-checker {
+          position: absolute;
+          width: 28px;
+          height: 10px;
+          background-image:
+            linear-gradient(45deg, #e6ce20 25%, transparent 25%, transparent 75%, #e6ce20 75%),
+            linear-gradient(45deg, #e6ce20 25%, transparent 25%, transparent 75%, #e6ce20 75%);
+          background-size: 6px 6px;
+          background-position: 0 0, 3px 3px;
+          opacity: 0.72;
+          pointer-events: none;
+        }
+        .runner-pause-checker-tl { top: -5px; left: 10px; }
+        .runner-pause-checker-br { bottom: -5px; right: 10px; }
 
         .runner-pause-panel span {
           color: rgba(230,206,32,0.72);
@@ -434,6 +598,7 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           right: 18px;
           display: grid;
           justify-items: end;
+          gap: 2px;
           pointer-events: none;
         }
 
@@ -450,6 +615,15 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           font-size: 28px;
           font-weight: 900;
           line-height: 1;
+        }
+
+        .runner-hud-divider {
+          margin-top: 4px;
+          width: 36px;
+          height: 2px;
+          background: #e6ce20;
+          border-radius: 1px;
+          box-shadow: 0 0 8px rgba(230,206,32,0.55);
         }
 
         .runner-toast {
@@ -472,19 +646,43 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           animation: runnerToastRise 760ms ease both;
         }
 
-        .runner-tap-left,
-        .runner-tap-right {
+        .runner-tap {
           position: absolute;
           bottom: max(26px, env(safe-area-inset-bottom));
-          color: rgba(255,255,255,0.18);
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: 0.16em;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 10px;
+          border-radius: 999px;
+          border: 1px solid rgba(230,206,32,0.32);
+          background: rgba(11,11,11,0.6);
+          color: rgba(230,206,32,0.85);
+          backdrop-filter: blur(8px);
+          box-shadow:
+            0 0 0 1px rgba(230,206,32,0.05),
+            0 0 12px rgba(230,206,32,0.08),
+            0 6px 16px rgba(0,0,0,0.35);
           pointer-events: none;
+          text-transform: uppercase;
         }
 
-        .runner-tap-left { left: 22px; }
-        .runner-tap-right { right: 22px; }
+        .runner-tap-label {
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: 0.22em;
+          line-height: 1;
+        }
+
+        .runner-tap-chevron {
+          font-family: ui-sans-serif, system-ui, sans-serif;
+          font-size: 14px;
+          line-height: 1;
+          color: #e6ce20;
+          opacity: 0.9;
+        }
+
+        .runner-tap-left { left: 14px; }
+        .runner-tap-right { right: 14px; }
 
         @keyframes runnerToastRise {
           from { opacity: 0; transform: translateX(-50%) translateY(8px); }
@@ -508,11 +706,13 @@ function drawRunnerFrame(
   drawAmbientWorld(ctx, width, height, time, sprites);
   drawRoad(ctx, width, height, state.roadOffset, sprites);
   drawHorizonIntegration(ctx, width, height, state.roadOffset, time, sprites);
+  drawDustParticles(ctx, width, height, state.roadOffset, time);
   state.entities
     .slice()
     .sort((a, b) => a.y - b.y)
     .forEach((entity) => drawEntity(ctx, width, height, entity, sprites));
   state.rewardFx.forEach((fx) => drawRewardFx(ctx, width, height, fx, time));
+  const auraIntensity = computePlayerAura(state.rewardFx, time);
   drawPlayer(
     ctx,
     width,
@@ -523,6 +723,7 @@ function drawRunnerFrame(
     time < state.iceDriftUntil,
     Boolean(state.crashUntil),
     sprites,
+    auraIntensity,
   );
 
   if (state.crashUntil) {
@@ -685,24 +886,57 @@ function drawRoad(
   for (let lane = 1; lane < 3; lane += 1) {
     const bottomX = (width / 3) * lane;
     const topX = vanishingX + (bottomX - vanishingX) * 0.26;
+    // Dashed lane separator following projected geometry. Width and alpha grow
+    // toward the camera so the lane reads as depth without changing geometry.
+    const segments = 14;
+    // Visual-only multiplier so dashes scroll in sync with the asphalt texture
+    // near the camera. Sourced from roadOffset — never used for gameplay,
+    // entities, scoring, or collisions. Tune between 1.5 and 2.0 if needed.
+    const ROAD_DASH_VISUAL_SPEED = 1.75;
+    const flow = ((offset * 0.012 * ROAD_DASH_VISUAL_SPEED) % 1 + 1) % 1;
     ctx.save();
-    ctx.strokeStyle = "rgba(235,239,236,0.16)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(topX, horizonY);
-    ctx.lineTo(bottomX, height);
-    ctx.stroke();
+    for (let i = -1; i < segments; i += 1) {
+      const t0 = (i + flow) / segments;
+      const t1 = t0 + 0.55 / segments;
+      if (t1 <= 0 || t0 >= 1) continue;
+      const a = Math.max(0, t0);
+      const b = Math.min(1, t1);
+      const x0 = topX + (bottomX - topX) * a;
+      const y0 = horizonY + (height - horizonY) * a;
+      const x1 = topX + (bottomX - topX) * b;
+      const y1 = horizonY + (height - horizonY) * b;
+      const depth = (a + b) * 0.5;
+      ctx.strokeStyle = `rgba(235,239,236,${0.06 + depth * 0.46})`;
+      ctx.lineWidth = 0.6 + depth * 2.2;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
-  ctx.strokeStyle = "rgba(230,206,32,0.18)";
-  ctx.lineWidth = 2;
+  // Yellow rim light along projected road borders — fully fades into the
+  // horizon haze so the road edges no longer hit the mountains as hard lines.
+  const rim = ctx.createLinearGradient(0, horizonY, 0, height);
+  rim.addColorStop(0, "rgba(230,206,32,0)");
+  rim.addColorStop(0.18, "rgba(230,206,32,0.04)");
+  rim.addColorStop(0.55, "rgba(230,206,32,0.22)");
+  rim.addColorStop(1, "rgba(230,206,32,0.5)");
+  ctx.save();
+  ctx.strokeStyle = rim;
+  ctx.lineWidth = 2.2;
+  // Start a few pixels below horizonY so the apex never reads as a hard pin.
+  const rimStartY = horizonY + 6;
+  const rimStartLeft = topLeft + (0 - topLeft) * (6 / (height - horizonY));
+  const rimStartRight = topRight + (width - topRight) * (6 / (height - horizonY));
   ctx.beginPath();
-  ctx.moveTo(topLeft, horizonY);
+  ctx.moveTo(rimStartLeft, rimStartY);
   ctx.lineTo(0, height);
-  ctx.moveTo(topRight, horizonY);
+  ctx.moveTo(rimStartRight, rimStartY);
   ctx.lineTo(width, height);
   ctx.stroke();
+  ctx.restore();
 }
 
 function drawAsphaltWear(
@@ -782,9 +1016,10 @@ function drawAsphaltTexture(
 
   ctx.globalAlpha = 1;
   const wash = ctx.createLinearGradient(0, horizonY, 0, height);
-  wash.addColorStop(0, "rgba(255,255,255,0.14)");
-  wash.addColorStop(0.45, "rgba(52,55,53,0.18)");
-  wash.addColorStop(1, "rgba(22,24,23,0.2)");
+  // Veil the texture near the horizon, let it breathe near the camera.
+  wash.addColorStop(0, "rgba(20,22,18,0.42)");
+  wash.addColorStop(0.45, "rgba(34,36,33,0.1)");
+  wash.addColorStop(1, "rgba(255,255,255,0.07)");
   ctx.fillStyle = wash;
   ctx.fillRect(0, horizonY, width, height - horizonY);
   ctx.restore();
@@ -830,6 +1065,32 @@ function drawHorizonIntegration(
   ctx.fillStyle = dust;
   ctx.fillRect(0, horizonY - 30, width, 106);
 
+  // Cinematic atmospheric veil over the road's birth point — softens the
+  // hard trapezoid edge where asphalt meets the valley fog.
+  const valleyFog = ctx.createLinearGradient(0, horizonY - 6, 0, horizonY + height * 0.14);
+  valleyFog.addColorStop(0, "rgba(28,32,24,0.55)");
+  valleyFog.addColorStop(0.45, "rgba(34,40,30,0.22)");
+  valleyFog.addColorStop(1, "rgba(34,40,30,0)");
+  ctx.fillStyle = valleyFog;
+  ctx.fillRect(0, horizonY - 6, width, height * 0.16);
+
+  // Soft radial bloom centered on the vanishing point — bleeds the road
+  // tip into the sky instead of stamping a sharp corner.
+  const vanishingX = width * 0.5;
+  const vanishGlow = ctx.createRadialGradient(
+    vanishingX,
+    horizonY + 2,
+    0,
+    vanishingX,
+    horizonY + 2,
+    Math.max(width * 0.42, 160),
+  );
+  vanishGlow.addColorStop(0, "rgba(214,196,150,0.22)");
+  vanishGlow.addColorStop(0.5, "rgba(120,118,90,0.08)");
+  vanishGlow.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = vanishGlow;
+  ctx.fillRect(0, horizonY - 40, width, height * 0.22);
+
   ctx.save();
   ctx.globalAlpha = 0.12;
   ctx.strokeStyle = "rgba(255,239,180,0.62)";
@@ -856,12 +1117,25 @@ function drawPlayer(
   isRecovering: boolean,
   isCrashed: boolean,
   sprites: RunnerLoadedSprites,
+  auraIntensity = 0,
 ) {
   const x = (playerX / 100) * width;
   const y = (playerY / 100) * height;
   const carWidth = Math.min(width * 0.145, 62);
   const carHeight = carWidth * 0.58;
   const skid = isRecovering ? Math.sin(time * 0.04) * 4 : 0;
+
+  if (auraIntensity > 0 && !isCrashed) {
+    ctx.save();
+    const auraRadius = Math.max(width * 0.18, 70);
+    const aura = ctx.createRadialGradient(x + skid, y, 0, x + skid, y, auraRadius);
+    aura.addColorStop(0, `rgba(255,235,110,${0.32 * auraIntensity})`);
+    aura.addColorStop(0.45, `rgba(230,206,32,${0.18 * auraIntensity})`);
+    aura.addColorStop(1, "rgba(230,206,32,0)");
+    ctx.fillStyle = aura;
+    ctx.fillRect(x + skid - auraRadius, y - auraRadius, auraRadius * 2, auraRadius * 2);
+    ctx.restore();
+  }
 
   ctx.save();
   ctx.translate(x + skid, y);
@@ -1566,6 +1840,56 @@ function lerp(start: number, end: number, progress: number) {
 function pseudoRandom(seed: number, salt: number) {
   const value = Math.sin(seed * 12.9898 + salt * 78.233) * 43758.5453;
   return value - Math.floor(value);
+}
+
+function drawDustParticles(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  offset: number,
+  time: number,
+) {
+  const horizonY = height * RUNNER_HORIZON;
+  const bandHeight = height - horizonY;
+  if (bandHeight <= 0) return;
+  ctx.save();
+  ctx.fillStyle = "rgba(234,210,140,0.42)";
+  for (let i = 0; i < DUST_PARTICLES.length; i += 1) {
+    const p = DUST_PARTICLES[i];
+    // Deterministic vertical scroll driven by time + roadOffset (no Math.random).
+    const travel = (time * 0.00018 * p.speed + offset * 0.0035 + p.phase) % 1;
+    const t = (travel + 1) % 1;
+    const y = horizonY + t * bandHeight;
+    const depth = t; // 0 near horizon, 1 near camera
+    const driftWidth = 0.04 + depth * 0.6;
+    const x = (p.xPct - 0.5) * width * driftWidth + width * 0.5
+      + Math.sin((time * 0.0005 + p.phase) * Math.PI * 2) * (4 + depth * 10);
+    const radius = p.size * (0.4 + depth * 1.4);
+    ctx.globalAlpha = 0.08 + depth * 0.32;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function computePlayerAura(
+  rewardFx: RunnerRewardFx[],
+  time: number,
+) {
+  if (rewardFx.length === 0) return 0;
+  let total = 0;
+  for (let i = 0; i < rewardFx.length; i += 1) {
+    const fx = rewardFx[i];
+    const lifetime = fx.until - fx.startedAt;
+    if (lifetime <= 0) continue;
+    const t = (time - fx.startedAt) / lifetime;
+    if (t < 0 || t > 1) continue;
+    const fade = 1 - t;
+    const weight = fx.kind === "vipRide" ? 1.4 : fx.kind === "airportRide" ? 1.1 : 0.85;
+    total += fade * weight;
+  }
+  return Math.min(1, total);
 }
 
 function getRewardFxDuration(kind: RunnerEntity["kind"]) {
