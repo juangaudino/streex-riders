@@ -57,6 +57,8 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
   const [scoreLabel, setScoreLabel] = useState(0);
   const [toastLabel, setToastLabel] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [fullscreenSupported, setFullscreenSupported] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const stateRef = useRef<RunnerState>({
     running: true,
@@ -135,6 +137,39 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
   useEffect(() => {
     audioRef.current = new RunnerAudio();
     return () => audioRef.current?.dispose();
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const docEl = document.documentElement as HTMLElement & {
+      webkitRequestFullscreen?: () => Promise<void>;
+    };
+    const supported = Boolean(
+      docEl.requestFullscreen || docEl.webkitRequestFullscreen,
+    );
+    setFullscreenSupported(supported);
+    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (typeof document === "undefined") return;
+    const docEl = document.documentElement as HTMLElement & {
+      webkitRequestFullscreen?: () => Promise<void>;
+    };
+    const docAny = document as Document & {
+      webkitExitFullscreen?: () => Promise<void>;
+    };
+    if (document.fullscreenElement) {
+      (document.exitFullscreen?.() ?? docAny.webkitExitFullscreen?.())?.catch(
+        () => {},
+      );
+    } else {
+      (docEl.requestFullscreen?.() ?? docEl.webkitRequestFullscreen?.())?.catch(
+        () => {},
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -318,6 +353,44 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           <i />
         </span>
       </button>
+      {fullscreenSupported ? (
+        <button
+          className="runner-fullscreen-button"
+          type="button"
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          aria-pressed={isFullscreen}
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={(event) => {
+            event.stopPropagation();
+            toggleFullscreen();
+          }}
+        >
+          <svg
+            className="runner-fullscreen-icon"
+            viewBox="0 0 16 16"
+            aria-hidden="true"
+            focusable="false"
+          >
+            {isFullscreen ? (
+              <path
+                d="M6 2v2.5a1.5 1.5 0 0 1-1.5 1.5H2M10 2v2.5A1.5 1.5 0 0 0 11.5 6H14M6 14v-2.5A1.5 1.5 0 0 0 4.5 10H2M10 14v-2.5a1.5 1.5 0 0 1 1.5-1.5H14"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
+            ) : (
+              <path
+                d="M2 6V2.8A.8.8 0 0 1 2.8 2H6M14 6V2.8A.8.8 0 0 0 13.2 2H10M2 10v3.2a.8.8 0 0 0 .8.8H6M14 10v3.2a.8.8 0 0 1-.8.8H10"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
+            )}
+          </svg>
+        </button>
+      ) : null}
       <div className="runner-hud" aria-live="polite">
         <span>Score</span>
         <strong>{scoreLabel}</strong>
@@ -396,6 +469,42 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
 
         .runner-pause-button:active {
           transform: scale(0.94);
+        }
+
+        .runner-fullscreen-button {
+          position: absolute;
+          top: max(18px, env(safe-area-inset-top));
+          left: 66px;
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          border: 1px solid rgba(230,206,32,0.28);
+          background: linear-gradient(180deg, rgba(28,28,30,0.78) 0%, rgba(11,11,11,0.85) 100%);
+          color: rgba(230,206,32,0.85);
+          backdrop-filter: blur(10px);
+          display: grid;
+          place-items: center;
+          padding: 0;
+          cursor: pointer;
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.06),
+            0 4px 14px rgba(0,0,0,0.36);
+          transition: transform 0.15s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        .runner-fullscreen-button:hover {
+          border-color: rgba(230,206,32,0.48);
+          color: #e6ce20;
+        }
+        .runner-fullscreen-button:active { transform: scale(0.94); }
+        .runner-fullscreen-icon { width: 14px; height: 14px; display: block; }
+
+        @media (max-width: 380px) {
+          .runner-fullscreen-button {
+            width: 30px;
+            height: 30px;
+            left: 62px;
+            opacity: 0.85;
+          }
         }
 
         .runner-pause-icon {
