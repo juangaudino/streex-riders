@@ -925,12 +925,12 @@ function drawAmbientWorld(
       ctx,
       sprites.mountainFar,
       (width - farWidth) / 2 + farDrift,
-      horizonY - height * 0.215,
+      horizonY - height * 0.28,
       farWidth,
-      height * 0.32,
+      height * 0.4,
     );
   } else {
-    drawMountainLayer(ctx, width, horizonY, height * 0.1, RUNNER_COLORS.mountainFar, time * 0.002);
+    drawMountainLayer(ctx, width, horizonY, height * 0.14, RUNNER_COLORS.mountainFar, time * 0.002);
   }
 
   if (sprites.mountainNear) {
@@ -941,16 +941,16 @@ function drawAmbientWorld(
       ctx,
       sprites.mountainNear,
       (width - nearWidth) / 2 + nearDrift,
-      horizonY - height * 0.2,
+      horizonY - height * 0.26,
       nearWidth,
-      height * 0.38,
+      height * 0.46,
     );
   } else {
     drawMountainLayer(
       ctx,
       width,
       horizonY,
-      height * 0.16,
+      height * 0.22,
       RUNNER_COLORS.mountainNear,
       time * 0.004,
     );
@@ -1010,6 +1010,20 @@ function drawRoad(
   ctx.lineTo(0, height);
   ctx.closePath();
   ctx.fill();
+
+  {
+    const softEdge = ctx.createLinearGradient(0, horizonY - 2, 0, horizonY + 14);
+    softEdge.addColorStop(0, "rgba(18,22,16,0.82)");
+    softEdge.addColorStop(1, "rgba(18,22,16,0)");
+    ctx.fillStyle = softEdge;
+    ctx.beginPath();
+    ctx.moveTo(topLeft, horizonY - 2);
+    ctx.lineTo(topRight, horizonY - 2);
+    ctx.lineTo(width, horizonY + 14);
+    ctx.lineTo(0, horizonY + 14);
+    ctx.closePath();
+    ctx.fill();
+  }
 
   if (sprites.asphaltTextureClean) {
     drawAsphaltTexture(
@@ -1192,74 +1206,69 @@ function drawHorizonIntegration(
   sprites: RunnerLoadedSprites,
 ) {
   const horizonY = height * RUNNER_HORIZON;
+
   if (sprites.horizonGroundBlend2) {
-    const blendWidth = width * 1.24;
-    const blendHeight = height * 0.34;
-    const blendX = (width - blendWidth) / 2 + Math.sin(time * 0.00012) * width * 0.025;
+    const blendWidth = width * 1.28;
+    const blendHeight = height * 0.4;
+    const blendX = (width - blendWidth) / 2 + Math.sin(time * 0.00012) * width * 0.02;
     ctx.save();
-    ctx.globalAlpha = 0.46;
+    ctx.globalAlpha = 0.72;
     ctx.drawImage(
       sprites.horizonGroundBlend2,
       blendX,
-      horizonY - blendHeight * 0.54,
+      horizonY - blendHeight * 0.68,
       blendWidth,
       blendHeight,
     );
     ctx.restore();
   }
 
-  const distantGround = ctx.createLinearGradient(0, horizonY - 18, 0, horizonY + height * 0.16);
-  distantGround.addColorStop(0, "rgba(224,177,91,0.08)");
-  distantGround.addColorStop(0.38, "rgba(63,75,48,0.36)");
-  distantGround.addColorStop(1, "rgba(43,55,35,0)");
-  ctx.fillStyle = distantGround;
-  ctx.fillRect(0, horizonY - 18, width, height * 0.18);
-
-  const dust = ctx.createLinearGradient(0, horizonY - 30, 0, horizonY + 76);
-  dust.addColorStop(0, "rgba(230,206,32,0)");
-  dust.addColorStop(0.32, "rgba(234,197,118,0.24)");
-  dust.addColorStop(0.62, "rgba(101,91,59,0.2)");
-  dust.addColorStop(1, "rgba(13,17,12,0)");
-  ctx.fillStyle = dust;
-  ctx.fillRect(0, horizonY - 30, width, 106);
-
-  // Cinematic atmospheric veil over the road's birth point — softens the
-  // hard trapezoid edge where asphalt meets the valley fog.
-  const valleyFog = ctx.createLinearGradient(0, horizonY - 6, 0, horizonY + height * 0.14);
-  valleyFog.addColorStop(0, "rgba(28,32,24,0.55)");
-  valleyFog.addColorStop(0.45, "rgba(34,40,30,0.22)");
-  valleyFog.addColorStop(1, "rgba(34,40,30,0)");
-  ctx.fillStyle = valleyFog;
-  ctx.fillRect(0, horizonY - 6, width, height * 0.16);
-
-  // Soft radial bloom centered on the vanishing point — bleeds the road
-  // tip into the sky instead of stamping a sharp corner.
-  const vanishingX = width * 0.5;
-  const vanishGlow = ctx.createRadialGradient(
-    vanishingX,
-    horizonY + 2,
-    0,
-    vanishingX,
-    horizonY + 2,
-    Math.max(width * 0.42, 160),
-  );
-  vanishGlow.addColorStop(0, "rgba(214,196,150,0.22)");
-  vanishGlow.addColorStop(0.5, "rgba(120,118,90,0.08)");
-  vanishGlow.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = vanishGlow;
-  ctx.fillRect(0, horizonY - 40, width, height * 0.22);
+  const hazeHeight = height * 0.1;
+  const haze = ctx.createLinearGradient(0, horizonY - hazeHeight * 0.5, 0, horizonY + hazeHeight);
+  haze.addColorStop(0, "rgba(101,91,72,0)");
+  haze.addColorStop(0.32, "rgba(101,91,72,0.62)");
+  haze.addColorStop(0.68, "rgba(80,72,55,0.44)");
+  haze.addColorStop(1, "rgba(28,32,24,0)");
+  ctx.fillStyle = haze;
+  ctx.fillRect(0, horizonY - hazeHeight * 0.5, width, hazeHeight * 1.5);
 
   ctx.save();
-  ctx.globalAlpha = 0.12;
+  ctx.globalAlpha = 0.62;
+  const glow = ctx.createRadialGradient(
+    width * 0.5,
+    horizonY + 4,
+    0,
+    width * 0.5,
+    horizonY + 4,
+    width * 0.38,
+  );
+  glow.addColorStop(0, "rgba(230,206,32,0.34)");
+  glow.addColorStop(0.28, "rgba(200,180,90,0.18)");
+  glow.addColorStop(0.62, "rgba(120,110,70,0.08)");
+  glow.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, horizonY - height * 0.06, width, height * 0.18);
+  ctx.restore();
+
+  const fogHeight = height * 0.1;
+  const fog = ctx.createLinearGradient(0, horizonY - 4, 0, horizonY + fogHeight);
+  fog.addColorStop(0, "rgba(18,22,16,0.78)");
+  fog.addColorStop(0.45, "rgba(22,26,20,0.30)");
+  fog.addColorStop(1, "rgba(22,26,20,0)");
+  ctx.fillStyle = fog;
+  ctx.fillRect(0, horizonY - 4, width, fogHeight);
+
+  ctx.save();
+  ctx.globalAlpha = 0.1;
   ctx.strokeStyle = "rgba(255,239,180,0.62)";
   ctx.lineWidth = 1;
   const bandOffset = (offset * 0.42 + time * 0.006) % 38;
-  for (let y = horizonY + bandOffset - 38; y < horizonY + height * 0.12; y += 38) {
-    const fade = Math.max(0, 1 - Math.abs(y - horizonY) / (height * 0.16));
-    ctx.globalAlpha = fade * 0.12;
+  for (let y = horizonY + bandOffset - 38; y < horizonY + height * 0.1; y += 38) {
+    const fade = Math.max(0, 1 - Math.abs(y - horizonY) / (height * 0.14));
+    ctx.globalAlpha = fade * 0.1;
     ctx.beginPath();
-    ctx.moveTo(width * 0.12, y);
-    ctx.lineTo(width * 0.88, y + 3);
+    ctx.moveTo(width * 0.1, y);
+    ctx.lineTo(width * 0.9, y + 3);
     ctx.stroke();
   }
   ctx.restore();
