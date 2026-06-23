@@ -349,8 +349,14 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
         </div>
       ) : null}
       {toastLabel ? <div className="runner-toast">{toastLabel}</div> : null}
-      <div className="runner-tap-left">LEFT</div>
-      <div className="runner-tap-right">RIGHT</div>
+      <div className="runner-tap runner-tap-left" aria-hidden="true">
+        <span className="runner-tap-chevron">‹</span>
+        <span className="runner-tap-label">Left</span>
+      </div>
+      <div className="runner-tap runner-tap-right" aria-hidden="true">
+        <span className="runner-tap-label">Right</span>
+        <span className="runner-tap-chevron">›</span>
+      </div>
       <style>{`
         .runner-game-shell {
           position: relative;
@@ -531,19 +537,43 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
           animation: runnerToastRise 760ms ease both;
         }
 
-        .runner-tap-left,
-        .runner-tap-right {
+        .runner-tap {
           position: absolute;
           bottom: max(26px, env(safe-area-inset-bottom));
-          color: rgba(255,255,255,0.18);
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: 0.16em;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 10px;
+          border-radius: 999px;
+          border: 1px solid rgba(230,206,32,0.32);
+          background: rgba(11,11,11,0.6);
+          color: rgba(230,206,32,0.85);
+          backdrop-filter: blur(8px);
+          box-shadow:
+            0 0 0 1px rgba(230,206,32,0.05),
+            0 0 12px rgba(230,206,32,0.08),
+            0 6px 16px rgba(0,0,0,0.35);
           pointer-events: none;
+          text-transform: uppercase;
         }
 
-        .runner-tap-left { left: 22px; }
-        .runner-tap-right { right: 22px; }
+        .runner-tap-label {
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: 0.22em;
+          line-height: 1;
+        }
+
+        .runner-tap-chevron {
+          font-family: ui-sans-serif, system-ui, sans-serif;
+          font-size: 14px;
+          line-height: 1;
+          color: #e6ce20;
+          opacity: 0.9;
+        }
+
+        .runner-tap-left { left: 14px; }
+        .runner-tap-right { right: 14px; }
 
         @keyframes runnerToastRise {
           from { opacity: 0; transform: translateX(-50%) translateY(8px); }
@@ -777,18 +807,24 @@ function drawRoad(
     ctx.restore();
   }
 
-  // Yellow rim light along projected road borders — gradient strengthens toward camera.
+  // Yellow rim light along projected road borders — fully fades into the
+  // horizon haze so the road edges no longer hit the mountains as hard lines.
   const rim = ctx.createLinearGradient(0, horizonY, 0, height);
-  rim.addColorStop(0, "rgba(230,206,32,0.05)");
+  rim.addColorStop(0, "rgba(230,206,32,0)");
+  rim.addColorStop(0.18, "rgba(230,206,32,0.04)");
   rim.addColorStop(0.55, "rgba(230,206,32,0.22)");
   rim.addColorStop(1, "rgba(230,206,32,0.5)");
   ctx.save();
   ctx.strokeStyle = rim;
   ctx.lineWidth = 2.2;
+  // Start a few pixels below horizonY so the apex never reads as a hard pin.
+  const rimStartY = horizonY + 6;
+  const rimStartLeft = topLeft + (0 - topLeft) * (6 / (height - horizonY));
+  const rimStartRight = topRight + (width - topRight) * (6 / (height - horizonY));
   ctx.beginPath();
-  ctx.moveTo(topLeft, horizonY);
+  ctx.moveTo(rimStartLeft, rimStartY);
   ctx.lineTo(0, height);
-  ctx.moveTo(topRight, horizonY);
+  ctx.moveTo(rimStartRight, rimStartY);
   ctx.lineTo(width, height);
   ctx.stroke();
   ctx.restore();
@@ -919,6 +955,32 @@ function drawHorizonIntegration(
   dust.addColorStop(1, "rgba(13,17,12,0)");
   ctx.fillStyle = dust;
   ctx.fillRect(0, horizonY - 30, width, 106);
+
+  // Cinematic atmospheric veil over the road's birth point — softens the
+  // hard trapezoid edge where asphalt meets the valley fog.
+  const valleyFog = ctx.createLinearGradient(0, horizonY - 6, 0, horizonY + height * 0.14);
+  valleyFog.addColorStop(0, "rgba(28,32,24,0.55)");
+  valleyFog.addColorStop(0.45, "rgba(34,40,30,0.22)");
+  valleyFog.addColorStop(1, "rgba(34,40,30,0)");
+  ctx.fillStyle = valleyFog;
+  ctx.fillRect(0, horizonY - 6, width, height * 0.16);
+
+  // Soft radial bloom centered on the vanishing point — bleeds the road
+  // tip into the sky instead of stamping a sharp corner.
+  const vanishingX = width * 0.5;
+  const vanishGlow = ctx.createRadialGradient(
+    vanishingX,
+    horizonY + 2,
+    0,
+    vanishingX,
+    horizonY + 2,
+    Math.max(width * 0.42, 160),
+  );
+  vanishGlow.addColorStop(0, "rgba(214,196,150,0.22)");
+  vanishGlow.addColorStop(0.5, "rgba(120,118,90,0.08)");
+  vanishGlow.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = vanishGlow;
+  ctx.fillRect(0, horizonY - 40, width, height * 0.22);
 
   ctx.save();
   ctx.globalAlpha = 0.12;
