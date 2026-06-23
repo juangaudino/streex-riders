@@ -647,13 +647,30 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           font-family: Montserrat, ui-sans-serif, system-ui, sans-serif;
           font-weight: 850;
           cursor: pointer;
+          transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+                      box-shadow 0.2s ease,
+                      background 0.2s ease,
+                      border-color 0.2s ease;
         }
 
         .runner-primary-button {
           border: 0;
           color: #0b0b0b;
-          background: #e6ce20;
-          box-shadow: 0 0 28px rgba(230,206,32,0.22);
+          background: linear-gradient(180deg, #f5db3a 0%, #e6ce20 52%, #c9b416 100%);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.45),
+            inset 0 -1px 0 rgba(0,0,0,0.16),
+            0 10px 28px rgba(230,206,32,0.22);
+        }
+        .runner-primary-button:hover {
+          transform: scale(1.01);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.55),
+            inset 0 -1px 0 rgba(0,0,0,0.16),
+            0 12px 32px rgba(230,206,32,0.3);
+        }
+        .runner-primary-button:active {
+          transform: scale(0.985);
         }
 
         .runner-action-primary {
@@ -667,17 +684,35 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           margin-top: 2px;
           min-height: 40px;
           font-size: 12px;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
           color: rgba(255,255,255,0.7);
-          background: transparent;
-          border-color: rgba(255,255,255,0.1);
+          background: linear-gradient(180deg, rgba(24,24,26,0.55) 0%, rgba(11,11,11,0.75) 100%);
+          border-color: rgba(230,206,32,0.12);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
         }
 
         .runner-secondary-button,
         .runner-ghost-button {
-          border: 1px solid rgba(255,255,255,0.14);
-          color: white;
-          background: rgba(255,255,255,0.045);
+          border: 1px solid rgba(230,206,32,0.18);
+          color: rgba(255,255,255,0.92);
+          background: linear-gradient(180deg, #1a1a1c 0%, #0d0d0d 100%);
+          font-size: 11px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.06),
+            0 4px 14px rgba(0,0,0,0.42);
+        }
+        .runner-secondary-button:hover,
+        .runner-ghost-button:hover {
+          border-color: rgba(230,206,32,0.32);
+          background: linear-gradient(180deg, #222224 0%, #121212 100%);
+          color: ${"#fff"};
+        }
+        .runner-secondary-button:active,
+        .runner-ghost-button:active {
+          transform: scale(0.99);
         }
       `}</style>
     </section>
