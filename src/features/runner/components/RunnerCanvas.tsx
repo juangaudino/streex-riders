@@ -703,22 +703,53 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
 
         .runner-toast {
           position: absolute;
-          top: 17%;
+          top: 15%;
           left: 50%;
           transform: translateX(-50%);
-          min-width: 112px;
-          padding: 8px 14px;
-          border: 1px solid rgba(230,206,32,0.28);
-          border-radius: 8px;
-          background: rgba(11,11,11,0.74);
+          min-width: 156px;
+          max-width: min(82%, 310px);
+          padding: 11px 18px 12px;
+          border: 1px solid rgba(230,206,32,0.52);
+          border-radius: 10px;
+          background:
+            linear-gradient(180deg, rgba(32,32,25,0.92) 0%, rgba(7,7,7,0.9) 100%),
+            rgba(11,11,11,0.92);
           color: #e6ce20;
           text-align: center;
-          font-size: 12px;
-          font-weight: 850;
-          letter-spacing: 0.08em;
+          font-size: clamp(14px, 3.8vw, 18px);
+          font-weight: 950;
+          letter-spacing: 0.12em;
+          line-height: 1.05;
           text-transform: uppercase;
+          text-shadow: 0 0 14px rgba(230,206,32,0.54);
           pointer-events: none;
-          animation: runnerToastRise 760ms ease both;
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.12),
+            0 0 0 1px rgba(230,206,32,0.08),
+            0 0 28px rgba(230,206,32,0.2),
+            0 12px 34px rgba(0,0,0,0.48);
+          animation: runnerToastRise 1050ms cubic-bezier(0.2, 0.86, 0.2, 1) both;
+          z-index: 3;
+        }
+
+        .runner-toast::before,
+        .runner-toast::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          width: 20px;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(230,206,32,0.74));
+          opacity: 0.78;
+        }
+
+        .runner-toast::before {
+          left: -26px;
+        }
+
+        .runner-toast::after {
+          right: -26px;
+          transform: rotate(180deg);
         }
 
         .runner-tap {
@@ -811,9 +842,10 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
         }
 
         @keyframes runnerToastRise {
-          from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-          18% { opacity: 1; }
-          to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+          from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.96); }
+          16% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+          74% { opacity: 1; transform: translateX(-50%) translateY(-4px) scale(1); }
+          to { opacity: 0; transform: translateX(-50%) translateY(-22px) scale(0.98); }
         }
       `}</style>
     </div>
