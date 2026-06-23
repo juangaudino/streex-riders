@@ -413,37 +413,54 @@ export function RunnerIntro({ onPlay, onBack }: RunnerIntroProps) {
           width: 100%;
           min-height: clamp(44px, 6svh, 50px);
           border-radius: 12px;
-          background: ${RUNNER_COLORS.yellow};
+          background: linear-gradient(180deg, #f5db3a 0%, ${RUNNER_COLORS.yellow} 52%, #c9b416 100%);
           color: ${RUNNER_COLORS.black};
           font-family: Inter, ui-sans-serif, system-ui, sans-serif;
           font-weight: 900;
           font-size: 16px;
           letter-spacing: 0.32em;
           text-transform: uppercase;
-          transition: transform 0.15s ease;
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.45),
+            inset 0 -1px 0 rgba(0,0,0,0.18),
+            0 8px 22px rgba(230,206,32,0.18);
+          transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease;
+        }
+        .runner-primary-button:hover .runner-primary-label {
+          transform: scale(1.01);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.55),
+            inset 0 -1px 0 rgba(0,0,0,0.18),
+            0 10px 28px rgba(230,206,32,0.28);
         }
         .runner-primary-button:active .runner-primary-label {
-          transform: scale(0.98);
+          transform: scale(0.985);
         }
 
         .runner-ghost-button {
           width: 100%;
           min-height: clamp(40px, 5.6svh, 46px);
           border-radius: 12px;
-          border: 1px solid rgba(255,255,255,0.14);
-          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(230,206,32,0.14);
+          background: linear-gradient(180deg, rgba(28,28,30,0.65) 0%, rgba(11,11,11,0.85) 100%);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.05),
+            0 4px 14px rgba(0,0,0,0.4);
           color: rgba(255,255,255,0.78);
           font-family: Montserrat, ui-sans-serif, system-ui, sans-serif;
-          font-weight: 600;
-          font-size: 13px;
-          letter-spacing: 0.06em;
+          font-weight: 800;
+          font-size: 11px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
           cursor: pointer;
-          transition: background 0.2s ease, color 0.2s ease;
+          transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.18s ease;
         }
         .runner-ghost-button:hover {
-          background: rgba(255,255,255,0.06);
+          background: linear-gradient(180deg, rgba(36,36,38,0.75) 0%, rgba(16,16,16,0.9) 100%);
+          border-color: rgba(230,206,32,0.24);
           color: ${RUNNER_COLORS.white};
         }
+        .runner-ghost-button:active { transform: scale(0.99); }
 
         @supports (height: 100dvh) {
           .runner-shell {
