@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { RUNNER_COLORS, RUNNER_HORIZON, RUNNER_OBSTACLE_LABELS } from "../runner.config";
-import type { RunnerControls, RunnerEntity, RunnerGameSnapshot, RunnerLane } from "../runner.types";
+import type {
+  RunnerControls,
+  RunnerEntity,
+  RunnerGameSnapshot,
+  RunnerLane,
+  RunnerStage,
+} from "../runner.types";
 import { RUNNER_SPRITES, type RunnerSpriteKey } from "../assets/manifest";
 import { RunnerAudio } from "../audio/runnerAudio";
 import { detectRunnerCollision, laneCenter } from "../engine/collision";
-import { getDifficulty } from "../engine/difficulty";
+import { getDifficulty, RUNNER_STAGE_LABELS } from "../engine/difficulty";
 import { createSpawnMemory, createSpawnWave } from "../engine/spawnEngine";
 
 // Deterministic dust particles — module-level so no allocations per frame.
@@ -54,8 +60,15 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
   const animationRef = useRef<number | null>(null);
   const spritesRef = useRef<RunnerLoadedSprites>({});
   const audioRef = useRef<RunnerAudio | null>(null);
+  const tapHintTimeoutRef = useRef<number | null>(null);
+  const tapHintTimerStartedRef = useRef(false);
+  const lastAnnouncedStageRef = useRef<RunnerStage>("warmRide");
+  const crashProgressVisibleRef = useRef(false);
   const [scoreLabel, setScoreLabel] = useState(0);
   const [toastLabel, setToastLabel] = useState<string | null>(null);
+  const [tapHintsVisible, setTapHintsVisible] = useState(true);
+  const [activeLane, setActiveLane] = useState<RunnerLane>(1);
+  const [crashProgress, setCrashProgress] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [fullscreenSupported, setFullscreenSupported] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -226,6 +239,13 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
         state.startedAt = time;
         state.lastFrameAt = time;
         state.lastSpawnAt = time;
+        if (!tapHintTimerStartedRef.current) {
+          tapHintTimerStartedRef.current = true;
+          tapHintTimeoutRef.current = window.setTimeout(() => {
+            setTapHintsVisible(false);
+            tapHintTimeoutRef.current = null;
+          }, 3000);
+        }
       }
 
       const deltaMs = Math.min(time - state.lastFrameAt, 48);
@@ -238,6 +258,19 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
         drawRunnerFrame(ctx, width, height, state, time, spritesRef.current);
         animationRef.current = requestAnimationFrame(loop);
         return;
+      }
+
+      if (
+        state.running &&
+        !state.crashUntil &&
+        difficulty.stage !== lastAnnouncedStageRef.current &&
+        RUNNER_STAGE_LABELS[difficulty.stage]
+      ) {
+        lastAnnouncedStageRef.current = difficulty.stage;
+        state.toast = {
+          text: RUNNER_STAGE_LABELS[difficulty.stage],
+          until: time + 1400,
+        };
       }
 
       if (state.running && !state.crashUntil) {
@@ -299,6 +332,17 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
         }
       }
 
+      if (state.crashUntil) {
+        const CRASH_DURATION = 780;
+        const elapsed = time - (state.crashUntil - CRASH_DURATION);
+        const progress = Math.min(1, Math.max(0, elapsed / CRASH_DURATION));
+        crashProgressVisibleRef.current = true;
+        setCrashProgress(progress);
+      } else if (crashProgressVisibleRef.current) {
+        crashProgressVisibleRef.current = false;
+        setCrashProgress(null);
+      }
+
       drawRunnerFrame(ctx, width, height, state, time, spritesRef.current);
 
       if (state.toast && time > state.toast.until) {
@@ -312,6 +356,10 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
       });
       setToastLabel((current) => {
         const next = state.toast?.text ?? null;
+        return current === next ? current : next;
+      });
+      setActiveLane((current) => {
+        const next = state.targetLane;
         return current === next ? current : next;
       });
 
@@ -332,6 +380,7 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
     animationRef.current = requestAnimationFrame(loop);
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      if (tapHintTimeoutRef.current) window.clearTimeout(tapHintTimeoutRef.current);
     };
   }, [onGameOver]);
 
@@ -422,14 +471,40 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
         </div>
       ) : null}
       {toastLabel ? <div className="runner-toast">{toastLabel}</div> : null}
-      <div className="runner-tap runner-tap-left" aria-hidden="true">
-        <span className="runner-tap-chevron">‹</span>
-        <span className="runner-tap-label">Left</span>
+      <div className="runner-lane-dots" aria-hidden="true">
+        <span
+          className={
+            activeLane === 0 ? "runner-lane-dot runner-lane-dot-active" : "runner-lane-dot"
+          }
+        />
+        <span
+          className={
+            activeLane === 1 ? "runner-lane-dot runner-lane-dot-active" : "runner-lane-dot"
+          }
+        />
+        <span
+          className={
+            activeLane === 2 ? "runner-lane-dot runner-lane-dot-active" : "runner-lane-dot"
+          }
+        />
       </div>
-      <div className="runner-tap runner-tap-right" aria-hidden="true">
-        <span className="runner-tap-label">Right</span>
-        <span className="runner-tap-chevron">›</span>
-      </div>
+      {tapHintsVisible ? (
+        <>
+          <div className="runner-tap runner-tap-left" aria-hidden="true">
+            <span className="runner-tap-chevron">‹</span>
+            <span className="runner-tap-label">Left</span>
+          </div>
+          <div className="runner-tap runner-tap-right" aria-hidden="true">
+            <span className="runner-tap-label">Right</span>
+            <span className="runner-tap-chevron">›</span>
+          </div>
+        </>
+      ) : null}
+      {crashProgress !== null ? (
+        <div className="runner-crash-bar-shell" aria-hidden="true">
+          <div className="runner-crash-bar-fill" style={{ width: `${crashProgress * 100}%` }} />
+        </div>
+      ) : null}
       <style>{`
         .runner-game-shell {
           position: relative;
@@ -683,6 +758,57 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
 
         .runner-tap-left { left: 14px; }
         .runner-tap-right { right: 14px; }
+
+        .runner-lane-dots {
+          position: absolute;
+          bottom: max(72px, calc(env(safe-area-inset-bottom) + 48px));
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          padding: 6px 9px;
+          border: 1px solid rgba(230,206,32,0.18);
+          border-radius: 999px;
+          background: rgba(11,11,11,0.38);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.04),
+            0 6px 16px rgba(0,0,0,0.22);
+          pointer-events: none;
+        }
+
+        .runner-lane-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.22);
+          transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .runner-lane-dot-active {
+          background: #e6ce20;
+          transform: scale(1.38);
+          box-shadow: 0 0 7px rgba(230,206,32,0.7);
+        }
+
+        .runner-crash-bar-shell {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: rgba(255,45,45,0.18);
+          overflow: hidden;
+          pointer-events: none;
+          z-index: 5;
+        }
+
+        .runner-crash-bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, rgba(255,68,68,0.78), #e6ce20);
+          box-shadow: 0 0 8px rgba(230,206,32,0.72);
+          transition: width 60ms linear;
+        }
 
         @keyframes runnerToastRise {
           from { opacity: 0; transform: translateX(-50%) translateY(8px); }

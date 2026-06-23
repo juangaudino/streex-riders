@@ -1,5 +1,12 @@
 import type { RunnerStage } from "../runner.types";
 
+export const RUNNER_STAGE_LABELS: Record<RunnerStage, string> = {
+  warmRide: "",
+  trafficBuilds: "Traffic Builds",
+  utahChaos: "Utah Chaos",
+  legendaryDriver: "Legendary Driver",
+};
+
 export type DifficultyState = {
   stage: RunnerStage;
   speed: number;

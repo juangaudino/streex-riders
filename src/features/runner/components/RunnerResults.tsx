@@ -50,7 +50,10 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
   const canSaveScore = riderName.trim().length > 0;
   const resultRank = Math.max(1, resultStats.rank);
   const totalRiders = Math.max(1, resultStats.totalRiders);
-  const riderCountLabel = totalRiders === 1 ? "1 rider" : `${totalRiders} riders`;
+  const displayedResultRank = leaderboardLoading ? Math.max(1, snapshot.rank) : resultRank;
+  const displayedTotalRiders = leaderboardLoading ? Math.max(1, snapshot.totalRiders) : totalRiders;
+  const displayedRiderCountLabel =
+    displayedTotalRiders === 1 ? "1 rider" : `${displayedTotalRiders} riders`;
 
   useEffect(() => {
     let cancelled = false;
@@ -107,7 +110,7 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
       setScoreSaved(true);
       setScoreHint(
         resultStats.recordsReady
-          ? "Score saved. It will appear after admin approval."
+          ? `Score saved — you're #${resultRank} right now. Your ride will appear on the board once approved.`
           : "Score saved. Score stats will update after Cloud records are ready.",
       );
     } catch (error) {
@@ -214,8 +217,11 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
             </h1>
             <p className="runner-card-label">Your Score</p>
             <strong className="runner-card-score">{snapshot.score}</strong>
-            <span className="runner-card-rank">You ranked #{resultRank}</span>
-            <span className="runner-card-rank-sub">Among {riderCountLabel}</span>
+            <span className="runner-card-rank">You ranked #{displayedResultRank}</span>
+            <span className="runner-card-rank-sub">
+              Among {displayedRiderCountLabel}
+              {leaderboardLoading ? <em> updating…</em> : null}
+            </span>
           </div>
         </div>
 
@@ -559,6 +565,11 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
           font-size: 11px;
           font-weight: 700;
           letter-spacing: 0.04em;
+        }
+
+        .runner-card-rank-sub em {
+          color: rgba(230,206,32,0.68);
+          font-style: normal;
         }
 
         .runner-result-actions {
