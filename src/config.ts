@@ -161,12 +161,27 @@ export const CONFIG = {
   ],
 
   // ─── AREAS SERVED ────────────────────────────
-  areas: ["Salt Lake City", "Park City", "SLC Airport", "Surrounding Utah Areas"],
+  areas: [
+    "Salt Lake City",
+    "Park City",
+    "SLC Airport",
+    "Ogden",
+    "Farmington",
+    "Layton",
+    "Clearfield",
+    "South Salt Lake",
+    "Sandy",
+    "Draper",
+    "Provo",
+    "Lehi",
+    "Las Vegas",
+    "Idaho",
+  ],
 
   // ─── SEO ─────────────────────────────────────
-  seoTitle: "Streex Rides — Private rides. Elevated.",
+  seoTitle: "Streex Rides | Private Rides in Salt Lake City, Park City & SLC Airport",
   seoDescription:
-    "Premium private transportation across Salt Lake City & Park City. Airport rides, ski trips, scheduled rides and more.",
+    "Private rides. Elevated. Premium private transportation across Salt Lake City, Park City, SLC Airport and surrounding Utah areas, including hourly service and long-distance rides to Las Vegas.",
   seoUrl: "https://rides.getstreex.com",
   ogImage: "https://rides.getstreex.com/images/streex/streex-og-preview-v2.jpg",
 };

@@ -32,6 +32,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:description", content: CONFIG.seoDescription },
       { name: "twitter:image", content: CONFIG.ogImage },
     ],
+    links: [{ rel: "canonical", href: "https://rides.getstreex.com/" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -45,25 +46,120 @@ export const Route = createFileRoute("/")({
           image: CONFIG.ogImage,
           telephone: CONFIG.phone,
           email: CONFIG.email,
+          founder: {
+            "@type": "Person",
+            name: CONFIG.ownerName,
+          },
           address: {
             "@type": "PostalAddress",
             addressLocality: "Salt Lake City",
             addressRegion: "UT",
             addressCountry: "US",
           },
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: 40.7608,
+            longitude: -111.891,
+          },
           areaServed: [
-            "Salt Lake City",
-            "Park City",
-            "Salt Lake City International Airport",
-            "Utah",
+            {
+              "@type": "City",
+              name: "Salt Lake City",
+              containedInPlace: { "@type": "State", name: "Utah" },
+            },
+            {
+              "@type": "City",
+              name: "Park City",
+              containedInPlace: { "@type": "State", name: "Utah" },
+            },
+            {
+              "@type": "Airport",
+              name: "Salt Lake City International Airport",
+              iataCode: "SLC",
+            },
+            {
+              "@type": "City",
+              name: "Ogden",
+              containedInPlace: { "@type": "State", name: "Utah" },
+            },
+            {
+              "@type": "City",
+              name: "Farmington",
+              containedInPlace: { "@type": "State", name: "Utah" },
+            },
+            {
+              "@type": "City",
+              name: "Layton",
+              containedInPlace: { "@type": "State", name: "Utah" },
+            },
+            {
+              "@type": "City",
+              name: "Clearfield",
+              containedInPlace: { "@type": "State", name: "Utah" },
+            },
+            {
+              "@type": "City",
+              name: "South Salt Lake",
+              containedInPlace: { "@type": "State", name: "Utah" },
+            },
+            {
+              "@type": "City",
+              name: "Sandy",
+              containedInPlace: { "@type": "State", name: "Utah" },
+            },
+            {
+              "@type": "City",
+              name: "Draper",
+              containedInPlace: { "@type": "State", name: "Utah" },
+            },
+            {
+              "@type": "City",
+              name: "Provo",
+              containedInPlace: { "@type": "State", name: "Utah" },
+            },
+            {
+              "@type": "City",
+              name: "Lehi",
+              containedInPlace: { "@type": "State", name: "Utah" },
+            },
+            {
+              "@type": "City",
+              name: "Las Vegas",
+              containedInPlace: { "@type": "State", name: "Nevada" },
+            },
+            {
+              "@type": "State",
+              name: "Idaho",
+            },
+          ],
+          openingHoursSpecification: [
+            {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+              ],
+              opens: "06:00",
+              closes: "22:00",
+            },
           ],
           serviceType: [
             "Airport Transfers",
+            "SLC Airport Private Rides",
+            "Park City Private Transportation",
+            "Ski Resort Transportation",
             "Scheduled Rides",
             "Hourly Service",
             "Corporate Travel",
             "Private Events",
             "Long Distance",
+            "Las Vegas Private Rides",
+            "Idaho Private Rides",
           ],
           priceRange: "$$",
           availableLanguage: ["English", "Spanish"],

@@ -9,7 +9,7 @@ export const Route = createFileRoute("/runner-lab")({
         name: "description",
         content: "Play Streex Horizon, the Streex Rides road challenge.",
       },
-      { name: "robots", content: "noindex,nofollow" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: RunnerLabRoute,
