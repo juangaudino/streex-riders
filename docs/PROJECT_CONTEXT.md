@@ -100,6 +100,15 @@ Lovable Cloud storage contains public image assets used by the landing experienc
 - Runner and future experiments must integrate into the STREEX ecosystem rather than compete with it.
 - Prefer premium restraint over loud arcade, casino, crypto-app, or generic SaaS styling.
 - Preserve mobile-first usability and safe-area behavior.
+- Keep analytics limited to public passenger flows; never send booking contact details or ride
+  addresses to third-party analytics.
+
+## Analytics
+
+- Google Analytics 4 measurement ID: `G-1WJPHXQKSN`.
+- Analytics loads only in production and excludes `/admin` and `/runner-lab`.
+- `booking_submitted` is the primary conversion/key event.
+- Funnel and contact events are centralized through `src/lib/analytics.ts`.
 
 ## Environment Notes
 

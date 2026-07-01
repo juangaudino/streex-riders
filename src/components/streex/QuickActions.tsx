@@ -4,6 +4,7 @@ import { SaveContactModal } from "./SaveContactModal";
 import { BookingFormModal } from "./BookingFormModal";
 import { Reveal } from "./Reveal";
 import type { AppConfig } from "@/config";
+import { trackEvent } from "@/lib/analytics";
 import horizonQuickActionCard from "@/features/runner/assets/quick-action/horizon_quick_action_card.webp";
 
 function ActionCard({
@@ -37,6 +38,7 @@ function ActionCard({
   const inner = href ? (
     <a
       href={href}
+      onClick={onClick}
       target={href.startsWith("http") ? "_blank" : undefined}
       rel="noreferrer"
       {...(download ? { download: "" } : {})}
@@ -93,6 +95,7 @@ export function QuickActions({ config }: { config: AppConfig }) {
   const vcard = buildVcard(config);
 
   const saveContact = () => {
+    trackEvent("contact_saved", { method: "vcard" });
     try {
       const blob = new Blob([vcard], { type: "text/vcard" });
       const url = URL.createObjectURL(blob);
@@ -125,6 +128,7 @@ export function QuickActions({ config }: { config: AppConfig }) {
             label="Text Me"
             description="Schedule a ride by SMS"
             href={`sms:${config.phone}?&body=${encodeURIComponent(`Hi ${config.ownerName}! I'd like to schedule a ride.`)}`}
+            onClick={() => trackEvent("sms_clicked", { location: "quick_actions" })}
             revealDelay={90}
           />
         )}
@@ -134,6 +138,7 @@ export function QuickActions({ config }: { config: AppConfig }) {
             label="Call Me"
             description={`Reach ${config.ownerName} directly`}
             href={`tel:${config.phone}`}
+            onClick={() => trackEvent("call_clicked", { location: "quick_actions" })}
             revealDelay={180}
           />
         )}
@@ -151,7 +156,10 @@ export function QuickActions({ config }: { config: AppConfig }) {
             icon={<Calendar className={iconCls} />}
             label="Schedule Ride"
             description="Book ahead"
-            onClick={() => setBookingOpen(true)}
+            onClick={() => {
+              trackEvent("booking_opened", { location: "quick_actions" });
+              setBookingOpen(true);
+            }}
             revealDelay={360}
           />
         )}

@@ -4,11 +4,14 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
+import { initializeAnalytics, isAnalyticsAllowed, trackPageView } from "@/lib/analytics";
 
 function NotFoundComponent() {
   return (
@@ -186,6 +189,24 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  useEffect(() => {
+    if (!isAnalyticsAllowed(pathname)) return;
+
+    const startAnalytics = () => {
+      initializeAnalytics();
+      trackPageView(pathname);
+    };
+
+    if (document.readyState === "complete") {
+      startAnalytics();
+      return;
+    }
+
+    window.addEventListener("load", startAnalytics, { once: true });
+    return () => window.removeEventListener("load", startAnalytics);
+  }, [pathname]);
 
   return (
     <QueryClientProvider client={queryClient}>

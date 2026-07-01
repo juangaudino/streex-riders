@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Star, Check } from "lucide-react";
 import { submitPassengerReview } from "@/lib/review.functions";
+import { trackEvent } from "@/lib/analytics";
 
 export function FeedbackForm() {
   const [rating, setRating] = useState(0);
@@ -10,6 +11,13 @@ export function FeedbackForm() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const openedRef = useRef(false);
+
+  const trackReviewOpened = () => {
+    if (openedRef.current) return;
+    openedRef.current = true;
+    trackEvent("review_form_opened");
+  };
 
   const onSubmit = async () => {
     if (submitting) return;
@@ -32,6 +40,7 @@ export function FeedbackForm() {
           message: trimmedMessage.slice(0, 1000),
         },
       });
+      trackEvent("review_submitted", { rating });
       setSubmitted(true);
       setName("");
       setText("");
@@ -53,7 +62,7 @@ export function FeedbackForm() {
       <h2 className="text-2xl font-bold mb-2">Share Your Experience</h2>
       <p className="text-sm text-white/60 mb-5">Your feedback helps us improve every ride.</p>
 
-      <div className="streex-glass p-6">
+      <div className="streex-glass p-6" onFocusCapture={trackReviewOpened}>
         {submitted ? (
           <div className="streex-fade-in flex flex-col items-center text-center py-6">
             <div className="h-14 w-14 rounded-full flex items-center justify-center bg-[#E6CE20]/15 border border-[#E6CE20]/40 mb-4">
@@ -75,7 +84,10 @@ export function FeedbackForm() {
                     type="button"
                     onMouseEnter={() => setHover(value)}
                     onMouseLeave={() => setHover(0)}
-                    onClick={() => setRating(value)}
+                    onClick={() => {
+                      trackReviewOpened();
+                      setRating(value);
+                    }}
                     aria-label={`Rate ${value} stars`}
                     className="p-1"
                   >

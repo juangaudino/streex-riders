@@ -176,11 +176,24 @@ Common groups:
 
 - Supabase/Lovable database keys
 - Google Maps browser key
+- Google Analytics measurement ID
 - Email/Resend settings
 - `SITE_URL`
 - `ADMIN_ACCESS_KEY`
 
 `ADMIN_ACCESS_KEY` is private and authorizes the Admin control center. It must not be treated as a public frontend value.
+
+### Analytics
+
+Google Analytics 4 is initialized only in production on public passenger routes. Admin and
+STREEX Horizon are excluded. The implementation intentionally avoids sending passenger names,
+email addresses, phone numbers, pickup addresses, or destinations.
+
+Primary commercial events include booking funnel activity, successful ride requests, contact
+clicks, social clicks, service selection, and review submissions. `booking_submitted` is the
+recommended GA4 key event.
+
+Relevant file: `src/lib/analytics.ts`.
 
 ## Development
 
@@ -295,4 +308,3 @@ For booking/calendar logic, also run the focused schedule and timezone tests.
 ## Deployment
 
 The application is hosted through Lovable and backed by Lovable Cloud / Supabase-compatible services. Production-sensitive configuration should be managed in Lovable secrets or the hosting provider’s environment settings, not committed to the repo.
-

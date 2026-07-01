@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Check, ChevronDown, Minus, Plus } from "lucide-react";
 import { createBooking } from "@/lib/booking.functions";
 import { getAvailableSlots, type AvailableSlot } from "@/lib/availability.functions";
 import { PlacesAutocompleteInput } from "./PlacesAutocompleteInput";
+import { trackEvent } from "@/lib/analytics";
 
 type Props = {
   open: boolean;
@@ -76,6 +77,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [slotsError, setSlotsError] = useState<string | null>(null);
+  const startedRef = useRef(false);
   const minRideDate = todayLocalISO();
 
   useEffect(() => {
@@ -96,6 +98,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
       setCustomCode("");
       setAvailableSlots([]);
       setSlotsError(null);
+      startedRef.current = false;
     }
   }, [open]);
 
@@ -178,18 +181,22 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
       !trimmed.date ||
       !trimmed.time
     ) {
+      trackEvent("booking_failed", { reason: "missing_required_fields" });
       setError("Please complete all required fields.");
       return;
     }
     if (!/^\S+@\S+\.\S+$/.test(trimmed.email)) {
+      trackEvent("booking_failed", { reason: "invalid_email" });
       setError("Please enter a valid email address.");
       return;
     }
     if (trimmed.passengers < 1 || trimmed.passengers > 8) {
+      trackEvent("booking_failed", { reason: "invalid_passenger_count" });
       setError("Passengers must be between 1 and 8.");
       return;
     }
     if (trimmed.date < minRideDate) {
+      trackEvent("booking_failed", { reason: "invalid_date" });
       setError("Please choose today or a future date.");
       return;
     }
@@ -197,8 +204,15 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
     setSubmitting(true);
     try {
       await createBooking({ data: trimmed });
+      trackEvent("booking_submitted", {
+        service_type: trimmed.serviceType,
+        duration_hours:
+          trimmed.serviceType === "hourly" ? form.durationHours : undefined,
+        passengers: trimmed.passengers,
+      });
       setSubmitted(true);
     } catch (err) {
+      trackEvent("booking_failed", { reason: "server_error" });
       console.error(err);
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
@@ -254,7 +268,15 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
               </button>
             </div>
           ) : (
-            <form onSubmit={onSubmit} className="space-y-4">
+            <form
+              onSubmit={onSubmit}
+              onChangeCapture={() => {
+                if (startedRef.current) return;
+                startedRef.current = true;
+                trackEvent("booking_started", { service_type: form.serviceType });
+              }}
+              className="space-y-4"
+            >
               <div>
                 <label className={labelCls}>Service Type</label>
                 <div className="grid grid-cols-2 gap-2">
@@ -271,13 +293,14 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                       <button
                         key={option.key}
                         type="button"
-                        onClick={() =>
+                        onClick={() => {
+                          trackEvent("service_selected", { service_type: option.key });
                           setForm((f) => ({
                             ...f,
                             serviceType: option.key,
                             time: "",
-                          }))
-                        }
+                          }));
+                        }}
                         className={`rounded-xl border px-3 py-3 text-left transition-colors ${
                           selected
                             ? "border-[#E6CE20] bg-[#E6CE20]/15"

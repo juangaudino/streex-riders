@@ -1,6 +1,7 @@
 import { Reveal } from "./Reveal";
 import { MessageCircle } from "lucide-react";
 import type { AppConfig } from "@/config";
+import { trackEvent } from "@/lib/analytics";
 
 const InstagramIcon = () => (
   <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
@@ -126,6 +127,18 @@ export function FindUsSection({ config }: { config: AppConfig }) {
                 href={b.href}
                 target="_blank"
                 rel="noreferrer"
+                onClick={() => {
+                  const eventNames: Record<string, string> = {
+                    WhatsApp: "whatsapp_clicked",
+                    Instagram: "instagram_clicked",
+                    Google: "google_profile_clicked",
+                    Nextdoor: "nextdoor_clicked",
+                  };
+                  trackEvent(eventNames[b.label] || "social_clicked", {
+                    platform: b.label.toLowerCase(),
+                    location: "connect_section",
+                  });
+                }}
                 className="flex-1 min-w-0"
               >
                 {content}
