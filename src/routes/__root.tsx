@@ -178,6 +178,12 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{if(sessionStorage.getItem("streex_splash_seen_v1")==="1")document.documentElement.dataset.streexSplash="seen"}catch(e){}',
+          }}
+        />
       </head>
       <body>
         {children}

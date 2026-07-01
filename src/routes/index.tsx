@@ -15,6 +15,10 @@ import { FindUsSection } from "@/components/streex/FindUsSection";
 import { ServiceTicker } from "@/components/streex/ServiceTicker";
 import { Reveal } from "@/components/streex/Reveal";
 import { getPublicSiteConfig } from "@/lib/site-config.functions";
+import { ServiceAreas } from "@/components/streex/ServiceAreas";
+import { FrequentlyAskedQuestions } from "@/components/streex/FrequentlyAskedQuestions";
+
+const SPLASH_SESSION_KEY = "streex_splash_seen_v1";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -177,8 +181,14 @@ function Index() {
   const [siteConfig, setSiteConfig] = useState<AppConfig>(CONFIG);
 
   useEffect(() => {
-    const fadeT = setTimeout(() => setFadingOut(true), 1800);
-    const hideT = setTimeout(() => setShowSplash(false), 2300);
+    try {
+      sessionStorage.setItem(SPLASH_SESSION_KEY, "1");
+    } catch {
+      // The splash still works when browser storage is unavailable.
+    }
+
+    const fadeT = setTimeout(() => setFadingOut(true), 1250);
+    const hideT = setTimeout(() => setShowSplash(false), 1700);
     return () => {
       clearTimeout(fadeT);
       clearTimeout(hideT);
@@ -206,7 +216,7 @@ function Index() {
   return (
     <div className="min-h-screen text-white streex-frame">
       {showSplash && (
-        <div className={fadingOut ? "streex-fade-out" : ""}>
+        <div data-streex-splash className={fadingOut ? "streex-fade-out" : ""}>
           <Splash />
         </div>
       )}
@@ -272,6 +282,9 @@ function Index() {
         {/* OUR SERVICES */}
         {siteConfig.sections.servicesGrid && <ServicesSection config={siteConfig} />}
 
+        {/* SERVICE AREAS */}
+        {siteConfig.sections.serviceAreas && <ServiceAreas />}
+
         {/* REVIEWS */}
         {siteConfig.sections.reviews && (
           <Reveal>
@@ -299,24 +312,6 @@ function Index() {
           </Reveal>
         )}
 
-        {/* WHERE WE RIDE — hidden for now, restore when needed */}
-        {/* <section className="px-6 mt-16">
-          <h2 className="text-[11px] uppercase streex-tracking text-white/50 font-semibold mb-4">
-            Where We Ride
-          </h2>
-          <div className="space-y-2">
-            {["Salt Lake City", "Park City", "SLC Airport", "Surrounding Utah Areas"].map((a) => (
-              <div
-                key={a}
-                className="streex-glass px-5 py-4 flex items-center justify-between"
-              >
-                <span className="text-[15px] font-medium">{a}</span>
-                <span className="h-2 w-2 rounded-full bg-[#E6CE20]" />
-              </div>
-            ))}
-          </div>
-        </section> */}
-
         {/* MEET JUAN */}
         {siteConfig.sections.meetJuan && <MeetJuan config={siteConfig} />}
 
@@ -326,6 +321,9 @@ function Index() {
             <FeedbackForm />
           </Reveal>
         )}
+
+        {/* FAQ */}
+        {siteConfig.sections.faq && <FrequentlyAskedQuestions />}
 
         {/* FOOTER */}
         <footer className="px-6 mt-20 pt-10 pb-8 flex flex-col items-center text-center border-t border-white/5">

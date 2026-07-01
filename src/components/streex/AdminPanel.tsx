@@ -1017,12 +1017,14 @@ function AdminConfig() {
     moreOptions: "More Options",
     experienceGallery: "Experience Gallery",
     servicesGrid: "Services Grid",
+    serviceAreas: "Service Areas",
     reviews: "Reviews",
     whyStreex: "Why Streex",
     meetJuan: "Meet Juan",
     paymentOptions: "Payment Options",
     findUs: "Find Us",
     feedbackForm: "Feedback Form",
+    faq: "Frequently Asked Questions",
   };
 
   return (

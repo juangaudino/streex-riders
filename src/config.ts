@@ -134,12 +134,14 @@ export const CONFIG = {
     moreOptions: true,
     experienceGallery: true,
     servicesGrid: true,
+    serviceAreas: true,
     reviews: true,
     whyStreex: true,
     meetJuan: true,
     paymentOptions: true,
     findUs: true,
     feedbackForm: true,
+    faq: true,
   },
 
   // ─── WHY STREEX ──────────────────────────────

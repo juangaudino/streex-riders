@@ -220,6 +220,10 @@
   .streex-fade-out {
     animation: streex-fade-out 500ms ease both;
   }
+
+  html[data-streex-splash="seen"] [data-streex-splash] {
+    display: none;
+  }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }

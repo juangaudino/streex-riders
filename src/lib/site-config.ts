@@ -13,12 +13,14 @@ const SectionsOverrideSchema = z
     moreOptions: z.boolean().optional(),
     experienceGallery: z.boolean().optional(),
     servicesGrid: z.boolean().optional(),
+    serviceAreas: z.boolean().optional(),
     reviews: z.boolean().optional(),
     whyStreex: z.boolean().optional(),
     meetJuan: z.boolean().optional(),
     paymentOptions: z.boolean().optional(),
     findUs: z.boolean().optional(),
     feedbackForm: z.boolean().optional(),
+    faq: z.boolean().optional(),
   })
   .strict();
 
