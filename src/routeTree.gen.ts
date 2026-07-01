@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RunnerLabRouteImport } from './routes/runner-lab'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GoogleCalendarCallbackRouteImport } from './routes/google-calendar.callback'
 import { Route as BookingDeclineRouteImport } from './routes/booking.decline'
 import { Route as BookingAcceptRouteImport } from './routes/booking.accept'
 import { Route as AdminReviewsRouteImport } from './routes/admin.reviews'
@@ -28,6 +30,11 @@ const RunnerLabRoute = RunnerLabRouteImport.update({
   path: '/runner-lab',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -36,6 +43,11 @@ const AdminRoute = AdminRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GoogleCalendarCallbackRoute = GoogleCalendarCallbackRouteImport.update({
+  id: '/google-calendar/callback',
+  path: '/google-calendar/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingDeclineRoute = BookingDeclineRouteImport.update({
@@ -62,74 +74,88 @@ const AdminBookingsRoute = AdminBookingsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/runner-lab': typeof RunnerLabRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/booking/accept': typeof BookingAcceptRoute
   '/booking/decline': typeof BookingDeclineRoute
+  '/google-calendar/callback': typeof GoogleCalendarCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/runner-lab': typeof RunnerLabRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/booking/accept': typeof BookingAcceptRoute
   '/booking/decline': typeof BookingDeclineRoute
+  '/google-calendar/callback': typeof GoogleCalendarCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/runner-lab': typeof RunnerLabRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/booking/accept': typeof BookingAcceptRoute
   '/booking/decline': typeof BookingDeclineRoute
+  '/google-calendar/callback': typeof GoogleCalendarCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
+    | '/privacy'
     | '/runner-lab'
     | '/sitemap.xml'
     | '/admin/bookings'
     | '/admin/reviews'
     | '/booking/accept'
     | '/booking/decline'
+    | '/google-calendar/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
+    | '/privacy'
     | '/runner-lab'
     | '/sitemap.xml'
     | '/admin/bookings'
     | '/admin/reviews'
     | '/booking/accept'
     | '/booking/decline'
+    | '/google-calendar/callback'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/privacy'
     | '/runner-lab'
     | '/sitemap.xml'
     | '/admin/bookings'
     | '/admin/reviews'
     | '/booking/accept'
     | '/booking/decline'
+    | '/google-calendar/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  PrivacyRoute: typeof PrivacyRoute
   RunnerLabRoute: typeof RunnerLabRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BookingAcceptRoute: typeof BookingAcceptRoute
   BookingDeclineRoute: typeof BookingDeclineRoute
+  GoogleCalendarCallbackRoute: typeof GoogleCalendarCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -148,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RunnerLabRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -160,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/google-calendar/callback': {
+      id: '/google-calendar/callback'
+      path: '/google-calendar/callback'
+      fullPath: '/google-calendar/callback'
+      preLoaderRoute: typeof GoogleCalendarCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/booking/decline': {
@@ -208,10 +248,12 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  PrivacyRoute: PrivacyRoute,
   RunnerLabRoute: RunnerLabRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   BookingAcceptRoute: BookingAcceptRoute,
   BookingDeclineRoute: BookingDeclineRoute,
+  GoogleCalendarCallbackRoute: GoogleCalendarCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

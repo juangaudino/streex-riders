@@ -59,6 +59,48 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_connections: {
+        Row: {
+          account_email: string | null
+          busy_calendar_ids: Json
+          connected_at: string
+          encrypted_refresh_token: string
+          id: string
+          last_error: string | null
+          last_synced_at: string | null
+          provider: string
+          scopes: string[]
+          updated_at: string
+          write_calendar_id: string | null
+        }
+        Insert: {
+          account_email?: string | null
+          busy_calendar_ids?: Json
+          connected_at?: string
+          encrypted_refresh_token: string
+          id: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          provider?: string
+          scopes?: string[]
+          updated_at?: string
+          write_calendar_id?: string | null
+        }
+        Update: {
+          account_email?: string | null
+          busy_calendar_ids?: Json
+          connected_at?: string
+          encrypted_refresh_token?: string
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          provider?: string
+          scopes?: string[]
+          updated_at?: string
+          write_calendar_id?: string | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           created_at: string

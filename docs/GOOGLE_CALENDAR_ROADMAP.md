@@ -1,6 +1,7 @@
 # Google Calendar Roadmap
 
-Status: planned for the next development session. No Google OAuth or Calendar API code is implemented yet.
+Status: OAuth foundation implemented in code. Production secrets, migration application, first
+connection, free/busy blocking, and event synchronization remain pending.
 
 ## Product rules already agreed
 
@@ -11,14 +12,17 @@ Status: planned for the next development session. No Google OAuth or Calendar AP
 - Deleting or moving a Google event must not silently cancel a STREEX booking.
 - Do not invite the passenger automatically in the first version.
 - Keep passenger details private and request the least Google access needed.
+- Read busy time from the primary personal calendar and a dedicated `STREEX Rides` calendar.
+- Write only to the dedicated `STREEX Rides` calendar.
 
 ## Phase 1: connection and read-only blocking
 
-- Create/configure the Google Cloud project and enable Calendar API.
-- Configure the OAuth consent screen and production redirect URL on `rides.getstreex.com`.
-- Add Google client ID, client secret, token-encryption key, and callback URL to Vercel.
-- Add a `calendar_connections` table for encrypted refresh tokens, selected calendar IDs, scopes, and connection state.
-- Add Connect, Disconnect, and calendar-selection controls in Admin Availability.
+- [x] Create/configure the Google Cloud project and enable Calendar API.
+- [x] Configure the OAuth consent screen and production redirect URL on `rides.getstreex.com`.
+- [ ] Add Google client ID, client secret, token-encryption key, and callback URL to production secrets.
+- [x] Add a migration for `calendar_connections` with encrypted refresh-token storage.
+- [x] Add Connect, Disconnect, and calendar-selection controls in Admin Availability.
+- [ ] Apply the migration and verify the first production OAuth connection.
 - Query Google `freeBusy` server-side and merge those intervals into STREEX slot calculation.
 - Render Google busy intervals in the Admin calendar without exposing private event details.
 - Define timeout, cache, token refresh, revoked-access, and Google-outage behavior.
@@ -42,11 +46,9 @@ Status: planned for the next development session. No Google OAuth or Calendar AP
 
 ## Required decisions next session
 
-1. Use the primary calendar or a dedicated `STREEX Rides` calendar?
-2. Which personal calendars should block availability?
-3. Exact private event title and description format.
-4. What Admin warning/recovery should occur if a Google event is moved or deleted?
-5. Fail-open or fail-closed passenger availability when Google is temporarily unavailable?
+1. Exact private event title and description format.
+2. What Admin warning/recovery should occur if a Google event is moved or deleted?
+3. Fail-open or fail-closed passenger availability when Google is temporarily unavailable?
 
 ## Acceptance tests
 

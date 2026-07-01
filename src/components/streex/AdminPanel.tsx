@@ -35,6 +35,7 @@ import { useAdminTheme } from "./admin/useAdminTheme";
 import { AdminThemeControl } from "./admin/AdminThemeControl";
 import { AdminCalendar } from "./admin/AdminCalendar";
 import { AdminCalendarEventSheet, type CalendarSheetItem } from "./admin/AdminCalendarEventSheet";
+import { GoogleCalendarConnectionCard } from "./admin/GoogleCalendarConnectionCard";
 
 const SESSION_KEY = "streex_admin_key";
 
@@ -814,19 +815,12 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 opacity-60">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-white/80">Google Calendar sync</p>
-            <p className="text-[11px] text-white/40 mt-0.5">
-              Two-way sync with your personal calendar — coming later.
-            </p>
-          </div>
-          <span className="rounded-full border border-white/15 px-2.5 py-1 text-[10px] uppercase streex-tracking text-white/50">
-            Soon
-          </span>
-        </div>
-      </div>
+      <AvailabilityCard
+        title="Google Calendar"
+        subtitle="Connect Google, choose calendars that block availability, and select the dedicated STREEX Rides calendar."
+      >
+        <GoogleCalendarConnectionCard adminKey={adminKey} />
+      </AvailabilityCard>
 
       <AdminCalendarEventSheet
         item={sheetItem}

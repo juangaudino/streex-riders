@@ -34,14 +34,14 @@ Avoid loud arcade, casino, crypto-app, generic SaaS, or generic rideshare stylin
 
 ## Main routes
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Passenger landing page |
-| `/admin` | Protected Admin control center |
-| `/admin/bookings` | Admin booking view |
-| `/admin/reviews` | Admin review view |
-| `/runner-lab` | Hidden, no-index STREEX Horizon game route |
-| `/booking.accept` / `/booking.decline` | Booking response routes |
+| Route                                  | Purpose                                    |
+| -------------------------------------- | ------------------------------------------ |
+| `/`                                    | Passenger landing page                     |
+| `/admin`                               | Protected Admin control center             |
+| `/admin/bookings`                      | Admin booking view                         |
+| `/admin/reviews`                       | Admin review view                          |
+| `/runner-lab`                          | Hidden, no-index STREEX Horizon game route |
+| `/booking.accept` / `/booking.decline` | Booking response routes                    |
 
 ## Core systems
 
@@ -177,6 +177,7 @@ Common groups:
 - Supabase/Lovable database keys
 - Google Maps browser key
 - Google Analytics measurement ID
+- Google Calendar OAuth credentials and token-encryption key
 - Email/Resend settings
 - `SITE_URL`
 - `ADMIN_ACCESS_KEY`
@@ -253,11 +254,12 @@ bun run optimize:images
 
 ### Google Calendar integration
 
-Status: planned; no Google OAuth or Calendar API code is implemented yet.
+Status: OAuth foundation implemented; production secrets, database migration, first connection,
+and availability/event synchronization still require deployment and verification.
 
 Planned phases:
 
-1. Connect Google Calendar and use busy time to block passenger availability.
+1. Deploy and verify Google Calendar OAuth, then use busy time to block passenger availability.
 2. Create/update/delete Google events for confirmed STREEX rides.
 3. Add near-real-time sync via Google push notifications and reconciliation jobs.
 

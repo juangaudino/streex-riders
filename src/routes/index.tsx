@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import logo from "@/assets/brand/streex-rides-transparent.webp";
 import { CONFIG, type AppConfig } from "@/config";
@@ -332,6 +332,9 @@ function Index() {
             {siteConfig.tagline}
           </p>
           <p className="mt-4 text-xs text-white/30">© 2026 {siteConfig.brandName}</p>
+          <Link to="/privacy" className="mt-3 text-xs text-white/40 hover:text-white/70">
+            Privacy Policy
+          </Link>
         </footer>
       </main>
     </div>
