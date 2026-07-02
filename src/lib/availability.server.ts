@@ -2,7 +2,12 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Tables } from "@/integrations/supabase/types";
 import { assertAdminAccess } from "./admin-auth.server";
 import type { AvailableSlot } from "./availability.functions";
-import { manualBlockConflictMessage } from "./schedule-conflicts";
+import { manualBlockConflictMessage, timeRangesOverlap } from "./schedule-conflicts";
+import {
+  queryGoogleCalendarFreeBusy,
+  refreshGoogleCalendarAccessToken,
+  type GoogleBusyInterval,
+} from "./google-calendar.server";
 
 const TENANT_ID = "streex";
 const BLOCKING_BOOKING_STATUSES = ["quoted", "confirmed"];
@@ -10,6 +15,9 @@ const BLOCKING_BOOKING_STATUSES = ["quoted", "confirmed"];
 type AvailabilityRow = Tables<"tenant_availability">;
 type BlockRow = Tables<"blocked_slots">;
 type BookingRow = Tables<"bookings">;
+
+const GOOGLE_BUSY_CACHE_MS = 60 * 1000;
+const googleBusyCache = new Map<string, { expiresAt: number; intervals: GoogleBusyInterval[] }>();
 
 type UpdateAvailabilityInput = {
   adminKey: string;
@@ -111,9 +119,69 @@ function weekdayForLocalDate(date: string) {
   return new Date(Date.UTC(year, month - 1, day, 12, 0, 0)).getUTCDay();
 }
 
-function overlaps(startA: Date, endA: Date, startB: string | null, endB: string | null) {
-  if (!startB || !endB) return false;
-  return startA < new Date(endB) && endA > new Date(startB);
+async function readGoogleBusyIntervals(
+  windowStart: Date,
+  windowEnd: Date,
+  timezone: string,
+  failClosed = true,
+) {
+  const { data: connection, error } = await supabaseAdmin
+    .from("calendar_connections")
+    .select("encrypted_refresh_token,busy_calendar_ids,updated_at")
+    .eq("id", "google-primary")
+    .maybeSingle();
+
+  if (error) {
+    console.error("[Google Calendar] connection read failed", error);
+    if (failClosed) throw new Error("Calendar availability is temporarily unavailable.");
+    return [] as GoogleBusyInterval[];
+  }
+  if (!connection) return [] as GoogleBusyInterval[];
+
+  const calendarIds = Array.isArray(connection.busy_calendar_ids)
+    ? connection.busy_calendar_ids.filter((item): item is string => typeof item === "string")
+    : [];
+  if (calendarIds.length === 0) return [] as GoogleBusyInterval[];
+
+  const cacheKey = [
+    connection.updated_at,
+    windowStart.toISOString(),
+    windowEnd.toISOString(),
+    ...calendarIds,
+  ].join("|");
+  const cached = googleBusyCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) return cached.intervals;
+
+  try {
+    const accessToken = await refreshGoogleCalendarAccessToken(connection.encrypted_refresh_token);
+    const intervals = await queryGoogleCalendarFreeBusy(
+      accessToken,
+      calendarIds,
+      windowStart.toISOString(),
+      windowEnd.toISOString(),
+      timezone,
+    );
+    googleBusyCache.set(cacheKey, { expiresAt: Date.now() + GOOGLE_BUSY_CACHE_MS, intervals });
+    await supabaseAdmin
+      .from("calendar_connections")
+      .update({ last_synced_at: new Date().toISOString(), last_error: null })
+      .eq("id", "google-primary");
+    return intervals;
+  } catch (calendarError) {
+    const message =
+      calendarError instanceof Error ? calendarError.message : "Google Calendar sync failed.";
+    console.error("[Google Calendar] freeBusy failed", message);
+    await supabaseAdmin
+      .from("calendar_connections")
+      .update({ last_error: message })
+      .eq("id", "google-primary");
+    if (failClosed) {
+      throw new Error(
+        "Calendar availability is temporarily unavailable. Please contact Juan or try again shortly.",
+      );
+    }
+    return [] as GoogleBusyInterval[];
+  }
 }
 
 function formatSlotLabel(date: Date, timeZone: string) {
@@ -161,22 +229,26 @@ async function calculateAvailableSlots(tenantId: string, date: string, durationM
   const windowStart = zonedDateTimeToUtc(date, minutesToTime(startMinutes), timezone);
   const windowEnd = zonedDateTimeToUtc(date, minutesToTime(endMinutes), timezone);
 
-  const [{ data: blocks, error: blocksError }, { data: bookings, error: bookingsError }] =
-    await Promise.all([
-      supabaseAdmin
-        .from("blocked_slots")
-        .select("*")
-        .eq("tenant_id", tenantId)
-        .lt("start_at", windowEnd.toISOString())
-        .gt("end_at", windowStart.toISOString()),
-      supabaseAdmin
-        .from("bookings")
-        .select("*")
-        .eq("tenant_id", tenantId)
-        .in("status", BLOCKING_BOOKING_STATUSES)
-        .lt("start_at", windowEnd.toISOString())
-        .gt("end_at", windowStart.toISOString()),
-    ]);
+  const [
+    { data: blocks, error: blocksError },
+    { data: bookings, error: bookingsError },
+    googleBusy,
+  ] = await Promise.all([
+    supabaseAdmin
+      .from("blocked_slots")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .lt("start_at", windowEnd.toISOString())
+      .gt("end_at", windowStart.toISOString()),
+    supabaseAdmin
+      .from("bookings")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .in("status", BLOCKING_BOOKING_STATUSES)
+      .lt("start_at", windowEnd.toISOString())
+      .gt("end_at", windowStart.toISOString()),
+    readGoogleBusyIntervals(windowStart, windowEnd, timezone),
+  ]);
 
   if (blocksError) {
     console.error("[calculateAvailableSlots] blocks error", blocksError);
@@ -198,14 +270,19 @@ async function calculateAvailableSlots(tenantId: string, date: string, durationM
     if (start < minStart) continue;
 
     const blocked = (blocks ?? []).some((block) =>
-      overlaps(start, end, block.start_at, block.end_at),
+      timeRangesOverlap(start, end, block.start_at, block.end_at),
     );
     if (blocked) continue;
 
     const booked = (bookings ?? []).some((booking) =>
-      overlaps(start, end, booking.start_at, booking.end_at),
+      timeRangesOverlap(start, end, booking.start_at, booking.end_at),
     );
     if (booked) continue;
+
+    const busyInGoogle = googleBusy.some((interval) =>
+      timeRangesOverlap(start, end, interval.start, interval.end),
+    );
+    if (busyInGoogle) continue;
 
     slots.push({
       startAt: start.toISOString(),
@@ -294,6 +371,30 @@ export async function getAdminAvailabilityServer(adminKey: string) {
     throw new Error("Failed to load driver agenda.");
   }
 
+  const googleRangeStart = new Date();
+  googleRangeStart.setDate(googleRangeStart.getDate() - 1);
+  const googleRangeEnd = new Date();
+  googleRangeEnd.setDate(googleRangeEnd.getDate() + 90);
+  let googleBusy: GoogleBusyInterval[] = [];
+  let googleCalendarError: string | null = null;
+  try {
+    googleBusy = await readGoogleBusyIntervals(
+      googleRangeStart,
+      googleRangeEnd,
+      settings.timezone,
+      false,
+    );
+    const { data: googleStatus } = await supabaseAdmin
+      .from("calendar_connections")
+      .select("last_error")
+      .eq("id", "google-primary")
+      .maybeSingle();
+    googleCalendarError = googleStatus?.last_error ?? null;
+  } catch (googleError) {
+    googleCalendarError =
+      googleError instanceof Error ? googleError.message : "Google Calendar sync failed.";
+  }
+
   return {
     settings: {
       tenantId: settings.tenant_id,
@@ -307,6 +408,12 @@ export async function getAdminAvailabilityServer(adminKey: string) {
     },
     blocks: (blocks ?? []).map(serializeBlock),
     agenda: (agenda ?? []).map(serializeAgendaBooking),
+    googleBusy: googleBusy.map((interval, index) => ({
+      id: `google-busy-${index}-${interval.start}`,
+      startAt: interval.start,
+      endAt: interval.end,
+    })),
+    googleCalendarError,
   };
 }
 

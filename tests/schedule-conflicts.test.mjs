@@ -3,6 +3,7 @@ import {
   bookingConflictMessage,
   isScheduleConflictError,
   manualBlockConflictMessage,
+  timeRangesOverlap,
 } from "../src/lib/schedule-conflicts.ts";
 
 describe("schedule conflict errors", () => {
@@ -25,5 +26,29 @@ describe("schedule conflict errors", () => {
 
     expect(isScheduleConflictError(error)).toBe(false);
     expect(bookingConflictMessage(error)).toBeNull();
+  });
+});
+
+describe("schedule interval overlap", () => {
+  test("blocks every partially overlapping Google interval", () => {
+    expect(
+      timeRangesOverlap(
+        "2026-07-02T21:00:00.000Z",
+        "2026-07-02T22:00:00.000Z",
+        "2026-07-02T21:30:00.000Z",
+        "2026-07-02T22:30:00.000Z",
+      ),
+    ).toBe(true);
+  });
+
+  test("keeps adjacent intervals available", () => {
+    expect(
+      timeRangesOverlap(
+        "2026-07-02T21:00:00.000Z",
+        "2026-07-02T22:00:00.000Z",
+        "2026-07-02T22:00:00.000Z",
+        "2026-07-02T23:00:00.000Z",
+      ),
+    ).toBe(false);
   });
 });

@@ -188,6 +188,9 @@ export function GoogleCalendarConnectionCard({ adminKey }: { adminKey: string })
       </div>
 
       {error && <CalendarError message={error} />}
+      {!error && status.lastError && (
+        <CalendarError message={`Last calendar sync issue: ${status.lastError}`} />
+      )}
       {message && <CalendarMessage message={message} />}
 
       <div>

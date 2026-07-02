@@ -29,6 +29,12 @@ export type CalendarBlockItem = {
   reason: string | null;
 };
 
+export type CalendarGoogleBusyItem = {
+  id: string;
+  startAt: string;
+  endAt: string;
+};
+
 function serviceLabel(t?: string | null) {
   if (t === "hourly") return "Hourly";
   return "Point to Point";
@@ -37,10 +43,12 @@ function serviceLabel(t?: string | null) {
 export function AdminCalendar({
   agenda,
   blocks,
+  googleBusy,
   onSelect,
 }: {
   agenda: CalendarAgendaItem[];
   blocks: CalendarBlockItem[];
+  googleBusy: CalendarGoogleBusyItem[];
   onSelect: (item: CalendarSheetItem) => void;
 }) {
   const calendarRef = useRef<FullCalendar | null>(null);
@@ -78,14 +86,25 @@ export function AdminCalendar({
       extendedProps: { kind: "block", data: b },
     }));
 
-    return [...rideEvents, ...blockEvents];
-  }, [agenda, blocks]);
+    const googleEvents: EventInput[] = googleBusy.map((item) => ({
+      id: `google:${item.id}`,
+      title: "Google Calendar busy",
+      start: item.startAt,
+      end: item.endAt,
+      editable: false,
+      classNames: ["streex-evt", "streex-evt-google"],
+      extendedProps: { kind: "google" },
+    }));
+
+    return [...rideEvents, ...blockEvents, ...googleEvents];
+  }, [agenda, blocks, googleBusy]);
 
   const onClick = (arg: EventClickArg) => {
     const props = arg.event.extendedProps as {
-      kind: "ride" | "block";
+      kind: "ride" | "block" | "google";
       data: CalendarAgendaItem | CalendarBlockItem;
     };
+    if (props.kind === "google") return;
     if (props.kind === "ride") {
       const r = props.data as CalendarAgendaItem;
       onSelect({ kind: "ride", ...r });

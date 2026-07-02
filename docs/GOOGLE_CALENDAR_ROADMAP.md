@@ -1,7 +1,7 @@
 # Google Calendar Roadmap
 
-Status: OAuth foundation implemented in code. Production secrets, migration application, first
-connection, free/busy blocking, and event synchronization remain pending.
+Status: production OAuth and read-only free/busy blocking are implemented. Creating and updating
+Google events for confirmed rides remains pending.
 
 ## Product rules already agreed
 
@@ -19,13 +19,17 @@ connection, free/busy blocking, and event synchronization remain pending.
 
 - [x] Create/configure the Google Cloud project and enable Calendar API.
 - [x] Configure the OAuth consent screen and production redirect URL on `rides.getstreex.com`.
-- [ ] Add Google client ID, client secret, token-encryption key, and callback URL to production secrets.
+- [x] Add Google client ID, client secret, token-encryption key, and callback URL to production secrets.
 - [x] Add a migration for `calendar_connections` with encrypted refresh-token storage.
 - [x] Add Connect, Disconnect, and calendar-selection controls in Admin Availability.
-- [ ] Apply the migration and verify the first production OAuth connection.
-- Query Google `freeBusy` server-side and merge those intervals into STREEX slot calculation.
-- Render Google busy intervals in the Admin calendar without exposing private event details.
-- Define timeout, cache, token refresh, revoked-access, and Google-outage behavior.
+- [x] Apply the migration and verify the first production OAuth connection.
+- [x] Query Google `freeBusy` server-side and merge those intervals into STREEX slot calculation.
+- [x] Render Google busy intervals in the Admin calendar without exposing private event details.
+- [x] Define timeout, cache, token refresh, revoked-access, and Google-outage behavior.
+
+Operational behavior: requests time out after five seconds, successful free/busy results are cached
+for 60 seconds, access tokens refresh server-side, sync errors appear in Admin, and passenger
+availability fails closed while a connected Google Calendar cannot be checked.
 
 ## Phase 2: write confirmed STREEX rides
 
@@ -44,11 +48,10 @@ connection, free/busy blocking, and event synchronization remain pending.
 - Add a scheduled reconciliation job for missed notifications and expired channels.
 - Surface connection health and last successful sync in Admin.
 
-## Required decisions next session
+## Decisions required before Phase 2
 
 1. Exact private event title and description format.
 2. What Admin warning/recovery should occur if a Google event is moved or deleted?
-3. Fail-open or fail-closed passenger availability when Google is temporarily unavailable?
 
 ## Acceptance tests
 

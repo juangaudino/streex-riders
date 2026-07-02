@@ -33,7 +33,7 @@ import { CONFIG } from "@/config";
 import logo from "@/assets/brand/streex-rides-transparent.webp";
 import { useAdminTheme } from "./admin/useAdminTheme";
 import { AdminThemeControl } from "./admin/AdminThemeControl";
-import { AdminCalendar } from "./admin/AdminCalendar";
+import { AdminCalendar, type CalendarGoogleBusyItem } from "./admin/AdminCalendar";
 import { AdminCalendarEventSheet, type CalendarSheetItem } from "./admin/AdminCalendarEventSheet";
 import { GoogleCalendarConnectionCard } from "./admin/GoogleCalendarConnectionCard";
 
@@ -381,6 +381,7 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
 
   const [blocks, setBlocks] = useState<AvailabilityBlock[]>([]);
   const [agenda, setAgenda] = useState<AgendaBooking[]>([]);
+  const [googleBusy, setGoogleBusy] = useState<CalendarGoogleBusyItem[]>([]);
   const [draft, setDraft] = useState<BlockDraft>(emptyBlock());
   const [adding, setAdding] = useState(false);
   const [blockSaving, setBlockSaving] = useState(false);
@@ -402,6 +403,8 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
       setTimezone(result.settings.timezone);
       setBlocks(result.blocks);
       setAgenda(result.agenda);
+      setGoogleBusy(result.googleBusy ?? []);
+      if (result.googleCalendarError) setError(result.googleCalendarError);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load availability.");
     } finally {
@@ -545,6 +548,7 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
             <AdminCalendar
               agenda={calendarAgenda}
               blocks={calendarBlocks}
+              googleBusy={googleBusy}
               onSelect={setSheetItem}
             />
           </CalendarBoundary>
@@ -559,6 +563,7 @@ function AdminAvailability({ adminKey }: { adminKey: string }) {
             className="bg-white/[0.08] border border-dashed border-white/25"
             label="Manual block"
           />
+          <LegendDot className="bg-[#4285F4]/15 border border-[#4285F4]/45" label="Google busy" />
         </div>
       </AvailabilityCard>
 

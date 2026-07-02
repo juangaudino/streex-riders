@@ -254,22 +254,19 @@ bun run optimize:images
 
 ### Google Calendar integration
 
-Status: OAuth foundation implemented; production secrets, database migration, first connection,
-and availability/event synchronization still require deployment and verification.
+Status: production OAuth and read-only availability blocking are implemented. Writing confirmed
+rides to Google Calendar is the next phase.
 
 Planned phases:
 
-1. Deploy and verify Google Calendar OAuth, then use busy time to block passenger availability.
-2. Create/update/delete Google events for confirmed STREEX rides.
+1. Completed: OAuth plus Google busy-time blocking in passenger and Admin calendars.
+2. Next: create/update/delete Google events for confirmed STREEX rides.
 3. Add near-real-time sync via Google push notifications and reconciliation jobs.
 
 Open product decisions:
 
-- Primary calendar vs. dedicated `STREEX Rides` calendar.
-- Which personal calendars should block availability.
 - Private Google event title and description format.
 - Admin warning/recovery behavior when Google events are moved or deleted.
-- Fail-open vs. fail-closed behavior during Google outages.
 
 See `docs/GOOGLE_CALENDAR_ROADMAP.md`.
 

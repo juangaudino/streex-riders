@@ -34,3 +34,13 @@ export function manualBlockConflictMessage(error: unknown) {
     ? "This block overlaps a quoted or confirmed ride. Cancel or reschedule the ride before blocking this time."
     : null;
 }
+
+export function timeRangesOverlap(
+  startA: Date | string,
+  endA: Date | string,
+  startB: Date | string | null,
+  endB: Date | string | null,
+) {
+  if (!startB || !endB) return false;
+  return new Date(startA) < new Date(endB) && new Date(endA) > new Date(startB);
+}
