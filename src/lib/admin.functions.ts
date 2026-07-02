@@ -9,6 +9,7 @@ import {
   sendEmail,
 } from "./booking-emails.server";
 import { bookingConflictMessage } from "./schedule-conflicts";
+import { syncBookingWithGoogleCalendar } from "./google-calendar-sync.server";
 
 const AdminSchema = z.object({
   adminKey: z.string().min(1),
@@ -100,17 +101,40 @@ export const updateAdminBookingStatus = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     assertAdminAccess(data.adminKey);
 
-    const { error } = await supabaseAdmin
+    const { data: booking, error } = await supabaseAdmin
       .from("bookings")
       .update({ status: data.status })
-      .eq("id", data.id);
+      .eq("id", data.id)
+      .select("*")
+      .single();
 
-    if (error) {
+    if (error || !booking) {
       console.error("[updateAdminBookingStatus] update error", error);
       throw new Error(bookingConflictMessage(error) ?? "Failed to update booking.");
     }
 
-    return { ok: true };
+    const calendarSync = await syncBookingWithGoogleCalendar(booking);
+    return { ok: true, calendarSync };
+  });
+
+export const retryAdminBookingCalendarSync = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => ReviewIdSchema.parse(input))
+  .handler(async ({ data }) => {
+    assertAdminAccess(data.adminKey);
+
+    const { data: booking, error } = await supabaseAdmin
+      .from("bookings")
+      .select("*")
+      .eq("id", data.id)
+      .single();
+    if (error || !booking) throw new Error("Failed to load booking for calendar sync.");
+    if (booking.status !== "confirmed" && booking.status !== "cancelled") {
+      throw new Error("Only confirmed or cancelled rides can be synchronized.");
+    }
+
+    const calendarSync = await syncBookingWithGoogleCalendar(booking);
+    if (calendarSync.status === "error") throw new Error(calendarSync.error);
+    return { ok: true, calendarSync };
   });
 
 export const resendAdminBookingNotification = createServerFn({ method: "POST" })

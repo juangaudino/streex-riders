@@ -14,6 +14,7 @@ import {
 } from "./booking-emails.server";
 import { resolveBookingSlot } from "./availability.functions";
 import { isScheduleConflictError } from "./schedule-conflicts";
+import { syncBookingWithGoogleCalendar } from "./google-calendar-sync.server";
 
 type BookingRow = Tables<"bookings">;
 
@@ -119,6 +120,10 @@ async function processResponse(id: string, action: "accept" | "decline"): Promis
       );
     }
     throw new Error("Unable to process this request.");
+  }
+
+  if (action === "accept") {
+    await syncBookingWithGoogleCalendar(updated);
   }
 
   try {

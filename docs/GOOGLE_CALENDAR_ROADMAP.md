@@ -1,7 +1,8 @@
 # Google Calendar Roadmap
 
-Status: production OAuth and read-only free/busy blocking are implemented. Creating and updating
-Google events for confirmed rides remains pending.
+Status: production OAuth, free/busy blocking, and confirmed-ride event synchronization are
+implemented. Production behavior still needs an end-to-end confirmation/cancellation test after
+deployment.
 
 ## Product rules already agreed
 
@@ -33,12 +34,16 @@ availability fails closed while a connected Google Calendar cannot be checked.
 
 ## Phase 2: write confirmed STREEX rides
 
-- Add `google_calendar_id`, `google_event_id`, and sync state to bookings.
-- Create an idempotent Google event when a ride becomes confirmed.
-- Update event time, duration, title, and location when the booking changes.
-- Cancel/delete the Google event when STREEX cancels the ride.
-- Store a private STREEX booking identifier in Google event extended properties.
-- Add retry and reconciliation for partial failures.
+- [x] Add `google_calendar_id`, `google_event_id`, and sync state to bookings.
+- [x] Create an idempotent Google event when a ride becomes confirmed.
+- [x] Update event time, duration, title, and location whenever a confirmed ride is resynchronized.
+- [x] Delete the Google event when STREEX cancels the ride.
+- [x] Store a private STREEX booking identifier in Google event extended properties.
+- [x] Surface per-booking sync health and a manual retry action in Admin.
+- [ ] Add scheduled reconciliation for partial failures in Phase 3.
+
+Event format: private, opaque event titled `STREEX Ride — Passenger Name`, with pickup as the Google
+location and operational ride/contact details in the description. Passengers are not invited.
 
 ## Phase 3: near-real-time synchronization
 
@@ -48,10 +53,10 @@ availability fails closed while a connected Google Calendar cannot be checked.
 - Add a scheduled reconciliation job for missed notifications and expired channels.
 - Surface connection health and last successful sync in Admin.
 
-## Decisions required before Phase 2
+## Decisions required before Phase 3
 
-1. Exact private event title and description format.
-2. What Admin warning/recovery should occur if a Google event is moved or deleted?
+1. Whether a Google event moved or deleted manually should only be restored with Admin retry or by
+   automatic reconciliation.
 
 ## Acceptance tests
 

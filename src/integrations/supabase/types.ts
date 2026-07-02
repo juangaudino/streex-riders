@@ -109,6 +109,11 @@ export type Database = {
           email: string
           end_at: string | null
           estimated_duration_minutes: number
+          google_calendar_id: string | null
+          google_event_id: string | null
+          google_sync_error: string | null
+          google_sync_status: string
+          google_synced_at: string | null
           id: string
           name: string
           notes: string | null
@@ -129,6 +134,11 @@ export type Database = {
           email: string
           end_at?: string | null
           estimated_duration_minutes?: number
+          google_calendar_id?: string | null
+          google_event_id?: string | null
+          google_sync_error?: string | null
+          google_sync_status?: string
+          google_synced_at?: string | null
           id?: string
           name: string
           notes?: string | null
@@ -149,6 +159,11 @@ export type Database = {
           email?: string
           end_at?: string | null
           estimated_duration_minutes?: number
+          google_calendar_id?: string | null
+          google_event_id?: string | null
+          google_sync_error?: string | null
+          google_sync_status?: string
+          google_synced_at?: string | null
           id?: string
           name?: string
           notes?: string | null

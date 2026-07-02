@@ -35,6 +35,17 @@ export type GoogleBusyInterval = {
   end: string;
 };
 
+export type GoogleCalendarEventPayload = {
+  summary: string;
+  description: string;
+  location: string;
+  start: { dateTime: string; timeZone: string };
+  end: { dateTime: string; timeZone: string };
+  visibility: "private";
+  transparency: "opaque";
+  extendedProperties: { private: { streexBookingId: string } };
+};
+
 function getGoogleConfig() {
   const clientId = process.env.GOOGLE_CALENDAR_CLIENT_ID?.trim() || FALLBACK_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CALENDAR_CLIENT_SECRET?.trim();
@@ -192,6 +203,81 @@ export async function queryGoogleCalendarFreeBusy(
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function readGoogleCalendarResponse(response: Response) {
+  if (response.status === 204) return {} as Record<string, never>;
+  return (await response.json()) as {
+    id?: string;
+    error?: { code?: number; message?: string };
+  };
+}
+
+async function fetchGoogleCalendar(input: string, init: RequestInit) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Google Calendar event request timed out.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function upsertGoogleCalendarEvent(
+  accessToken: string,
+  calendarId: string,
+  eventId: string,
+  event: GoogleCalendarEventPayload,
+) {
+  const baseUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`;
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
+  };
+  const insertResponse = await fetchGoogleCalendar(baseUrl, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ ...event, id: eventId }),
+  });
+  const inserted = await readGoogleCalendarResponse(insertResponse);
+  if (insertResponse.ok && inserted.id) return inserted.id;
+
+  if (insertResponse.status !== 409) {
+    throw new Error(inserted.error?.message || "Google Calendar event could not be created.");
+  }
+
+  const updateResponse = await fetchGoogleCalendar(`${baseUrl}/${encodeURIComponent(eventId)}`, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(event),
+  });
+  const updated = await readGoogleCalendarResponse(updateResponse);
+  if (!updateResponse.ok || !updated.id) {
+    throw new Error(updated.error?.message || "Google Calendar event could not be updated.");
+  }
+  return updated.id;
+}
+
+export async function deleteGoogleCalendarEvent(
+  accessToken: string,
+  calendarId: string,
+  eventId: string,
+) {
+  const response = await fetchGoogleCalendar(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
+    {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
+  if (response.ok || response.status === 404 || response.status === 410) return;
+  const result = await readGoogleCalendarResponse(response);
+  throw new Error(result.error?.message || "Google Calendar event could not be deleted.");
 }
 
 export async function revokeGoogleCalendarToken(encryptedRefreshToken: string) {
