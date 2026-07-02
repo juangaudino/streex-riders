@@ -30,7 +30,8 @@ import {
   verifyAdminKey,
 } from "@/lib/admin.functions";
 import { getTickerTheme } from "@/lib/ticker-theme.functions";
-import { CONFIG } from "@/config";
+import { getAdminSiteConfig, updateAdminSiteConfig } from "@/lib/site-config.functions";
+import { CONFIG, type AppConfig } from "@/config";
 import logo from "@/assets/brand/streex-rides-transparent.webp";
 import { useAdminTheme } from "./admin/useAdminTheme";
 import { AdminThemeControl } from "./admin/AdminThemeControl";
@@ -230,7 +231,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
         {activeTab === "reviews" && <AdminReviews adminKey={adminKey} />}
         {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}
         {activeTab === "themes" && <AdminThemes adminKey={adminKey} />}
-        {activeTab === "config" && <AdminConfig />}
+        {activeTab === "config" && <AdminConfig adminKey={adminKey} />}
         {activeTab === "availability" && <AdminAvailability adminKey={adminKey} />}
       </div>
     </div>
@@ -946,42 +947,52 @@ function formatServiceLabel(serviceType?: string | null, duration?: number | nul
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-function AdminConfig() {
-  type ServiceDraft = {
-    id: string;
-    name: string;
-    price: string;
-    enabled: boolean;
+type AdminServiceDraft = {
+  id: string;
+  name: string;
+  price: string;
+  enabled: boolean;
+};
+
+type AdminSectionKey = keyof AppConfig["sections"];
+
+function adminProfileFromConfig(config: AppConfig) {
+  return {
+    brandName: config.brandName,
+    ownerName: config.ownerName,
+    phone: config.phoneDisplay,
+    email: config.email,
+    website: config.website,
+    instagram: config.instagram,
+    whatsapp: config.whatsapp,
+    google: config.googleReviews,
+    nextdoor: config.nextdoor,
+    tagline: config.tagline,
+    subheadline: config.subheadline,
   };
+}
 
-  const [profile, setProfile] = useState({
-    brandName: CONFIG.brandName,
-    ownerName: CONFIG.ownerName,
-    phone: CONFIG.phoneDisplay,
-    email: CONFIG.email,
-    website: CONFIG.website,
-    instagram: CONFIG.instagram,
-    whatsapp: CONFIG.whatsapp,
-    google: CONFIG.googleReviews,
-    nextdoor: CONFIG.nextdoor,
-    tagline: CONFIG.tagline,
-    subheadline: CONFIG.subheadline,
-  });
+function adminServicesFromConfig(config: AppConfig): AdminServiceDraft[] {
+  return config.services.map((service) => ({
+    id: service.id,
+    name: service.name,
+    price: service.price,
+    enabled: service.enabled,
+  }));
+}
 
-  const [services, setServices] = useState<ServiceDraft[]>(
-    CONFIG.services.map((s) => ({
-      id: s.id,
-      name: s.name,
-      price: s.price,
-      enabled: s.enabled,
-    })),
+function AdminConfig({ adminKey }: { adminKey: string }) {
+  const [profile, setProfile] = useState(() => adminProfileFromConfig(CONFIG));
+
+  const [services, setServices] = useState<AdminServiceDraft[]>(() =>
+    adminServicesFromConfig(CONFIG),
   );
 
-  const [sections, setSections] = useState<Record<string, boolean>>(
-    () => ({ ...CONFIG.sections }) as Record<string, boolean>,
+  const [sections, setSections] = useState<Record<AdminSectionKey, boolean>>(
+    () => ({ ...CONFIG.sections }) as Record<AdminSectionKey, boolean>,
   );
 
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -989,10 +1000,30 @@ function AdminConfig() {
   const updateProfile = (key: keyof typeof profile, value: string) =>
     setProfile((p) => ({ ...p, [key]: value }));
 
-  const updateService = (id: string, patch: Partial<ServiceDraft>) =>
+  const updateService = (id: string, patch: Partial<AdminServiceDraft>) =>
     setServices((list) => list.map((s) => (s.id === id ? { ...s, ...patch } : s)));
 
-  const toggleSection = (key: string) => setSections((s) => ({ ...s, [key]: !s[key] }));
+  const toggleSection = (key: AdminSectionKey) =>
+    setSections((current) => ({ ...current, [key]: !current[key] }));
+
+  const loadConfig = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await getAdminSiteConfig({ data: { adminKey } });
+      setProfile(adminProfileFromConfig(result.config));
+      setServices(adminServicesFromConfig(result.config));
+      setSections({ ...result.config.sections } as Record<AdminSectionKey, boolean>);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "Failed to load site config.");
+    } finally {
+      setLoading(false);
+    }
+  }, [adminKey]);
+
+  useEffect(() => {
+    void loadConfig();
+  }, [loadConfig]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1000,8 +1031,27 @@ function AdminConfig() {
     setError(null);
     setMessage(null);
     try {
-      console.info("[config-v2] draft profile", { profile, services, sections });
-      setMessage("Draft saved locally for UI exploration.");
+      await updateAdminSiteConfig({
+        data: {
+          adminKey,
+          config: {
+            brandName: profile.brandName,
+            ownerName: profile.ownerName,
+            tagline: profile.tagline,
+            subheadline: profile.subheadline,
+            phoneDisplay: profile.phone,
+            email: profile.email,
+            website: profile.website,
+            instagram: profile.instagram,
+            whatsapp: profile.whatsapp,
+            googleReviews: profile.google,
+            nextdoor: profile.nextdoor,
+            services,
+            sections,
+          },
+        },
+      });
+      setMessage("Config saved. The public site will use these values on refresh.");
       window.setTimeout(() => setMessage(null), 3200);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save draft.");
@@ -1010,13 +1060,12 @@ function AdminConfig() {
     }
   };
 
-  const sectionLabels: Record<string, string> = {
-    wifi: "Wi-Fi",
+  const sectionLabels: Partial<Record<AdminSectionKey, string>> = {
     textMe: "Text Me",
     callMe: "Call Me",
     saveContact: "Save Contact",
     scheduleRide: "Schedule Ride",
-    moreOptions: "More Options",
+    moreOptions: "Streex Horizon",
     experienceGallery: "Experience Gallery",
     servicesGrid: "Services Grid",
     serviceAreas: "Service Areas",
@@ -1171,8 +1220,10 @@ function AdminConfig() {
 
       <ConfigGroup title="Sections" subtitle="Show or hide sections on the public landing page.">
         <div className="grid gap-2 sm:grid-cols-2">
-          {Object.keys(sectionLabels).map((key) => {
+          {(Object.keys(sectionLabels) as AdminSectionKey[]).map((key) => {
             const on = !!sections[key];
+            const label = sectionLabels[key];
+            if (!label) return null;
             return (
               <button
                 key={key}
@@ -1184,7 +1235,7 @@ function AdminConfig() {
                     : "border-white/10 bg-white/[0.03] hover:border-white/20"
                 }`}
               >
-                <span className="text-sm text-white/85">{sectionLabels[key]}</span>
+                <span className="text-sm text-white/85">{label}</span>
                 <span
                   className={`relative h-5 w-9 rounded-full transition-colors ${
                     on ? "bg-[#E6CE20]" : "bg-white/15"
@@ -1205,7 +1256,7 @@ function AdminConfig() {
       <div className="sticky bottom-3 z-10 -mx-1">
         <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]">
           <p className="text-[11px] text-white/50">
-            {message ? "Draft saved locally." : "UI exploration only — backend later."}
+            {message ? "Saved to the live site." : "Changes publish when you save."}
           </p>
           <button
             type="submit"

@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { loadGoogleMaps } from "@/lib/google-maps-loader";
 
 type Suggestion = {
@@ -33,21 +33,37 @@ export function PlacesAutocompleteInput({
   const [loadError, setLoadError] = useState(false);
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const placesLibRef = useRef<google.maps.PlacesLibrary | null>(null);
+  const placesReadyRef = useRef<Promise<google.maps.PlacesLibrary> | null>(null);
   const legacyServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<number | null>(null);
   const listId = useId();
   const skipNextFetchRef = useRef(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    loadGoogleMaps()
+  const ensurePlacesLibrary = useCallback(() => {
+    if (placesLibRef.current) return Promise.resolve(placesLibRef.current);
+    if (placesReadyRef.current) return placesReadyRef.current;
+
+    placesReadyRef.current = loadGoogleMaps()
       .then(async (g) => {
         const lib = (await g.maps.importLibrary("places")) as google.maps.PlacesLibrary;
-        if (cancelled) return;
         placesLibRef.current = lib;
         legacyServiceRef.current = new lib.AutocompleteService();
         sessionTokenRef.current = new lib.AutocompleteSessionToken();
+        return lib;
+      })
+      .catch((error) => {
+        placesReadyRef.current = null;
+        throw error;
+      });
+    return placesReadyRef.current;
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    ensurePlacesLibrary()
+      .then(() => {
+        if (cancelled) return;
         setLoadError(false);
       })
       .catch((e) => {
@@ -56,8 +72,9 @@ export function PlacesAutocompleteInput({
       });
     return () => {
       cancelled = true;
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
-  }, []);
+  }, [ensurePlacesLibrary]);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -113,9 +130,18 @@ export function PlacesAutocompleteInput({
   };
 
   const runFetch = async (input: string) => {
-    const lib = placesLibRef.current;
-    if (!lib || !input || input.trim().length < 2) {
+    if (!input || input.trim().length < 2) {
       setSuggestions([]);
+      return;
+    }
+    let lib: google.maps.PlacesLibrary;
+    try {
+      lib = await ensurePlacesLibrary();
+    } catch (error) {
+      console.warn("Google Maps load failed", error);
+      setSuggestions([]);
+      setOpen(false);
+      setLoadError(true);
       return;
     }
     if (!sessionTokenRef.current) {
