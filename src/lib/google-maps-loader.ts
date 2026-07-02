@@ -27,7 +27,12 @@ export function loadGoogleMaps(): Promise<typeof google> {
   }
 
   loadPromise = new Promise((resolve, reject) => {
+    const timeout = window.setTimeout(() => {
+      loadPromise = null;
+      reject(new Error("Google Maps JS load timed out"));
+    }, 10_000);
     window.__lovableGmapsInit = () => {
+      window.clearTimeout(timeout);
       resolve(window.google);
     };
     const script = document.createElement("script");
@@ -43,6 +48,7 @@ export function loadGoogleMaps(): Promise<typeof google> {
     script.async = true;
     script.defer = true;
     script.onerror = () => {
+      window.clearTimeout(timeout);
       loadPromise = null;
       reject(new Error("Failed to load Google Maps JS"));
     };

@@ -37,6 +37,7 @@ export function PlacesAutocompleteInput({
   const legacyServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<number | null>(null);
+  const requestIdRef = useRef(0);
   const listId = useId();
   const skipNextFetchRef = useRef(false);
 
@@ -84,19 +85,23 @@ export function PlacesAutocompleteInput({
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const mapNewSuggestions = (items: google.maps.places.AutocompleteSuggestion[]): Suggestion[] =>
-    items.flatMap((item) => {
-      const prediction = item.placePrediction;
-      if (!prediction) return [];
-      const primary = prediction.mainText?.toString() ?? "";
-      const secondary = prediction.secondaryText?.toString() ?? "";
-      const full = prediction.text?.toString() ?? `${primary} ${secondary}`.trim();
-      return [{ id: prediction.placeId || full, primary, secondary, full }];
-    });
-
-  const fetchLegacySuggestions = (input: string, lib: google.maps.PlacesLibrary) => {
+  const fetchLegacySuggestions = (
+    input: string,
+    lib: google.maps.PlacesLibrary,
+    requestId: number,
+  ) => {
     const service = legacyServiceRef.current ?? new lib.AutocompleteService();
     legacyServiceRef.current = service;
+    let settled = false;
+    const timeout = window.setTimeout(() => {
+      if (settled || requestId !== requestIdRef.current) return;
+      settled = true;
+      setSuggestions([]);
+      setOpen(false);
+      setLoadError(true);
+      console.warn("Google Places autocomplete timed out");
+    }, 4_000);
+
     service.getPlacePredictions(
       {
         input,
@@ -104,13 +109,17 @@ export function PlacesAutocompleteInput({
         componentRestrictions: { country: regionCodes },
       },
       (predictions, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+        if (settled || requestId !== requestIdRef.current) return;
+        settled = true;
+        window.clearTimeout(timeout);
+        if (status === lib.PlacesServiceStatus.ZERO_RESULTS) {
           setSuggestions([]);
           setOpen(false);
           setLoadError(false);
           return;
         }
-        if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+        if (status !== lib.PlacesServiceStatus.OK || !predictions) {
+          console.warn("Google Places autocomplete returned", status);
           setSuggestions([]);
           setOpen(false);
           setLoadError(true);
@@ -130,6 +139,7 @@ export function PlacesAutocompleteInput({
   };
 
   const runFetch = async (input: string) => {
+    const requestId = ++requestIdRef.current;
     if (!input || input.trim().length < 2) {
       setSuggestions([]);
       return;
@@ -147,23 +157,10 @@ export function PlacesAutocompleteInput({
     if (!sessionTokenRef.current) {
       sessionTokenRef.current = new lib.AutocompleteSessionToken();
     }
-    try {
-      const result = await lib.AutocompleteSuggestion.fetchAutocompleteSuggestions({
-        input,
-        sessionToken: sessionTokenRef.current,
-        includedRegionCodes: regionCodes,
-      });
-      const mapped = mapNewSuggestions(result.suggestions);
-      if (mapped.length > 0) {
-        setSuggestions(mapped);
-        setOpen(true);
-        setLoadError(false);
-        return;
-      }
-    } catch (error) {
-      console.warn("Google Places autocomplete failed; trying compatibility mode", error);
-    }
-    fetchLegacySuggestions(input, lib);
+    // AutocompleteSuggestion can remain pending when Places API (New) is not enabled
+    // for an otherwise valid browser key. The established prediction service gives us
+    // a deterministic callback and is supported by the project's existing key.
+    fetchLegacySuggestions(input, lib, requestId);
   };
 
   const handleChange = (v: string) => {
