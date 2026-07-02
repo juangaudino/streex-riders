@@ -44,3 +44,16 @@ export function timeRangesOverlap(
   if (!startB || !endB) return false;
   return new Date(startA) < new Date(endB) && new Date(endA) > new Date(startB);
 }
+
+export function timeRangesEqual(
+  startA: Date | string | null,
+  endA: Date | string | null,
+  startB: Date | string | null,
+  endB: Date | string | null,
+) {
+  if (!startA || !endA || !startB || !endB) return false;
+  return (
+    new Date(startA).getTime() === new Date(startB).getTime() &&
+    new Date(endA).getTime() === new Date(endB).getTime()
+  );
+}

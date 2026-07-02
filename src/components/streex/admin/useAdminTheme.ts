@@ -37,6 +37,13 @@ export function useAdminTheme() {
     return () => mql.removeEventListener("change", update);
   }, [preference]);
 
+  useEffect(() => {
+    document.documentElement.dataset.streexAdminTheme = resolved;
+    return () => {
+      delete document.documentElement.dataset.streexAdminTheme;
+    };
+  }, [resolved]);
+
   const setPreference = useCallback((next: AdminThemePreference) => {
     if (typeof window !== "undefined") {
       window.localStorage.setItem(STORAGE_KEY, next);

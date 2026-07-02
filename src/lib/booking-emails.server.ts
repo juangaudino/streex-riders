@@ -206,6 +206,18 @@ export function buildPassengerDeclined(b: Booking) {
   };
 }
 
+export function buildPassengerRejected(b: Booking) {
+  return {
+    subject: "Ride Request Update — Streex Rides",
+    html: wrap(`
+      <h1 style="font-size:22px;font-weight:700;margin:0 0 16px;color:#ffffff;">Hi ${esc(b.name)},</h1>
+      ${p(`Unfortunately, STREEX is not available for your requested ride on ${esc(b.date)} at ${esc(b.time)}.`)}
+      ${p("If your schedule is flexible, contact Juan directly and we’ll gladly look for another option.")}
+      ${p(`Juan &mdash; Streex Rides<br/>${esc(JUAN_PHONE)}<br/>streex.rides@gmail.com`)}
+    `),
+  };
+}
+
 export function buildAdminDeclined(b: Booking) {
   return {
     subject: `Booking Declined — ${b.name}`,

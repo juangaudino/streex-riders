@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { loadGoogleMaps } from "@/lib/google-maps-loader";
 
 type Suggestion = {
+  id: string;
   primary: string;
   secondary: string;
   full: string;
@@ -27,14 +28,12 @@ export function PlacesAutocompleteInput({
   style,
   regionCodes = ["us"],
 }: Props) {
-  const [suggestions, setSuggestions] = useState<
-    Array<{ suggestion: Suggestion; raw: google.maps.places.AutocompleteSuggestion }>
-  >([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
-  const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(
-    null,
-  );
+  const [loadError, setLoadError] = useState(false);
+  const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const placesLibRef = useRef<google.maps.PlacesLibrary | null>(null);
+  const legacyServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<number | null>(null);
   const listId = useId();
@@ -47,9 +46,14 @@ export function PlacesAutocompleteInput({
         const lib = (await g.maps.importLibrary("places")) as google.maps.PlacesLibrary;
         if (cancelled) return;
         placesLibRef.current = lib;
+        legacyServiceRef.current = new lib.AutocompleteService();
         sessionTokenRef.current = new lib.AutocompleteSessionToken();
+        setLoadError(false);
       })
-      .catch((e) => console.warn("Google Maps load failed", e));
+      .catch((e) => {
+        console.warn("Google Maps load failed", e);
+        setLoadError(true);
+      });
     return () => {
       cancelled = true;
     };
@@ -63,7 +67,52 @@ export function PlacesAutocompleteInput({
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const runFetch = (input: string) => {
+  const mapNewSuggestions = (items: google.maps.places.AutocompleteSuggestion[]): Suggestion[] =>
+    items.flatMap((item) => {
+      const prediction = item.placePrediction;
+      if (!prediction) return [];
+      const primary = prediction.mainText?.toString() ?? "";
+      const secondary = prediction.secondaryText?.toString() ?? "";
+      const full = prediction.text?.toString() ?? `${primary} ${secondary}`.trim();
+      return [{ id: prediction.placeId || full, primary, secondary, full }];
+    });
+
+  const fetchLegacySuggestions = (input: string, lib: google.maps.PlacesLibrary) => {
+    const service = legacyServiceRef.current ?? new lib.AutocompleteService();
+    legacyServiceRef.current = service;
+    service.getPlacePredictions(
+      {
+        input,
+        sessionToken: sessionTokenRef.current ?? undefined,
+        componentRestrictions: { country: regionCodes },
+      },
+      (predictions, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+          setSuggestions([]);
+          setOpen(false);
+          setLoadError(false);
+          return;
+        }
+        if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+          setSuggestions([]);
+          setOpen(false);
+          setLoadError(true);
+          return;
+        }
+        const mapped = predictions.map((prediction) => ({
+          id: prediction.place_id,
+          primary: prediction.structured_formatting.main_text,
+          secondary: prediction.structured_formatting.secondary_text,
+          full: prediction.description,
+        }));
+        setSuggestions(mapped);
+        setOpen(mapped.length > 0);
+        setLoadError(false);
+      },
+    );
+  };
+
+  const runFetch = async (input: string) => {
     const lib = placesLibRef.current;
     if (!lib || !input || input.trim().length < 2) {
       setSuggestions([]);
@@ -72,34 +121,23 @@ export function PlacesAutocompleteInput({
     if (!sessionTokenRef.current) {
       sessionTokenRef.current = new lib.AutocompleteSessionToken();
     }
-    lib.AutocompleteSuggestion.fetchAutocompleteSuggestions({
-      input,
-      sessionToken: sessionTokenRef.current,
-      includedRegionCodes: regionCodes,
-    })
-      .then(({ suggestions }) => {
-        const mapped = suggestions
-          .map((s) => {
-            const p = s.placePrediction;
-            if (!p) return null;
-            const primary = p.mainText?.toString() ?? "";
-            const secondary = p.secondaryText?.toString() ?? "";
-            const full = p.text?.toString() ?? `${primary} ${secondary}`.trim();
-            return {
-              suggestion: { primary, secondary, full } as Suggestion,
-              raw: s,
-            };
-          })
-          .filter(Boolean) as Array<{
-          suggestion: Suggestion;
-          raw: google.maps.places.AutocompleteSuggestion;
-        }>;
-        setSuggestions(mapped);
-        setOpen(mapped.length > 0);
-      })
-      .catch(() => {
-        setSuggestions([]);
+    try {
+      const result = await lib.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+        input,
+        sessionToken: sessionTokenRef.current,
+        includedRegionCodes: regionCodes,
       });
+      const mapped = mapNewSuggestions(result.suggestions);
+      if (mapped.length > 0) {
+        setSuggestions(mapped);
+        setOpen(true);
+        setLoadError(false);
+        return;
+      }
+    } catch (error) {
+      console.warn("Google Places autocomplete failed; trying compatibility mode", error);
+    }
+    fetchLegacySuggestions(input, lib);
   };
 
   const handleChange = (v: string) => {
@@ -112,9 +150,9 @@ export function PlacesAutocompleteInput({
     debounceRef.current = window.setTimeout(() => runFetch(v), 180);
   };
 
-  const pick = (item: { suggestion: Suggestion }) => {
+  const pick = (item: Suggestion) => {
     skipNextFetchRef.current = true;
-    onChange(item.suggestion.full);
+    onChange(item.full);
     setOpen(false);
     setSuggestions([]);
     // New session after a selection per Google billing model
@@ -145,9 +183,9 @@ export function PlacesAutocompleteInput({
           role="listbox"
           className="absolute left-0 right-0 top-full mt-2 z-50 max-h-64 overflow-y-auto rounded-xl bg-[#141414] border border-white/10 shadow-2xl backdrop-blur-xl"
         >
-          {suggestions.map((item, i) => (
+          {suggestions.map((item) => (
             <li
-              key={i}
+              key={item.id}
               role="option"
               aria-selected={false}
               onMouseDown={(e) => {
@@ -156,15 +194,18 @@ export function PlacesAutocompleteInput({
               }}
               className="px-4 py-3 cursor-pointer hover:bg-white/[0.06] border-b border-white/5 last:border-b-0"
             >
-              <div className="text-sm text-white">{item.suggestion.primary}</div>
-              {item.suggestion.secondary && (
-                <div className="text-xs text-white/50 mt-0.5">
-                  {item.suggestion.secondary}
-                </div>
+              <div className="text-sm text-white">{item.primary}</div>
+              {item.secondary && (
+                <div className="text-xs text-white/50 mt-0.5">{item.secondary}</div>
               )}
             </li>
           ))}
         </ul>
+      )}
+      {loadError && value.trim().length >= 2 && !open && (
+        <p className="mt-1.5 px-1 text-[10px] text-amber-300/70">
+          Address suggestions are temporarily unavailable. You can still enter the address manually.
+        </p>
       )}
     </div>
   );

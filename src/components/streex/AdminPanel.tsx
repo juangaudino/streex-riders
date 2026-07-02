@@ -1329,8 +1329,13 @@ function BookingCard({
     wrap(() => sendAdminQuote({ data: { adminKey, id: booking.id, price: n } }));
   };
 
-  const doStatus = (status: "confirmed" | "completed" | "cancelled") =>
+  const doStatus = (status: "confirmed" | "declined" | "completed" | "cancelled") =>
     wrap(() => updateAdminBookingStatus({ data: { adminKey, id: booking.id, status } }));
+
+  const rejectRequest = () => {
+    if (!confirm("Reject this request and notify the passenger by email?")) return;
+    doStatus("declined");
+  };
 
   const retryCalendarSync = () =>
     wrap(() => retryAdminBookingCalendarSync({ data: { adminKey, id: booking.id } }));
@@ -1419,7 +1424,7 @@ function BookingCard({
       )}
 
       {booking.status === "pending" && (
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-wrap gap-2 items-center">
           <div className="relative flex-1">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">
               $
@@ -1440,6 +1445,14 @@ function BookingCard({
             className="text-xs rounded-full px-4 py-2 bg-[#E6CE20] text-black font-semibold disabled:opacity-60"
           >
             {busy ? "Sending..." : "Send Quote"}
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={rejectRequest}
+            className="text-xs rounded-full px-4 py-2 border border-red-400/30 text-red-300 disabled:opacity-60"
+          >
+            Reject
           </button>
         </div>
       )}

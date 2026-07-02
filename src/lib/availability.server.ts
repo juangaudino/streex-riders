@@ -2,7 +2,11 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Tables } from "@/integrations/supabase/types";
 import { assertAdminAccess } from "./admin-auth.server";
 import type { AvailableSlot } from "./availability.functions";
-import { manualBlockConflictMessage, timeRangesOverlap } from "./schedule-conflicts";
+import {
+  manualBlockConflictMessage,
+  timeRangesEqual,
+  timeRangesOverlap,
+} from "./schedule-conflicts";
 import {
   queryGoogleCalendarFreeBusy,
   refreshGoogleCalendarAccessToken,
@@ -395,6 +399,17 @@ export async function getAdminAvailabilityServer(adminKey: string) {
       googleError instanceof Error ? googleError.message : "Google Calendar sync failed.";
   }
 
+  const visibleGoogleBusy = googleBusy.filter(
+    (interval) =>
+      !(agenda ?? []).some(
+        (booking) =>
+          booking.status === "confirmed" &&
+          booking.google_sync_status === "synced" &&
+          Boolean(booking.google_event_id) &&
+          timeRangesEqual(booking.start_at, booking.end_at, interval.start, interval.end),
+      ),
+  );
+
   return {
     settings: {
       tenantId: settings.tenant_id,
@@ -408,7 +423,7 @@ export async function getAdminAvailabilityServer(adminKey: string) {
     },
     blocks: (blocks ?? []).map(serializeBlock),
     agenda: (agenda ?? []).map(serializeAgendaBooking),
-    googleBusy: googleBusy.map((interval, index) => ({
+    googleBusy: visibleGoogleBusy.map((interval, index) => ({
       id: `google-busy-${index}-${interval.start}`,
       startAt: interval.start,
       endAt: interval.end,

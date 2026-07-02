@@ -405,6 +405,28 @@ input[type="time"] {
 }
 
 /* ─── Admin theme system (scoped to .streex-admin-scope only) ─────────── */
+:root[data-streex-admin-theme="dark"] {
+  --admin-bg: #0b0b0b;
+  --admin-surface: #151515;
+  --admin-surface-2: #1b1b1b;
+  --admin-border: rgba(255, 255, 255, 0.1);
+  --admin-border-strong: rgba(255, 255, 255, 0.18);
+  --admin-fg: #ffffff;
+  --admin-fg-muted: rgba(255, 255, 255, 0.6);
+  --admin-fg-subtle: rgba(255, 255, 255, 0.4);
+}
+
+:root[data-streex-admin-theme="light"] {
+  --admin-bg: #f3f5f8;
+  --admin-surface: #ffffff;
+  --admin-surface-2: #fafbfc;
+  --admin-border: rgba(15, 23, 42, 0.08);
+  --admin-border-strong: rgba(15, 23, 42, 0.16);
+  --admin-fg: #0f172a;
+  --admin-fg-muted: rgba(15, 23, 42, 0.65);
+  --admin-fg-subtle: rgba(15, 23, 42, 0.45);
+}
+
 .streex-admin-scope {
   --admin-bg: #0b0b0b;
   --admin-surface: rgba(255, 255, 255, 0.04);
@@ -579,4 +601,30 @@ input[type="time"] {
 }
 .streex-admin-calendar .fc-list-day-cushion {
   background: var(--admin-surface-2) !important;
+}
+
+.streex-calendar-event-sheet > button {
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  display: flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  background: var(--admin-surface-2);
+  color: var(--admin-fg-muted);
+}
+
+.streex-calendar-event-sheet > button:hover {
+  color: var(--admin-fg);
+  border-color: var(--admin-border-strong);
+}
+
+@media (max-width: 520px) {
+  .streex-calendar-event-sheet .streex-calendar-detail-row {
+    grid-template-columns: 80px minmax(0, 1fr);
+  }
 }

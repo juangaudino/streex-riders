@@ -5,6 +5,7 @@ import { assertAdminAccess } from "./admin-auth.server";
 import {
   ADMIN_EMAIL,
   buildAdminNewRequest,
+  buildPassengerRejected,
   buildPassengerQuote,
   sendEmail,
 } from "./booking-emails.server";
@@ -17,7 +18,7 @@ const AdminSchema = z.object({
 
 const BookingStatusSchema = AdminSchema.extend({
   id: z.string().uuid(),
-  status: z.enum(["confirmed", "completed", "cancelled"]),
+  status: z.enum(["confirmed", "declined", "completed", "cancelled"]),
 });
 
 const QuoteSchema = AdminSchema.extend({
@@ -114,6 +115,13 @@ export const updateAdminBookingStatus = createServerFn({ method: "POST" })
     }
 
     const calendarSync = await syncBookingWithGoogleCalendar(booking);
+    if (data.status === "declined") {
+      try {
+        await sendEmail({ to: booking.email, ...buildPassengerRejected(booking) });
+      } catch (emailError) {
+        console.error("[updateAdminBookingStatus] rejection email failed", emailError);
+      }
+    }
     return { ok: true, calendarSync };
   });
 

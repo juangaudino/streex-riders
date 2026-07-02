@@ -3,6 +3,7 @@ import {
   bookingConflictMessage,
   isScheduleConflictError,
   manualBlockConflictMessage,
+  timeRangesEqual,
   timeRangesOverlap,
 } from "../src/lib/schedule-conflicts.ts";
 
@@ -50,5 +51,16 @@ describe("schedule interval overlap", () => {
         "2026-07-02T23:00:00.000Z",
       ),
     ).toBe(false);
+  });
+
+  test("recognizes the same interval across equivalent ISO formats", () => {
+    expect(
+      timeRangesEqual(
+        "2026-07-03T23:00:00+00:00",
+        "2026-07-04T00:00:00+00:00",
+        "2026-07-03T23:00:00.000Z",
+        "2026-07-04T00:00:00.000Z",
+      ),
+    ).toBe(true);
   });
 });
