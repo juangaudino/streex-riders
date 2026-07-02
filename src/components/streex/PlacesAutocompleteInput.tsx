@@ -85,6 +85,22 @@ export function PlacesAutocompleteInput({
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
+  const mapNewSuggestions = (items: google.maps.places.AutocompleteSuggestion[]): Suggestion[] =>
+    items.flatMap((item) => {
+      const prediction = item.placePrediction;
+      if (!prediction) return [];
+      const primary = prediction.mainText?.toString() ?? prediction.text.toString();
+      const secondary = prediction.secondaryText?.toString() ?? "";
+      return [
+        {
+          id: prediction.placeId || prediction.text.toString(),
+          primary,
+          secondary,
+          full: prediction.text.toString(),
+        },
+      ];
+    });
+
   const fetchLegacySuggestions = (
     input: string,
     lib: google.maps.PlacesLibrary,
@@ -157,9 +173,27 @@ export function PlacesAutocompleteInput({
     if (!sessionTokenRef.current) {
       sessionTokenRef.current = new lib.AutocompleteSessionToken();
     }
-    // AutocompleteSuggestion can remain pending when Places API (New) is not enabled
-    // for an otherwise valid browser key. The established prediction service gives us
-    // a deterministic callback and is supported by the project's existing key.
+    try {
+      const result = await Promise.race([
+        lib.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+          input,
+          sessionToken: sessionTokenRef.current,
+          region: regionCodes[0],
+        }),
+        new Promise<never>((_, reject) =>
+          window.setTimeout(() => reject(new Error("Places API (New) timed out")), 4_000),
+        ),
+      ]);
+      if (requestId !== requestIdRef.current) return;
+      const mapped = mapNewSuggestions(result.suggestions);
+      setSuggestions(mapped);
+      setOpen(mapped.length > 0);
+      setLoadError(false);
+      return;
+    } catch (error) {
+      if (requestId !== requestIdRef.current) return;
+      console.warn("Google Places API (New) failed; trying compatibility mode", error);
+    }
     fetchLegacySuggestions(input, lib, requestId);
   };
 
