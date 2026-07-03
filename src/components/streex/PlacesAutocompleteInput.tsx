@@ -19,6 +19,15 @@ type Props = {
   regionCodes?: string[];
 };
 
+function errorSummary(error: unknown) {
+  if (!(error instanceof Error)) return String(error).slice(0, 160);
+  const detail = error as Error & { code?: string | number; status?: string | number };
+  return [detail.name, detail.code, detail.status, detail.message]
+    .filter((value) => value !== undefined && value !== "")
+    .join(":")
+    .slice(0, 160);
+}
+
 export function PlacesAutocompleteInput({
   value,
   onChange,
@@ -31,6 +40,7 @@ export function PlacesAutocompleteInput({
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [diagnostic, setDiagnostic] = useState("idle");
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const placesLibRef = useRef<google.maps.PlacesLibrary | null>(null);
   const placesReadyRef = useRef<Promise<google.maps.PlacesLibrary> | null>(null);
@@ -66,10 +76,12 @@ export function PlacesAutocompleteInput({
       .then(() => {
         if (cancelled) return;
         setLoadError(false);
+        setDiagnostic("places-library-ready");
       })
       .catch((e) => {
         console.warn("Google Maps load failed", e);
         setLoadError(true);
+        setDiagnostic(`loader:${errorSummary(e)}`);
       });
     return () => {
       cancelled = true;
@@ -115,6 +127,7 @@ export function PlacesAutocompleteInput({
       setSuggestions([]);
       setOpen(false);
       setLoadError(true);
+      setDiagnostic("legacy:timeout");
       console.warn("Google Places autocomplete timed out");
     }, 4_000);
 
@@ -132,6 +145,7 @@ export function PlacesAutocompleteInput({
           setSuggestions([]);
           setOpen(false);
           setLoadError(false);
+          setDiagnostic("legacy:zero-results");
           return;
         }
         if (status !== lib.PlacesServiceStatus.OK || !predictions) {
@@ -139,6 +153,7 @@ export function PlacesAutocompleteInput({
           setSuggestions([]);
           setOpen(false);
           setLoadError(true);
+          setDiagnostic(`legacy:${status}`);
           return;
         }
         const mapped = predictions.map((prediction) => ({
@@ -150,6 +165,7 @@ export function PlacesAutocompleteInput({
         setSuggestions(mapped);
         setOpen(mapped.length > 0);
         setLoadError(false);
+        setDiagnostic(`legacy:ok:${mapped.length}`);
       },
     );
   };
@@ -168,6 +184,7 @@ export function PlacesAutocompleteInput({
       setSuggestions([]);
       setOpen(false);
       setLoadError(true);
+      setDiagnostic(`loader:${errorSummary(error)}`);
       return;
     }
     if (!sessionTokenRef.current) {
@@ -189,10 +206,12 @@ export function PlacesAutocompleteInput({
       setSuggestions(mapped);
       setOpen(mapped.length > 0);
       setLoadError(false);
+      setDiagnostic(`new:ok:${mapped.length}`);
       return;
     } catch (error) {
       if (requestId !== requestIdRef.current) return;
       console.warn("Google Places API (New) failed; trying compatibility mode", error);
+      setDiagnostic(`new:${errorSummary(error)}`);
     }
     fetchLegacySuggestions(input, lib, requestId);
   };
@@ -219,7 +238,7 @@ export function PlacesAutocompleteInput({
   };
 
   return (
-    <div ref={wrapperRef} className="relative">
+    <div ref={wrapperRef} className="relative" data-places-diagnostic={diagnostic}>
       <input
         className={className}
         style={style}
