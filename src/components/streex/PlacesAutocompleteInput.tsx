@@ -19,15 +19,6 @@ type Props = {
   regionCodes?: string[];
 };
 
-function errorSummary(error: unknown) {
-  if (!(error instanceof Error)) return String(error).slice(0, 160);
-  const detail = error as Error & { code?: string | number; status?: string | number };
-  return [detail.name, detail.code, detail.status, detail.message]
-    .filter((value) => value !== undefined && value !== "")
-    .join(":")
-    .slice(0, 160);
-}
-
 export function PlacesAutocompleteInput({
   value,
   onChange,
@@ -40,11 +31,9 @@ export function PlacesAutocompleteInput({
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loadError, setLoadError] = useState(false);
-  const [diagnostic, setDiagnostic] = useState("idle");
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const placesLibRef = useRef<google.maps.PlacesLibrary | null>(null);
   const placesReadyRef = useRef<Promise<google.maps.PlacesLibrary> | null>(null);
-  const legacyServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<number | null>(null);
   const requestIdRef = useRef(0);
@@ -59,7 +48,6 @@ export function PlacesAutocompleteInput({
       .then(async (g) => {
         const lib = (await g.maps.importLibrary("places")) as google.maps.PlacesLibrary;
         placesLibRef.current = lib;
-        legacyServiceRef.current = new lib.AutocompleteService();
         sessionTokenRef.current = new lib.AutocompleteSessionToken();
         return lib;
       })
@@ -76,12 +64,10 @@ export function PlacesAutocompleteInput({
       .then(() => {
         if (cancelled) return;
         setLoadError(false);
-        setDiagnostic("places-library-ready");
       })
       .catch((e) => {
         console.warn("Google Maps load failed", e);
         setLoadError(true);
-        setDiagnostic(`loader:${errorSummary(e)}`);
       });
     return () => {
       cancelled = true;
@@ -113,63 +99,6 @@ export function PlacesAutocompleteInput({
       ];
     });
 
-  const fetchLegacySuggestions = (
-    input: string,
-    lib: google.maps.PlacesLibrary,
-    requestId: number,
-  ) => {
-    const service = legacyServiceRef.current ?? new lib.AutocompleteService();
-    legacyServiceRef.current = service;
-    let settled = false;
-    const timeout = window.setTimeout(() => {
-      if (settled || requestId !== requestIdRef.current) return;
-      settled = true;
-      setSuggestions([]);
-      setOpen(false);
-      setLoadError(true);
-      setDiagnostic("legacy:timeout");
-      console.warn("Google Places autocomplete timed out");
-    }, 4_000);
-
-    service.getPlacePredictions(
-      {
-        input,
-        sessionToken: sessionTokenRef.current ?? undefined,
-        componentRestrictions: { country: regionCodes },
-      },
-      (predictions, status) => {
-        if (settled || requestId !== requestIdRef.current) return;
-        settled = true;
-        window.clearTimeout(timeout);
-        if (status === lib.PlacesServiceStatus.ZERO_RESULTS) {
-          setSuggestions([]);
-          setOpen(false);
-          setLoadError(false);
-          setDiagnostic("legacy:zero-results");
-          return;
-        }
-        if (status !== lib.PlacesServiceStatus.OK || !predictions) {
-          console.warn("Google Places autocomplete returned", status);
-          setSuggestions([]);
-          setOpen(false);
-          setLoadError(true);
-          setDiagnostic(`legacy:${status}`);
-          return;
-        }
-        const mapped = predictions.map((prediction) => ({
-          id: prediction.place_id,
-          primary: prediction.structured_formatting.main_text,
-          secondary: prediction.structured_formatting.secondary_text,
-          full: prediction.description,
-        }));
-        setSuggestions(mapped);
-        setOpen(mapped.length > 0);
-        setLoadError(false);
-        setDiagnostic(`legacy:ok:${mapped.length}`);
-      },
-    );
-  };
-
   const runFetch = async (input: string) => {
     const requestId = ++requestIdRef.current;
     if (!input || input.trim().length < 2) {
@@ -184,12 +113,12 @@ export function PlacesAutocompleteInput({
       setSuggestions([]);
       setOpen(false);
       setLoadError(true);
-      setDiagnostic(`loader:${errorSummary(error)}`);
       return;
     }
     if (!sessionTokenRef.current) {
       sessionTokenRef.current = new lib.AutocompleteSessionToken();
     }
+    let timeoutId: number | undefined;
     try {
       const result = await Promise.race([
         lib.AutocompleteSuggestion.fetchAutocompleteSuggestions({
@@ -197,23 +126,27 @@ export function PlacesAutocompleteInput({
           sessionToken: sessionTokenRef.current,
           region: regionCodes[0],
         }),
-        new Promise<never>((_, reject) =>
-          window.setTimeout(() => reject(new Error("Places API (New) timed out")), 4_000),
-        ),
+        new Promise<never>((_, reject) => {
+          timeoutId = window.setTimeout(
+            () => reject(new Error("Places API (New) timed out")),
+            4_000,
+          );
+        }),
       ]);
       if (requestId !== requestIdRef.current) return;
       const mapped = mapNewSuggestions(result.suggestions);
       setSuggestions(mapped);
       setOpen(mapped.length > 0);
       setLoadError(false);
-      setDiagnostic(`new:ok:${mapped.length}`);
-      return;
     } catch (error) {
       if (requestId !== requestIdRef.current) return;
-      console.warn("Google Places API (New) failed; trying compatibility mode", error);
-      setDiagnostic(`new:${errorSummary(error)}`);
+      console.warn("Google Places autocomplete failed", error);
+      setSuggestions([]);
+      setOpen(false);
+      setLoadError(true);
+    } finally {
+      if (timeoutId) window.clearTimeout(timeoutId);
     }
-    fetchLegacySuggestions(input, lib, requestId);
   };
 
   const handleChange = (v: string) => {
@@ -238,7 +171,7 @@ export function PlacesAutocompleteInput({
   };
 
   return (
-    <div ref={wrapperRef} className="relative" data-places-diagnostic={diagnostic}>
+    <div ref={wrapperRef} className="relative">
       <input
         className={className}
         style={style}
