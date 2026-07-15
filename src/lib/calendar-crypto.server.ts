@@ -39,15 +39,26 @@ export function decryptCalendarToken(value: string) {
   ]).toString("utf8");
 }
 
-export function createCalendarOAuthState() {
-  const payload = Buffer.from(
-    JSON.stringify({ issuedAt: Date.now(), nonce: randomBytes(18).toString("base64url") }),
-  ).toString("base64url");
+export type CalendarOAuthState = {
+  issuedAt: number;
+  nonce: string;
+  tenantId: string;
+  userId: string | null;
+};
+
+export function createCalendarOAuthState(input: { tenantId: string; userId: string | null }) {
+  const state: CalendarOAuthState = {
+    issuedAt: Date.now(),
+    nonce: randomBytes(18).toString("base64url"),
+    tenantId: input.tenantId,
+    userId: input.userId,
+  };
+  const payload = Buffer.from(JSON.stringify(state)).toString("base64url");
   const signature = createHmac("sha256", getEncryptionKey()).update(payload).digest("base64url");
-  return `${payload}.${signature}`;
+  return { state: `${payload}.${signature}`, payload: state };
 }
 
-export function verifyCalendarOAuthState(state: string) {
+export function verifyCalendarOAuthState(state: string): CalendarOAuthState {
   const [payload, signature] = state.split(".");
   if (!payload || !signature) throw new Error("Invalid Google authorization state.");
 
@@ -56,12 +67,18 @@ export function verifyCalendarOAuthState(state: string) {
     throw new Error("Invalid Google authorization state.");
   }
 
-  const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as {
-    issuedAt?: number;
-  };
-  if (!parsed.issuedAt || Date.now() - parsed.issuedAt > STATE_MAX_AGE_MS) {
+  const parsed = JSON.parse(
+    Buffer.from(payload, "base64url").toString("utf8"),
+  ) as Partial<CalendarOAuthState>;
+  if (
+    !parsed.issuedAt ||
+    !parsed.nonce ||
+    !parsed.tenantId ||
+    Date.now() - parsed.issuedAt > STATE_MAX_AGE_MS
+  ) {
     throw new Error("Google authorization expired. Please start again from Admin.");
   }
+  return parsed as CalendarOAuthState;
 }
 
 function timingSafeStringEqual(left: string, right: string) {

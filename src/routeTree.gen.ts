@@ -13,6 +13,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RunnerLabRouteImport } from './routes/runner-lab'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as TenantSlugRouteImport } from './routes/$tenantSlug'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GoogleCalendarCallbackRouteImport } from './routes/google-calendar.callback'
 import { Route as BookingDeclineRouteImport } from './routes/booking.decline'
@@ -38,6 +39,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TenantSlugRoute = TenantSlugRouteImport.update({
+  id: '/$tenantSlug',
+  path: '/$tenantSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -73,6 +79,7 @@ const AdminBookingsRoute = AdminBookingsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$tenantSlug': typeof TenantSlugRoute
   '/admin': typeof AdminRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/runner-lab': typeof RunnerLabRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$tenantSlug': typeof TenantSlugRoute
   '/admin': typeof AdminRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/runner-lab': typeof RunnerLabRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$tenantSlug': typeof TenantSlugRoute
   '/admin': typeof AdminRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/runner-lab': typeof RunnerLabRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$tenantSlug'
     | '/admin'
     | '/privacy'
     | '/runner-lab'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$tenantSlug'
     | '/admin'
     | '/privacy'
     | '/runner-lab'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$tenantSlug'
     | '/admin'
     | '/privacy'
     | '/runner-lab'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  TenantSlugRoute: typeof TenantSlugRoute
   AdminRoute: typeof AdminRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   RunnerLabRoute: typeof RunnerLabRoute
@@ -186,6 +199,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$tenantSlug': {
+      id: '/$tenantSlug'
+      path: '/$tenantSlug'
+      fullPath: '/$tenantSlug'
+      preLoaderRoute: typeof TenantSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -247,6 +267,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  TenantSlugRoute: TenantSlugRoute,
   AdminRoute: AdminRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   RunnerLabRoute: RunnerLabRoute,

@@ -4,8 +4,7 @@
 
 - This repository is the STREEX Rides passenger-facing application.
 - STREEX is a premium private ride experience. Preserve its quiet, hospitality-first visual language.
-- The application is hosted and managed through Lovable.
-- The backend is Lovable Cloud with its integrated Supabase-compatible database and storage. Do not assume the owner has or needs a separate external Supabase project.
+- The application is deployed on Vercel and uses the existing standalone Supabase project.
 - Never commit secrets. Lovable secrets and local `.env` values must remain private.
 
 ## Architecture Rules
@@ -13,7 +12,9 @@
 - Preserve the existing TanStack Start, React, Vite, TypeScript, and Lovable architecture.
 - Prefer existing components, helpers, server functions, and styling patterns.
 - Keep changes scoped and reversible. Do not redesign the landing page unless explicitly requested.
-- Admin operations must remain server-side and protected by `ADMIN_ACCESS_KEY`.
+- Admin operations must remain server-side and protected by Supabase Auth plus database-backed tenant memberships. `ADMIN_ACCESS_KEY` is temporary emergency access only.
+- Never authorize from `user_metadata` or from a tenant id supplied by the browser without membership verification.
+- Keep all driver-owned data and Storage paths isolated by tenant. STREEX Horizon remains global.
 - Public database access must stay limited by RLS. Use server functions with the service role for privileged reads and writes.
 - Treat generated files such as `src/routeTree.gen.ts` carefully and avoid manual edits unless required by the framework.
 

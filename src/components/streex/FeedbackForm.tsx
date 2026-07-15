@@ -2,8 +2,10 @@ import { useRef, useState } from "react";
 import { Star, Check } from "lucide-react";
 import { submitPassengerReview } from "@/lib/review.functions";
 import { trackEvent } from "@/lib/analytics";
+import { useTenant } from "./TenantContext";
 
 export function FeedbackForm() {
+  const { tenantId } = useTenant();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [name, setName] = useState("");
@@ -35,6 +37,7 @@ export function FeedbackForm() {
     try {
       await submitPassengerReview({
         data: {
+          tenantId,
           name: name.trim() || null,
           rating,
           message: trimmedMessage.slice(0, 1000),

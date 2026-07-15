@@ -1,39 +1,11 @@
-type Experience = {
-  label: string;
-  image: string;
-  microLabel?: string;
-};
+import type { AppConfig } from "@/config";
 
-const EXPERIENCES: Experience[] = [
-  {
-    label: "Salt Lake City",
-    image: "/images/streex/slc.jpg",
-  },
-  {
-    label: "Park City",
-    image: "/images/streex/park-city.jpg",
-  },
-  {
-    label: "SLC Airport",
-    image: "/images/streex/airport.jpg",
-  },
-  {
-    label: "Mountain Routes",
-    image: "/images/streex/mountains.jpg",
-  },
-  {
-    label: "Your Ride",
-    image: "/images/streex/rav4.jpg",
-    microLabel: "✦ Toyota RAV4 • Spacious SUV",
-  },
-];
-
-export function ExperienceGallery() {
+export function ExperienceGallery({ config }: { config: AppConfig }) {
   return (
     <section className="mt-16">
       <h2 className="text-2xl font-bold mb-5 px-6">The Streex Experience</h2>
       <div className="flex gap-4 overflow-x-auto no-scrollbar px-6 pb-2 snap-x snap-mandatory">
-        {EXPERIENCES.map((e) => (
+        {config.galleryImages.map((e) => (
           <div
             key={e.label}
             className="relative shrink-0 snap-start rounded-[20px] overflow-hidden border border-white/8 streex-glass"

@@ -29,7 +29,7 @@ Avoid loud arcade, casino, crypto-app, generic SaaS, or generic rideshare stylin
 - Vite
 - Tailwind CSS
 - FullCalendar for Admin calendar views
-- Lovable Cloud / Supabase-compatible backend
+- Supabase Auth, Postgres, RLS, and Storage
 - Bun package manager
 
 ## Main routes
@@ -37,6 +37,7 @@ Avoid loud arcade, casino, crypto-app, generic SaaS, or generic rideshare stylin
 | Route                                  | Purpose                                    |
 | -------------------------------------- | ------------------------------------------ |
 | `/`                                    | Passenger landing page                     |
+| `/{driver-slug}`                       | Active driver landing page                 |
 | `/admin`                               | Protected Admin control center             |
 | `/admin/bookings`                      | Admin booking view                         |
 | `/admin/reviews`                       | Admin review view                          |
@@ -102,7 +103,11 @@ Current Admin areas:
 - Site configuration
 - Availability and driver calendar
 
-Privileged actions use server functions and require `ADMIN_ACCESS_KEY`.
+Privileged actions use Supabase Auth and tenant membership checks. `ADMIN_ACCESS_KEY` is retained
+temporarily as emergency migration access, not as the normal login.
+
+The Drivers tab is exclusive to platform Super Admins and provisions invitation-only workspaces.
+See `docs/MULTI_TENANT_ADMIN.md` for onboarding, isolation and deployment instructions.
 
 Relevant files:
 
@@ -157,6 +162,9 @@ Primary tables:
 - `reviews`
 - `runner_scores`
 - `app_settings`
+- `tenants`, `user_profiles`, `tenant_memberships`, `platform_admins`
+- `calendar_connections`, `calendar_oauth_states`
+- `audit_log`
 
 Important files:
 
@@ -182,7 +190,9 @@ Common groups:
 - `SITE_URL`
 - `ADMIN_ACCESS_KEY`
 
-`ADMIN_ACCESS_KEY` is private and authorizes the Admin control center. It must not be treated as a public frontend value.
+`ADMIN_ACCESS_KEY` is private emergency access during the Auth migration. It must never be exposed to
+the browser environment and should be removed after the Super Admin login and recovery flow are
+verified.
 
 ### Analytics
 
@@ -247,6 +257,7 @@ bun run optimize:images
 - `docs/RUNNER_CONTEXT.md` — STREEX Horizon goals, flow, guardrails, records, and sharing.
 - `docs/GOOGLE_CALENDAR_ROADMAP.md` — planned Google Calendar integration.
 - `docs/IMAGE_OPTIMIZATION.md` — image optimization report.
+- `docs/MULTI_TENANT_ADMIN.md` — driver onboarding, authorization, assets, and release checklist.
 - `supabase/README.md` — database baseline and migration notes.
 - `AGENTS.md` — repository instructions for AI/code agents.
 

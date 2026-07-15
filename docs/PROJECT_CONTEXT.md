@@ -12,19 +12,19 @@ Core brand colors:
 
 ## Hosting And Backend
 
-- The application is hosted in Lovable.
-- The backend is managed by Lovable Cloud and is already integrated into the project.
-- Database and storage behavior is Supabase-compatible, but the owner should not be asked to create or manage a separate external Supabase project unless the architecture intentionally changes later.
-- Backend changes may be applied through Lovable Cloud and are also represented in `supabase/migrations/`.
+- The application deploys on Vercel at `https://rides.getstreex.com`.
+- The backend is the standalone Supabase project already configured for STREEX Rides.
+- Database changes are represented in `supabase/migrations/` and require a privileged Supabase account to apply.
 - Sensitive values belong in Lovable secrets or local `.env`, never in Git.
 
-Important secret:
+Important temporary secret:
 
-- `ADMIN_ACCESS_KEY`: private key used to enter and authorize the Admin control center. It is not a public password or frontend environment variable.
+- `ADMIN_ACCESS_KEY`: emergency migration access only. Normal Admin access uses Supabase Auth plus database roles.
 
 ## Main Routes
 
 - `/`: passenger landing experience
+- `/{driver-slug}`: active driver landing page, such as `/driver2`
 - `/admin`: internal control center
 - `/admin/bookings`: Admin bookings view
 - `/admin/reviews`: Admin reviews view
@@ -60,7 +60,8 @@ Current Admin areas:
 - Runner records
 - Display themes
 
-Privileged Admin actions use server functions in `src/lib/admin.functions.ts` and require `ADMIN_ACCESS_KEY`.
+Privileged Admin actions use server functions, Supabase Auth and tenant membership checks. Juan is
+both Super Admin and owner of the primary `streex` workspace. See `docs/MULTI_TENANT_ADMIN.md`.
 
 ### Data
 
@@ -70,6 +71,9 @@ Primary tables:
 - `reviews`: passenger reviews with moderation status
 - `runner_scores`: Runner records with moderation status
 - `app_settings`: non-sensitive public UI settings such as ticker style
+- `tenants`, `tenant_memberships`, `platform_admins`: workspace identity and authorization
+- `calendar_connections`: encrypted per-tenant Google Calendar connections
+- `audit_log`: sensitive platform actions
 
 Expected public behavior:
 
@@ -81,7 +85,8 @@ Expected public behavior:
 
 ### Storage
 
-Lovable Cloud storage contains public image assets used by the landing experience. Existing storage URLs should be preserved unless assets are intentionally migrated.
+Supabase Storage contains the public `tenant-assets` image bucket. Writes are isolated by tenant;
+existing static assets remain valid fallbacks.
 
 ## Technical Stack
 

@@ -1,5 +1,6 @@
 import { MapPin, Mountain, Navigation } from "lucide-react";
 import { Reveal } from "./Reveal";
+import type { AppConfig } from "@/config";
 
 const AREA_GROUPS = [
   {
@@ -19,7 +20,18 @@ const AREA_GROUPS = [
   },
 ] as const;
 
-export function ServiceAreas() {
+export function ServiceAreas({ config }: { config: AppConfig }) {
+  const groups = config.areas.length
+    ? [
+        { icon: MapPin, title: "Service Area", areas: config.areas.slice(0, 6).join(" · ") },
+        {
+          icon: Navigation,
+          title: "More Destinations",
+          areas: config.areas.slice(6, 12).join(" · "),
+        },
+        { icon: Mountain, title: "Extended Rides", areas: config.areas.slice(12).join(" · ") },
+      ].filter((group) => group.areas)
+    : AREA_GROUPS;
   return (
     <Reveal as="section" className="px-6 mt-16">
       <div className="streex-divider w-16 mb-5" />
@@ -33,7 +45,7 @@ export function ServiceAreas() {
       </p>
 
       <div className="mt-6 space-y-3">
-        {AREA_GROUPS.map(({ icon: Icon, title, areas }) => (
+        {groups.map(({ icon: Icon, title, areas }) => (
           <div key={title} className="streex-glass px-5 py-4 flex items-start gap-4">
             <div className="mt-0.5 h-9 w-9 shrink-0 rounded-full border border-[#E6CE20]/25 bg-[#E6CE20]/10 flex items-center justify-center">
               <Icon className="h-4 w-4 text-[#E6CE20]" aria-hidden="true" />

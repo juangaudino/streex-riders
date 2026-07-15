@@ -24,10 +24,10 @@ Current baseline:
 - `ticker_style`: active public service ticker style.
 - `site_config_v2`: JSON overrides for editable public landing configuration.
 
-Admin access is still handled by `ADMIN_ACCESS_KEY` in server functions. Future product admin should move to Supabase Auth with explicit roles:
-
-- `creator`
-- `driver`
+Admin access uses Supabase Auth and database-backed roles. Apply
+`migrations/20260715035104_multi_tenant_super_admin.sql` to add tenants, memberships, Super Admin,
+audit history, per-tenant Calendar/configuration, and tenant image storage. `ADMIN_ACCESS_KEY` remains
+only as temporary emergency bootstrap access.
 
 ## Incremental production updates
 
@@ -66,4 +66,5 @@ The schedule-overlap migration adds the database-level safety boundary:
 
 Run `supabase/tests/prevent_schedule_overlaps.sql` after applying the migration to verify the rules without leaving test data.
 
-Google Calendar is intentionally deferred. See `docs/GOOGLE_CALENDAR_ROADMAP.md` for the next-session plan.
+Google Calendar OAuth, free/busy reads and confirmed-ride event synchronization are implemented and
+stored per tenant after the multi-tenant migration.

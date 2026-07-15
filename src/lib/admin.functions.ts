@@ -1,19 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { assertAdminAccess } from "./admin-auth.server";
+import { assertAdminAccess, requireSuperAdmin } from "./admin-auth.server";
 import {
-  ADMIN_EMAIL,
   buildAdminNewRequest,
   buildPassengerRejected,
   buildPassengerQuote,
+  getTenantEmailBrand,
   sendEmail,
 } from "./booking-emails.server";
 import { bookingConflictMessage } from "./schedule-conflicts";
 import { syncBookingWithGoogleCalendar } from "./google-calendar-sync.server";
 
 const AdminSchema = z.object({
-  adminKey: z.string().min(1),
+  adminKey: z.string().optional().default(""),
 });
 
 const BookingStatusSchema = AdminSchema.extend({
@@ -53,18 +53,19 @@ const RunnerScoreUpdateSchema = AdminSchema.extend({
 export const verifyAdminKey = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => AdminSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
-    return { ok: true };
+    const access = await assertAdminAccess(data.adminKey);
+    return { ok: true, tenantId: access.tenantId, isSuperAdmin: access.isSuperAdmin };
   });
 
 export const listAdminBookings = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => AdminSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    const access = await assertAdminAccess(data.adminKey);
 
     const { data: bookings, error } = await supabaseAdmin
       .from("bookings")
       .select("*")
+      .eq("tenant_id", access.tenantId)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -78,12 +79,13 @@ export const listAdminBookings = createServerFn({ method: "POST" })
 export const sendAdminQuote = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => QuoteSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    const access = await assertAdminAccess(data.adminKey);
 
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
       .update({ price: data.price, status: "quoted" })
       .eq("id", data.id)
+      .eq("tenant_id", access.tenantId)
       .select("*")
       .single();
 
@@ -92,7 +94,8 @@ export const sendAdminQuote = createServerFn({ method: "POST" })
       throw new Error(bookingConflictMessage(error) ?? "Failed to send quote.");
     }
 
-    const msg = buildPassengerQuote(booking);
+    const brand = await getTenantEmailBrand(access.tenantId);
+    const msg = buildPassengerQuote(booking, brand);
     await sendEmail({ to: booking.email, ...msg });
     return { ok: true };
   });
@@ -100,12 +103,13 @@ export const sendAdminQuote = createServerFn({ method: "POST" })
 export const updateAdminBookingStatus = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => BookingStatusSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    const access = await assertAdminAccess(data.adminKey);
 
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
       .update({ status: data.status })
       .eq("id", data.id)
+      .eq("tenant_id", access.tenantId)
       .select("*")
       .single();
 
@@ -114,10 +118,11 @@ export const updateAdminBookingStatus = createServerFn({ method: "POST" })
       throw new Error(bookingConflictMessage(error) ?? "Failed to update booking.");
     }
 
-    const calendarSync = await syncBookingWithGoogleCalendar(booking);
+    const calendarSync = await syncBookingWithGoogleCalendar(booking, access.tenantId);
     if (data.status === "declined") {
       try {
-        await sendEmail({ to: booking.email, ...buildPassengerRejected(booking) });
+        const brand = await getTenantEmailBrand(access.tenantId);
+        await sendEmail({ to: booking.email, ...buildPassengerRejected(booking, brand) });
       } catch (emailError) {
         console.error("[updateAdminBookingStatus] rejection email failed", emailError);
       }
@@ -128,19 +133,20 @@ export const updateAdminBookingStatus = createServerFn({ method: "POST" })
 export const retryAdminBookingCalendarSync = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ReviewIdSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    const access = await assertAdminAccess(data.adminKey);
 
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
       .select("*")
       .eq("id", data.id)
+      .eq("tenant_id", access.tenantId)
       .single();
     if (error || !booking) throw new Error("Failed to load booking for calendar sync.");
     if (booking.status !== "confirmed" && booking.status !== "cancelled") {
       throw new Error("Only confirmed or cancelled rides can be synchronized.");
     }
 
-    const calendarSync = await syncBookingWithGoogleCalendar(booking);
+    const calendarSync = await syncBookingWithGoogleCalendar(booking, access.tenantId);
     if (calendarSync.status === "error") throw new Error(calendarSync.error);
     return { ok: true, calendarSync };
   });
@@ -148,12 +154,13 @@ export const retryAdminBookingCalendarSync = createServerFn({ method: "POST" })
 export const resendAdminBookingNotification = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ReviewIdSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    const access = await assertAdminAccess(data.adminKey);
 
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
       .select("*")
       .eq("id", data.id)
+      .eq("tenant_id", access.tenantId)
       .single();
 
     if (error || !booking) {
@@ -161,18 +168,20 @@ export const resendAdminBookingNotification = createServerFn({ method: "POST" })
       throw new Error("Failed to load booking.");
     }
 
-    await sendEmail({ to: ADMIN_EMAIL, ...buildAdminNewRequest(booking) });
+    const brand = await getTenantEmailBrand(access.tenantId);
+    await sendEmail({ to: brand.email, ...buildAdminNewRequest(booking, brand) });
     return { ok: true };
   });
 
 export const listAdminReviews = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => AdminSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    const access = await assertAdminAccess(data.adminKey);
 
     const { data: reviews, error } = await supabaseAdmin
       .from("reviews")
       .select("*")
+      .eq("tenant_id", access.tenantId)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -186,12 +195,13 @@ export const listAdminReviews = createServerFn({ method: "POST" })
 export const updateAdminReviewStatus = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ReviewStatusSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    const access = await assertAdminAccess(data.adminKey);
 
     const { error } = await supabaseAdmin
       .from("reviews")
       .update({ status: data.status })
-      .eq("id", data.id);
+      .eq("id", data.id)
+      .eq("tenant_id", access.tenantId);
 
     if (error) {
       console.error("[updateAdminReviewStatus] update error", error);
@@ -204,9 +214,13 @@ export const updateAdminReviewStatus = createServerFn({ method: "POST" })
 export const deleteAdminReview = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ReviewIdSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    const access = await assertAdminAccess(data.adminKey);
 
-    const { error } = await supabaseAdmin.from("reviews").delete().eq("id", data.id);
+    const { error } = await supabaseAdmin
+      .from("reviews")
+      .delete()
+      .eq("id", data.id)
+      .eq("tenant_id", access.tenantId);
 
     if (error) {
       console.error("[deleteAdminReview] delete error", error);
@@ -219,15 +233,16 @@ export const deleteAdminReview = createServerFn({ method: "POST" })
 export const updateAdminTickerTheme = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => TickerThemeSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    const access = await assertAdminAccess(data.adminKey);
 
     const { error } = await supabaseAdmin.from("app_settings").upsert(
       {
         key: "ticker_style",
+        tenant_id: access.tenantId,
         value: data.tickerStyle,
         updated_at: new Date().toISOString(),
       },
-      { onConflict: "key" },
+      { onConflict: "tenant_id,key" },
     );
 
     if (error) {
@@ -241,7 +256,7 @@ export const updateAdminTickerTheme = createServerFn({ method: "POST" })
 export const listAdminRunnerScores = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => AdminSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    await requireSuperAdmin(data.adminKey);
 
     const { data: scores, error } = await supabaseAdmin
       .from("runner_scores")
@@ -262,7 +277,7 @@ export const listAdminRunnerScores = createServerFn({ method: "POST" })
 export const updateAdminRunnerScoreStatus = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => RunnerScoreStatusSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    await requireSuperAdmin(data.adminKey);
 
     const { error } = await supabaseAdmin
       .from("runner_scores")
@@ -283,7 +298,7 @@ export const updateAdminRunnerScoreStatus = createServerFn({ method: "POST" })
 export const updateAdminRunnerScore = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => RunnerScoreUpdateSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    await requireSuperAdmin(data.adminKey);
 
     const { error } = await supabaseAdmin
       .from("runner_scores")
@@ -308,7 +323,7 @@ export const updateAdminRunnerScore = createServerFn({ method: "POST" })
 export const deleteAdminRunnerScore = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ReviewIdSchema.parse(input))
   .handler(async ({ data }) => {
-    assertAdminAccess(data.adminKey);
+    await requireSuperAdmin(data.adminKey);
 
     const { error } = await supabaseAdmin.from("runner_scores").delete().eq("id", data.id);
 

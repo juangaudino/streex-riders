@@ -8,6 +8,39 @@ const JUAN_PHONE = "(801) 797-4971";
 
 export { ADMIN_EMAIL, SITE_URL, JUAN_PHONE };
 
+export type TenantEmailBrand = {
+  brandName: string;
+  ownerName: string;
+  phone: string;
+  email: string;
+  siteUrl: string;
+};
+
+const DEFAULT_BRAND: TenantEmailBrand = {
+  brandName: "Streex Rides",
+  ownerName: "Juan",
+  phone: JUAN_PHONE,
+  email: ADMIN_EMAIL,
+  siteUrl: SITE_URL,
+};
+
+export async function getTenantEmailBrand(tenantId: string): Promise<TenantEmailBrand> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: tenant } = await supabaseAdmin
+    .from("tenants")
+    .select("slug,display_name,owner_name,owner_email,owner_phone")
+    .eq("id", tenantId)
+    .maybeSingle();
+  if (!tenant) return DEFAULT_BRAND;
+  return {
+    brandName: tenant.display_name,
+    ownerName: tenant.owner_name,
+    phone: tenant.owner_phone || DEFAULT_BRAND.phone,
+    email: tenant.owner_email,
+    siteUrl: tenantId === "streex" ? SITE_URL : `${SITE_URL}/${tenant.slug}`,
+  };
+}
+
 type SendArgs = {
   to: string | string[];
   subject: string;
@@ -51,13 +84,13 @@ function esc(s: string | number | null | undefined) {
     .replace(/"/g, "&quot;");
 }
 
-const wrap = (inner: string) => `
+const wrap = (inner: string, brand: TenantEmailBrand = DEFAULT_BRAND) => `
 <div style="background:#0B0B0B;padding:32px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#ffffff;">
   <div style="max-width:560px;margin:0 auto;background:#141414;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px 28px;">
-    <div style="font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#E6CE20;font-weight:600;margin-bottom:18px;">Streex Rides</div>
+    <div style="font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#E6CE20;font-weight:600;margin-bottom:18px;">${esc(brand.brandName)}</div>
     ${inner}
     <div style="margin-top:32px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);font-size:11px;color:rgba(255,255,255,0.4);">
-      Streex Rides &middot; ${JUAN_PHONE} &middot; streex.rides@gmail.com
+      ${esc(brand.brandName)} &middot; ${esc(brand.phone)} &middot; ${esc(brand.email)}
     </div>
   </div>
 </div>`;
@@ -111,26 +144,30 @@ const detailsTable = (b: Booking, opts: { showPrice?: boolean } = {}) => `
   ${opts.showPrice && b.price != null ? detailRow("Price", `$${Number(b.price).toFixed(2)}`) : ""}
 </table>`;
 
-export function buildPassengerConfirmation(b: Booking) {
+export function buildPassengerConfirmation(b: Booking, brand: TenantEmailBrand = DEFAULT_BRAND) {
   return {
     subject: "Ride Request Received — Streex Rides",
-    html: wrap(`
+    html: wrap(
+      `
       <h1 style="font-size:22px;font-weight:700;margin:0 0 16px;color:#ffffff;">Hi ${esc(b.name)},</h1>
       ${p("We received your ride request:")}
       ${detailsTable(b)}
-      ${p("Juan will review your request and send you a price quote shortly.")}
-      ${p("&mdash; Streex Rides")}
-    `),
+      ${p(`${esc(brand.ownerName)} will review your request and send you a price quote shortly.`)}
+      ${p(`&mdash; ${esc(brand.brandName)}`)}
+    `,
+      brand,
+    ),
   };
 }
 
-export function buildAdminNewRequest(b: Booking) {
+export function buildAdminNewRequest(b: Booking, brand: TenantEmailBrand = DEFAULT_BRAND) {
   const wa = `https://wa.me/${b.phone.replace(/\D/g, "")}?text=${encodeURIComponent(
-    `Hi ${b.name}, this is Juan from Streex Rides. I received your ride request from ${b.pickup} to ${b.destination} on ${b.date} at ${b.time}.`,
+    `Hi ${b.name}, this is ${brand.ownerName} from ${brand.brandName}. I received your ride request from ${b.pickup} to ${b.destination} on ${b.date} at ${b.time}.`,
   )}`;
   return {
     subject: `New Ride Request — ${b.name}`,
-    html: wrap(`
+    html: wrap(
+      `
       <h1 style="font-size:20px;font-weight:700;margin:0 0 16px;color:#ffffff;">New ride request received</h1>
       <table style="width:100%;border-collapse:collapse;margin:8px 0 18px;">
         ${detailRow("Name", b.name)}
@@ -150,16 +187,19 @@ export function buildAdminNewRequest(b: Booking) {
         ${b.notes ? detailRow("Notes", b.notes) : ""}
       </table>
       <div style="margin-top:8px;">${button("Reply via WhatsApp", wa)}</div>
-    `),
+    `,
+      brand,
+    ),
   };
 }
 
-export function buildPassengerQuote(b: Booking) {
+export function buildPassengerQuote(b: Booking, brand: TenantEmailBrand = DEFAULT_BRAND) {
   const accept = `${SITE_URL}/booking/accept?id=${encodeURIComponent(b.id)}`;
   const decline = `${SITE_URL}/booking/decline?id=${encodeURIComponent(b.id)}`;
   return {
     subject: "Your Ride Quote — Streex Rides",
-    html: wrap(`
+    html: wrap(
+      `
       <h1 style="font-size:22px;font-weight:700;margin:0 0 16px;color:#ffffff;">Hi ${esc(b.name)},</h1>
       ${p("Here is your quote for the requested ride:")}
       ${detailsTable(b, { showPrice: true })}
@@ -168,59 +208,71 @@ export function buildPassengerQuote(b: Booking) {
         ${button("Accept Ride", accept, "primary")}
         ${button("Decline Ride", decline, "secondary")}
       </div>
-    `),
+    `,
+      brand,
+    ),
   };
 }
 
-export function buildPassengerConfirmed(b: Booking) {
+export function buildPassengerConfirmed(b: Booking, brand: TenantEmailBrand = DEFAULT_BRAND) {
   return {
     subject: "Your Ride is Confirmed — Streex Rides",
-    html: wrap(`
+    html: wrap(
+      `
       <h1 style="font-size:22px;font-weight:700;margin:0 0 16px;color:#ffffff;">Hi ${esc(b.name)},</h1>
       ${p("Great news! Your ride is confirmed.")}
       ${detailsTable(b, { showPrice: true })}
-      ${p(`See you soon!<br/>&mdash; Juan, Streex Rides<br/>${esc(JUAN_PHONE)}`)}
-    `),
+      ${p(`See you soon!<br/>&mdash; ${esc(brand.ownerName)}, ${esc(brand.brandName)}<br/>${esc(brand.phone)}`)}
+    `,
+      brand,
+    ),
   };
 }
 
-export function buildAdminConfirmed(b: Booking) {
+export function buildAdminConfirmed(b: Booking, brand: TenantEmailBrand = DEFAULT_BRAND) {
   return {
     subject: `Booking Confirmed — ${b.name}`,
     html: wrap(
       p(
         `${esc(b.name)} accepted the quote of $${Number(b.price ?? 0).toFixed(2)} for ${esc(b.date)} at ${esc(b.time)}.`,
       ),
+      brand,
     ),
   };
 }
 
-export function buildPassengerDeclined(b: Booking) {
+export function buildPassengerDeclined(b: Booking, brand: TenantEmailBrand = DEFAULT_BRAND) {
   return {
     subject: "Ride Request Update — Streex Rides",
-    html: wrap(`
+    html: wrap(
+      `
       <h1 style="font-size:22px;font-weight:700;margin:0 0 16px;color:#ffffff;">Hi ${esc(b.name)},</h1>
       ${p("We understand. If you change your mind or need to discuss options, feel free to reach out directly:")}
-      ${p(`Juan &mdash; Streex Rides<br/>${esc(JUAN_PHONE)}<br/>streex.rides@gmail.com`)}
-    `),
+      ${p(`${esc(brand.ownerName)} &mdash; ${esc(brand.brandName)}<br/>${esc(brand.phone)}<br/>${esc(brand.email)}`)}
+    `,
+      brand,
+    ),
   };
 }
 
-export function buildPassengerRejected(b: Booking) {
+export function buildPassengerRejected(b: Booking, brand: TenantEmailBrand = DEFAULT_BRAND) {
   return {
     subject: "Ride Request Update — Streex Rides",
-    html: wrap(`
+    html: wrap(
+      `
       <h1 style="font-size:22px;font-weight:700;margin:0 0 16px;color:#ffffff;">Hi ${esc(b.name)},</h1>
       ${p(`Unfortunately, STREEX is not available for your requested ride on ${esc(b.date)} at ${esc(b.time)}.`)}
-      ${p("If your schedule is flexible, contact Juan directly and we’ll gladly look for another option.")}
-      ${p(`Juan &mdash; Streex Rides<br/>${esc(JUAN_PHONE)}<br/>streex.rides@gmail.com`)}
-    `),
+      ${p(`If your schedule is flexible, contact ${esc(brand.ownerName)} directly and we’ll gladly look for another option.`)}
+      ${p(`${esc(brand.ownerName)} &mdash; ${esc(brand.brandName)}<br/>${esc(brand.phone)}<br/>${esc(brand.email)}`)}
+    `,
+      brand,
+    ),
   };
 }
 
-export function buildAdminDeclined(b: Booking) {
+export function buildAdminDeclined(b: Booking, brand: TenantEmailBrand = DEFAULT_BRAND) {
   return {
     subject: `Booking Declined — ${b.name}`,
-    html: wrap(p(`${esc(b.name)} declined the quote for ${esc(b.date)} at ${esc(b.time)}.`)),
+    html: wrap(p(`${esc(b.name)} declined the quote for ${esc(b.date)} at ${esc(b.time)}.`), brand),
   };
 }

@@ -5,6 +5,7 @@ import { createBooking } from "@/lib/booking.functions";
 import { getAvailableSlots, type AvailableSlot } from "@/lib/availability.functions";
 import { PlacesAutocompleteInput } from "./PlacesAutocompleteInput";
 import { trackEvent } from "@/lib/analytics";
+import { useTenant } from "./TenantContext";
 
 type Props = {
   open: boolean;
@@ -68,6 +69,7 @@ const fieldStyle: React.CSSProperties = {
 const labelCls = "block text-[11px] uppercase tracking-[0.18em] text-white/55 font-semibold mb-2";
 
 export function BookingFormModal({ open, onOpenChange }: Props) {
+  const { tenantId } = useTenant();
   const [form, setForm] = useState<FormState>(EMPTY);
   const [countryCode, setCountryCode] = useState<string>("+1");
   const [customCode, setCustomCode] = useState<string>("");
@@ -116,6 +118,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
 
     getAvailableSlots({
       data: {
+        tenantId,
         date: form.date,
         durationMinutes: form.serviceType === "hourly" ? form.durationHours * 60 : undefined,
       },
@@ -137,7 +140,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [form.date, form.durationHours, form.serviceType, open]);
+  }, [form.date, form.durationHours, form.serviceType, open, tenantId]);
 
   if (!open || typeof document === "undefined") return null;
 
@@ -154,6 +157,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
     const fullPhone = codeDigits && numberDigits ? `+${codeDigits}${numberDigits}` : "";
 
     const trimmed = {
+      tenantId,
       serviceType: form.serviceType,
       name: form.name.trim(),
       phone: fullPhone,
@@ -206,8 +210,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
       await createBooking({ data: trimmed });
       trackEvent("booking_submitted", {
         service_type: trimmed.serviceType,
-        duration_hours:
-          trimmed.serviceType === "hourly" ? form.durationHours : undefined,
+        duration_hours: trimmed.serviceType === "hourly" ? form.durationHours : undefined,
         passengers: trimmed.passengers,
       });
       setSubmitted(true);

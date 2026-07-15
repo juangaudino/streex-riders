@@ -25,7 +25,10 @@ async function recordSyncState(
   if (error) console.error("[Google Calendar] booking sync state update failed", error);
 }
 
-export async function syncBookingWithGoogleCalendar(booking: BookingRow) {
+export async function syncBookingWithGoogleCalendar(
+  booking: BookingRow,
+  tenantId = booking.tenant_id,
+) {
   if (booking.status !== "confirmed" && booking.status !== "cancelled") {
     return { status: "unchanged" as const };
   }
@@ -34,6 +37,7 @@ export async function syncBookingWithGoogleCalendar(booking: BookingRow) {
     .from("calendar_connections")
     .select("encrypted_refresh_token,write_calendar_id")
     .eq("id", CONNECTION_ID)
+    .eq("tenant_id", tenantId)
     .maybeSingle();
 
   const eventId = booking.google_event_id || googleEventIdForBooking(booking.id);

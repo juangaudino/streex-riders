@@ -1,4 +1,5 @@
 // To customize this template, edit src/config.ts
+import streexLogo from "@/assets/brand/streex-rides-transparent.webp";
 export const CONFIG = {
   // ─── BRAND ───────────────────────────────────
   brandName: "Streex Rides",
@@ -6,7 +7,7 @@ export const CONFIG = {
   tagline: "Private rides. Elevated.",
   subheadline:
     "Premium private rides across Salt Lake City & Park City. Reliable, comfortable and personalized transportation — designed to elevate your journey.",
-  logoSrc: "/images/streex/streex-rides-primary-black.png",
+  logoSrc: streexLogo,
 
   // ─── CONTACT ─────────────────────────────────
   phone: "+18017974971",
@@ -143,6 +144,31 @@ export const CONFIG = {
     feedbackForm: true,
     faq: true,
   },
+
+  // ─── TENANT MEDIA ────────────────────────────
+  galleryImages: [
+    { label: "Salt Lake City", image: "/images/streex/slc.jpg", microLabel: null as string | null },
+    {
+      label: "Park City",
+      image: "/images/streex/park-city.jpg",
+      microLabel: null as string | null,
+    },
+    {
+      label: "SLC Airport",
+      image: "/images/streex/airport.jpg",
+      microLabel: null as string | null,
+    },
+    {
+      label: "Mountain Routes",
+      image: "/images/streex/mountains.jpg",
+      microLabel: null as string | null,
+    },
+    {
+      label: "Your Ride",
+      image: "/images/streex/rav4.jpg",
+      microLabel: "✦ Toyota RAV4 • Spacious SUV" as string | null,
+    },
+  ],
 
   // ─── WHY STREEX ──────────────────────────────
   whyStreexTitle: "Why Streex",

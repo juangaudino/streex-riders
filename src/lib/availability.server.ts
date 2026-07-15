@@ -1,6 +1,6 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Tables } from "@/integrations/supabase/types";
-import { assertAdminAccess } from "./admin-auth.server";
+import { assertAdminAccess, DEFAULT_TENANT_ID } from "./admin-auth.server";
 import type { AvailableSlot } from "./availability.functions";
 import {
   manualBlockConflictMessage,
@@ -13,7 +13,6 @@ import {
   type GoogleBusyInterval,
 } from "./google-calendar.server";
 
-const TENANT_ID = "streex";
 const BLOCKING_BOOKING_STATUSES = ["quoted", "confirmed"];
 
 type AvailabilityRow = Tables<"tenant_availability">;
@@ -24,7 +23,7 @@ const GOOGLE_BUSY_CACHE_MS = 60 * 1000;
 const googleBusyCache = new Map<string, { expiresAt: number; intervals: GoogleBusyInterval[] }>();
 
 type UpdateAvailabilityInput = {
-  adminKey: string;
+  adminKey?: string;
   daysActive: number[];
   startTime: string;
   endTime: string;
@@ -35,7 +34,7 @@ type UpdateAvailabilityInput = {
 };
 
 type CreateBlockInput = {
-  adminKey: string;
+  adminKey?: string;
   startDate: string;
   startTime: string;
   endDate: string;
@@ -44,12 +43,12 @@ type CreateBlockInput = {
 };
 
 type DeleteBlockInput = {
-  adminKey: string;
+  adminKey?: string;
   id: string;
 };
 
 const DEFAULT_AVAILABILITY: AvailabilityRow = {
-  tenant_id: TENANT_ID,
+  tenant_id: DEFAULT_TENANT_ID,
   days_active: [0, 1, 2, 3, 4, 5, 6],
   start_time: "00:00:00",
   end_time: "23:59:00",
@@ -124,6 +123,7 @@ function weekdayForLocalDate(date: string) {
 }
 
 async function readGoogleBusyIntervals(
+  tenantId: string,
   windowStart: Date,
   windowEnd: Date,
   timezone: string,
@@ -133,6 +133,7 @@ async function readGoogleBusyIntervals(
     .from("calendar_connections")
     .select("encrypted_refresh_token,busy_calendar_ids,updated_at")
     .eq("id", "google-primary")
+    .eq("tenant_id", tenantId)
     .maybeSingle();
 
   if (error) {
@@ -148,6 +149,7 @@ async function readGoogleBusyIntervals(
   if (calendarIds.length === 0) return [] as GoogleBusyInterval[];
 
   const cacheKey = [
+    tenantId,
     connection.updated_at,
     windowStart.toISOString(),
     windowEnd.toISOString(),
@@ -169,7 +171,8 @@ async function readGoogleBusyIntervals(
     await supabaseAdmin
       .from("calendar_connections")
       .update({ last_synced_at: new Date().toISOString(), last_error: null })
-      .eq("id", "google-primary");
+      .eq("id", "google-primary")
+      .eq("tenant_id", tenantId);
     return intervals;
   } catch (calendarError) {
     const message =
@@ -178,7 +181,8 @@ async function readGoogleBusyIntervals(
     await supabaseAdmin
       .from("calendar_connections")
       .update({ last_error: message })
-      .eq("id", "google-primary");
+      .eq("id", "google-primary")
+      .eq("tenant_id", tenantId);
     if (failClosed) {
       throw new Error(
         "Calendar availability is temporarily unavailable. Please contact Juan or try again shortly.",
@@ -196,7 +200,7 @@ function formatSlotLabel(date: Date, timeZone: string) {
   }).format(date);
 }
 
-async function readAvailability(tenantId = TENANT_ID): Promise<AvailabilityRow> {
+async function readAvailability(tenantId = DEFAULT_TENANT_ID): Promise<AvailabilityRow> {
   const { data, error } = await supabaseAdmin
     .from("tenant_availability")
     .select("*")
@@ -251,7 +255,7 @@ async function calculateAvailableSlots(tenantId: string, date: string, durationM
       .in("status", BLOCKING_BOOKING_STATUSES)
       .lt("start_at", windowEnd.toISOString())
       .gt("end_at", windowStart.toISOString()),
-    readGoogleBusyIntervals(windowStart, windowEnd, timezone),
+    readGoogleBusyIntervals(tenantId, windowStart, windowEnd, timezone),
   ]);
 
   if (blocksError) {
@@ -302,11 +306,12 @@ async function calculateAvailableSlots(tenantId: string, date: string, durationM
 }
 
 export async function resolveBookingSlotServer(
+  tenantId: string,
   date: string,
   time: string,
   durationMinutes?: number,
 ) {
-  const { settings, slots } = await calculateAvailableSlots(TENANT_ID, date, durationMinutes);
+  const { settings, slots } = await calculateAvailableSlots(tenantId, date, durationMinutes);
   const selected = slots.find((slot) => slot.time === time);
 
   if (!selected) {
@@ -325,8 +330,16 @@ export async function getAvailableSlotsServer(
   date: string,
   durationMinutes?: number,
 ) {
+  const resolvedTenantId = tenantId ?? DEFAULT_TENANT_ID;
+  const tenant = await supabaseAdmin
+    .from("tenants")
+    .select("id")
+    .eq("id", resolvedTenantId)
+    .eq("status", "active")
+    .maybeSingle();
+  if (tenant.error || !tenant.data) throw new Error("This driver is not accepting bookings.");
   const { settings, slots } = await calculateAvailableSlots(
-    tenantId ?? TENANT_ID,
+    resolvedTenantId,
     date,
     durationMinutes,
   );
@@ -343,8 +356,8 @@ export async function getAvailableSlotsServer(
 }
 
 export async function getAdminAvailabilityServer(adminKey: string) {
-  assertAdminAccess(adminKey);
-  const settings = await readAvailability(TENANT_ID);
+  const access = await assertAdminAccess(adminKey);
+  const settings = await readAvailability(access.tenantId);
   const nowIso = new Date().toISOString();
 
   const [{ data: blocks, error: blocksError }, { data: agenda, error: agendaError }] =
@@ -352,13 +365,13 @@ export async function getAdminAvailabilityServer(adminKey: string) {
       supabaseAdmin
         .from("blocked_slots")
         .select("*")
-        .eq("tenant_id", TENANT_ID)
+        .eq("tenant_id", access.tenantId)
         .gte("end_at", nowIso)
         .order("start_at", { ascending: true }),
       supabaseAdmin
         .from("bookings")
         .select("*")
-        .eq("tenant_id", TENANT_ID)
+        .eq("tenant_id", access.tenantId)
         .in("status", BLOCKING_BOOKING_STATUSES)
         .gte("end_at", nowIso)
         .order("start_at", { ascending: true })
@@ -383,6 +396,7 @@ export async function getAdminAvailabilityServer(adminKey: string) {
   let googleCalendarError: string | null = null;
   try {
     googleBusy = await readGoogleBusyIntervals(
+      access.tenantId,
       googleRangeStart,
       googleRangeEnd,
       settings.timezone,
@@ -392,6 +406,7 @@ export async function getAdminAvailabilityServer(adminKey: string) {
       .from("calendar_connections")
       .select("last_error")
       .eq("id", "google-primary")
+      .eq("tenant_id", access.tenantId)
       .maybeSingle();
     googleCalendarError = googleStatus?.last_error ?? null;
   } catch (googleError) {
@@ -433,11 +448,11 @@ export async function getAdminAvailabilityServer(adminKey: string) {
 }
 
 export async function updateAdminAvailabilityServer(data: UpdateAvailabilityInput) {
-  assertAdminAccess(data.adminKey);
+  const access = await assertAdminAccess(data.adminKey);
 
   const { error } = await supabaseAdmin.from("tenant_availability").upsert(
     {
-      tenant_id: TENANT_ID,
+      tenant_id: access.tenantId,
       days_active: data.daysActive,
       start_time: data.startTime,
       end_time: data.endTime,
@@ -459,8 +474,8 @@ export async function updateAdminAvailabilityServer(data: UpdateAvailabilityInpu
 }
 
 export async function createAdminBlockedSlotServer(data: CreateBlockInput) {
-  assertAdminAccess(data.adminKey);
-  const settings = await readAvailability(TENANT_ID);
+  const access = await assertAdminAccess(data.adminKey);
+  const settings = await readAvailability(access.tenantId);
   const start = zonedDateTimeToUtc(data.startDate, data.startTime, settings.timezone);
   const end = zonedDateTimeToUtc(data.endDate, data.endTime, settings.timezone);
 
@@ -469,7 +484,7 @@ export async function createAdminBlockedSlotServer(data: CreateBlockInput) {
   }
 
   const { error } = await supabaseAdmin.from("blocked_slots").insert({
-    tenant_id: TENANT_ID,
+    tenant_id: access.tenantId,
     start_at: start.toISOString(),
     end_at: end.toISOString(),
     reason: data.reason?.trim() || null,
@@ -484,8 +499,12 @@ export async function createAdminBlockedSlotServer(data: CreateBlockInput) {
 }
 
 export async function deleteAdminBlockedSlotServer(data: DeleteBlockInput) {
-  assertAdminAccess(data.adminKey);
-  const { error } = await supabaseAdmin.from("blocked_slots").delete().eq("id", data.id);
+  const access = await assertAdminAccess(data.adminKey);
+  const { error } = await supabaseAdmin
+    .from("blocked_slots")
+    .delete()
+    .eq("id", data.id)
+    .eq("tenant_id", access.tenantId);
 
   if (error) {
     console.error("[deleteAdminBlockedSlot] delete error", error);
