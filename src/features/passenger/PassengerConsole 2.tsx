@@ -238,13 +238,13 @@ function ConsoleHeader({
         <img
           src={config.logoSrc}
           alt={config.brandName}
-          className="h-10 w-auto max-w-[132px] shrink-0 object-contain"
+          className="h-11 w-11 shrink-0 rounded-2xl bg-[#E6CE20] object-contain p-2"
         />
         <div className="min-w-0">
           <p className="truncate text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55">
             Passenger Console
           </p>
-          <p className="text-sm font-semibold leading-none text-white/80">{config.brandName}</p>
+          <p className="text-lg font-bold leading-none tracking-tight">STREEX</p>
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
