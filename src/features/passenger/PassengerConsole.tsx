@@ -269,7 +269,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
         </main>
         <ConsoleNavigation activeView={view} onNavigate={setView} t={t} />
       </div>
-      <BookingFormModal open={bookingOpen} onOpenChange={setBookingOpen} />
+      <BookingFormModal language={language} open={bookingOpen} onOpenChange={setBookingOpen} />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { PlacesAutocompleteInput } from "./PlacesAutocompleteInput";
 import { trackEvent } from "@/lib/analytics";
 
 type Props = {
+  language?: "en" | "es";
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -45,16 +46,114 @@ const todayLocalISO = () => {
   return today.toISOString().slice(0, 10);
 };
 
-const COUNTRY_CODES = [
-  { label: "🇺🇸 +1 — United States", value: "+1" },
-  { label: "🇲🇽 +52 — Mexico", value: "+52" },
-  { label: "🇬🇧 +44 — United Kingdom", value: "+44" },
-  { label: "🇪🇸 +34 — Spain", value: "+34" },
-  { label: "🇦🇷 +54 — Argentina", value: "+54" },
-  { label: "🌍 Other", value: "other" },
-];
-
 const HOURLY_OPTIONS = [1, 2, 3, 4, 5, 6, 8, 10, 12];
+
+const COPY = {
+  en: {
+    close: "Close",
+    eyebrow: "Schedule Ride",
+    title: "Request a Ride",
+    intro: "Tell Juan your details — you’ll receive a personal quote shortly.",
+    received: "Request received",
+    receivedDescription: "Your ride request was received. Juan will review and send you a quote shortly.",
+    done: "Done",
+    serviceType: "Service Type",
+    pointToPoint: "Point to Point",
+    pointToPointDescription: "Pickup and destination",
+    hourly: "Hourly",
+    hourlyDescription: "Reserve by time",
+    name: "Name",
+    namePlaceholder: "Your full name",
+    countryCode: "Country Code",
+    other: "Other",
+    phone: "Phone Number",
+    phonePlaceholder: "Your number",
+    email: "Email",
+    pickup: "Pickup Location",
+    addressPlaceholder: "Address or place",
+    itinerary: "Itinerary / Area (optional)",
+    destination: "Destination",
+    itineraryPlaceholder: "Optional route or service area",
+    destinationPlaceholder: "Where to?",
+    reservedTime: "Reserved Time",
+    availabilityWindow: "Availability will reserve the full time window.",
+    date: "Date",
+    startTime: "Start Time",
+    pickupTime: "Pickup Time",
+    chooseDate: "Choose a date first.",
+    loadingTimes: "Loading available times...",
+    unavailableTimes: "No available times for this date. Please choose another date.",
+    selectTime: "Select available time",
+    passengers: "Passengers",
+    decreasePassengers: "Decrease passengers",
+    increasePassengers: "Increase passengers",
+    notes: "Notes (optional)",
+    notesPlaceholder: "Anything Juan should know?",
+    sending: "Sending...",
+    submit: "Request Ride",
+    missingRequired: "Please complete all required fields.",
+    invalidEmail: "Please enter a valid email address.",
+    invalidPassengers: "Passengers must be between 1 and 8.",
+    invalidDate: "Please choose today or a future date.",
+    unavailableError: "Available times could not be loaded. Please try another date.",
+    unexpectedError: "Something went wrong. Please try again.",
+    hour: "hour",
+    hours: "hours",
+    countries: ["United States", "Mexico", "United Kingdom", "Spain", "Argentina"],
+  },
+  es: {
+    close: "Cerrar",
+    eyebrow: "Reservar viaje",
+    title: "Solicite un viaje",
+    intro: "Comparta sus datos con Juan; recibirá una cotización personal en breve.",
+    received: "Solicitud recibida",
+    receivedDescription: "Recibimos su solicitud. Juan la revisará y le enviará una cotización en breve.",
+    done: "Listo",
+    serviceType: "Tipo de servicio",
+    pointToPoint: "Punto a punto",
+    pointToPointDescription: "Recogida y destino",
+    hourly: "Por hora",
+    hourlyDescription: "Reserve por tiempo",
+    name: "Nombre",
+    namePlaceholder: "Su nombre completo",
+    countryCode: "Código de país",
+    other: "Otro",
+    phone: "Número de teléfono",
+    phonePlaceholder: "Su número",
+    email: "Email",
+    pickup: "Lugar de recogida",
+    addressPlaceholder: "Dirección o lugar",
+    itinerary: "Itinerario / área (opcional)",
+    destination: "Destino",
+    itineraryPlaceholder: "Ruta o zona de servicio opcional",
+    destinationPlaceholder: "¿A dónde va?",
+    reservedTime: "Tiempo reservado",
+    availabilityWindow: "La disponibilidad reservará toda la franja de tiempo.",
+    date: "Fecha",
+    startTime: "Hora de inicio",
+    pickupTime: "Hora de recogida",
+    chooseDate: "Primero elija una fecha.",
+    loadingTimes: "Cargando horarios disponibles...",
+    unavailableTimes: "No hay horarios disponibles para esta fecha. Elija otra fecha.",
+    selectTime: "Seleccione un horario disponible",
+    passengers: "Pasajeros",
+    decreasePassengers: "Disminuir pasajeros",
+    increasePassengers: "Aumentar pasajeros",
+    notes: "Notas (opcional)",
+    notesPlaceholder: "¿Hay algo que Juan deba saber?",
+    sending: "Enviando...",
+    submit: "Solicitar viaje",
+    missingRequired: "Complete todos los campos obligatorios.",
+    invalidEmail: "Ingrese un email válido.",
+    invalidPassengers: "Los pasajeros deben ser entre 1 y 8.",
+    invalidDate: "Elija hoy o una fecha futura.",
+    unavailableError: "No se pudieron cargar los horarios disponibles. Intente con otra fecha.",
+    unexpectedError: "Algo salió mal. Inténtelo de nuevo.",
+    hour: "hora",
+    hours: "horas",
+    countries: ["Estados Unidos", "México", "Reino Unido", "España", "Argentina"],
+  },
+} as const;
 
 const fieldCls =
   "block w-full box-border rounded-xl bg-white/[0.04] border border-white/10 text-sm text-white placeholder:text-white/30 backdrop-blur-xl focus:outline-none focus:border-[#E6CE20]/50 transition-colors";
@@ -67,7 +166,16 @@ const fieldStyle: React.CSSProperties = {
 
 const labelCls = "block text-[11px] uppercase tracking-[0.18em] text-white/55 font-semibold mb-2";
 
-export function BookingFormModal({ open, onOpenChange }: Props) {
+export function BookingFormModal({ language = "en", open, onOpenChange }: Props) {
+  const t = COPY[language];
+  const countryCodes = [
+    { label: `🇺🇸 +1 — ${t.countries[0]}`, value: "+1" },
+    { label: `🇲🇽 +52 — ${t.countries[1]}`, value: "+52" },
+    { label: `🇬🇧 +44 — ${t.countries[2]}`, value: "+44" },
+    { label: `🇪🇸 +34 — ${t.countries[3]}`, value: "+34" },
+    { label: `🇦🇷 +54 — ${t.countries[4]}`, value: "+54" },
+    { label: `🌍 ${t.other}`, value: "other" },
+  ];
   const [form, setForm] = useState<FormState>(EMPTY);
   const [countryCode, setCountryCode] = useState<string>("+1");
   const [customCode, setCustomCode] = useState<string>("");
@@ -128,7 +236,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
         if (cancelled) return;
         console.error(err);
         setAvailableSlots([]);
-        setSlotsError("Available times could not be loaded. Please try another date.");
+        setSlotsError(t.unavailableError);
       })
       .finally(() => {
         if (!cancelled) setSlotsLoading(false);
@@ -137,7 +245,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [form.date, form.durationHours, form.serviceType, open]);
+  }, [form.date, form.durationHours, form.serviceType, open, t.unavailableError]);
 
   if (!open || typeof document === "undefined") return null;
 
@@ -182,22 +290,22 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
       !trimmed.time
     ) {
       trackEvent("booking_failed", { reason: "missing_required_fields" });
-      setError("Please complete all required fields.");
+      setError(t.missingRequired);
       return;
     }
     if (!/^\S+@\S+\.\S+$/.test(trimmed.email)) {
       trackEvent("booking_failed", { reason: "invalid_email" });
-      setError("Please enter a valid email address.");
+      setError(t.invalidEmail);
       return;
     }
     if (trimmed.passengers < 1 || trimmed.passengers > 8) {
       trackEvent("booking_failed", { reason: "invalid_passenger_count" });
-      setError("Passengers must be between 1 and 8.");
+      setError(t.invalidPassengers);
       return;
     }
     if (trimmed.date < minRideDate) {
       trackEvent("booking_failed", { reason: "invalid_date" });
-      setError("Please choose today or a future date.");
+      setError(t.invalidDate);
       return;
     }
 
@@ -214,7 +322,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
     } catch (err) {
       trackEvent("booking_failed", { reason: "server_error" });
       console.error(err);
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : t.unexpectedError);
     } finally {
       setSubmitting(false);
     }
@@ -236,7 +344,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
       >
         <button
           onClick={() => onOpenChange(false)}
-          aria-label="Close"
+          aria-label={t.close}
           className="absolute top-4 right-4 h-9 w-9 rounded-full flex items-center justify-center bg-white/[0.06] border border-white/10 text-white/70 hover:text-white transition-colors"
         >
           <X className="h-4 w-4" />
@@ -244,11 +352,11 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
 
         <div className="p-6 sm:p-8">
           <div className="text-[11px] uppercase tracking-[0.22em] text-[#E6CE20] font-semibold mb-2">
-            Schedule Ride
+            {t.eyebrow}
           </div>
-          <h2 className="text-2xl font-bold text-white mb-1">Request a Ride</h2>
+          <h2 className="text-2xl font-bold text-white mb-1">{t.title}</h2>
           <p className="text-sm text-white/55 mb-6">
-            Tell Juan your details — you&rsquo;ll receive a personal quote shortly.
+            {t.intro}
           </p>
 
           {submitted ? (
@@ -256,15 +364,15 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
               <div className="h-14 w-14 rounded-full bg-[#E6CE20]/15 border border-[#E6CE20]/40 flex items-center justify-center mb-4">
                 <Check className="h-6 w-6 text-[#E6CE20]" strokeWidth={2.4} />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Request received</h3>
+              <h3 className="text-lg font-semibold text-white mb-2">{t.received}</h3>
               <p className="text-sm text-white/65 mb-6 max-w-xs">
-                Your ride request was received. Juan will review and send you a quote shortly.
+                {t.receivedDescription}
               </p>
               <button
                 onClick={() => onOpenChange(false)}
                 className="rounded-full bg-[#E6CE20] text-black font-semibold text-sm px-6 py-3"
               >
-                Done
+                {t.done}
               </button>
             </div>
           ) : (
@@ -278,15 +386,15 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
               className="space-y-4"
             >
               <div>
-                <label className={labelCls}>Service Type</label>
+                <label className={labelCls}>{t.serviceType}</label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     {
                       key: "ride" as const,
-                      label: "Point to Point",
-                      sub: "Pickup and destination",
+                      label: t.pointToPoint,
+                      sub: t.pointToPointDescription,
                     },
-                    { key: "hourly" as const, label: "Hourly", sub: "Reserve by time" },
+                    { key: "hourly" as const, label: t.hourly, sub: t.hourlyDescription },
                   ].map((option) => {
                     const selected = form.serviceType === option.key;
                     return (
@@ -317,25 +425,25 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 </div>
               </div>
               <div>
-                <label className={labelCls}>Name</label>
+                <label className={labelCls}>{t.name}</label>
                 <input
                   className={fieldCls}
                   style={fieldStyle}
                   value={form.name}
                   onChange={(e) => set("name", e.target.value)}
-                  placeholder="Your full name"
+                  placeholder={t.namePlaceholder}
                   required
                 />
               </div>
               <div>
-                <label className={labelCls}>Country Code</label>
+                <label className={labelCls}>{t.countryCode}</label>
                 <select
                   className={fieldCls}
                   style={fieldStyle}
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
                 >
-                  {COUNTRY_CODES.map((c) => (
+                  {countryCodes.map((c) => (
                     <option key={c.value} value={c.value} className="bg-[#0F0F0F] text-white">
                       {c.label}
                     </option>
@@ -344,7 +452,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
               </div>
               {countryCode === "other" ? (
                 <div>
-                  <label className={labelCls}>Country Code</label>
+                  <label className={labelCls}>{t.countryCode}</label>
                   <input
                     className={fieldCls}
                     style={fieldStyle}
@@ -357,7 +465,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 </div>
               ) : null}
               <div>
-                <label className={labelCls}>Phone Number</label>
+                <label className={labelCls}>{t.phone}</label>
                 <input
                   className={fieldCls}
                   style={fieldStyle}
@@ -365,12 +473,12 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                   inputMode="numeric"
                   value={form.phone}
                   onChange={(e) => set("phone", e.target.value.replace(/[^\d]/g, ""))}
-                  placeholder="Your number"
+                  placeholder={t.phonePlaceholder}
                   required
                 />
               </div>
               <div>
-                <label className={labelCls}>Email</label>
+                <label className={labelCls}>{t.email}</label>
                 <input
                   className={fieldCls}
                   style={fieldStyle}
@@ -382,19 +490,19 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 />
               </div>
               <div>
-                <label className={labelCls}>Pickup Location</label>
+                <label className={labelCls}>{t.pickup}</label>
                 <PlacesAutocompleteInput
                   className={fieldCls}
                   style={fieldStyle}
                   value={form.pickup}
                   onChange={(v) => set("pickup", v)}
-                  placeholder="Address or place"
+                  placeholder={t.addressPlaceholder}
                   required
                 />
               </div>
               <div>
                 <label className={labelCls}>
-                  {form.serviceType === "hourly" ? "Itinerary / Area (optional)" : "Destination"}
+                  {form.serviceType === "hourly" ? t.itinerary : t.destination}
                 </label>
                 <PlacesAutocompleteInput
                   className={fieldCls}
@@ -402,14 +510,14 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                   value={form.destination}
                   onChange={(v) => set("destination", v)}
                   placeholder={
-                    form.serviceType === "hourly" ? "Optional route or service area" : "Where to?"
+                    form.serviceType === "hourly" ? t.itineraryPlaceholder : t.destinationPlaceholder
                   }
                   required={form.serviceType === "ride"}
                 />
               </div>
               {form.serviceType === "hourly" && (
                 <div>
-                  <label className={labelCls}>Reserved Time</label>
+                  <label className={labelCls}>{t.reservedTime}</label>
                   <div className="relative">
                     <select
                       className={`${fieldCls} appearance-none`}
@@ -425,19 +533,19 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                     >
                       {HOURLY_OPTIONS.map((hours) => (
                         <option key={hours} value={hours} className="bg-[#0F0F0F] text-white">
-                          {hours} {hours === 1 ? "hour" : "hours"}
+                          {hours} {hours === 1 ? t.hour : t.hours}
                         </option>
                       ))}
                     </select>
                     <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
                   </div>
                   <p className="mt-2 text-[11px] leading-relaxed text-white/40">
-                    Availability will reserve the full time window.
+                    {t.availabilityWindow}
                   </p>
                 </div>
               )}
               <div>
-                <label className={labelCls}>Date</label>
+                <label className={labelCls}>{t.date}</label>
                 <input
                   className={fieldCls}
                   style={{
@@ -459,15 +567,15 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
               </div>
               <div>
                 <label className={labelCls}>
-                  {form.serviceType === "hourly" ? "Start Time" : "Pickup Time"}
+                  {form.serviceType === "hourly" ? t.startTime : t.pickupTime}
                 </label>
                 {!form.date ? (
                   <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/40">
-                    Choose a date first.
+                    {t.chooseDate}
                   </div>
                 ) : slotsLoading ? (
                   <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/45">
-                    Loading available times...
+                    {t.loadingTimes}
                   </div>
                 ) : slotsError ? (
                   <div className="rounded-xl border border-red-400/25 bg-red-400/[0.05] px-4 py-3 text-sm text-red-300">
@@ -475,7 +583,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                   </div>
                 ) : availableSlots.length === 0 ? (
                   <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/45">
-                    No available times for this date. Please choose another date.
+                    {t.unavailableTimes}
                   </div>
                 ) : (
                   <div className="relative">
@@ -487,7 +595,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                       required
                     >
                       <option value="" className="bg-[#0F0F0F] text-white">
-                        Select available time
+                        {t.selectTime}
                       </option>
                       {availableSlots.map((slot) => {
                         return (
@@ -506,13 +614,13 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 )}
               </div>
               <div>
-                <label className={labelCls}>Passengers</label>
+                <label className={labelCls}>{t.passengers}</label>
                 <div className="w-full rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-xl px-4 py-3 flex items-center justify-center gap-5">
                   <button
                     type="button"
                     onClick={() => set("passengers", Math.max(1, form.passengers - 1))}
                     disabled={form.passengers <= 1}
-                    aria-label="Decrease passengers"
+                    aria-label={t.decreasePassengers}
                     className="h-9 w-9 rounded-full flex items-center justify-center bg-white/[0.06] border border-white/10 text-white transition-transform focus:outline-none focus:border-[#E6CE20]/50 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Minus className="h-4 w-4" />
@@ -532,7 +640,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                     type="button"
                     onClick={() => set("passengers", Math.min(8, form.passengers + 1))}
                     disabled={form.passengers >= 8}
-                    aria-label="Increase passengers"
+                    aria-label={t.increasePassengers}
                     className="h-9 w-9 rounded-full flex items-center justify-center bg-white/[0.06] border border-white/10 text-white transition-transform focus:outline-none focus:border-[#E6CE20]/50 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Plus className="h-4 w-4" />
@@ -540,13 +648,13 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 </div>
               </div>
               <div>
-                <label className={labelCls}>Notes (optional)</label>
+                <label className={labelCls}>{t.notes}</label>
                 <textarea
                   className={`${fieldCls} min-h-[88px] resize-none`}
                   style={fieldStyle}
                   value={form.notes}
                   onChange={(e) => set("notes", e.target.value)}
-                  placeholder="Anything Juan should know?"
+                  placeholder={t.notesPlaceholder}
                   maxLength={1000}
                 />
               </div>
@@ -558,7 +666,7 @@ export function BookingFormModal({ open, onOpenChange }: Props) {
                 disabled={submitting || slotsLoading}
                 className="w-full rounded-xl bg-[#E6CE20] text-black font-semibold text-sm py-3.5 hover:bg-[#E6CE20]/90 transition-colors disabled:opacity-60"
               >
-                {submitting ? "Sending..." : "Request Ride"}
+                {submitting ? t.sending : t.submit}
               </button>
             </form>
           )}
