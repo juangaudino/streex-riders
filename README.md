@@ -41,6 +41,7 @@ Avoid loud arcade, casino, crypto-app, generic SaaS, or generic rideshare stylin
 | `/admin/bookings`                      | Admin booking view                         |
 | `/admin/reviews`                       | Admin review view                          |
 | `/runner-lab`                          | Hidden, no-index STREEX Horizon game route |
+| `/passenger`                           | No-index in-vehicle Passenger Console      |
 | `/booking.accept` / `/booking.decline` | Booking response routes                    |
 
 ## Core systems

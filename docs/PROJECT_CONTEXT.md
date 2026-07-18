@@ -29,6 +29,7 @@ Important secret:
 - `/admin/bookings`: Admin bookings view
 - `/admin/reviews`: Admin reviews view
 - `/runner-lab`: hidden, no-index STREEX Runner development route
+- `/passenger`: no-index, in-vehicle Passenger Console for a vertically mounted tablet
 
 ## Main Systems
 
@@ -48,6 +49,21 @@ Important areas include:
 - Public approved reviews
 - Meet Juan
 - Passenger review submission
+
+### Passenger Console
+
+`/passenger` is an in-repo, tablet-first companion experience for passengers. It shares the
+public STREEX configuration and brand assets, but is isolated from the booking landing and Admin
+surfaces. Its Home, Music, Games and STREEX views are bilingual (English/Español) and must never
+show passenger data.
+
+- Music is provider-neutral and simulated until vehicle-audio integration has been researched and approved.
+- Games are visual placeholders only; no game mechanics or backend are implemented.
+- Public links and capability flags live under `CONFIG.passengerConsole`; never place tokens, PINs,
+  credentials or personal data there.
+- Android kiosk enforcement belongs to Android/MDM/launcher. The web app may later add PWA cache
+  and recovery behavior, but must not claim to enforce kiosk mode.
+- Do not modify the Google Calendar integration for Passenger Console work.
 
 ### Admin
 

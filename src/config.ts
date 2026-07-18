@@ -35,6 +35,39 @@ export const CONFIG = {
   wifiName: "STREEX-5G",
   wifiPassword: null as string | null,
 
+  // ─── PASSENGER CONSOLE ───────────────────────
+  // Public, non-sensitive settings for the in-vehicle tablet experience at /passenger.
+  // Keep credentials, device PINs, provider tokens and passenger data out of this object.
+  passengerConsole: {
+    enabled: true,
+    weather: {
+      city: "Salt Lake City",
+      // A presentation fallback until a weather provider is explicitly approved.
+      fallbackTemperature: "72°F",
+    },
+    music: {
+      enabled: true,
+      // "simulated" is intentionally provider-neutral. Do not change to a real provider
+      // until its vehicle-audio control constraints have been researched and approved.
+      mode: "simulated" as "simulated" | "provider",
+      providerName: null as string | null,
+    },
+    games: {
+      utahTriviaEnabled: false,
+      thisOrThatEnabled: false,
+    },
+    links: {
+      // Null uses the established public STREEX link where a safe fallback exists.
+      // Set an explicit public URL here when the passenger-console destination differs.
+      bookRide: null as string | null,
+      services: null as string | null,
+      contact: null as string | null,
+      review: null as string | null,
+      tip: null as string | null,
+      phoneContinuation: null as string | null,
+    },
+  },
+
   // ─── COLORS ──────────────────────────────────
   accentColor: "#E6CE20",
   backgroundColor: "#0B0B0B",
