@@ -857,7 +857,18 @@ function ConsoleNavigation({
     { id: "home" as const, label: t.home, icon: <Play className="h-5 w-5 rotate-[270deg]" /> },
     { id: "music" as const, label: t.music, icon: <Music2 className="h-5 w-5" /> },
     { id: "games" as const, label: t.games, icon: <Gamepad2 className="h-5 w-5" /> },
-    { id: "streex" as const, label: t.streex, icon: <Sparkles className="h-5 w-5" /> },
+    {
+      id: "streex" as const,
+      label: t.streex,
+      icon: (
+        <img
+          src="/icons/streex-mark-black-48.png"
+          alt=""
+          aria-hidden="true"
+          className="h-5 w-5 rounded-sm object-contain"
+        />
+      ),
+    },
   ];
   return (
     <nav
