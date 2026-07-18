@@ -59,13 +59,8 @@ export const CONFIG = {
       thisOrThatEnabled: false,
     },
     links: {
-      // Null uses the established public STREEX link where a safe fallback exists.
-      // Set an explicit public URL here when the passenger-console destination differs.
-      bookRide: null as string | null,
-      services: null as string | null,
-      contact: null as string | null,
-      review: null as string | null,
-      tip: null as string | null,
+      // Booking, services, contact, reviews and tips reuse their native Rides components
+      // and the shared public config above. This is the only external continuation link.
       phoneContinuation: "https://rides.getstreex.com",
     },
   },

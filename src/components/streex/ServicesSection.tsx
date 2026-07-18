@@ -58,12 +58,20 @@ function ServiceCard({
   );
 }
 
-export function ServicesSection({ config }: { config: AppConfig }) {
+export function ServicesSection({
+  className = "px-6 mt-16",
+  config,
+  title = "Our Services",
+}: {
+  className?: string;
+  config: AppConfig;
+  title?: string;
+}) {
   const visible = config.services.filter((s) => s.enabled);
 
   return (
-    <section className="px-6 mt-16">
-      <h2 className="text-2xl font-bold mb-5">Our Services</h2>
+    <section className={className}>
+      <h2 className="text-2xl font-bold mb-5">{title}</h2>
       <div className="grid grid-cols-2 gap-3">
         {visible.map((s, idx) => {
           const Icon = resolveIcon(s.icon);

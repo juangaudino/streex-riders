@@ -59,8 +59,10 @@ show passenger data.
 
 - Music is provider-neutral and simulated until vehicle-audio integration has been researched and approved.
 - Games are visual placeholders only; no game mechanics or backend are implemented.
-- Public links and capability flags live under `CONFIG.passengerConsole`; never place tokens, PINs,
-  credentials or personal data there.
+- The STREEX actions reuse the real Rides experience: `BookingFormModal` for ride requests,
+  `FeedbackForm` for passenger reviews, `PaymentOptions` for tips, and shared public config for
+  services and contact. Only the phone-continuation QR URL lives under `CONFIG.passengerConsole`.
+  Never place tokens, PINs, credentials or personal data there.
 - Android kiosk enforcement belongs to Android/MDM/launcher. The web app may later add PWA cache
   and recovery behavior, but must not claim to enforce kiosk mode.
 - Do not modify the Google Calendar integration for Passenger Console work.

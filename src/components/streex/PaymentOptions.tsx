@@ -47,13 +47,25 @@ function getPayments(config: AppConfig): Payment[] {
   ];
 }
 
-export function PaymentOptions({ config }: { config: AppConfig }) {
+export function PaymentOptions({
+  className = "px-5 mt-8",
+  compact = false,
+  config,
+}: {
+  className?: string;
+  compact?: boolean;
+  config: AppConfig;
+}) {
   const payments = getPayments(config);
 
   return (
-    <section className="px-5 mt-8">
-      <h2 className="text-2xl font-bold mb-1 px-1">Payment Options</h2>
-      <p className="text-sm text-white/55 mb-6 px-1">Quick and convenient payment methods.</p>
+    <section className={className}>
+      {!compact && (
+        <>
+          <h2 className="text-2xl font-bold mb-1 px-1">Payment Options</h2>
+          <p className="text-sm text-white/55 mb-6 px-1">Quick and convenient payment methods.</p>
+        </>
+      )}
       <div className="flex items-center justify-center gap-6">
         {payments.map((p) => (
           <a

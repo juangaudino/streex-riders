@@ -8,7 +8,10 @@ import {
   Gamepad2,
   HandCoins,
   Languages,
+  Mail,
   Menu,
+  MessageCircle,
+  MessageSquare,
   Music2,
   Pause,
   Phone,
@@ -22,10 +25,23 @@ import {
   Wifi,
 } from "lucide-react";
 import { ServiceTicker } from "@/components/streex/ServiceTicker";
+import { BookingFormModal } from "@/components/streex/BookingFormModal";
+import { FeedbackForm } from "@/components/streex/FeedbackForm";
+import { PaymentOptions } from "@/components/streex/PaymentOptions";
+import { ServicesSection } from "@/components/streex/ServicesSection";
 import { QRCodeSVG } from "qrcode.react";
 
 type Language = "en" | "es";
-type View = "home" | "music" | "games" | "streex" | "meet-juan";
+type View =
+  | "home"
+  | "music"
+  | "games"
+  | "streex"
+  | "meet-juan"
+  | "services"
+  | "contact"
+  | "reviews"
+  | "tip";
 
 type PassengerConsoleProps = {
   config: AppConfig;
@@ -93,6 +109,17 @@ const copy = {
     bilingual: "English + Español",
     hospitality: "Hospitality first",
     qrNote: "The phone continuation link will appear here when configured.",
+    servicesTitle: "Services for every kind of ride.",
+    contactTitle: "Contact STREEX",
+    contactSubtitle: "Choose the way that works best for you.",
+    call: "Call",
+    text: "Text",
+    whatsapp: "WhatsApp",
+    email: "Email",
+    reviewTitle: "Share your experience",
+    reviewSubtitle: "Your feedback helps us make every ride better.",
+    tipTitle: "Thank you for riding with STREEX",
+    tipSubtitle: "Optional ways to show your appreciation.",
   },
   es: {
     home: "Inicio",
@@ -148,6 +175,17 @@ const copy = {
     bilingual: "Inglés + Español",
     hospitality: "Hospitalidad primero",
     qrNote: "El enlace para continuar en su teléfono aparecerá aquí cuando se configure.",
+    servicesTitle: "Servicios para cada tipo de viaje.",
+    contactTitle: "Contactar a STREEX",
+    contactSubtitle: "Elija la forma que le resulte más cómoda.",
+    call: "Llamar",
+    text: "Mensaje",
+    whatsapp: "WhatsApp",
+    email: "Email",
+    reviewTitle: "Comparta su experiencia",
+    reviewSubtitle: "Sus comentarios nos ayudan a mejorar cada viaje.",
+    tipTitle: "Gracias por viajar con STREEX",
+    tipSubtitle: "Formas opcionales de mostrar su agradecimiento.",
   },
 } as const;
 
@@ -181,25 +219,14 @@ function useOnlineStatus() {
   return online;
 }
 
-function configuredLink(value: string | null, fallback?: string | null) {
-  return value || fallback || null;
-}
-
 export function PassengerConsole({ config }: PassengerConsoleProps) {
   const [language, setLanguage] = useState<Language>("en");
   const [view, setView] = useState<View>("home");
+  const [bookingOpen, setBookingOpen] = useState(false);
   const t = copy[language];
   const online = useOnlineStatus();
 
   const consoleConfig = config.passengerConsole;
-  const links = {
-    bookRide: configuredLink(consoleConfig.links.bookRide, config.calUrl),
-    services: configuredLink(consoleConfig.links.services, config.website),
-    contact: configuredLink(consoleConfig.links.contact, `tel:${config.phone}`),
-    review: configuredLink(consoleConfig.links.review, config.googleReviews || null),
-    tip: configuredLink(consoleConfig.links.tip, config.venmo || config.cashapp),
-    phoneContinuation: configuredLink(consoleConfig.links.phoneContinuation, null),
-  };
 
   return (
     <div className="min-h-dvh bg-[#0B0B0B] text-white">
@@ -224,13 +251,25 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           )}
           {view === "music" && <MusicView config={config} onNavigate={setView} t={t} />}
           {view === "games" && <GamesView t={t} />}
-          {view === "streex" && <StreexView links={links} onNavigate={setView} t={t} />}
-          {view === "meet-juan" && (
-            <MeetJuanView config={config} links={links} onNavigate={setView} t={t} />
+          {view === "streex" && (
+            <StreexView
+              onBookRide={() => setBookingOpen(true)}
+              onNavigate={setView}
+              phoneContinuation={consoleConfig.links.phoneContinuation}
+              t={t}
+            />
           )}
+          {view === "meet-juan" && (
+            <MeetJuanView config={config} onNavigate={setView} t={t} />
+          )}
+          {view === "services" && <ServicesView config={config} onNavigate={setView} t={t} />}
+          {view === "contact" && <ContactView config={config} onNavigate={setView} t={t} />}
+          {view === "reviews" && <ReviewsView language={language} onNavigate={setView} t={t} />}
+          {view === "tip" && <TipView config={config} onNavigate={setView} t={t} />}
         </main>
         <ConsoleNavigation activeView={view} onNavigate={setView} t={t} />
       </div>
+      <BookingFormModal open={bookingOpen} onOpenChange={setBookingOpen} />
     </div>
   );
 }
@@ -643,31 +682,28 @@ function GameCard({
 }
 
 function StreexView({
-  links,
+  onBookRide,
   onNavigate,
+  phoneContinuation,
   t,
 }: {
-  links: Record<string, string | null>;
+  onBookRide: () => void;
   onNavigate: (view: View) => void;
+  phoneContinuation: string | null;
   t: (typeof copy)[Language];
 }) {
   return (
     <div className="flex flex-col gap-5">
       <ViewHeader eyebrow="STREEX" title={t.streexTitle} description={t.streexSubtitle} />
       <div className="grid gap-3 sm:grid-cols-2">
-        <ActionLink href={links.bookRide} icon={<CalendarPlus />} label={t.bookRide} accent />
-        <ActionLink href={links.services} icon={<Menu />} label={t.services} />
-        <ActionLink href={links.contact} icon={<Phone />} label={t.contact} />
-        <ActionLink
-          href={links.review}
-          icon={<Star />}
-          label={t.reviews}
-          unavailable={t.unavailable}
-        />
-        <ActionLink href={links.tip} icon={<HandCoins />} label={t.tip} />
+        <ActionButton accent icon={<CalendarPlus />} label={t.bookRide} onClick={onBookRide} />
+        <ActionButton icon={<Menu />} label={t.services} onClick={() => onNavigate("services")} />
+        <ActionButton icon={<Phone />} label={t.contact} onClick={() => onNavigate("contact")} />
+        <ActionButton icon={<Star />} label={t.reviews} onClick={() => onNavigate("reviews")} />
+        <ActionButton icon={<HandCoins />} label={t.tip} onClick={() => onNavigate("tip")} />
         <PhoneContinuationCard
           description={t.continuePhoneDescription}
-          href={links.phoneContinuation}
+          href={phoneContinuation}
           label={t.continuePhone}
           unavailable={t.unavailable}
         />
@@ -689,6 +725,116 @@ function StreexView({
         </span>
         <ChevronRight className="h-5 w-5 text-white/45" />
       </button>
+    </div>
+  );
+}
+
+function PassengerBackButton({ onNavigate, t }: { onNavigate: (view: View) => void; t: (typeof copy)[Language] }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onNavigate("streex")}
+      className="flex w-fit items-center gap-2 text-sm text-white/55 hover:text-white"
+    >
+      <ArrowLeft className="h-4 w-4" /> {t.back}
+    </button>
+  );
+}
+
+function ServicesView({
+  config,
+  onNavigate,
+  t,
+}: {
+  config: AppConfig;
+  onNavigate: (view: View) => void;
+  t: (typeof copy)[Language];
+}) {
+  return (
+    <div className="flex flex-col gap-5">
+      <PassengerBackButton onNavigate={onNavigate} t={t} />
+      <ViewHeader eyebrow="STREEX" title={t.services} description={t.servicesTitle} />
+      <ServicesSection className="mt-0 px-0" config={config} title={t.services} />
+    </div>
+  );
+}
+
+function ContactView({
+  config,
+  onNavigate,
+  t,
+}: {
+  config: AppConfig;
+  onNavigate: (view: View) => void;
+  t: (typeof copy)[Language];
+}) {
+  const actions = [
+    { href: `tel:${config.phone}`, icon: <Phone />, label: t.call, detail: config.phoneDisplay },
+    { href: `sms:${config.phone}`, icon: <MessageSquare />, label: t.text, detail: config.phoneDisplay },
+    { href: config.whatsapp, icon: <MessageCircle />, label: t.whatsapp, detail: config.phoneDisplay },
+    { href: `mailto:${config.email}`, icon: <Mail />, label: t.email, detail: config.email },
+  ].filter((action) => Boolean(action.href));
+
+  return (
+    <div className="flex flex-col gap-5">
+      <PassengerBackButton onNavigate={onNavigate} t={t} />
+      <ViewHeader eyebrow="STREEX" title={t.contactTitle} description={t.contactSubtitle} />
+      <div className="grid gap-3 sm:grid-cols-2">
+        {actions.map((action) => (
+          <a
+            key={action.label}
+            href={action.href}
+            target={action.href.startsWith("http") ? "_blank" : undefined}
+            rel={action.href.startsWith("http") ? "noreferrer" : undefined}
+            className="flex min-h-[104px] items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.07]"
+          >
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#E6CE20]/15 text-[#E6CE20]">
+              {action.icon}
+            </span>
+            <span className="min-w-0">
+              <span className="block font-bold">{action.label}</span>
+              <span className="mt-1 block truncate text-sm text-white/55">{action.detail}</span>
+            </span>
+            <ChevronRight className="ml-auto h-5 w-5 shrink-0 text-white/45" />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ReviewsView({
+  language,
+  onNavigate,
+  t,
+}: {
+  language: Language;
+  onNavigate: (view: View) => void;
+  t: (typeof copy)[Language];
+}) {
+  return (
+    <div className="flex flex-col gap-5">
+      <PassengerBackButton onNavigate={onNavigate} t={t} />
+      <ViewHeader eyebrow="STREEX" title={t.reviewTitle} description={t.reviewSubtitle} />
+      <FeedbackForm compact language={language} />
+    </div>
+  );
+}
+
+function TipView({
+  config,
+  onNavigate,
+  t,
+}: {
+  config: AppConfig;
+  onNavigate: (view: View) => void;
+  t: (typeof copy)[Language];
+}) {
+  return (
+    <div className="flex flex-col gap-5">
+      <PassengerBackButton onNavigate={onNavigate} t={t} />
+      <ViewHeader eyebrow="STREEX" title={t.tipTitle} description={t.tipSubtitle} />
+      <PaymentOptions className="mt-0 px-0" config={config} compact />
     </div>
   );
 }
@@ -788,14 +934,42 @@ function ActionLink({
   );
 }
 
+function ActionButton({
+  accent = false,
+  icon,
+  label,
+  onClick,
+}: {
+  accent?: boolean;
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex min-h-[88px] items-center gap-4 rounded-[22px] border p-4 text-left transition ${accent ? "border-[#E6CE20] bg-[#E6CE20] text-black hover:brightness-105" : "border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.07]"}`}
+    >
+      <span
+        className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${accent ? "bg-black/10" : "bg-[#E6CE20]/15 text-[#E6CE20]"}`}
+      >
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-bold">{label}</span>
+      </span>
+      <ChevronRight className={`h-5 w-5 ${accent ? "text-black/70" : "text-white/45"}`} />
+    </button>
+  );
+}
+
 function MeetJuanView({
   config,
-  links,
   onNavigate,
   t,
 }: {
   config: AppConfig;
-  links: Record<string, string | null>;
   onNavigate: (view: View) => void;
   t: (typeof copy)[Language];
 }) {
@@ -836,19 +1010,8 @@ function MeetJuanView({
       <section className="rounded-[26px] border border-white/10 bg-white/[0.035] p-5">
         <p className="text-sm leading-relaxed text-white/65">{t.gratitude}</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <ActionLink
-            href={links.review}
-            icon={<Star />}
-            label={t.leaveReview}
-            unavailable={!links.review ? t.unavailable : undefined}
-          />
-          <ActionLink
-            accent
-            href={links.tip}
-            icon={<HandCoins />}
-            label={t.leaveTip}
-            unavailable={!links.tip ? t.unavailable : undefined}
-          />
+          <ActionButton icon={<Star />} label={t.leaveReview} onClick={() => onNavigate("reviews")} />
+          <ActionButton accent icon={<HandCoins />} label={t.leaveTip} onClick={() => onNavigate("tip")} />
         </div>
       </section>
     </div>
@@ -893,7 +1056,14 @@ function ConsoleNavigation({
   onNavigate: (view: View) => void;
   t: (typeof copy)[Language];
 }) {
-  const active = activeView === "meet-juan" ? "streex" : activeView;
+  const active =
+    activeView === "meet-juan" ||
+    activeView === "services" ||
+    activeView === "contact" ||
+    activeView === "reviews" ||
+    activeView === "tip"
+      ? "streex"
+      : activeView;
   const items = [
     { id: "home" as const, label: t.home, icon: <Play className="h-5 w-5 rotate-[270deg]" /> },
     { id: "music" as const, label: t.music, icon: <Music2 className="h-5 w-5" /> },
