@@ -236,6 +236,33 @@ export type Database = {
         }
         Relationships: []
       }
+      spotify_connections: {
+        Row: {
+          connected_at: string
+          encrypted_refresh_token: string
+          id: string
+          last_error: string | null
+          scopes: string[]
+          updated_at: string
+        }
+        Insert: {
+          connected_at?: string
+          encrypted_refresh_token: string
+          id: string
+          last_error?: string | null
+          scopes?: string[]
+          updated_at?: string
+        }
+        Update: {
+          connected_at?: string
+          encrypted_refresh_token?: string
+          id?: string
+          last_error?: string | null
+          scopes?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tenant_availability: {
         Row: {
           days_active: number[]

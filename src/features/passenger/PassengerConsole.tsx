@@ -30,6 +30,10 @@ import { FeedbackForm } from "@/components/streex/FeedbackForm";
 import { PaymentOptions } from "@/components/streex/PaymentOptions";
 import { ServicesSection } from "@/components/streex/ServicesSection";
 import { QRCodeSVG } from "qrcode.react";
+import {
+  controlPersonalSpotifyPlayback,
+  getPersonalSpotifyPlayback,
+} from "@/lib/spotify.functions";
 
 type Language = "en" | "es";
 type View =
@@ -74,6 +78,15 @@ const copy = {
     online: "Online",
     offline: "Offline",
     preview: "Simulated preview — no live music provider",
+    spotifyPersonal: "Personal Spotify connection",
+    spotifyDisabled: "The personal Spotify connection is not enabled.",
+    spotifyDriverSetup: "Your driver can finish the private Spotify setup before controls become available.",
+    spotifyNotConnected: "Your driver has not connected Spotify yet.",
+    spotifyNoDevice: "Open Spotify on the vehicle audio device, then choose it as the active Spotify Connect device.",
+    spotifyDevice: "Vehicle audio",
+    spotifyActive: "Active",
+    spotifyRefresh: "Refresh",
+    spotifyControlError: "Spotify could not update playback. Please try again.",
     musicTitle: "Music",
     musicSubtitle: "A provider-neutral preview for your vehicle audio.",
     jamTitle: "Spotify Jam",
@@ -140,6 +153,15 @@ const copy = {
     online: "En línea",
     offline: "Sin conexión",
     preview: "Vista simulada — sin proveedor de música en vivo",
+    spotifyPersonal: "Conexión personal de Spotify",
+    spotifyDisabled: "La conexión personal de Spotify no está habilitada.",
+    spotifyDriverSetup: "Tu conductor puede terminar la configuración privada de Spotify antes de que los controles estén disponibles.",
+    spotifyNotConnected: "Tu conductor todavía no ha conectado Spotify.",
+    spotifyNoDevice: "Abre Spotify en el dispositivo de audio del vehículo y selecciónalo como el dispositivo activo de Spotify Connect.",
+    spotifyDevice: "Audio del vehículo",
+    spotifyActive: "Activo",
+    spotifyRefresh: "Actualizar",
+    spotifyControlError: "Spotify no pudo actualizar la reproducción. Inténtalo de nuevo.",
     musicTitle: "Música",
     musicSubtitle: "Una vista independiente del proveedor para el audio del vehículo.",
     jamTitle: "Spotify Jam",
@@ -504,6 +526,182 @@ function QuickAccessCard({
 }
 
 function MusicView({
+  config,
+  onNavigate,
+  t,
+}: {
+  config: AppConfig;
+  onNavigate: (view: View) => void;
+  t: (typeof copy)[Language];
+}) {
+  const music = config.passengerConsole.music;
+  if (music.mode === "provider" && music.providerName === "Spotify") {
+    return <PersonalSpotifyMusicView onNavigate={onNavigate} t={t} />;
+  }
+
+  return <SimulatedMusicView config={config} onNavigate={onNavigate} t={t} />;
+}
+
+type SpotifyPlaybackState =
+  | { state: "disabled" }
+  | { state: "driver-setup-required" }
+  | { state: "not-connected" }
+  | {
+      state: "ready";
+      playback: {
+        hasActiveDevice: boolean;
+        isPlaying: boolean;
+        track: {
+          title: string;
+          artist: string;
+          album: string | null;
+          artworkUrl: string | null;
+        } | null;
+      };
+    };
+
+function PersonalSpotifyMusicView({
+  onNavigate,
+  t,
+}: {
+  onNavigate: (view: View) => void;
+  t: (typeof copy)[Language];
+}) {
+  const [status, setStatus] = useState<SpotifyPlaybackState | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = async () => {
+    setError(null);
+    try {
+      const next = await getPersonalSpotifyPlayback({ data: {} });
+      setStatus(next);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
+    }
+  };
+
+  useEffect(() => {
+    void refresh();
+  }, []);
+
+  const control = async (command: "play" | "pause" | "next") => {
+    setBusy(true);
+    setError(null);
+    try {
+      await controlPersonalSpotifyPlayback({ data: { command } });
+      await refresh();
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const message =
+    status?.state === "disabled"
+      ? t.spotifyDisabled
+      : status?.state === "driver-setup-required"
+        ? t.spotifyDriverSetup
+        : status?.state === "not-connected"
+          ? t.spotifyNotConnected
+          : null;
+  const playback = status?.state === "ready" ? status.playback : null;
+
+  return (
+    <div className="flex flex-col gap-5">
+      <ViewHeader eyebrow={t.spotifyPersonal} title={t.musicTitle} description={t.musicSubtitle} />
+      {message ? (
+        <section className="rounded-[26px] border border-white/10 bg-white/[0.05] p-5">
+          <p className="text-lg font-bold">{t.spotifyPersonal}</p>
+          <p className="mt-2 text-sm leading-relaxed text-white/60">{message}</p>
+        </section>
+      ) : playback ? (
+        <section className="flex items-center gap-4 rounded-[26px] border border-white/10 bg-white/[0.05] p-5">
+          {playback.track?.artworkUrl ? (
+            <img
+              src={playback.track.artworkUrl}
+              alt=""
+              className="h-20 w-20 shrink-0 rounded-2xl object-cover"
+            />
+          ) : (
+            <div className="h-20 w-20 shrink-0 rounded-2xl bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700" />
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+              {t.nowPlaying}
+            </p>
+            <p className="mt-1 truncate text-lg font-bold">{playback.track?.title ?? t.spotifyPersonal}</p>
+            <p className="truncate text-sm text-white/55">
+              {playback.track ? `${playback.track.artist}${playback.track.album ? ` · ${playback.track.album}` : ""}` : t.spotifyNoDevice}
+            </p>
+            <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
+              {t.spotifyDevice}: {playback.hasActiveDevice ? t.spotifyActive : "—"}
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col gap-2">
+            <button
+              type="button"
+              disabled={busy || !playback.hasActiveDevice}
+              onClick={() => void control(playback.isPlaying ? "pause" : "play")}
+              className="grid h-12 w-12 place-items-center rounded-full bg-[#E6CE20] text-black disabled:opacity-45"
+              aria-label={playback.isPlaying ? "Pause" : "Play"}
+            >
+              {playback.isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current" />}
+            </button>
+            <button
+              type="button"
+              disabled={busy || !playback.hasActiveDevice}
+              onClick={() => void control("next")}
+              className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-45"
+              aria-label="Next"
+            >
+              <SkipForward className="h-5 w-5" />
+            </button>
+          </div>
+        </section>
+      ) : (
+        <section className="rounded-[26px] border border-white/10 bg-white/[0.05] p-5 text-sm text-white/60">
+          {t.spotifyRefresh}
+        </section>
+      )}
+      <div className="flex items-center justify-between gap-3">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void refresh()}
+          className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white/75 disabled:opacity-45"
+        >
+          {t.spotifyRefresh}
+        </button>
+        <button
+          type="button"
+          onClick={() => onNavigate("home")}
+          className="text-sm text-white/55 underline underline-offset-4"
+        >
+          {t.home}
+        </button>
+      </div>
+      {error && <p className="text-sm text-red-300">{error}</p>}
+      <aside className="rounded-[24px] border border-[#E6CE20]/25 bg-[#E6CE20]/[0.06] p-5">
+        <div className="flex items-start gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#E6CE20]/15 text-[#E6CE20]">
+            <Music2 className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="font-bold">{t.jamTitle}</p>
+            <p className="mt-1 text-sm leading-relaxed text-white/65">{t.jamDescription}</p>
+            <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#E6CE20]">
+              {t.jamStatus}
+            </p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function SimulatedMusicView({
   config,
   onNavigate,
   t,

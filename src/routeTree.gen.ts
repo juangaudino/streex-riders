@@ -15,6 +15,8 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PassengerRouteImport } from './routes/passenger'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SpotifySetupRouteImport } from './routes/spotify.setup'
+import { Route as SpotifyCallbackRouteImport } from './routes/spotify.callback'
 import { Route as GoogleCalendarCallbackRouteImport } from './routes/google-calendar.callback'
 import { Route as BookingDeclineRouteImport } from './routes/booking.decline'
 import { Route as BookingAcceptRouteImport } from './routes/booking.accept'
@@ -49,6 +51,16 @@ const AdminRoute = AdminRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpotifySetupRoute = SpotifySetupRouteImport.update({
+  id: '/spotify/setup',
+  path: '/spotify/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpotifyCallbackRoute = SpotifyCallbackRouteImport.update({
+  id: '/spotify/callback',
+  path: '/spotify/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GoogleCalendarCallbackRoute = GoogleCalendarCallbackRouteImport.update({
@@ -89,6 +101,8 @@ export interface FileRoutesByFullPath {
   '/booking/accept': typeof BookingAcceptRoute
   '/booking/decline': typeof BookingDeclineRoute
   '/google-calendar/callback': typeof GoogleCalendarCallbackRoute
+  '/spotify/callback': typeof SpotifyCallbackRoute
+  '/spotify/setup': typeof SpotifySetupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +116,8 @@ export interface FileRoutesByTo {
   '/booking/accept': typeof BookingAcceptRoute
   '/booking/decline': typeof BookingDeclineRoute
   '/google-calendar/callback': typeof GoogleCalendarCallbackRoute
+  '/spotify/callback': typeof SpotifyCallbackRoute
+  '/spotify/setup': typeof SpotifySetupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +132,8 @@ export interface FileRoutesById {
   '/booking/accept': typeof BookingAcceptRoute
   '/booking/decline': typeof BookingDeclineRoute
   '/google-calendar/callback': typeof GoogleCalendarCallbackRoute
+  '/spotify/callback': typeof SpotifyCallbackRoute
+  '/spotify/setup': typeof SpotifySetupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +149,8 @@ export interface FileRouteTypes {
     | '/booking/accept'
     | '/booking/decline'
     | '/google-calendar/callback'
+    | '/spotify/callback'
+    | '/spotify/setup'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +164,8 @@ export interface FileRouteTypes {
     | '/booking/accept'
     | '/booking/decline'
     | '/google-calendar/callback'
+    | '/spotify/callback'
+    | '/spotify/setup'
   id:
     | '__root__'
     | '/'
@@ -157,6 +179,8 @@ export interface FileRouteTypes {
     | '/booking/accept'
     | '/booking/decline'
     | '/google-calendar/callback'
+    | '/spotify/callback'
+    | '/spotify/setup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -169,6 +193,8 @@ export interface RootRouteChildren {
   BookingAcceptRoute: typeof BookingAcceptRoute
   BookingDeclineRoute: typeof BookingDeclineRoute
   GoogleCalendarCallbackRoute: typeof GoogleCalendarCallbackRoute
+  SpotifyCallbackRoute: typeof SpotifyCallbackRoute
+  SpotifySetupRoute: typeof SpotifySetupRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -213,6 +239,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/spotify/setup': {
+      id: '/spotify/setup'
+      path: '/spotify/setup'
+      fullPath: '/spotify/setup'
+      preLoaderRoute: typeof SpotifySetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/spotify/callback': {
+      id: '/spotify/callback'
+      path: '/spotify/callback'
+      fullPath: '/spotify/callback'
+      preLoaderRoute: typeof SpotifyCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/google-calendar/callback': {
@@ -275,6 +315,8 @@ const rootRouteChildren: RootRouteChildren = {
   BookingAcceptRoute: BookingAcceptRoute,
   BookingDeclineRoute: BookingDeclineRoute,
   GoogleCalendarCallbackRoute: GoogleCalendarCallbackRoute,
+  SpotifyCallbackRoute: SpotifyCallbackRoute,
+  SpotifySetupRoute: SpotifySetupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

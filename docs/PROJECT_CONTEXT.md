@@ -57,7 +57,15 @@ public STREEX configuration and brand assets, but is isolated from the booking l
 surfaces. Its Home, Music, Games and STREEX views are bilingual (English/Español) and must never
 show passenger data.
 
-- Music is provider-neutral and simulated until vehicle-audio integration has been researched and approved.
+- Music is provider-neutral and simulated by default. The optional personal Spotify POC is disabled
+  unless `SPOTIFY_PERSONAL_INTEGRATION_ENABLED=true` is set server-side and the public config
+  explicitly uses `mode: "provider"` with `providerName: "Spotify"`.
+- The Spotify POC is intentionally personal and driver-mediated: its OAuth refresh token is
+  AES-GCM encrypted in the private `spotify_connections` table (RLS enabled, no `anon` or
+  `authenticated` grants), while the tablet receives only a signed HTTP-only session after a
+  driver pairing code. Playback controls use the active Spotify Connect device and expose only
+  sanitized track metadata; no Spotify credentials, account details, device name, or tokens reach
+  the browser. Driver setup is at `/spotify/setup` and its OAuth callback is `/spotify/callback`.
 - Games are visual placeholders only; no game mechanics or backend are implemented.
 - The STREEX actions reuse the real Rides experience: `BookingFormModal` for ride requests,
   `FeedbackForm` for passenger reviews, `PaymentOptions` for tips, and shared public config for
