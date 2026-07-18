@@ -51,6 +51,8 @@ export const CONFIG = {
       // until its vehicle-audio control constraints have been researched and approved.
       mode: "simulated" as "simulated" | "provider",
       providerName: null as string | null,
+      // Informational only: Spotify generates any live Jam QR from the host's app.
+      jamNoticeEnabled: true,
     },
     games: {
       utahTriviaEnabled: false,

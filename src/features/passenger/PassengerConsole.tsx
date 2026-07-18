@@ -59,6 +59,10 @@ const copy = {
     preview: "Simulated preview — no live music provider",
     musicTitle: "Music",
     musicSubtitle: "A provider-neutral preview for your vehicle audio.",
+    jamTitle: "Spotify Jam",
+    jamDescription:
+      "Want to add your own music? Ask your driver to host a Jam, then scan the QR shown in Spotify with your phone.",
+    jamStatus: "Available when hosted by your driver",
     search: "Search songs, artists, moods…",
     results: "Results",
     gamesTitle: "Games",
@@ -109,6 +113,10 @@ const copy = {
     preview: "Vista simulada — sin proveedor de música en vivo",
     musicTitle: "Música",
     musicSubtitle: "Una vista independiente del proveedor para el audio del vehículo.",
+    jamTitle: "Spotify Jam",
+    jamDescription:
+      "¿Quieres agregar tu propia música? Pide a tu conductor que inicie una Jam y escanea el QR que aparece en Spotify desde tu teléfono.",
+    jamStatus: "Disponible cuando la inicie tu conductor",
     search: "Buscar canciones, artistas o moods…",
     results: "Resultados",
     gamesTitle: "Juegos",
@@ -211,7 +219,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               t={t}
             />
           )}
-          {view === "music" && <MusicView onNavigate={setView} t={t} />}
+          {view === "music" && <MusicView config={config} onNavigate={setView} t={t} />}
           {view === "games" && <GamesView t={t} />}
           {view === "streex" && <StreexView links={links} onNavigate={setView} t={t} />}
           {view === "meet-juan" && (
@@ -446,9 +454,11 @@ function QuickAccessCard({
 }
 
 function MusicView({
+  config,
   onNavigate,
   t,
 }: {
+  config: AppConfig;
   onNavigate: (view: View) => void;
   t: (typeof copy)[Language];
 }) {
@@ -504,6 +514,22 @@ function MusicView({
           </button>
         </div>
       </section>
+      {config.passengerConsole.music.jamNoticeEnabled && (
+        <aside className="rounded-[24px] border border-[#E6CE20]/25 bg-[#E6CE20]/[0.06] p-5">
+          <div className="flex items-start gap-3">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#E6CE20]/15 text-[#E6CE20]">
+              <Music2 className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="font-bold">{t.jamTitle}</p>
+              <p className="mt-1 text-sm leading-relaxed text-white/65">{t.jamDescription}</p>
+              <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#E6CE20]">
+                {t.jamStatus}
+              </p>
+            </div>
+          </div>
+        </aside>
+      )}
       <label className="relative block">
         <span className="sr-only">{t.search}</span>
         <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/45" />
