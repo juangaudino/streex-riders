@@ -228,6 +228,14 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
 
   const consoleConfig = config.passengerConsole;
 
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+
+    void navigator.serviceWorker.register("/passenger-sw.js", { scope: "/passenger" }).catch(() => {
+      // Offline recovery is progressive enhancement; the console stays usable without it.
+    });
+  }, []);
+
   return (
     <div className="min-h-dvh bg-[#0B0B0B] text-white">
       <div className="mx-auto flex min-h-dvh w-full max-w-[740px] flex-col px-5 pb-4 pt-5 sm:px-7">
