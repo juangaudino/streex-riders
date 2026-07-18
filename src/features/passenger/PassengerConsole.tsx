@@ -21,6 +21,7 @@ import {
   UserRound,
   Wifi,
 } from "lucide-react";
+import { ServiceTicker } from "@/components/streex/ServiceTicker";
 
 type Language = "en" | "es";
 type View = "home" | "music" | "games" | "streex" | "meet-juan";
@@ -46,6 +47,8 @@ const copy = {
     subtitle: "Everything you need is one tap away.",
     weather: "Weather",
     nowPlaying: "Now playing",
+    chooseMusic: "Choose the soundtrack",
+    musicHint: "Tap to browse songs, artists and moods.",
     quickAccess: "Quick access",
     musicDescription: "Curated sound for your ride",
     gamesDescription: "Utah trivia & light games",
@@ -94,6 +97,8 @@ const copy = {
     subtitle: "Todo lo que necesita está a un toque.",
     weather: "Clima",
     nowPlaying: "Reproduciendo",
+    chooseMusic: "Elige la música",
+    musicHint: "Toca para explorar canciones, artistas y moods.",
     quickAccess: "Accesos rápidos",
     musicDescription: "Sonido seleccionado para su viaje",
     gamesDescription: "Trivia de Utah y juegos ligeros",
@@ -348,8 +353,13 @@ function HomeView({
             {MUSIC_LIBRARY[0].artist} · {MUSIC_LIBRARY[0].album}
           </span>
         </span>
-        <span className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold">
-          {t.open}
+        <span className="flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 px-3 py-2 text-right text-[#E6CE20]">
+          <span className="hidden max-w-32 text-xs leading-tight sm:block">
+            <span className="block font-semibold">{t.chooseMusic}</span>
+            <span className="mt-0.5 block text-[10px] text-white/55">{t.musicHint}</span>
+          </span>
+          <span className="text-sm font-semibold sm:hidden">{t.open}</span>
+          <ChevronRight className="h-4 w-4" />
         </span>
       </button>
 
@@ -378,6 +388,10 @@ function HomeView({
             onClick={() => onNavigate("streex")}
           />
         </div>
+      </section>
+
+      <section className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]">
+        <ServiceTicker config={config} />
       </section>
 
       <section className="mt-auto rounded-[24px] border border-white/10 bg-white/[0.025] p-5">
