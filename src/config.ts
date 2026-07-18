@@ -66,7 +66,7 @@ export const CONFIG = {
       contact: null as string | null,
       review: null as string | null,
       tip: null as string | null,
-      phoneContinuation: null as string | null,
+      phoneContinuation: "https://rides.getstreex.com",
     },
   },
 

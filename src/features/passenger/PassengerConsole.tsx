@@ -22,6 +22,7 @@ import {
   Wifi,
 } from "lucide-react";
 import { ServiceTicker } from "@/components/streex/ServiceTicker";
+import { QRCodeSVG } from "qrcode.react";
 
 type Language = "en" | "es";
 type View = "home" | "music" | "games" | "streex" | "meet-juan";
@@ -80,6 +81,7 @@ const copy = {
     reviews: "Reviews",
     tip: "Leave a tip",
     continuePhone: "Continue on your phone",
+    continuePhoneDescription: "Scan to continue your STREEX experience on your phone.",
     meetJuan: "Meet Juan",
     unavailable: "Coming soon",
     meetIntro: "Hi, I’m Juan.",
@@ -134,6 +136,7 @@ const copy = {
     reviews: "Reseñas",
     tip: "Dejar propina",
     continuePhone: "Continuar en su teléfono",
+    continuePhoneDescription: "Escanee para continuar su experiencia STREEX en su teléfono.",
     meetJuan: "Conoce a Juan",
     unavailable: "Próximamente",
     meetIntro: "Hola, soy Juan.",
@@ -662,9 +665,9 @@ function StreexView({
           unavailable={t.unavailable}
         />
         <ActionLink href={links.tip} icon={<HandCoins />} label={t.tip} />
-        <ActionLink
+        <PhoneContinuationCard
+          description={t.continuePhoneDescription}
           href={links.phoneContinuation}
-          icon={<QrCode />}
           label={t.continuePhone}
           unavailable={t.unavailable}
         />
@@ -687,6 +690,44 @@ function StreexView({
         <ChevronRight className="h-5 w-5 text-white/45" />
       </button>
     </div>
+  );
+}
+
+function PhoneContinuationCard({
+  description,
+  href,
+  label,
+  unavailable,
+}: {
+  description: string;
+  href: string | null;
+  label: string;
+  unavailable: string;
+}) {
+  if (!href) {
+    return <ActionLink href={null} icon={<QrCode />} label={label} unavailable={unavailable} />;
+  }
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="flex min-h-[142px] items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07] sm:col-span-2"
+    >
+      <span className="shrink-0 rounded-xl bg-white p-2">
+        <QRCodeSVG value={href} size={88} bgColor="#FFFFFF" fgColor="#0B0B0B" level="M" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2 font-bold">
+          <QrCode className="h-4 w-4 text-[#E6CE20]" />
+          {label}
+        </span>
+        <span className="mt-1 block text-sm leading-relaxed text-white/55">{description}</span>
+        <span className="mt-3 block truncate text-xs text-[#E6CE20]">rides.getstreex.com</span>
+      </span>
+      <ChevronRight className="h-5 w-5 shrink-0 text-white/45" />
+    </a>
   );
 }
 
