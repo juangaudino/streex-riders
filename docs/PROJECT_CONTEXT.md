@@ -57,9 +57,9 @@ public STREEX configuration and brand assets, but is isolated from the booking l
 surfaces. Its Home, Music, Games and STREEX views are bilingual (English/Español) and must never
 show passenger data.
 
-- Music is provider-neutral and simulated by default. The optional personal Spotify POC is disabled
-  unless `SPOTIFY_PERSONAL_INTEGRATION_ENABLED=true` is set server-side and the public config
-  explicitly uses `mode: "provider"` with `providerName: "Spotify"`.
+- Music remains provider-neutral at the UI boundary. The optional personal Spotify POC is selected
+  by public config, but remains disabled until `SPOTIFY_PERSONAL_INTEGRATION_ENABLED=true` is set
+  server-side.
 - The Spotify POC is intentionally personal and driver-mediated: its OAuth refresh token is
   AES-GCM encrypted in the private `spotify_connections` table (RLS enabled, no `anon` or
   `authenticated` grants), while the tablet receives only a signed HTTP-only session after a

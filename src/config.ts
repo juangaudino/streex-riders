@@ -48,10 +48,10 @@ export const CONFIG = {
     },
     music: {
       enabled: true,
-      // "simulated" is intentionally provider-neutral. Do not change to a real provider
-      // until its vehicle-audio control constraints have been researched and approved.
-      mode: "simulated" as "simulated" | "provider",
-      providerName: null as string | null,
+      // The server-side SPOTIFY_PERSONAL_INTEGRATION_ENABLED switch remains the final
+      // activation gate. Keep credentials, tokens and device identifiers out of this config.
+      mode: "provider" as "simulated" | "provider",
+      providerName: "Spotify" as string | null,
       // Informational only: Spotify generates any live Jam QR from the host's app.
       jamNoticeEnabled: true,
     },
