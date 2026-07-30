@@ -416,32 +416,36 @@ function HomeView({
         </div>
       </section>
 
-      <button
-        type="button"
-        onClick={() => onNavigate("music")}
-        className="flex min-h-[96px] items-center gap-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
-      >
-        <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black">
-          <Play className="h-7 w-7 fill-current" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
-            {t.nowPlaying}
+      {config.passengerConsole.music.mode === "provider" && config.passengerConsole.music.providerName === "Spotify" ? (
+        <PersonalSpotifyHomeCard onNavigate={onNavigate} t={t} />
+      ) : (
+        <button
+          type="button"
+          onClick={() => onNavigate("music")}
+          className="flex min-h-[96px] items-center gap-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
+        >
+          <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black">
+            <Play className="h-7 w-7 fill-current" />
           </span>
-          <span className="mt-1 block truncate text-lg font-bold">{MUSIC_LIBRARY[0].title}</span>
-          <span className="block truncate text-sm text-white/55">
-            {MUSIC_LIBRARY[0].artist} · {MUSIC_LIBRARY[0].album}
+          <span className="min-w-0 flex-1">
+            <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+              {t.nowPlaying}
+            </span>
+            <span className="mt-1 block truncate text-lg font-bold">{MUSIC_LIBRARY[0].title}</span>
+            <span className="block truncate text-sm text-white/55">
+              {MUSIC_LIBRARY[0].artist} · {MUSIC_LIBRARY[0].album}
+            </span>
           </span>
-        </span>
-        <span className="flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 px-3 py-2 text-right text-[#E6CE20]">
-          <span className="hidden max-w-32 text-xs leading-tight sm:block">
-            <span className="block font-semibold">{t.chooseMusic}</span>
-            <span className="mt-0.5 block text-[10px] text-white/55">{t.musicHint}</span>
+          <span className="flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 px-3 py-2 text-right text-[#E6CE20]">
+            <span className="hidden max-w-32 text-xs leading-tight sm:block">
+              <span className="block font-semibold">{t.chooseMusic}</span>
+              <span className="mt-0.5 block text-[10px] text-white/55">{t.musicHint}</span>
+            </span>
+            <span className="text-sm font-semibold sm:hidden">{t.open}</span>
+            <ChevronRight className="h-4 w-4" />
           </span>
-          <span className="text-sm font-semibold sm:hidden">{t.open}</span>
-          <ChevronRight className="h-4 w-4" />
-        </span>
-      </button>
+        </button>
+      )}
 
       <section>
         <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
@@ -559,6 +563,77 @@ type SpotifyPlaybackState =
         } | null;
       };
     };
+
+function PersonalSpotifyHomeCard({
+  onNavigate,
+  t,
+}: {
+  onNavigate: (view: View) => void;
+  t: (typeof copy)[Language];
+}) {
+  const [status, setStatus] = useState<SpotifyPlaybackState | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const refresh = async () => {
+      try {
+        const next = await getPersonalSpotifyPlayback({ data: {} });
+        if (isMounted) setStatus(next);
+      } catch {
+        // The detailed recovery state stays in Music; Home remains a safe entry point.
+        if (isMounted) setStatus(null);
+      }
+    };
+
+    void refresh();
+    const interval = window.setInterval(() => void refresh(), 30_000);
+    return () => {
+      isMounted = false;
+      window.clearInterval(interval);
+    };
+  }, []);
+
+  const playback = status?.state === "ready" ? status.playback : null;
+  const track = playback?.track ?? null;
+  const hasActiveDevice = playback?.hasActiveDevice ?? false;
+
+  return (
+    <button
+      type="button"
+      onClick={() => onNavigate("music")}
+      className="flex min-h-[96px] items-center gap-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
+    >
+      {track?.artworkUrl ? (
+        <img src={track.artworkUrl} alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover" />
+      ) : (
+        <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black">
+          <Music2 className="h-7 w-7" />
+        </span>
+      )}
+      <span className="min-w-0 flex-1">
+        <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+          {t.nowPlaying}
+        </span>
+        <span className="mt-1 block truncate text-lg font-bold">{track?.title ?? t.spotifyPersonal}</span>
+        <span className="block truncate text-sm text-white/55">
+          {track ? `${track.artist}${track.album ? ` · ${track.album}` : ""}` : t.spotifyNoDevice}
+        </span>
+        <span className="mt-2 block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
+          {t.spotifyDevice}: {hasActiveDevice ? t.spotifyActive : "—"}
+        </span>
+      </span>
+      <span className="flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 px-3 py-2 text-right text-[#E6CE20]">
+        <span className="hidden max-w-32 text-xs leading-tight sm:block">
+          <span className="block font-semibold">{t.chooseMusic}</span>
+          <span className="mt-0.5 block text-[10px] text-white/55">{t.musicHint}</span>
+        </span>
+        <span className="text-sm font-semibold sm:hidden">{t.open}</span>
+        <ChevronRight className="h-4 w-4" />
+      </span>
+    </button>
+  );
+}
 
 function PersonalSpotifyMusicView({
   onNavigate,
