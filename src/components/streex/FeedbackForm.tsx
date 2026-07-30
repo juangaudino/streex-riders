@@ -31,8 +31,14 @@ const COPY = {
   },
 } as const;
 
-export function FeedbackForm({ compact = false, language = "en" }: { compact?: boolean; language?: FeedbackLanguage }) {
-  const { tenantId } = useTenant();
+export function FeedbackForm({
+  compact = false,
+  language = "en",
+}: {
+  compact?: boolean;
+  language?: FeedbackLanguage;
+}) {
+  const { tenantId, tenantSlug, previewToken } = useTenant();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [name, setName] = useState("");
@@ -66,6 +72,8 @@ export function FeedbackForm({ compact = false, language = "en" }: { compact?: b
       await submitPassengerReview({
         data: {
           tenantId,
+          tenantSlug,
+          previewToken,
           name: name.trim() || null,
           rating,
           message: trimmedMessage.slice(0, 1000),
@@ -103,9 +111,7 @@ export function FeedbackForm({ compact = false, language = "en" }: { compact?: b
             <div className="h-14 w-14 rounded-full flex items-center justify-center bg-[#E6CE20]/15 border border-[#E6CE20]/40 mb-4">
               <Check className="h-7 w-7 text-[#E6CE20]" strokeWidth={2.5} />
             </div>
-            <p className="text-[15px] text-white/85 max-w-xs">
-              {t.thanks}
-            </p>
+            <p className="text-[15px] text-white/85 max-w-xs">{t.thanks}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">

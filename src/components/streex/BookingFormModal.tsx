@@ -56,7 +56,8 @@ const COPY = {
     title: "Request a Ride",
     intro: "Tell Juan your details — you’ll receive a personal quote shortly.",
     received: "Request received",
-    receivedDescription: "Your ride request was received. Juan will review and send you a quote shortly.",
+    receivedDescription:
+      "Your ride request was received. Juan will review and send you a quote shortly.",
     done: "Done",
     serviceType: "Service Type",
     pointToPoint: "Point to Point",
@@ -108,7 +109,8 @@ const COPY = {
     title: "Solicite un viaje",
     intro: "Comparta sus datos con Juan; recibirá una cotización personal en breve.",
     received: "Solicitud recibida",
-    receivedDescription: "Recibimos su solicitud. Juan la revisará y le enviará una cotización en breve.",
+    receivedDescription:
+      "Recibimos su solicitud. Juan la revisará y le enviará una cotización en breve.",
     done: "Listo",
     serviceType: "Tipo de servicio",
     pointToPoint: "Punto a punto",
@@ -177,7 +179,7 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
     { label: `🇦🇷 +54 — ${t.countries[4]}`, value: "+54" },
     { label: `🌍 ${t.other}`, value: "other" },
   ];
-  const { tenantId } = useTenant();
+  const { tenantId, tenantSlug, previewToken } = useTenant();
   const [form, setForm] = useState<FormState>(EMPTY);
   const [countryCode, setCountryCode] = useState<string>("+1");
   const [customCode, setCustomCode] = useState<string>("");
@@ -227,6 +229,8 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
     getAvailableSlots({
       data: {
         tenantId,
+        tenantSlug,
+        previewToken,
         date: form.date,
         durationMinutes: form.serviceType === "hourly" ? form.durationHours * 60 : undefined,
       },
@@ -248,7 +252,16 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
     return () => {
       cancelled = true;
     };
-  }, [form.date, form.durationHours, form.serviceType, open, t.unavailableError, tenantId]);
+  }, [
+    form.date,
+    form.durationHours,
+    form.serviceType,
+    open,
+    previewToken,
+    t.unavailableError,
+    tenantId,
+    tenantSlug,
+  ]);
 
   if (!open || typeof document === "undefined") return null;
 
@@ -266,6 +279,8 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
 
     const trimmed = {
       tenantId,
+      tenantSlug,
+      previewToken,
       serviceType: form.serviceType,
       name: form.name.trim(),
       phone: fullPhone,
@@ -358,9 +373,7 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
             {t.eyebrow}
           </div>
           <h2 className="text-2xl font-bold text-white mb-1">{t.title}</h2>
-          <p className="text-sm text-white/55 mb-6">
-            {t.intro}
-          </p>
+          <p className="text-sm text-white/55 mb-6">{t.intro}</p>
 
           {submitted ? (
             <div className="flex flex-col items-center text-center py-6">
@@ -368,9 +381,7 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
                 <Check className="h-6 w-6 text-[#E6CE20]" strokeWidth={2.4} />
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">{t.received}</h3>
-              <p className="text-sm text-white/65 mb-6 max-w-xs">
-                {t.receivedDescription}
-              </p>
+              <p className="text-sm text-white/65 mb-6 max-w-xs">{t.receivedDescription}</p>
               <button
                 onClick={() => onOpenChange(false)}
                 className="rounded-full bg-[#E6CE20] text-black font-semibold text-sm px-6 py-3"
@@ -513,7 +524,9 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
                   value={form.destination}
                   onChange={(v) => set("destination", v)}
                   placeholder={
-                    form.serviceType === "hourly" ? t.itineraryPlaceholder : t.destinationPlaceholder
+                    form.serviceType === "hourly"
+                      ? t.itineraryPlaceholder
+                      : t.destinationPlaceholder
                   }
                   required={form.serviceType === "ride"}
                 />

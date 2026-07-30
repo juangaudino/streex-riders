@@ -11,13 +11,15 @@ type Review = {
 };
 
 export function Reviews() {
-  const { tenantId } = useTenant();
+  const { tenantId, tenantSlug, previewToken } = useTenant();
   const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const result = await listPublicReviews({ data: { tenantId } }).catch((error) => {
+      const result = await listPublicReviews({
+        data: { tenantId, tenantSlug, previewToken },
+      }).catch((error) => {
         console.error("[Reviews] approved reviews read error", error);
         return null;
       });
@@ -34,7 +36,7 @@ export function Reviews() {
     return () => {
       cancelled = true;
     };
-  }, [tenantId]);
+  }, [previewToken, tenantId, tenantSlug]);
 
   if (reviews.length === 0) return null;
 

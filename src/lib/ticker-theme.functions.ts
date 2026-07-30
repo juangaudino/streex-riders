@@ -4,7 +4,12 @@ import { CONFIG } from "@/config";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { assertAdminAccess } from "./admin-auth.server";
 
-const PublicSchema = z.object({ tenantSlug: z.string().trim().max(63).optional() }).optional();
+const PublicSchema = z
+  .object({
+    tenantSlug: z.string().trim().max(63).optional(),
+    previewToken: z.string().trim().max(4096).optional(),
+  })
+  .optional();
 const TICKER_STYLES = ["boarding", "pill"] as const;
 
 type TickerStyle = (typeof TICKER_STYLES)[number];
@@ -21,7 +26,7 @@ export const getTickerTheme = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => PublicSchema.parse(input))
   .handler(async ({ data: input }) => {
     const { requirePublicTenant } = await import("./tenant.server");
-    const tenant = await requirePublicTenant(input?.tenantSlug);
+    const tenant = await requirePublicTenant(input?.tenantSlug, input?.previewToken);
     const fallback = getFallbackTickerStyle();
 
     const { data, error } = await supabaseAdmin

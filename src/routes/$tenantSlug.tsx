@@ -64,10 +64,11 @@ export const Route = createFileRoute("/$tenantSlug")({
 
 function TenantLandingRoute() {
   const result = Route.useLoaderData();
+  const { preview } = Route.useSearch();
   return (
     <StreexLanding
       initialConfig={result.config}
-      tenant={{ id: result.tenant.id, slug: result.tenant.slug }}
+      tenant={{ id: result.tenant.id, slug: result.tenant.slug, previewToken: preview }}
     />
   );
 }

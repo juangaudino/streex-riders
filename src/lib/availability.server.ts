@@ -326,23 +326,11 @@ export async function resolveBookingSlotServer(
 }
 
 export async function getAvailableSlotsServer(
-  tenantId: string | undefined,
+  tenantId: string,
   date: string,
   durationMinutes?: number,
 ) {
-  const resolvedTenantId = tenantId ?? DEFAULT_TENANT_ID;
-  const tenant = await supabaseAdmin
-    .from("tenants")
-    .select("id")
-    .eq("id", resolvedTenantId)
-    .eq("status", "active")
-    .maybeSingle();
-  if (tenant.error || !tenant.data) throw new Error("This driver is not accepting bookings.");
-  const { settings, slots } = await calculateAvailableSlots(
-    resolvedTenantId,
-    date,
-    durationMinutes,
-  );
+  const { settings, slots } = await calculateAvailableSlots(tenantId, date, durationMinutes);
 
   return {
     slots,

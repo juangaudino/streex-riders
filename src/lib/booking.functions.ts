@@ -20,6 +20,8 @@ type BookingRow = Tables<"bookings">;
 
 const CreateSchema = z.object({
   tenantId: z.string().trim().min(1).max(80).default("streex"),
+  tenantSlug: z.string().trim().min(1).max(63).optional(),
+  previewToken: z.string().trim().max(4096).optional(),
   serviceType: z.enum(["ride", "hourly"]).default("ride"),
   name: z.string().trim().min(1).max(120),
   phone: z.string().trim().min(5).max(40),
@@ -38,13 +40,9 @@ export const createBooking = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const durationMinutes =
       data.serviceType === "hourly" ? (data.durationMinutes ?? 120) : undefined;
-    const { data: tenant } = await supabaseAdmin
-      .from("tenants")
-      .select("id,status")
-      .eq("id", data.tenantId)
-      .eq("status", "active")
-      .maybeSingle();
-    if (!tenant) throw new Error("This driver is not accepting ride requests.");
+    const { requirePublicTenant } = await import("./tenant.server");
+    const tenant = await requirePublicTenant(data.tenantSlug, data.previewToken);
+    if (data.tenantId !== tenant.id) throw new Error("Invalid driver workspace.");
     const slot = await resolveBookingSlot(tenant.id, data.date, data.time, durationMinutes);
 
     const { data: booking, error } = await supabaseAdmin

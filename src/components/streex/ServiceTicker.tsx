@@ -76,7 +76,7 @@ function TickerRow({ tickerStyle, services }: { tickerStyle: TickerStyle; servic
 }
 
 function useTickerStyle() {
-  const { tenantSlug } = useTenant();
+  const { tenantSlug, previewToken } = useTenant();
   const [tickerStyle, setTickerStyle] = useState<TickerStyle>(
     isTickerStyle(CONFIG.tickerStyle) ? CONFIG.tickerStyle : "boarding",
   );
@@ -86,7 +86,7 @@ function useTickerStyle() {
 
     async function loadTickerStyle() {
       try {
-        const result = await getTickerTheme({ data: { tenantSlug } });
+        const result = await getTickerTheme({ data: { tenantSlug, previewToken } });
         if (!cancelled && isTickerStyle(result.tickerStyle)) {
           setTickerStyle(result.tickerStyle);
         }
@@ -107,7 +107,7 @@ function useTickerStyle() {
       cancelled = true;
       window.removeEventListener("streex:ticker-theme-changed", onThemeChanged);
     };
-  }, [tenantSlug]);
+  }, [previewToken, tenantSlug]);
 
   return tickerStyle;
 }

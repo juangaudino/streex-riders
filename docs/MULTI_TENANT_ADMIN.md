@@ -37,6 +37,11 @@ Super Admin can resend an access link, change the owner, suspend/archive a tenan
 workspace. The active workspace is always visible in the Admin header; there is no silent
 impersonation.
 
+Draft preview links carry a signed, short-lived token. The landing loader and every tenant-aware
+public server action (availability, booking, ticker and reviews) must revalidate that token and
+confirm that the requested tenant matches it. Never authorize a draft action from a browser-supplied
+`tenant_id` alone.
+
 ## Production migration
 
 Apply `supabase/migrations/20260715035104_multi_tenant_super_admin.sql` with a Supabase account that

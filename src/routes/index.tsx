@@ -126,7 +126,7 @@ export function StreexLanding({
   tenant,
 }: {
   initialConfig: AppConfig;
-  tenant: { id: string; slug: string };
+  tenant: { id: string; slug: string; previewToken?: string };
 }) {
   const [showSplash, setShowSplash] = useState(true);
   const [fadingOut, setFadingOut] = useState(false);
@@ -148,7 +148,13 @@ export function StreexLanding({
   }, []);
 
   return (
-    <TenantProvider value={{ tenantId: tenant.id, tenantSlug: tenant.slug }}>
+    <TenantProvider
+      value={{
+        tenantId: tenant.id,
+        tenantSlug: tenant.slug,
+        previewToken: tenant.previewToken,
+      }}
+    >
       <div className="min-h-screen text-white streex-frame">
         {showSplash && (
           <div data-streex-splash className={fadingOut ? "streex-fade-out" : ""}>

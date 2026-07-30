@@ -7,6 +7,8 @@ const AdminSchema = z.object({
 
 const DateSchema = z.object({
   tenantId: z.string().trim().min(1).max(80).optional(),
+  tenantSlug: z.string().trim().min(1).max(63).optional(),
+  previewToken: z.string().trim().max(4096).optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   durationMinutes: z.number().int().min(5).max(1440).optional(),
 });
@@ -53,8 +55,11 @@ export async function resolveBookingSlot(
 export const getAvailableSlots = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => DateSchema.parse(input))
   .handler(async ({ data }) => {
+    const { requirePublicTenant } = await import("./tenant.server");
     const { getAvailableSlotsServer } = await import("./availability.server");
-    return getAvailableSlotsServer(data.tenantId, data.date, data.durationMinutes);
+    const tenant = await requirePublicTenant(data.tenantSlug, data.previewToken);
+    if (data.tenantId && data.tenantId !== tenant.id) throw new Error("Invalid driver workspace.");
+    return getAvailableSlotsServer(tenant.id, data.date, data.durationMinutes);
   });
 
 export const getAdminAvailability = createServerFn({ method: "POST" })

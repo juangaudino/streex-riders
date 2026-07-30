@@ -3,6 +3,7 @@ import { createContext, useContext, type ReactNode } from "react";
 type TenantContextValue = {
   tenantId: string;
   tenantSlug: string;
+  previewToken?: string;
 };
 
 const TenantContext = createContext<TenantContextValue>({
