@@ -14,9 +14,12 @@ import {
   buildSpotifyAuthorizationUrl,
   controlSpotifyPlayback,
   exchangeSpotifyCode,
+  getSpotifyCatalogAccessToken,
   getSpotifyPlayback,
   isSpotifyPersonalIntegrationEnabled,
+  playSpotifyTrack,
   refreshSpotifyAccessToken,
+  searchSpotifyTracks,
 } from "./spotify.server";
 
 const CONNECTION_ID = "spotify-personal-primary";
@@ -27,6 +30,12 @@ const CallbackSchema = z.object({
   state: z.string().min(1).max(4096),
 });
 const ControlSchema = z.object({ command: z.enum(["play", "pause", "next"]) });
+const SearchSchema = z.object({
+  query: z.string().trim().min(2).max(100),
+  limit: z.number().int().min(1).max(10),
+  market: z.string().regex(/^[A-Z]{2}$/),
+});
+const PlayTrackSchema = z.object({ uri: z.string().regex(/^spotify:track:[A-Za-z0-9]{22}$/) });
 
 function readCookie(name: string) {
   const header = getRequestHeader("cookie");
@@ -126,5 +135,29 @@ export const controlPersonalSpotifyPlayback = createServerFn({ method: "POST" })
     assertSpotifyPersonalIntegrationEnabled();
     assertPassengerConsoleSession();
     await controlSpotifyPlayback(await getAccessToken(), data.command);
+    return { ok: true };
+  });
+
+export const searchPersonalSpotifyTracks = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => SearchSchema.parse(input))
+  .handler(async ({ data }) => {
+    assertSpotifyPersonalIntegrationEnabled();
+    assertPassengerConsoleSession();
+    return {
+      tracks: await searchSpotifyTracks(
+        await getSpotifyCatalogAccessToken(),
+        data.query,
+        data.limit,
+        data.market,
+      ),
+    };
+  });
+
+export const playPersonalSpotifyTrack = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => PlayTrackSchema.parse(input))
+  .handler(async ({ data }) => {
+    assertSpotifyPersonalIntegrationEnabled();
+    assertPassengerConsoleSession();
+    await playSpotifyTrack(await getAccessToken(), data.uri);
     return { ok: true };
   });

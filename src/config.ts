@@ -52,6 +52,10 @@ export const CONFIG = {
       // activation gate. Keep credentials, tokens and device identifiers out of this config.
       mode: "provider" as "simulated" | "provider",
       providerName: "Spotify" as string | null,
+      searchEnabled: true,
+      searchResultLimit: 8,
+      // Public catalog market used only for server-side Spotify song search.
+      catalogMarket: "US",
       // Informational only: Spotify generates any live Jam QR from the host's app.
       jamNoticeEnabled: true,
     },

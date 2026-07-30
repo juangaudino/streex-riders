@@ -32,6 +32,21 @@ type SpotifyPlaybackResponse = {
   error?: { message?: string };
 };
 
+type SpotifySearchResponse = {
+  tracks?: {
+    items?: Array<{
+      id?: string;
+      uri?: string;
+      name?: string;
+      duration_ms?: number;
+      explicit?: boolean;
+      album?: { name?: string; images?: Array<{ url?: string }> };
+      artists?: Array<{ name?: string }>;
+    }>;
+  };
+  error?: { message?: string };
+};
+
 export type PersonalSpotifyPlayback = {
   hasActiveDevice: boolean;
   isPlaying: boolean;
@@ -41,6 +56,17 @@ export type PersonalSpotifyPlayback = {
     album: string | null;
     artworkUrl: string | null;
   } | null;
+};
+
+export type SpotifyTrackSearchResult = {
+  id: string;
+  uri: string;
+  title: string;
+  artist: string;
+  album: string | null;
+  artworkUrl: string | null;
+  durationMs: number | null;
+  explicit: boolean;
 };
 
 function getSpotifyConfig() {
@@ -129,6 +155,25 @@ export async function refreshSpotifyAccessToken(encryptedRefreshToken: string) {
   return tokens.access_token;
 }
 
+export async function getSpotifyCatalogAccessToken() {
+  assertSpotifyPersonalIntegrationEnabled();
+  const { clientId, clientSecret } = getSpotifyConfig();
+  const response = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({ grant_type: "client_credentials" }),
+  });
+  const tokens = (await response.json()) as TokenResponse;
+  if (!response.ok || !tokens.access_token) {
+    console.error("[Spotify] catalog token request failed", tokens.error);
+    throw new Error("Spotify search is unavailable.");
+  }
+  return tokens.access_token;
+}
+
 export async function getSpotifyPlayback(accessToken: string): Promise<PersonalSpotifyPlayback> {
   const response = await spotifyFetch(`${SPOTIFY_API}/me/player`, {
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -173,6 +218,58 @@ export async function controlSpotifyPlayback(
 
   const result = (await response.json().catch(() => ({}))) as SpotifyPlaybackResponse;
   throw new Error(result.error?.message || "Spotify could not control the active audio device.");
+}
+
+export async function searchSpotifyTracks(
+  accessToken: string,
+  query: string,
+  limit: number,
+  market: string,
+): Promise<SpotifyTrackSearchResult[]> {
+  const url = new URL(`${SPOTIFY_API}/search`);
+  url.searchParams.set("q", query);
+  url.searchParams.set("type", "track");
+  url.searchParams.set("limit", String(limit));
+  url.searchParams.set("market", market);
+
+  const response = await spotifyFetch(url.toString(), {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const result = (await response.json()) as SpotifySearchResponse;
+  if (!response.ok) throw new Error(result.error?.message || "Spotify search is unavailable.");
+
+  return (result.tracks?.items ?? []).flatMap((track) => {
+    if (!track.id || !track.uri || !track.name) return [];
+    return [
+      {
+        id: track.id,
+        uri: track.uri,
+        title: track.name,
+        artist: (track.artists ?? [])
+          .flatMap((artist) => (artist.name ? [artist.name] : []))
+          .join(", ") || "Spotify",
+        album: track.album?.name ?? null,
+        artworkUrl: track.album?.images?.find((image) => image.url)?.url ?? null,
+        durationMs: typeof track.duration_ms === "number" ? track.duration_ms : null,
+        explicit: Boolean(track.explicit),
+      },
+    ];
+  });
+}
+
+export async function playSpotifyTrack(accessToken: string, uri: string) {
+  const response = await spotifyFetch(`${SPOTIFY_API}/me/player/play`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ uris: [uri] }),
+  });
+  if (response.ok || response.status === 204) return;
+
+  const result = (await response.json().catch(() => ({}))) as SpotifyPlaybackResponse;
+  throw new Error(result.error?.message || "Spotify could not start the selected track.");
 }
 
 async function spotifyFetch(input: string, init: RequestInit) {

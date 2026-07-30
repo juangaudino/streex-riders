@@ -33,6 +33,8 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   controlPersonalSpotifyPlayback,
   getPersonalSpotifyPlayback,
+  playPersonalSpotifyTrack,
+  searchPersonalSpotifyTracks,
 } from "@/lib/spotify.functions";
 
 type Language = "en" | "es";
@@ -87,6 +89,14 @@ const copy = {
     spotifyActive: "Active",
     spotifyRefresh: "Refresh",
     spotifyControlError: "Spotify could not update playback. Please try again.",
+    searchSpotify: "Search Spotify",
+    searchSpotifyHint: "Find a song to play on the active vehicle audio device.",
+    searchButton: "Search",
+    searchResults: "Song results",
+    searchEmpty: "No songs found. Try another search.",
+    searchMinLength: "Enter at least two characters to search Spotify.",
+    playSong: "Play song",
+    explicit: "Explicit",
     musicTitle: "Music",
     musicSubtitle: "A provider-neutral preview for your vehicle audio.",
     jamTitle: "Spotify Jam",
@@ -162,6 +172,14 @@ const copy = {
     spotifyActive: "Activo",
     spotifyRefresh: "Actualizar",
     spotifyControlError: "Spotify no pudo actualizar la reproducción. Inténtalo de nuevo.",
+    searchSpotify: "Buscar en Spotify",
+    searchSpotifyHint: "Encuentra una canción para reproducir en el dispositivo de audio activo del vehículo.",
+    searchButton: "Buscar",
+    searchResults: "Resultados de canciones",
+    searchEmpty: "No se encontraron canciones. Prueba otra búsqueda.",
+    searchMinLength: "Escribe al menos dos caracteres para buscar en Spotify.",
+    playSong: "Reproducir canción",
+    explicit: "Explícito",
     musicTitle: "Música",
     musicSubtitle: "Una vista independiente del proveedor para el audio del vehículo.",
     jamTitle: "Spotify Jam",
@@ -540,7 +558,15 @@ function MusicView({
 }) {
   const music = config.passengerConsole.music;
   if (music.mode === "provider" && music.providerName === "Spotify") {
-    return <PersonalSpotifyMusicView onNavigate={onNavigate} t={t} />;
+    return (
+      <PersonalSpotifyMusicView
+        onNavigate={onNavigate}
+        catalogMarket={music.catalogMarket}
+        searchEnabled={music.searchEnabled}
+        searchResultLimit={music.searchResultLimit}
+        t={t}
+      />
+    );
   }
 
   return <SimulatedMusicView config={config} onNavigate={onNavigate} t={t} />;
@@ -563,6 +589,17 @@ type SpotifyPlaybackState =
         } | null;
       };
     };
+
+type SpotifySearchTrack = {
+  id: string;
+  uri: string;
+  title: string;
+  artist: string;
+  album: string | null;
+  artworkUrl: string | null;
+  durationMs: number | null;
+  explicit: boolean;
+};
 
 function PersonalSpotifyHomeCard({
   onNavigate,
@@ -636,15 +673,25 @@ function PersonalSpotifyHomeCard({
 }
 
 function PersonalSpotifyMusicView({
+  catalogMarket,
   onNavigate,
+  searchEnabled,
+  searchResultLimit,
   t,
 }: {
+  catalogMarket: string;
   onNavigate: (view: View) => void;
+  searchEnabled: boolean;
+  searchResultLimit: number;
   t: (typeof copy)[Language];
 }) {
   const [status, setStatus] = useState<SpotifyPlaybackState | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SpotifySearchTrack[]>([]);
+  const [searchMessage, setSearchMessage] = useState<string | null>(null);
+  const [searching, setSearching] = useState(false);
 
   const refresh = async () => {
     setError(null);
@@ -665,6 +712,45 @@ function PersonalSpotifyMusicView({
     setError(null);
     try {
       await controlPersonalSpotifyPlayback({ data: { command } });
+      await refresh();
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const search = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const normalizedQuery = query.trim();
+    if (normalizedQuery.length < 2) {
+      setResults([]);
+      setSearchMessage(t.searchMinLength);
+      return;
+    }
+
+    setSearching(true);
+    setError(null);
+    setSearchMessage(null);
+    try {
+      const response = await searchPersonalSpotifyTracks({
+        data: { query: normalizedQuery, limit: searchResultLimit, market: catalogMarket },
+      });
+      setResults(response.tracks);
+      setSearchMessage(response.tracks.length ? null : t.searchEmpty);
+    } catch (requestError) {
+      setResults([]);
+      setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const playTrack = async (uri: string) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await playPersonalSpotifyTrack({ data: { uri } });
       await refresh();
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
@@ -758,6 +844,69 @@ function PersonalSpotifyMusicView({
         </button>
       </div>
       {error && <p className="text-sm text-red-300">{error}</p>}
+      {searchEnabled && (
+        <section className="rounded-[26px] border border-white/10 bg-white/[0.035] p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+            {t.searchSpotify}
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-white/60">{t.searchSpotifyHint}</p>
+          <form className="mt-4 flex gap-2" onSubmit={(event) => void search(event)}>
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              maxLength={100}
+              placeholder={t.search}
+              aria-label={t.searchSpotify}
+              className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-[#E6CE20]/70"
+            />
+            <button
+              type="submit"
+              disabled={searching}
+              className="rounded-2xl bg-[#E6CE20] px-4 text-sm font-bold text-black disabled:opacity-45"
+            >
+              {searching ? "…" : t.searchButton}
+            </button>
+          </form>
+          {searchMessage && <p className="mt-3 text-sm text-white/55">{searchMessage}</p>}
+          {results.length > 0 && (
+            <div className="mt-4">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
+                {t.searchResults}
+              </p>
+              <div className="overflow-hidden rounded-2xl border border-white/10">
+                {results.map((track) => (
+                  <button
+                    key={track.id}
+                    type="button"
+                    disabled={busy || !playback?.hasActiveDevice}
+                    onClick={() => void playTrack(track.uri)}
+                    className="flex w-full items-center gap-3 border-b border-white/10 bg-black/10 p-3 text-left last:border-b-0 hover:bg-white/[0.05] disabled:opacity-45"
+                    aria-label={`${t.playSong}: ${track.title}`}
+                  >
+                    {track.artworkUrl ? (
+                      <img src={track.artworkUrl} alt="" className="h-11 w-11 shrink-0 rounded-xl object-cover" />
+                    ) : (
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#E6CE20]/15 text-[#E6CE20]">
+                        <Music2 className="h-4 w-4" />
+                      </span>
+                    )}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold">{track.title}</span>
+                      <span className="block truncate text-xs text-white/55">
+                        {track.artist}{track.album ? ` · ${track.album}` : ""}
+                      </span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-1 text-[#E6CE20]">
+                      {track.explicit && <span className="text-[9px] font-bold uppercase">{t.explicit}</span>}
+                      <Play className="h-4 w-4 fill-current" />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
       <aside className="rounded-[24px] border border-[#E6CE20]/25 bg-[#E6CE20]/[0.06] p-5">
         <div className="flex items-start gap-3">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#E6CE20]/15 text-[#E6CE20]">
