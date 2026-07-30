@@ -84,7 +84,7 @@ const copy = {
     spotifyDisabled: "The personal Spotify connection is not enabled.",
     spotifyDriverSetup: "Your driver can finish the private Spotify setup before controls become available.",
     spotifyNotConnected: "Your driver has not connected Spotify yet.",
-    spotifyNoDevice: "Open Spotify on the vehicle audio device, then choose it as the active Spotify Connect device.",
+    spotifyNoDevice: "Start Spotify on the vehicle audio, then return here to choose music.",
     spotifyDevice: "Vehicle audio",
     spotifyActive: "Active",
     spotifyRefresh: "Refresh",
@@ -167,7 +167,7 @@ const copy = {
     spotifyDisabled: "La conexión personal de Spotify no está habilitada.",
     spotifyDriverSetup: "Tu conductor puede terminar la configuración privada de Spotify antes de que los controles estén disponibles.",
     spotifyNotConnected: "Tu conductor todavía no ha conectado Spotify.",
-    spotifyNoDevice: "Abre Spotify en el dispositivo de audio del vehículo y selecciónalo como el dispositivo activo de Spotify Connect.",
+    spotifyNoDevice: "Inicia Spotify en el audio del vehículo y vuelve aquí para elegir música.",
     spotifyDevice: "Audio del vehículo",
     spotifyActive: "Activo",
     spotifyRefresh: "Actualizar",
@@ -286,7 +286,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           setLanguage={setLanguage}
           status={online ? t.online : t.offline}
         />
-        <main className="flex min-h-0 flex-1 flex-col py-5">
+        <main className="flex min-h-0 flex-1 flex-col pb-24 pt-5">
           {view === "home" && (
             <HomeView
               config={config}
@@ -469,25 +469,21 @@ function HomeView({
         <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
           {t.quickAccess}
         </p>
-        <div className="grid grid-cols-3 gap-3">
-          <QuickAccessCard
-            icon={<Music2 />}
-            label={t.music}
-            description={t.musicDescription}
-            onClick={() => onNavigate("music")}
-          />
-          <QuickAccessCard
-            icon={<Gamepad2 />}
-            label={t.games}
-            description={t.gamesDescription}
-            onClick={() => onNavigate("games")}
-          />
+        <div className="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-3">
           <QuickAccessCard
             accent
-            icon={<Sparkles />}
-            label={t.streex}
-            description={t.streexDescription}
-            onClick={() => onNavigate("streex")}
+            badge={t.comingSoon}
+            icon={<Gamepad2 />}
+            label={t.utahTrivia}
+            description={t.utahTriviaDescription}
+            onClick={() => onNavigate("games")}
+          />
+          <PhoneContinuationCard
+            compact
+            description={t.continuePhoneDescription}
+            href={config.passengerConsole.links.phoneContinuation}
+            label={t.continuePhone}
+            unavailable={t.unavailable}
           />
         </div>
       </section>
@@ -495,26 +491,20 @@ function HomeView({
       <section className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]">
         <ServiceTicker config={config} />
       </section>
-
-      <section className="mt-auto rounded-[24px] border border-white/10 bg-white/[0.025] p-5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
-          STREEX
-        </p>
-        <p className="mt-2 text-xl font-bold">{config.tagline}</p>
-        <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/60">{config.subheadline}</p>
-      </section>
     </div>
   );
 }
 
 function QuickAccessCard({
   accent = false,
+  badge,
   description,
   icon,
   label,
   onClick,
 }: {
   accent?: boolean;
+  badge?: string;
   description: string;
   icon: React.ReactNode;
   label: string;
@@ -524,16 +514,27 @@ function QuickAccessCard({
     <button
       type="button"
       onClick={onClick}
-      className={`flex min-h-[148px] flex-col rounded-[24px] border p-4 text-left transition ${
+      className={`relative flex min-h-[166px] flex-col overflow-hidden rounded-[24px] border p-4 text-left transition ${
         accent
           ? "border-[#E6CE20] bg-[#E6CE20] text-black"
           : "border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.07]"
       }`}
     >
-      <span
-        className={`grid h-10 w-10 place-items-center rounded-xl ${accent ? "bg-black/10" : "bg-[#E6CE20]/15 text-[#E6CE20]"}`}
-      >
-        {icon}
+      <span className="flex items-start justify-between gap-2">
+        <span
+          className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${accent ? "bg-black/10" : "bg-[#E6CE20]/15 text-[#E6CE20]"}`}
+        >
+          {icon}
+        </span>
+        {badge && (
+          <span
+            className={`rounded-full px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] ${
+              accent ? "bg-black/10 text-black/65" : "bg-[#E6CE20]/10 text-[#E6CE20]"
+            }`}
+          >
+            {badge}
+          </span>
+        )}
       </span>
       <span className="mt-auto block text-base font-bold leading-tight">
         {label} <ChevronRight className="inline h-4 w-4" />
@@ -652,7 +653,7 @@ function PersonalSpotifyHomeCard({
         <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
           {t.nowPlaying}
         </span>
-        <span className="mt-1 block truncate text-lg font-bold">{track?.title ?? t.spotifyPersonal}</span>
+        <span className="mt-1 block truncate text-lg font-bold">{track?.title ?? t.chooseMusic}</span>
         <span className="block truncate text-sm text-white/55">
           {track ? `${track.artist}${track.album ? ` · ${track.album}` : ""}` : t.spotifyNoDevice}
         </span>
@@ -792,7 +793,7 @@ function PersonalSpotifyMusicView({
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}
             </p>
-            <p className="mt-1 truncate text-lg font-bold">{playback.track?.title ?? t.spotifyPersonal}</p>
+            <p className="mt-1 truncate text-lg font-bold">{playback.track?.title ?? t.chooseMusic}</p>
             <p className="truncate text-sm text-white/55">
               {playback.track ? `${playback.track.artist}${playback.track.album ? ` · ${playback.track.album}` : ""}` : t.spotifyNoDevice}
             </p>
@@ -1270,11 +1271,13 @@ function TipView({
 }
 
 function PhoneContinuationCard({
+  compact = false,
   description,
   href,
   label,
   unavailable,
 }: {
+  compact?: boolean;
   description: string;
   href: string | null;
   label: string;
@@ -1289,20 +1292,37 @@ function PhoneContinuationCard({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="flex min-h-[142px] items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07] sm:col-span-2"
+      aria-label={label}
+      className={
+        compact
+          ? "flex min-h-[166px] flex-col rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
+          : "flex min-h-[142px] items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07] sm:col-span-2"
+      }
     >
-      <span className="shrink-0 rounded-xl bg-white p-2">
-        <QRCodeSVG value={href} size={88} bgColor="#FFFFFF" fgColor="#0B0B0B" level="M" />
+      <span
+        className={`shrink-0 self-start rounded-xl bg-white ${compact ? "p-1.5" : "p-2"}`}
+      >
+        <QRCodeSVG
+          value={href}
+          size={compact ? 58 : 88}
+          bgColor="#FFFFFF"
+          fgColor="#0B0B0B"
+          level="M"
+        />
       </span>
-      <span className="min-w-0 flex-1">
+      <span className={`min-w-0 flex-1 ${compact ? "mt-auto pt-3" : ""}`}>
         <span className="flex items-center gap-2 font-bold">
-          <QrCode className="h-4 w-4 text-[#E6CE20]" />
+          {!compact && <QrCode className="h-4 w-4 text-[#E6CE20]" />}
           {label}
         </span>
-        <span className="mt-1 block text-sm leading-relaxed text-white/55">{description}</span>
-        <span className="mt-3 block truncate text-xs text-[#E6CE20]">rides.getstreex.com</span>
+        {!compact && (
+          <span className="mt-1 block text-sm leading-relaxed text-white/55">{description}</span>
+        )}
+        <span className={`${compact ? "mt-1" : "mt-3"} block truncate text-xs text-[#E6CE20]`}>
+          rides.getstreex.com
+        </span>
       </span>
-      <ChevronRight className="h-5 w-5 shrink-0 text-white/45" />
+      {!compact && <ChevronRight className="h-5 w-5 shrink-0 text-white/45" />}
     </a>
   );
 }
@@ -1514,7 +1534,7 @@ function ConsoleNavigation({
   return (
     <nav
       aria-label="Passenger console"
-      className="sticky bottom-2 mt-4 flex gap-1 rounded-[28px] border border-white/10 bg-[#161614]/95 p-2 backdrop-blur"
+      className="sticky bottom-2 z-20 mt-4 flex gap-1 rounded-[28px] border border-white/10 bg-[#161614]/95 p-2 backdrop-blur"
     >
       {items.map((item) => (
         <button
