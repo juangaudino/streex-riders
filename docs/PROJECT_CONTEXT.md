@@ -89,8 +89,10 @@ Current Admin areas:
 - Runner records
 - Display themes
 
-Privileged Admin actions use server functions, Supabase Auth and tenant membership checks. Juan is
-both Super Admin and owner of the primary `streex` workspace. See `docs/MULTI_TENANT_ADMIN.md`.
+Privileged Admin actions use server functions, Supabase Auth and tenant membership checks.
+`juangaudino@gmail.com` is the platform-only Super Admin, while `streex.rides@gmail.com` owns the
+primary `streex` workspace. Both identities use `/admin`; their database roles determine the visible
+workspaces and controls. See `docs/MULTI_TENANT_ADMIN.md`.
 
 ### Data
 

@@ -108,7 +108,9 @@ Privileged actions use Supabase Auth and tenant membership checks. `ADMIN_ACCESS
 temporarily as emergency migration access, not as the normal login.
 
 The Drivers tab is exclusive to platform Super Admins and provisions invitation-only workspaces.
-See `docs/MULTI_TENANT_ADMIN.md` for onboarding, isolation and deployment instructions.
+The platform Super Admin and primary driver owner are separate accounts; both enter through
+`/admin`, and their database roles determine what they can access. See
+`docs/MULTI_TENANT_ADMIN.md` for onboarding, isolation and deployment instructions.
 
 Relevant files:
 

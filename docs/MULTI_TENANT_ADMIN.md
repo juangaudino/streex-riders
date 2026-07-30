@@ -14,7 +14,13 @@ Auth user metadata:
 - `platform_admins`: Super Admin authority.
 - `audit_log`: sensitive platform actions.
 
-Juan can be both a platform Super Admin and owner of `streex`. STREEX Horizon remains global.
+The two initial identities are intentionally separate:
+
+- `juangaudino@gmail.com`: platform Super Admin only. It can manage every workspace.
+- `streex.rides@gmail.com`: owner of the primary `streex` driver workspace.
+
+Both identities sign in at `/admin`; the database role determines which controls and workspaces are
+visible. STREEX Horizon remains global.
 
 ## Driver onboarding
 
@@ -43,10 +49,15 @@ After applying it:
 2. Add `https://rides.getstreex.com/admin` to allowed redirect URLs.
 3. Configure `TENANT_PREVIEW_SECRET` with at least 32 random characters (it may initially reuse the existing Calendar token-encryption secret).
 4. Deploy the application while retaining `ADMIN_ACCESS_KEY` temporarily.
-5. Enter Admin with the emergency key, open Drivers and create Juan's Super Admin account.
-6. Accept the invitation, set a password and verify Juan can access `streex` plus another test tenant.
-7. Validate booking, email, availability, assets and Google Calendar isolation.
-8. Remove `ADMIN_ACCESS_KEY` only after recovery and Super Admin login are verified in production.
+5. Enter Admin with the emergency key, open Drivers and create the platform Super Admin using
+   `juangaudino@gmail.com`.
+6. Accept that invitation, set a password and sign in as Super Admin.
+7. In Drivers, use **Assign driver owner** on the primary STREEX workspace and assign
+   `streex.rides@gmail.com`. Existing Auth users are reused; otherwise the system sends an invitation.
+8. Accept or reset access for `streex.rides@gmail.com`, then verify it sees only `streex`.
+9. Create a test tenant and validate booking, email, availability, assets and Google Calendar
+   isolation.
+10. Remove `ADMIN_ACCESS_KEY` only after recovery and both account logins are verified in production.
 
 The `tenant-assets` public bucket accepts only images under `{tenant-id}/brand`,
 `{tenant-id}/profile` and `{tenant-id}/gallery`. Upload/update/delete policies require membership in

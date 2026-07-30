@@ -374,6 +374,9 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
               <p className="text-xs text-white/70 truncate">
                 Signed in as {adminSession.user.email}
               </p>
+              <p className="mt-1 text-[10px] uppercase tracking-widest text-[#E6CE20]/70">
+                {adminSession.isSuperAdmin ? "Platform Super Admin" : "Driver workspace account"}
+              </p>
               {accountMessage && (
                 <p className="mt-1 text-[10px] text-[#E6CE20]">{accountMessage}</p>
               )}
@@ -465,7 +468,8 @@ function AdminDrivers({
     ownerPhone: "",
     slug: "",
   });
-  const [bootstrap, setBootstrap] = useState({ email: "streex.rides@gmail.com", fullName: "Juan" });
+  const [bootstrap, setBootstrap] = useState({ email: "juangaudino@gmail.com", fullName: "Juan" });
+  const [bootstrapComplete, setBootstrapComplete] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -493,11 +497,12 @@ function AdminDrivers({
 
   return (
     <section className="space-y-6">
-      {session.emergencyAccess && (
+      {session.emergencyAccess && !bootstrapComplete && (
         <div className="rounded-2xl border border-amber-400/30 bg-amber-400/[0.06] p-5">
-          <h2 className="font-semibold">Create Juan&apos;s Super Admin login</h2>
+          <h2 className="font-semibold">Create the platform Super Admin</h2>
           <p className="mt-1 text-xs text-white/50">
-            This one-time step replaces the shared emergency key with a personal account.
+            This account manages every workspace. It does not become the owner of Juan&apos;s driver
+            workspace.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <input
@@ -523,9 +528,10 @@ function AdminDrivers({
                 const result = await bootstrapSuperAdmin({ data: { ...bootstrap, adminKey } });
                 setMessage(
                   result.invited
-                    ? "Super Admin invitation sent."
-                    : "Existing account promoted to Super Admin.",
+                    ? "Super Admin invitation sent. Sign out and open the email before continuing."
+                    : "Existing account promoted to Super Admin. Sign out and use that account.",
                 );
+                setBootstrapComplete(true);
               } catch (bootstrapError) {
                 setMessage(
                   bootstrapError instanceof Error ? bootstrapError.message : "Bootstrap failed.",
@@ -552,7 +558,8 @@ function AdminDrivers({
               <div>
                 <p className="font-semibold">{tenant.display_name}</p>
                 <p className="text-xs text-white/45">
-                  /{tenant.slug} · {tenant.owner_name} · {tenant.owner_email}
+                  {tenant.id === "streex" ? "/" : `/${tenant.slug}`} · {tenant.owner_name} ·{" "}
+                  {tenant.owner_email}
                 </p>
                 {tenant.onboarding && (
                   <div className="mt-2 flex flex-wrap gap-1.5 text-[10px]">
@@ -665,7 +672,7 @@ function AdminDrivers({
                   }}
                   className="rounded-lg border border-white/10 px-2 py-1.5 text-xs text-white/70"
                 >
-                  Change owner
+                  {tenant.id === "streex" ? "Assign driver owner" : "Change owner"}
                 </button>
               </div>
             </div>

@@ -159,27 +159,22 @@ export const bootstrapSuperAdmin = createServerFn({ method: "POST" })
     const existingAdmins = await supabaseAdmin
       .from("platform_admins")
       .select("user_id", { count: "exact", head: true });
+    if (existingAdmins.error) throw new Error("Unable to verify existing Super Admin accounts.");
     if ((existingAdmins.count ?? 0) > 0) throw new Error("A Super Admin account already exists.");
 
     const { user, invited } = await inviteOrFindUser(data.email);
     const now = new Date().toISOString();
-    const results = await Promise.all([
-      supabaseAdmin.from("user_profiles").upsert({
-        user_id: user.id,
-        full_name: data.fullName,
-        updated_at: now,
-      }),
-      supabaseAdmin.from("platform_admins").upsert({ user_id: user.id }),
-      supabaseAdmin.from("tenant_memberships").upsert({
-        tenant_id: "streex",
-        user_id: user.id,
-        role: "owner",
-        status: invited ? "invited" : "active",
-        updated_at: now,
-      }),
-    ]);
-    if (results.some((result) => result.error)) throw new Error("Unable to bootstrap Super Admin.");
-    await writeAudit("streex", user.id, "super_admin.bootstrapped", { email: data.email });
+    const profile = await supabaseAdmin.from("user_profiles").upsert({
+      user_id: user.id,
+      full_name: data.fullName,
+      updated_at: now,
+    });
+    if (profile.error) throw new Error("Unable to create the Super Admin profile.");
+
+    const platformAdmin = await supabaseAdmin.from("platform_admins").upsert({ user_id: user.id });
+    if (platformAdmin.error) throw new Error("Unable to grant Super Admin access.");
+
+    await writeAudit(null, user.id, "super_admin.bootstrapped", { email: data.email });
     return { ok: true, invited };
   });
 
@@ -292,14 +287,22 @@ export const changeTenantOwner = createServerFn({ method: "POST" })
     const oldIds = (currentOwners.data ?? [])
       .map((membership) => membership.user_id)
       .filter((id) => id !== user.id);
+    let redundantMembershipIds: string[] = [];
+    let previousWorkspaceOwnerIds: string[] = [];
     if (oldIds.length) {
-      const demote = await supabaseAdmin
-        .from("tenant_memberships")
-        .update({ role: "admin", updated_at: now })
-        .eq("tenant_id", data.tenantId)
+      const platformAdmins = await supabaseAdmin
+        .from("platform_admins")
+        .select("user_id")
         .in("user_id", oldIds);
-      if (demote.error) throw new Error("Unable to update the previous owner.");
+      if (platformAdmins.error) throw new Error("Unable to inspect platform roles.");
+
+      const platformAdminIds = new Set(
+        (platformAdmins.data ?? []).map((platformAdmin) => platformAdmin.user_id),
+      );
+      redundantMembershipIds = oldIds.filter((id) => platformAdminIds.has(id));
+      previousWorkspaceOwnerIds = oldIds.filter((id) => !platformAdminIds.has(id));
     }
+
     const writes = await Promise.all([
       supabaseAdmin
         .from("user_profiles")
@@ -318,6 +321,26 @@ export const changeTenantOwner = createServerFn({ method: "POST" })
     ]);
     if (writes.some((write) => write.error))
       throw new Error("Unable to change the workspace owner.");
+
+    if (redundantMembershipIds.length) {
+      const removeRedundantMemberships = await supabaseAdmin
+        .from("tenant_memberships")
+        .delete()
+        .eq("tenant_id", data.tenantId)
+        .in("user_id", redundantMembershipIds);
+      if (removeRedundantMemberships.error)
+        throw new Error("Owner changed, but redundant Super Admin workspace access remains.");
+    }
+
+    if (previousWorkspaceOwnerIds.length) {
+      const demote = await supabaseAdmin
+        .from("tenant_memberships")
+        .update({ role: "admin", updated_at: now })
+        .eq("tenant_id", data.tenantId)
+        .in("user_id", previousWorkspaceOwnerIds);
+      if (demote.error) throw new Error("Owner changed, but the previous owner remains an owner.");
+    }
+
     await writeAudit(data.tenantId, access.userId, "tenant.owner_changed", {
       email: data.ownerEmail,
     });
