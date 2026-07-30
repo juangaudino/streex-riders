@@ -31,12 +31,29 @@ const ServiceOverrideSchema = z.object({
   enabled: z.boolean().optional(),
 });
 
+const GalleryImageSchema = z.object({
+  label: z.string().trim().min(1).max(100),
+  image: z.string().trim().min(1).max(1000),
+  microLabel: z.string().trim().max(160).nullable().optional(),
+});
+
 export const SiteConfigOverrideSchema = z
   .object({
     brandName: z.string().trim().min(1).max(120).optional(),
     ownerName: z.string().trim().min(1).max(120).optional(),
     tagline: z.string().trim().min(1).max(180).optional(),
     subheadline: z.string().trim().min(1).max(500).optional(),
+    logoSrc: z.string().trim().min(1).max(1000).optional(),
+    meetPhoto: z.string().trim().min(1).max(1000).optional(),
+    galleryImages: z.array(GalleryImageSchema).max(12).optional(),
+    areas: z.array(z.string().trim().min(1).max(120)).max(50).optional(),
+    meetTitle: z.string().trim().min(1).max(160).optional(),
+    meetBody: z.array(z.string().trim().min(1).max(1000)).max(12).optional(),
+    whyStreexTitle: z.string().trim().min(1).max(160).optional(),
+    whyStreexBody: z.array(z.string().trim().min(1).max(1000)).max(12).optional(),
+    seoTitle: z.string().trim().min(1).max(180).optional(),
+    seoDescription: z.string().trim().min(1).max(500).optional(),
+    ogImage: z.string().trim().min(1).max(1000).optional(),
     phone: z.string().trim().min(5).max(40).optional(),
     phoneDisplay: z.string().trim().min(5).max(40).optional(),
     email: z.string().trim().email().max(200).optional(),
@@ -94,6 +111,10 @@ export function mergeSiteConfig(
       const changed = override.services?.find((item) => item.id === service.id);
       return changed ? { ...service, ...changed } : service;
     }),
+    galleryImages: (override.galleryImages ?? base.galleryImages).map((item) => ({
+      ...item,
+      microLabel: item.microLabel ?? null,
+    })),
     sections: {
       ...base.sections,
       ...(override.sections ?? {}),

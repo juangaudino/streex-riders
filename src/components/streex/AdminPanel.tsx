@@ -7,6 +7,7 @@ import {
   Palette,
   Settings2,
   Star,
+  Users,
 } from "lucide-react";
 import {
   createAdminBlockedSlot,
@@ -29,7 +30,7 @@ import {
   updateAdminTickerTheme,
   verifyAdminKey,
 } from "@/lib/admin.functions";
-import { getTickerTheme } from "@/lib/ticker-theme.functions";
+import { getAdminTickerTheme } from "@/lib/ticker-theme.functions";
 import { getAdminSiteConfig, updateAdminSiteConfig } from "@/lib/site-config.functions";
 import { CONFIG, type AppConfig } from "@/config";
 import logo from "@/assets/brand/streex-rides-transparent.webp";
@@ -38,11 +39,53 @@ import { AdminThemeControl } from "./admin/AdminThemeControl";
 import { AdminCalendar, type CalendarGoogleBusyItem } from "./admin/AdminCalendar";
 import { AdminCalendarEventSheet, type CalendarSheetItem } from "./admin/AdminCalendarEventSheet";
 import { GoogleCalendarConnectionCard } from "./admin/GoogleCalendarConnectionCard";
+import { supabase } from "@/integrations/supabase/client";
+import { uploadTenantAsset, type TenantAssetKind } from "@/lib/tenant-assets";
+import {
+  bootstrapSuperAdmin,
+  changeTenantOwner,
+  createDriverTenant,
+  getAdminSession,
+  getTenantPreviewLink,
+  sendTenantAccessLink,
+  updateTenantStatus,
+} from "@/lib/tenant.functions";
 
 const SESSION_KEY = "streex_admin_key";
 
-type AdminTab = "bookings" | "reviews" | "runner" | "themes" | "config" | "availability";
+type AdminTab =
+  | "bookings"
+  | "reviews"
+  | "runner"
+  | "themes"
+  | "config"
+  | "availability"
+  | "drivers";
 type TickerStyle = "boarding" | "pill";
+
+type AdminTenant = {
+  id: string;
+  slug: string;
+  display_name: string;
+  owner_name: string;
+  owner_email: string;
+  owner_phone: string | null;
+  status: string;
+  onboarding?: {
+    configurationReady: boolean;
+    calendarConnected: boolean;
+    availabilityReady: boolean;
+  };
+  lastActivityAt?: string;
+};
+
+type AdminSessionState = {
+  user: { id: string; email: string | null } | null;
+  activeTenantId: string;
+  isSuperAdmin: boolean;
+  emergencyAccess: boolean;
+  tenants: AdminTenant[];
+};
 
 type BookingRow = {
   id: string;
@@ -93,36 +136,77 @@ const STATUS_TABS: { key: BookingRow["status"]; label: string }[] = [
 ];
 
 export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab }) {
-  const [adminKey, setAdminKey] = useState<string | null>(null);
+  const [adminKey, setAdminKey] = useState("");
+  const [adminSession, setAdminSession] = useState<AdminSessionState | null>(null);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emergencyKey, setEmergencyKey] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [accountMessage, setAccountMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
   const { preference, resolved, setPreference } = useAdminTheme();
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem(SESSION_KEY);
-      if (stored) setAdminKey(stored);
+    let cancelled = false;
+    async function restore() {
+      const stored = sessionStorage.getItem(SESSION_KEY) || "";
+      const { data } = await supabase.auth.getSession();
+      if (!data.session && !stored) return;
+      try {
+        const result = await getAdminSession({ data: { adminKey: stored } });
+        if (cancelled) return;
+        const selected = localStorage.getItem("streex_admin_tenant") || result.activeTenantId;
+        localStorage.setItem("streex_admin_tenant", selected);
+        setAdminKey(stored);
+        setAdminSession({ ...result, activeTenantId: selected } as AdminSessionState);
+      } catch {
+        sessionStorage.removeItem(SESSION_KEY);
+      }
     }
+    restore();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const submit = async (e: React.FormEvent) => {
+  const submitLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setChecking(true);
     setError(null);
     try {
-      await verifyAdminKey({ data: { adminKey: password } });
-      sessionStorage.setItem(SESSION_KEY, password);
-      setAdminKey(password);
-    } catch {
-      setError("Access denied.");
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) throw signInError;
+      const result = await getAdminSession({ data: { adminKey: "" } });
+      localStorage.setItem("streex_admin_tenant", result.activeTenantId);
+      setAdminKey("");
+      setAdminSession(result as AdminSessionState);
+    } catch (loginError) {
+      setError(loginError instanceof Error ? loginError.message : "Access denied.");
     } finally {
       setChecking(false);
     }
   };
 
-  if (!adminKey) {
+  const submitEmergency = async () => {
+    setChecking(true);
+    setError(null);
+    try {
+      await verifyAdminKey({ data: { adminKey: emergencyKey } });
+      sessionStorage.setItem(SESSION_KEY, emergencyKey);
+      localStorage.setItem("streex_admin_tenant", "streex");
+      const result = await getAdminSession({ data: { adminKey: emergencyKey } });
+      setAdminKey(emergencyKey);
+      setAdminSession(result as AdminSessionState);
+    } catch {
+      setError("Emergency access denied.");
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  if (!adminSession) {
     return (
       <div
         className="streex-admin-scope fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B0B] px-6"
@@ -140,7 +224,15 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
           <p className="mt-6 text-[10px] streex-tracking text-white/60 uppercase">
             Restricted Area
           </p>
-          <form onSubmit={submit} className="mt-8 w-full flex flex-col gap-3">
+          <form onSubmit={submitLogin} className="mt-8 w-full flex flex-col gap-3">
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="Email"
+              autoComplete="email"
+              className="w-full rounded-xl bg-white/[0.04] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#E6CE20]/40"
+            />
             <input
               type="password"
               value={password}
@@ -149,7 +241,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
                 if (error) setError(null);
               }}
               placeholder="Password"
-              autoFocus
+              autoComplete="current-password"
               className="w-full rounded-xl bg-white/[0.04] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/30 backdrop-blur-xl focus:outline-none focus:border-[#E6CE20]/40 transition-colors"
             />
             <button
@@ -157,7 +249,38 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
               disabled={checking}
               className="w-full rounded-xl bg-[#E6CE20] text-black font-semibold text-sm py-3 hover:bg-[#E6CE20]/90 transition-colors disabled:opacity-60"
             >
-              {checking ? "Checking..." : "Enter Admin"}
+              {checking ? "Signing in..." : "Sign in"}
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!email) return setError("Enter your email first.");
+                const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+                  redirectTo: `${window.location.origin}/admin`,
+                });
+                setError(
+                  resetError ? resetError.message : "Password setup link sent. Check your email.",
+                );
+              }}
+              className="text-xs text-white/50 hover:text-white"
+            >
+              Set or reset password
+            </button>
+            <div className="my-2 h-px bg-white/10" />
+            <input
+              type="password"
+              value={emergencyKey}
+              onChange={(event) => setEmergencyKey(event.target.value)}
+              placeholder="Emergency access key"
+              className="w-full rounded-xl bg-white/[0.03] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-white/30"
+            />
+            <button
+              type="button"
+              onClick={submitEmergency}
+              disabled={checking || !emergencyKey}
+              className="text-xs rounded-xl border border-white/15 py-2.5 text-white/60 hover:text-white disabled:opacity-40"
+            >
+              Emergency access
             </button>
             {error && <p className="text-center text-xs text-red-400/90 mt-1">{error}</p>}
           </form>
@@ -169,10 +292,15 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
   const tabs: { key: AdminTab; label: string; icon: React.ReactNode }[] = [
     { key: "bookings", label: "Bookings", icon: <CalendarCheck className="h-4 w-4" /> },
     { key: "reviews", label: "Reviews", icon: <MessageSquareQuote className="h-4 w-4" /> },
-    { key: "runner", label: "Horizon", icon: <Gamepad2 className="h-4 w-4" /> },
+    ...(adminSession.isSuperAdmin
+      ? ([{ key: "runner", label: "Horizon", icon: <Gamepad2 className="h-4 w-4" /> }] as const)
+      : []),
     { key: "themes", label: "Themes", icon: <Palette className="h-4 w-4" /> },
     { key: "config", label: "Config", icon: <Settings2 className="h-4 w-4" /> },
     { key: "availability", label: "Availability", icon: <CalendarClock className="h-4 w-4" /> },
+    ...(adminSession.isSuperAdmin
+      ? ([{ key: "drivers", label: "Drivers", icon: <Users className="h-4 w-4" /> }] as const)
+      : []),
   ];
 
   return (
@@ -197,7 +325,10 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
               type="button"
               onClick={() => {
                 sessionStorage.removeItem(SESSION_KEY);
-                setAdminKey(null);
+                localStorage.removeItem("streex_admin_tenant");
+                supabase.auth.signOut();
+                setAdminKey("");
+                setAdminSession(null);
               }}
               className="text-xs rounded-full px-3 py-1.5 border border-white/15 text-white/70 hover:text-white"
             >
@@ -206,7 +337,73 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
           </div>
         </header>
 
-        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 mb-7">
+        <div className="mb-5 rounded-2xl border border-[#E6CE20]/20 bg-[#E6CE20]/[0.05] p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+          <div>
+            <p className="text-[10px] uppercase streex-tracking text-[#E6CE20]/70">
+              Active workspace
+            </p>
+            <p className="mt-1 text-sm font-semibold">
+              {adminSession.tenants.find((tenant) => tenant.id === adminSession.activeTenantId)
+                ?.display_name || "STREEX"}
+            </p>
+          </div>
+          <select
+            value={adminSession.activeTenantId}
+            onChange={(event) => {
+              const tenantId = event.target.value;
+              localStorage.setItem("streex_admin_tenant", tenantId);
+              setAdminSession((current) =>
+                current ? { ...current, activeTenantId: tenantId } : current,
+              );
+            }}
+            className="rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white"
+          >
+            {adminSession.tenants
+              .filter((tenant) => tenant.status !== "archived")
+              .map((tenant) => (
+                <option key={tenant.id} value={tenant.id}>
+                  {tenant.display_name} · {tenant.status}
+                </option>
+              ))}
+          </select>
+        </div>
+
+        {adminSession.user && (
+          <div className="mb-5 rounded-2xl border border-white/10 bg-white/[0.025] p-3 flex flex-col sm:flex-row gap-2 sm:items-center">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-white/70 truncate">
+                Signed in as {adminSession.user.email}
+              </p>
+              {accountMessage && (
+                <p className="mt-1 text-[10px] text-[#E6CE20]">{accountMessage}</p>
+              )}
+            </div>
+            <input
+              type="password"
+              value={newPassword}
+              minLength={8}
+              onChange={(event) => setNewPassword(event.target.value)}
+              placeholder="New password"
+              className="rounded-lg border border-white/10 bg-black px-3 py-2 text-xs"
+            />
+            <button
+              type="button"
+              onClick={async () => {
+                if (newPassword.length < 8) return setAccountMessage("Use at least 8 characters.");
+                const { error: passwordError } = await supabase.auth.updateUser({
+                  password: newPassword,
+                });
+                setAccountMessage(passwordError ? passwordError.message : "Password updated.");
+                if (!passwordError) setNewPassword("");
+              }}
+              className="rounded-lg border border-white/15 px-3 py-2 text-xs"
+            >
+              Update password
+            </button>
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mb-7">
           {tabs.map((tab) => {
             const selected = tab.key === activeTab;
             return (
@@ -227,14 +424,295 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
           })}
         </div>
 
-        {activeTab === "bookings" && <AdminBookings adminKey={adminKey} />}
-        {activeTab === "reviews" && <AdminReviews adminKey={adminKey} />}
-        {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}
-        {activeTab === "themes" && <AdminThemes adminKey={adminKey} />}
-        {activeTab === "config" && <AdminConfig adminKey={adminKey} />}
-        {activeTab === "availability" && <AdminAvailability adminKey={adminKey} />}
+        <div key={adminSession.activeTenantId}>
+          {activeTab === "bookings" && <AdminBookings adminKey={adminKey} />}
+          {activeTab === "reviews" && <AdminReviews adminKey={adminKey} />}
+          {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}
+          {activeTab === "themes" && <AdminThemes adminKey={adminKey} />}
+          {activeTab === "config" && (
+            <AdminConfig adminKey={adminKey} tenantId={adminSession.activeTenantId} />
+          )}
+          {activeTab === "availability" && <AdminAvailability adminKey={adminKey} />}
+          {activeTab === "drivers" && (
+            <AdminDrivers
+              adminKey={adminKey}
+              session={adminSession}
+              onRefresh={async () => {
+                const result = await getAdminSession({ data: { adminKey } });
+                setAdminSession(result as AdminSessionState);
+              }}
+            />
+          )}
+        </div>
       </div>
     </div>
+  );
+}
+
+function AdminDrivers({
+  adminKey,
+  session,
+  onRefresh,
+}: {
+  adminKey: string;
+  session: AdminSessionState;
+  onRefresh: () => Promise<void>;
+}) {
+  const [form, setForm] = useState({
+    displayName: "",
+    ownerName: "",
+    ownerEmail: "",
+    ownerPhone: "",
+    slug: "",
+  });
+  const [bootstrap, setBootstrap] = useState({ email: "streex.rides@gmail.com", fullName: "Juan" });
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const createDriver = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setBusy(true);
+    setMessage(null);
+    try {
+      const result = await createDriverTenant({
+        data: { ...form, ownerPhone: form.ownerPhone || null, adminKey },
+      });
+      setMessage(
+        result.invited
+          ? "Driver created and invitation sent."
+          : "Driver created and linked to the existing user.",
+      );
+      setForm({ displayName: "", ownerName: "", ownerEmail: "", ownerPhone: "", slug: "" });
+      await onRefresh();
+    } catch (createError) {
+      setMessage(createError instanceof Error ? createError.message : "Unable to create driver.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="space-y-6">
+      {session.emergencyAccess && (
+        <div className="rounded-2xl border border-amber-400/30 bg-amber-400/[0.06] p-5">
+          <h2 className="font-semibold">Create Juan&apos;s Super Admin login</h2>
+          <p className="mt-1 text-xs text-white/50">
+            This one-time step replaces the shared emergency key with a personal account.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <input
+              value={bootstrap.fullName}
+              onChange={(e) => setBootstrap((v) => ({ ...v, fullName: e.target.value }))}
+              placeholder="Full name"
+              className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm"
+            />
+            <input
+              value={bootstrap.email}
+              onChange={(e) => setBootstrap((v) => ({ ...v, email: e.target.value }))}
+              placeholder="Email"
+              type="email"
+              className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm"
+            />
+          </div>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                const result = await bootstrapSuperAdmin({ data: { ...bootstrap, adminKey } });
+                setMessage(
+                  result.invited
+                    ? "Super Admin invitation sent."
+                    : "Existing account promoted to Super Admin.",
+                );
+              } catch (bootstrapError) {
+                setMessage(
+                  bootstrapError instanceof Error ? bootstrapError.message : "Bootstrap failed.",
+                );
+              } finally {
+                setBusy(false);
+              }
+            }}
+            className="mt-4 rounded-xl bg-[#E6CE20] px-4 py-2.5 text-sm font-semibold text-black disabled:opacity-50"
+          >
+            Create Super Admin account
+          </button>
+        </div>
+      )}
+
+      <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
+        <h2 className="text-lg font-semibold">Drivers and workspaces</h2>
+        <div className="mt-4 space-y-3">
+          {session.tenants.map((tenant) => (
+            <div
+              key={tenant.id}
+              className="rounded-xl border border-white/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+            >
+              <div>
+                <p className="font-semibold">{tenant.display_name}</p>
+                <p className="text-xs text-white/45">
+                  /{tenant.slug} · {tenant.owner_name} · {tenant.owner_email}
+                </p>
+                {tenant.onboarding && (
+                  <div className="mt-2 flex flex-wrap gap-1.5 text-[10px]">
+                    <span
+                      className={
+                        tenant.onboarding.configurationReady ? "text-emerald-300" : "text-white/35"
+                      }
+                    >
+                      Config {tenant.onboarding.configurationReady ? "ready" : "pending"}
+                    </span>
+                    <span
+                      className={
+                        tenant.onboarding.availabilityReady ? "text-emerald-300" : "text-white/35"
+                      }
+                    >
+                      · Hours {tenant.onboarding.availabilityReady ? "ready" : "pending"}
+                    </span>
+                    <span
+                      className={
+                        tenant.onboarding.calendarConnected ? "text-emerald-300" : "text-white/35"
+                      }
+                    >
+                      · Calendar {tenant.onboarding.calendarConnected ? "connected" : "pending"}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-widest text-white/45">
+                  {tenant.status}
+                </span>
+                {tenant.id !== "streex" && (
+                  <select
+                    value={tenant.status}
+                    onChange={async (event) => {
+                      setBusy(true);
+                      try {
+                        await updateTenantStatus({
+                          data: {
+                            adminKey,
+                            tenantId: tenant.id,
+                            status: event.target.value as
+                              | "draft"
+                              | "active"
+                              | "suspended"
+                              | "archived",
+                          },
+                        });
+                        await onRefresh();
+                      } finally {
+                        setBusy(false);
+                      }
+                    }}
+                    className="rounded-lg border border-white/10 bg-black px-2 py-1.5 text-xs"
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                )}
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={async () => {
+                    setBusy(true);
+                    try {
+                      await sendTenantAccessLink({ data: { adminKey, tenantId: tenant.id } });
+                      setMessage(`Access link sent to ${tenant.owner_email}.`);
+                    } catch (linkError) {
+                      setMessage(
+                        linkError instanceof Error
+                          ? linkError.message
+                          : "Unable to send access link.",
+                      );
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                  className="rounded-lg border border-white/10 px-2 py-1.5 text-xs text-white/70"
+                >
+                  Send access
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={async () => {
+                    const ownerName = window.prompt("New owner name", tenant.owner_name);
+                    if (!ownerName) return;
+                    const ownerEmail = window.prompt("New owner email", tenant.owner_email);
+                    if (!ownerEmail) return;
+                    setBusy(true);
+                    try {
+                      const result = await changeTenantOwner({
+                        data: { adminKey, tenantId: tenant.id, ownerName, ownerEmail },
+                      });
+                      setMessage(
+                        result.invited ? "Owner changed and invitation sent." : "Owner changed.",
+                      );
+                      await onRefresh();
+                    } catch (ownerError) {
+                      setMessage(
+                        ownerError instanceof Error
+                          ? ownerError.message
+                          : "Unable to change owner.",
+                      );
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                  className="rounded-lg border border-white/10 px-2 py-1.5 text-xs text-white/70"
+                >
+                  Change owner
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <form
+        onSubmit={createDriver}
+        className="rounded-2xl border border-white/10 bg-white/[0.025] p-5"
+      >
+        <h2 className="text-lg font-semibold">Add driver</h2>
+        <p className="mt-1 text-xs text-white/45">
+          Creates a private draft workspace and sends an invitation.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              ["displayName", "Public service name"],
+              ["ownerName", "Driver name"],
+              ["ownerEmail", "Driver email"],
+              ["ownerPhone", "Phone"],
+              ["slug", "Public URL slug"],
+            ] as const
+          ).map(([key, placeholder]) => (
+            <input
+              key={key}
+              value={form[key]}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, [key]: event.target.value }))
+              }
+              placeholder={placeholder}
+              type={key === "ownerEmail" ? "email" : "text"}
+              required={key !== "ownerPhone"}
+              className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm"
+            />
+          ))}
+        </div>
+        <button
+          disabled={busy}
+          className="mt-4 rounded-xl bg-[#E6CE20] px-5 py-2.5 text-sm font-semibold text-black disabled:opacity-50"
+        >
+          {busy ? "Working..." : "Create and invite"}
+        </button>
+      </form>
+      {message && <p className="text-sm text-[#E6CE20]">{message}</p>}
+    </section>
   );
 }
 
@@ -981,7 +1459,7 @@ function adminServicesFromConfig(config: AppConfig): AdminServiceDraft[] {
   }));
 }
 
-function AdminConfig({ adminKey }: { adminKey: string }) {
+function AdminConfig({ adminKey, tenantId }: { adminKey: string; tenantId: string }) {
   const [profile, setProfile] = useState(() => adminProfileFromConfig(CONFIG));
 
   const [services, setServices] = useState<AdminServiceDraft[]>(() =>
@@ -991,6 +1469,15 @@ function AdminConfig({ adminKey }: { adminKey: string }) {
   const [sections, setSections] = useState<Record<AdminSectionKey, boolean>>(
     () => ({ ...CONFIG.sections }) as Record<AdminSectionKey, boolean>,
   );
+  const [media, setMedia] = useState(() => ({
+    logoSrc: CONFIG.logoSrc,
+    meetPhoto: CONFIG.meetPhoto,
+    ogImage: CONFIG.ogImage,
+    galleryImages: CONFIG.galleryImages.map((item) => ({ ...item })),
+  }));
+  const [uploading, setUploading] = useState<string | null>(null);
+  const [areasText, setAreasText] = useState(CONFIG.areas.join("\n"));
+  const [seo, setSeo] = useState({ title: CONFIG.seoTitle, description: CONFIG.seoDescription });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1006,6 +1493,24 @@ function AdminConfig({ adminKey }: { adminKey: string }) {
   const toggleSection = (key: AdminSectionKey) =>
     setSections((current) => ({ ...current, [key]: !current[key] }));
 
+  const handleAssetUpload = async (
+    slot: string,
+    kind: TenantAssetKind,
+    file: File,
+    applyUrl: (url: string) => void,
+  ) => {
+    setUploading(slot);
+    setError(null);
+    try {
+      applyUrl(await uploadTenantAsset(tenantId, kind, file));
+      setMessage("Image uploaded. Save config to publish it.");
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Image upload failed.");
+    } finally {
+      setUploading(null);
+    }
+  };
+
   const loadConfig = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -1014,6 +1519,14 @@ function AdminConfig({ adminKey }: { adminKey: string }) {
       setProfile(adminProfileFromConfig(result.config));
       setServices(adminServicesFromConfig(result.config));
       setSections({ ...result.config.sections } as Record<AdminSectionKey, boolean>);
+      setMedia({
+        logoSrc: result.config.logoSrc,
+        meetPhoto: result.config.meetPhoto,
+        ogImage: result.config.ogImage,
+        galleryImages: result.config.galleryImages.map((item) => ({ ...item })),
+      });
+      setAreasText(result.config.areas.join("\n"));
+      setSeo({ title: result.config.seoTitle, description: result.config.seoDescription });
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Failed to load site config.");
     } finally {
@@ -1048,6 +1561,16 @@ function AdminConfig({ adminKey }: { adminKey: string }) {
             nextdoor: profile.nextdoor,
             services,
             sections,
+            logoSrc: media.logoSrc,
+            meetPhoto: media.meetPhoto,
+            ogImage: media.ogImage,
+            galleryImages: media.galleryImages,
+            areas: areasText
+              .split("\n")
+              .map((area) => area.trim())
+              .filter(Boolean),
+            seoTitle: seo.title,
+            seoDescription: seo.description,
           },
         },
       });
@@ -1176,6 +1699,79 @@ function AdminConfig({ adminKey }: { adminKey: string }) {
         </div>
       </ConfigGroup>
 
+      <ConfigGroup
+        title="Photos and brand"
+        subtitle="Images are private to this workspace and publish with the saved config."
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <AssetUploadField
+            label="Logo"
+            value={media.logoSrc}
+            busy={uploading === "logo"}
+            onUpload={(file) =>
+              handleAssetUpload("logo", "brand", file, (url) =>
+                setMedia((current) => ({ ...current, logoSrc: url })),
+              )
+            }
+          />
+          <AssetUploadField
+            label="Driver photo"
+            value={media.meetPhoto}
+            busy={uploading === "profile"}
+            onUpload={(file) =>
+              handleAssetUpload("profile", "profile", file, (url) =>
+                setMedia((current) => ({ ...current, meetPhoto: url })),
+              )
+            }
+          />
+          <AssetUploadField
+            label="Social preview"
+            value={media.ogImage}
+            busy={uploading === "og"}
+            onUpload={(file) =>
+              handleAssetUpload("og", "brand", file, (url) =>
+                setMedia((current) => ({ ...current, ogImage: url })),
+              )
+            }
+          />
+        </div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          {media.galleryImages.map((item, index) => (
+            <div key={`${item.label}-${index}`} className="rounded-xl border border-white/10 p-3">
+              <ConfigField
+                label={`Gallery ${index + 1} label`}
+                value={item.label}
+                onChange={(label) =>
+                  setMedia((current) => ({
+                    ...current,
+                    galleryImages: current.galleryImages.map((entry, entryIndex) =>
+                      entryIndex === index ? { ...entry, label } : entry,
+                    ),
+                  }))
+                }
+              />
+              <div className="mt-3">
+                <AssetUploadField
+                  label="Image"
+                  value={item.image}
+                  busy={uploading === `gallery-${index}`}
+                  onUpload={(file) =>
+                    handleAssetUpload(`gallery-${index}`, "gallery", file, (url) =>
+                      setMedia((current) => ({
+                        ...current,
+                        galleryImages: current.galleryImages.map((entry, entryIndex) =>
+                          entryIndex === index ? { ...entry, image: url } : entry,
+                        ),
+                      })),
+                    )
+                  }
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </ConfigGroup>
+
       <ConfigGroup title="Services" subtitle="Toggle and name what appears in the services grid.">
         <div className="space-y-2">
           {services.map((s) => (
@@ -1215,6 +1811,26 @@ function AdminConfig({ adminKey }: { adminKey: string }) {
               </div>
             </div>
           ))}
+        </div>
+      </ConfigGroup>
+
+      <ConfigGroup
+        title="Service areas and SEO"
+        subtitle="One destination per line. These values also help search engines describe the page."
+      >
+        <ConfigField label="Areas served" value={areasText} onChange={setAreasText} multiline />
+        <div className="mt-4 space-y-3">
+          <ConfigField
+            label="SEO title"
+            value={seo.title}
+            onChange={(title) => setSeo((current) => ({ ...current, title }))}
+          />
+          <ConfigField
+            label="SEO description"
+            value={seo.description}
+            onChange={(description) => setSeo((current) => ({ ...current, description }))}
+            multiline
+          />
         </div>
       </ConfigGroup>
 
@@ -1258,13 +1874,31 @@ function AdminConfig({ adminKey }: { adminKey: string }) {
           <p className="text-[11px] text-white/50">
             {message ? "Saved to the live site." : "Changes publish when you save."}
           </p>
-          <button
-            type="submit"
-            disabled={saving || loading}
-            className="rounded-full bg-[#E6CE20] text-black text-xs font-semibold px-4 py-2 hover:bg-[#E6CE20]/90 transition-colors"
-          >
-            {saving ? "Saving..." : "Save config"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const result = await getTenantPreviewLink({ data: { adminKey } });
+                  window.open(result.url, "_blank", "noopener,noreferrer");
+                } catch (previewError) {
+                  setError(
+                    previewError instanceof Error ? previewError.message : "Preview unavailable.",
+                  );
+                }
+              }}
+              className="rounded-full border border-white/15 text-white text-xs px-4 py-2"
+            >
+              Preview
+            </button>
+            <button
+              type="submit"
+              disabled={saving || loading}
+              className="rounded-full bg-[#E6CE20] text-black text-xs font-semibold px-4 py-2 hover:bg-[#E6CE20]/90 transition-colors"
+            >
+              {saving ? "Saving..." : "Save config"}
+            </button>
+          </div>
         </div>
       </div>
     </form>
@@ -1288,6 +1922,43 @@ function ConfigGroup({
       </header>
       {children}
     </section>
+  );
+}
+
+function AssetUploadField({
+  label,
+  value,
+  busy,
+  onUpload,
+}: {
+  label: string;
+  value: string;
+  busy: boolean;
+  onUpload: (file: File) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="block text-[10px] uppercase streex-tracking text-white/45 mb-1.5">
+        {label}
+      </span>
+      <div className="overflow-hidden rounded-xl border border-white/10 bg-black/30">
+        <img src={value} alt="" className="h-28 w-full object-cover" />
+        <div className="p-2">
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/avif"
+            disabled={busy}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) onUpload(file);
+              event.target.value = "";
+            }}
+            className="block w-full text-xs text-white/55 file:mr-3 file:rounded-full file:border-0 file:bg-[#E6CE20] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-black"
+          />
+          {busy && <p className="mt-1 text-[10px] text-[#E6CE20]">Uploading…</p>}
+        </div>
+      </div>
+    </label>
   );
 }
 
@@ -1910,7 +2581,7 @@ function AdminThemes({ adminKey }: { adminKey: string }) {
     let cancelled = false;
     (async () => {
       try {
-        const result = await getTickerTheme();
+        const result = await getAdminTickerTheme({ data: { adminKey } });
         if (!cancelled) setTickerStyle(result.tickerStyle);
       } catch (error) {
         console.warn("[AdminThemes] Using default ticker style.", error);
@@ -1921,7 +2592,7 @@ function AdminThemes({ adminKey }: { adminKey: string }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [adminKey]);
   const themeOptions: Array<{
     key: TickerStyle;
     label: string;

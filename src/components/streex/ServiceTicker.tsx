@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { CONFIG, type AppConfig } from "@/config";
 import { getTickerTheme } from "@/lib/ticker-theme.functions";
+import { useTenant } from "./TenantContext";
 
 type TickerStyle = "boarding" | "pill";
 
@@ -75,6 +76,7 @@ function TickerRow({ tickerStyle, services }: { tickerStyle: TickerStyle; servic
 }
 
 function useTickerStyle() {
+  const { tenantSlug } = useTenant();
   const [tickerStyle, setTickerStyle] = useState<TickerStyle>(
     isTickerStyle(CONFIG.tickerStyle) ? CONFIG.tickerStyle : "boarding",
   );
@@ -84,7 +86,7 @@ function useTickerStyle() {
 
     async function loadTickerStyle() {
       try {
-        const result = await getTickerTheme();
+        const result = await getTickerTheme({ data: { tenantSlug } });
         if (!cancelled && isTickerStyle(result.tickerStyle)) {
           setTickerStyle(result.tickerStyle);
         }
@@ -105,7 +107,7 @@ function useTickerStyle() {
       cancelled = true;
       window.removeEventListener("streex:ticker-theme-changed", onThemeChanged);
     };
-  }, []);
+  }, [tenantSlug]);
 
   return tickerStyle;
 }

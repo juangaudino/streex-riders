@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 const AdminSchema = z.object({
-  adminKey: z.string().min(1),
+  adminKey: z.string().optional().default(""),
 });
 
 const DateSchema = z.object({
@@ -40,9 +40,14 @@ export type AvailableSlot = {
   label: string;
 };
 
-export async function resolveBookingSlot(date: string, time: string, durationMinutes?: number) {
+export async function resolveBookingSlot(
+  tenantId: string,
+  date: string,
+  time: string,
+  durationMinutes?: number,
+) {
   const { resolveBookingSlotServer } = await import("./availability.server");
-  return resolveBookingSlotServer(date, time, durationMinutes);
+  return resolveBookingSlotServer(tenantId, date, time, durationMinutes);
 }
 
 export const getAvailableSlots = createServerFn({ method: "POST" })

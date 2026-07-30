@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const BASE_URL = "https://rides.getstreex.com";
 
@@ -14,9 +15,21 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
+        const tenantResult = await supabaseAdmin
+          .from("tenants")
+          .select("slug,updated_at")
+          .eq("status", "active")
+          .neq("id", "streex")
+          .order("slug");
         const entries: SitemapEntry[] = [
           { path: "/", lastmod: "2026-06-23", changefreq: "weekly", priority: "1.0" },
           { path: "/privacy", lastmod: "2026-06-30", changefreq: "yearly", priority: "0.2" },
+          ...(tenantResult.data ?? []).map((tenant) => ({
+            path: `/${tenant.slug}`,
+            lastmod: tenant.updated_at.slice(0, 10),
+            changefreq: "weekly" as const,
+            priority: "0.8",
+          })),
         ];
 
         const urls = entries.map((e) =>

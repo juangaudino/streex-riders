@@ -14,7 +14,12 @@ export const attachSupabaseAuth = createMiddleware({ type: "function" }).client(
       console.warn("[Supabase] Continuing server function without client auth session.", error);
     }
     return next({
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(typeof window !== "undefined" && localStorage.getItem("streex_admin_tenant")
+          ? { "X-Streex-Tenant": localStorage.getItem("streex_admin_tenant")! }
+          : {}),
+      },
     });
   },
 );

@@ -3,16 +3,25 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const SubmitReviewSchema = z.object({
+  tenantId: z.string().trim().min(1).max(80).default("streex"),
   name: z.string().trim().max(80).optional().nullable(),
   rating: z.number().int().min(1).max(5),
   message: z.string().trim().min(1).max(1000),
 });
-const EmptySchema = z.object({}).optional();
+const ListSchema = z.object({ tenantId: z.string().trim().min(1).max(80).default("streex") });
 
 export const submitPassengerReview = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => SubmitReviewSchema.parse(input))
   .handler(async ({ data }) => {
+    const tenant = await supabaseAdmin
+      .from("tenants")
+      .select("id")
+      .eq("id", data.tenantId)
+      .eq("status", "active")
+      .maybeSingle();
+    if (tenant.error || !tenant.data) throw new Error("This driver page is not active.");
     const { error } = await supabaseAdmin.from("reviews").insert({
+      tenant_id: data.tenantId,
       name: data.name?.trim() ? data.name.trim() : null,
       rating: data.rating,
       message: data.message.trim(),
@@ -28,11 +37,12 @@ export const submitPassengerReview = createServerFn({ method: "POST" })
   });
 
 export const listPublicReviews = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => EmptySchema.parse(input))
-  .handler(async () => {
-    const { data, error } = await supabaseAdmin
+  .inputValidator((input: unknown) => ListSchema.parse(input))
+  .handler(async ({ data: input }) => {
+    const { data: reviews, error } = await supabaseAdmin
       .from("reviews")
       .select("name, rating, message, location, created_at")
+      .eq("tenant_id", input.tenantId)
       .eq("status", "approved")
       .order("created_at", { ascending: false });
 
@@ -41,5 +51,5 @@ export const listPublicReviews = createServerFn({ method: "POST" })
       throw new Error("Failed to load reviews.");
     }
 
-    return { reviews: data ?? [] };
+    return { reviews: reviews ?? [] };
   });

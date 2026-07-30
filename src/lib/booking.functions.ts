@@ -3,7 +3,6 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Tables } from "@/integrations/supabase/types";
 import {
-  ADMIN_EMAIL,
   sendEmail,
   buildPassengerConfirmation,
   buildAdminNewRequest,
@@ -11,6 +10,7 @@ import {
   buildAdminConfirmed,
   buildPassengerDeclined,
   buildAdminDeclined,
+  getTenantEmailBrand,
 } from "./booking-emails.server";
 import { resolveBookingSlot } from "./availability.functions";
 import { isScheduleConflictError } from "./schedule-conflicts";
@@ -19,6 +19,7 @@ import { syncBookingWithGoogleCalendar } from "./google-calendar-sync.server";
 type BookingRow = Tables<"bookings">;
 
 const CreateSchema = z.object({
+  tenantId: z.string().trim().min(1).max(80).default("streex"),
   serviceType: z.enum(["ride", "hourly"]).default("ride"),
   name: z.string().trim().min(1).max(120),
   phone: z.string().trim().min(5).max(40),
@@ -37,12 +38,19 @@ export const createBooking = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const durationMinutes =
       data.serviceType === "hourly" ? (data.durationMinutes ?? 120) : undefined;
-    const slot = await resolveBookingSlot(data.date, data.time, durationMinutes);
+    const { data: tenant } = await supabaseAdmin
+      .from("tenants")
+      .select("id,status")
+      .eq("id", data.tenantId)
+      .eq("status", "active")
+      .maybeSingle();
+    if (!tenant) throw new Error("This driver is not accepting ride requests.");
+    const slot = await resolveBookingSlot(tenant.id, data.date, data.time, durationMinutes);
 
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
       .insert({
-        tenant_id: "streex",
+        tenant_id: tenant.id,
         service_type: data.serviceType,
         name: data.name,
         phone: data.phone,
@@ -67,11 +75,12 @@ export const createBooking = createServerFn({ method: "POST" })
     }
 
     try {
-      const conf = buildPassengerConfirmation(booking);
-      const notif = buildAdminNewRequest(booking);
+      const brand = await getTenantEmailBrand(booking.tenant_id);
+      const conf = buildPassengerConfirmation(booking, brand);
+      const notif = buildAdminNewRequest(booking, brand);
       await Promise.allSettled([
         sendEmail({ to: booking.email, ...conf }),
-        sendEmail({ to: ADMIN_EMAIL, ...notif }),
+        sendEmail({ to: brand.email, ...notif }),
       ]);
     } catch (e) {
       console.error("[createBooking] email error", e);
@@ -123,19 +132,20 @@ async function processResponse(id: string, action: "accept" | "decline"): Promis
   }
 
   if (action === "accept") {
-    await syncBookingWithGoogleCalendar(updated);
+    await syncBookingWithGoogleCalendar(updated, updated.tenant_id);
   }
 
   try {
+    const brand = await getTenantEmailBrand(updated.tenant_id);
     if (action === "accept") {
       await Promise.allSettled([
-        sendEmail({ to: updated.email, ...buildPassengerConfirmed(updated) }),
-        sendEmail({ to: ADMIN_EMAIL, ...buildAdminConfirmed(updated) }),
+        sendEmail({ to: updated.email, ...buildPassengerConfirmed(updated, brand) }),
+        sendEmail({ to: brand.email, ...buildAdminConfirmed(updated, brand) }),
       ]);
     } else {
       await Promise.allSettled([
-        sendEmail({ to: updated.email, ...buildPassengerDeclined(updated) }),
-        sendEmail({ to: ADMIN_EMAIL, ...buildAdminDeclined(updated) }),
+        sendEmail({ to: updated.email, ...buildPassengerDeclined(updated, brand) }),
+        sendEmail({ to: brand.email, ...buildAdminDeclined(updated, brand) }),
       ]);
     }
   } catch (e) {

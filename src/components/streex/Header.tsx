@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import logo from "@/assets/brand/streex-rides-transparent.webp";
+import type { AppConfig } from "@/config";
 
-export function Header() {
+export function Header({ config }: { config: AppConfig }) {
   const [show, setShow] = useState(false);
   useEffect(() => {
     const onScroll = () => setShow(window.scrollY > 320);
@@ -23,7 +23,7 @@ export function Header() {
       }}
     >
       <div className="mx-auto max-w-md px-5 py-3 flex items-center">
-        <img src={logo} alt="Streex" className="h-8 w-auto" />
+        <img src={config.logoSrc} alt={config.brandName} className="h-8 w-auto" />
       </div>
     </header>
   );

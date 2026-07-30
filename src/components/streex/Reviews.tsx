@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { listPublicReviews } from "@/lib/review.functions";
+import { useTenant } from "./TenantContext";
 
 type Review = {
   name: string;
@@ -9,38 +10,18 @@ type Review = {
   text: string;
 };
 
-const PLACEHOLDER_REVIEWS: Review[] = [
-  {
-    name: "Sarah M.",
-    location: "Salt Lake City",
-    stars: 5,
-    text: "One of the most thoughtful ride experiences I've had. Everything felt smooth, calm and genuinely premium from the moment I got in the car.",
-  },
-  {
-    name: "Michael R.",
-    location: "Park City",
-    stars: 5,
-    text: "Reliable, comfortable and incredibly professional. Streex feels more like a private transportation service than a normal rideshare.",
-  },
-  {
-    name: "Amanda T.",
-    location: "Airport Transfer",
-    stars: 5,
-    text: "Perfect airport ride. Stress-free, punctual and extremely well organized. The whole experience felt intentional and elevated.",
-  },
-];
-
 export function Reviews() {
-  const [reviews, setReviews] = useState<Review[]>(PLACEHOLDER_REVIEWS);
+  const { tenantId } = useTenant();
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const result = await listPublicReviews({ data: {} }).catch((error) => {
+      const result = await listPublicReviews({ data: { tenantId } }).catch((error) => {
         console.error("[Reviews] approved reviews read error", error);
         return null;
       });
-      if (cancelled || !result?.reviews || result.reviews.length === 0) return;
+      if (cancelled || !result?.reviews) return;
       setReviews(
         result.reviews.map((r) => ({
           name: r.name?.trim() || "Streex Passenger",
@@ -53,7 +34,9 @@ export function Reviews() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [tenantId]);
+
+  if (reviews.length === 0) return null;
 
   return (
     <section className="px-6 mt-16">

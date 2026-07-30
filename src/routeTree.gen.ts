@@ -14,6 +14,7 @@ import { Route as RunnerLabRouteImport } from './routes/runner-lab'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PassengerRouteImport } from './routes/passenger'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as TenantSlugRouteImport } from './routes/$tenantSlug'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SpotifySetupRouteImport } from './routes/spotify.setup'
 import { Route as SpotifyCallbackRouteImport } from './routes/spotify.callback'
@@ -46,6 +47,11 @@ const PassengerRoute = PassengerRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TenantSlugRoute = TenantSlugRouteImport.update({
+  id: '/$tenantSlug',
+  path: '/$tenantSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -91,6 +97,7 @@ const AdminBookingsRoute = AdminBookingsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$tenantSlug': typeof TenantSlugRoute
   '/admin': typeof AdminRouteWithChildren
   '/passenger': typeof PassengerRoute
   '/privacy': typeof PrivacyRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$tenantSlug': typeof TenantSlugRoute
   '/admin': typeof AdminRouteWithChildren
   '/passenger': typeof PassengerRoute
   '/privacy': typeof PrivacyRoute
@@ -122,6 +130,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$tenantSlug': typeof TenantSlugRoute
   '/admin': typeof AdminRouteWithChildren
   '/passenger': typeof PassengerRoute
   '/privacy': typeof PrivacyRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$tenantSlug'
     | '/admin'
     | '/passenger'
     | '/privacy'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$tenantSlug'
     | '/admin'
     | '/passenger'
     | '/privacy'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$tenantSlug'
     | '/admin'
     | '/passenger'
     | '/privacy'
@@ -185,6 +197,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  TenantSlugRoute: typeof TenantSlugRoute
   AdminRoute: typeof AdminRouteWithChildren
   PassengerRoute: typeof PassengerRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$tenantSlug': {
+      id: '/$tenantSlug'
+      path: '/$tenantSlug'
+      fullPath: '/$tenantSlug'
+      preLoaderRoute: typeof TenantSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -307,6 +327,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  TenantSlugRoute: TenantSlugRoute,
   AdminRoute: AdminRouteWithChildren,
   PassengerRoute: PassengerRoute,
   PrivacyRoute: PrivacyRoute,

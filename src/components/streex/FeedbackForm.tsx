@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Star, Check } from "lucide-react";
 import { submitPassengerReview } from "@/lib/review.functions";
 import { trackEvent } from "@/lib/analytics";
+import { useTenant } from "./TenantContext";
 
 type FeedbackLanguage = "en" | "es";
 
@@ -31,6 +32,7 @@ const COPY = {
 } as const;
 
 export function FeedbackForm({ compact = false, language = "en" }: { compact?: boolean; language?: FeedbackLanguage }) {
+  const { tenantId } = useTenant();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [name, setName] = useState("");
@@ -63,6 +65,7 @@ export function FeedbackForm({ compact = false, language = "en" }: { compact?: b
     try {
       await submitPassengerReview({
         data: {
+          tenantId,
           name: name.trim() || null,
           rating,
           message: trimmedMessage.slice(0, 1000),

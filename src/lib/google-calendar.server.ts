@@ -1,5 +1,4 @@
 import {
-  createCalendarOAuthState,
   decryptCalendarToken,
   encryptCalendarToken,
   verifyCalendarOAuthState,
@@ -57,7 +56,7 @@ function getGoogleConfig() {
   return { clientId, clientSecret, redirectUri };
 }
 
-export function buildGoogleCalendarAuthorizationUrl() {
+export function buildGoogleCalendarAuthorizationUrl(state: string) {
   const { clientId, redirectUri } = getGoogleConfig();
   const params = new URLSearchParams({
     client_id: clientId,
@@ -67,13 +66,13 @@ export function buildGoogleCalendarAuthorizationUrl() {
     include_granted_scopes: "true",
     prompt: "consent",
     scope: GOOGLE_CALENDAR_SCOPES.join(" "),
-    state: createCalendarOAuthState(),
+    state,
   });
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 
 export async function exchangeGoogleCalendarCode(code: string, state: string) {
-  verifyCalendarOAuthState(state);
+  const statePayload = verifyCalendarOAuthState(state);
   const { clientId, clientSecret, redirectUri } = getGoogleConfig();
   const response = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -95,6 +94,7 @@ export async function exchangeGoogleCalendarCode(code: string, state: string) {
     accessToken: tokens.access_token,
     encryptedRefreshToken: encryptCalendarToken(tokens.refresh_token),
     scopes: (tokens.scope || GOOGLE_CALENDAR_SCOPES.join(" ")).split(" ").filter(Boolean),
+    statePayload,
   };
 }
 

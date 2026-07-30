@@ -5,6 +5,7 @@ import { createBooking } from "@/lib/booking.functions";
 import { getAvailableSlots, type AvailableSlot } from "@/lib/availability.functions";
 import { PlacesAutocompleteInput } from "./PlacesAutocompleteInput";
 import { trackEvent } from "@/lib/analytics";
+import { useTenant } from "./TenantContext";
 
 type Props = {
   language?: "en" | "es";
@@ -176,6 +177,7 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
     { label: `🇦🇷 +54 — ${t.countries[4]}`, value: "+54" },
     { label: `🌍 ${t.other}`, value: "other" },
   ];
+  const { tenantId } = useTenant();
   const [form, setForm] = useState<FormState>(EMPTY);
   const [countryCode, setCountryCode] = useState<string>("+1");
   const [customCode, setCustomCode] = useState<string>("");
@@ -224,6 +226,7 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
 
     getAvailableSlots({
       data: {
+        tenantId,
         date: form.date,
         durationMinutes: form.serviceType === "hourly" ? form.durationHours * 60 : undefined,
       },
@@ -245,7 +248,7 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
     return () => {
       cancelled = true;
     };
-  }, [form.date, form.durationHours, form.serviceType, open, t.unavailableError]);
+  }, [form.date, form.durationHours, form.serviceType, open, t.unavailableError, tenantId]);
 
   if (!open || typeof document === "undefined") return null;
 
@@ -262,6 +265,7 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
     const fullPhone = codeDigits && numberDigits ? `+${codeDigits}${numberDigits}` : "";
 
     const trimmed = {
+      tenantId,
       serviceType: form.serviceType,
       name: form.name.trim(),
       phone: fullPhone,
@@ -314,8 +318,7 @@ export function BookingFormModal({ language = "en", open, onOpenChange }: Props)
       await createBooking({ data: trimmed });
       trackEvent("booking_submitted", {
         service_type: trimmed.serviceType,
-        duration_hours:
-          trimmed.serviceType === "hourly" ? form.durationHours : undefined,
+        duration_hours: trimmed.serviceType === "hourly" ? form.durationHours : undefined,
         passengers: trimmed.passengers,
       });
       setSubmitted(true);
