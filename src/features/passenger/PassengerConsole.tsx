@@ -68,6 +68,9 @@ const copy = {
     streex: "STREEX",
     welcome: "Welcome aboard",
     subtitle: "Everything you need is one tap away.",
+    localTime: "Local time",
+    newYork: "New York",
+    losAngeles: "Los Angeles",
     weather: "Weather",
     nowPlaying: "Now playing",
     chooseMusic: "Choose the soundtrack",
@@ -151,6 +154,9 @@ const copy = {
     streex: "STREEX",
     welcome: "Bienvenido a bordo",
     subtitle: "Todo lo que necesita está a un toque.",
+    localTime: "Hora local",
+    newYork: "Nueva York",
+    losAngeles: "Los Ángeles",
     weather: "Clima",
     nowPlaying: "Reproduciendo",
     chooseMusic: "Elige la música",
@@ -292,7 +298,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               config={config}
               language={language}
               onNavigate={setView}
-              temperature={consoleConfig.weather.fallbackTemperature}
+              temperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
               weatherCity={consoleConfig.weather.city}
               t={t}
             />
@@ -382,31 +388,53 @@ function HomeView({
   config,
   language,
   onNavigate,
-  temperature,
+  temperatureFahrenheit,
   weatherCity,
   t,
 }: {
   config: AppConfig;
   language: Language;
   onNavigate: (view: View) => void;
-  temperature: string;
+  temperatureFahrenheit: number;
   weatherCity: string;
   t: (typeof copy)[Language];
 }) {
   const now = useClock();
+  const locale = language === "es" ? "es-MX" : "en-US";
+  const clockConfig = config.passengerConsole.clock;
   const time = now
-    ? now.toLocaleTimeString(language === "es" ? "es-MX" : "en-US", {
+    ? now.toLocaleTimeString("en-US", {
         hour: "numeric",
         minute: "2-digit",
+        timeZone: clockConfig.localTimeZone,
       })
     : "--:--";
   const date = now
-    ? now.toLocaleDateString(language === "es" ? "es-MX" : "en-US", {
+    ? now.toLocaleDateString(locale, {
         weekday: "long",
         month: "long",
         day: "numeric",
+        timeZone: clockConfig.localTimeZone,
       })
     : "";
+  const eastTime = now
+    ? now.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: clockConfig.secondaryTimeZones.east,
+      })
+    : "--:--";
+  const pacificTime = now
+    ? now.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: clockConfig.secondaryTimeZones.pacific,
+      })
+    : "--:--";
+  const temperature =
+    language === "es"
+      ? `${Math.round(((temperatureFahrenheit - 32) * 5) / 9)}°C`
+      : `${Math.round(temperatureFahrenheit)}°F`;
 
   return (
     <div className="flex flex-1 flex-col gap-5">
@@ -420,6 +448,9 @@ function HomeView({
           <p className="mt-2 text-base text-white/60">{t.subtitle}</p>
           <div className="mt-7 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
             <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">
+                {t.localTime}
+              </p>
               <p className="text-5xl font-black tracking-tight tabular-nums sm:text-6xl">{time}</p>
               <p className="mt-1 text-sm capitalize text-white/55">{date}</p>
             </div>
@@ -430,6 +461,10 @@ function HomeView({
               <p className="mt-1 text-2xl font-bold">{temperature}</p>
               <p className="text-xs text-white/55">{weatherCity}</p>
             </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-4 border-t border-white/10 pt-3">
+            <SecondaryClock label={t.newYork} time={eastTime} />
+            <SecondaryClock label={t.losAngeles} time={pacificTime} />
           </div>
         </div>
       </section>
@@ -491,6 +526,17 @@ function HomeView({
       <section className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]">
         <ServiceTicker config={config} />
       </section>
+    </div>
+  );
+}
+
+function SecondaryClock({ label, time }: { label: string; time: string }) {
+  return (
+    <div className="flex min-w-0 items-baseline justify-between gap-2">
+      <span className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-white/45">
+        {label}
+      </span>
+      <span className="shrink-0 text-xs font-semibold tabular-nums text-white/70">{time}</span>
     </div>
   );
 }

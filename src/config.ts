@@ -41,10 +41,17 @@ export const CONFIG = {
   // Keep credentials, device PINs, provider tokens and passenger data out of this object.
   passengerConsole: {
     enabled: true,
+    clock: {
+      localTimeZone: "America/Denver",
+      secondaryTimeZones: {
+        east: "America/New_York",
+        pacific: "America/Los_Angeles",
+      },
+    },
     weather: {
       city: "Salt Lake City",
       // A presentation fallback until a weather provider is explicitly approved.
-      fallbackTemperature: "72°F",
+      fallbackTemperatureFahrenheit: 72,
     },
     music: {
       enabled: true,
