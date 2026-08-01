@@ -66,15 +66,17 @@ const copy = {
     music: "Music",
     games: "Games",
     streex: "STREEX",
-    welcome: "Welcome aboard",
-    subtitle: "Everything you need is one tap away.",
+    welcome: "Welcome to your STREEX ride",
+    subtitle: "A private ride, with a little more built in.",
+    exploreCue: "Tap to explore your ride",
+    hostedBy: "Hosted by",
     localTime: "Local time",
     newYork: "New York",
     losAngeles: "Los Angeles",
     weather: "Weather",
     nowPlaying: "Now playing",
-    chooseMusic: "Choose the soundtrack",
-    musicHint: "Tap to browse songs, artists and moods.",
+    chooseMusic: "Choose music",
+    musicHint: "Tap to search songs and artists.",
     quickAccess: "Quick access",
     musicDescription: "Curated sound for your ride",
     gamesDescription: "Utah trivia & light games",
@@ -152,15 +154,17 @@ const copy = {
     music: "Música",
     games: "Juegos",
     streex: "STREEX",
-    welcome: "Bienvenido a bordo",
-    subtitle: "Todo lo que necesita está a un toque.",
+    welcome: "Bienvenido a tu viaje STREEX",
+    subtitle: "Un viaje privado, con algo más para disfrutar.",
+    exploreCue: "Toca para explorar tu viaje",
+    hostedBy: "Atendido por",
     localTime: "Hora local",
     newYork: "Nueva York",
     losAngeles: "Los Ángeles",
     weather: "Clima",
     nowPlaying: "Reproduciendo",
     chooseMusic: "Elige la música",
-    musicHint: "Toca para explorar canciones, artistas y moods.",
+    musicHint: "Toca para buscar canciones y artistas.",
     quickAccess: "Accesos rápidos",
     musicDescription: "Sonido seleccionado para su viaje",
     gamesDescription: "Trivia de Utah y juegos ligeros",
@@ -441,11 +445,20 @@ function HomeView({
       <section className="relative overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-[#E6CE20]/15 p-6">
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#E6CE20]/15 blur-3xl" />
         <div className="relative">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#E6CE20]">
-            STREEX Rides
-          </p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#E6CE20]">
+              STREEX Rides
+            </p>
+            <p className="shrink-0 text-[10px] font-semibold text-white/45">
+              {t.hostedBy} {config.ownerName}
+            </p>
+          </div>
           <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">{t.welcome}</h1>
           <p className="mt-2 text-base text-white/60">{t.subtitle}</p>
+          <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-[#E6CE20]">
+            <Sparkles className="h-3.5 w-3.5" />
+            {t.exploreCue}
+          </p>
           <div className="mt-7 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">
@@ -494,7 +507,7 @@ function HomeView({
               <span className="block font-semibold">{t.chooseMusic}</span>
               <span className="mt-0.5 block text-[10px] text-white/55">{t.musicHint}</span>
             </span>
-            <span className="text-sm font-semibold sm:hidden">{t.open}</span>
+            <span className="text-xs font-semibold sm:hidden">{t.chooseMusic}</span>
             <ChevronRight className="h-4 w-4" />
           </span>
         </button>
@@ -712,7 +725,7 @@ function PersonalSpotifyHomeCard({
           <span className="block font-semibold">{t.chooseMusic}</span>
           <span className="mt-0.5 block text-[10px] text-white/55">{t.musicHint}</span>
         </span>
-        <span className="text-sm font-semibold sm:hidden">{t.open}</span>
+        <span className="text-xs font-semibold sm:hidden">{t.chooseMusic}</span>
         <ChevronRight className="h-4 w-4" />
       </span>
     </button>
