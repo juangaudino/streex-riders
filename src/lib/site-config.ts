@@ -49,6 +49,7 @@ export const SiteConfigOverrideSchema = z
     areas: z.array(z.string().trim().min(1).max(120)).max(50).optional(),
     meetTitle: z.string().trim().min(1).max(160).optional(),
     meetBody: z.array(z.string().trim().min(1).max(1000)).max(12).optional(),
+    meetBodyEs: z.array(z.string().trim().min(1).max(1000)).max(12).optional(),
     whyStreexTitle: z.string().trim().min(1).max(160).optional(),
     whyStreexBody: z.array(z.string().trim().min(1).max(1000)).max(12).optional(),
     seoTitle: z.string().trim().min(1).max(180).optional(),

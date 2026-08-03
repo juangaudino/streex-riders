@@ -67,6 +67,14 @@ const MUSIC_LIBRARY = [
   { title: "Quiet Passenger", artist: "Marlow", album: "Backseat Tapes", duration: "2:47" },
 ];
 
+const MUSIC_VIBES = [
+  { query: "chill", labelKey: "vibeChill" },
+  { query: "throwbacks", labelKey: "vibeThrowbacks" },
+  { query: "latin", labelKey: "vibeLatin" },
+  { query: "pop", labelKey: "vibePop" },
+  { query: "r&b", labelKey: "vibeRnB" },
+] as const;
+
 const copy = {
   en: {
     home: "Home",
@@ -93,6 +101,10 @@ const copy = {
     nowPlaying: "Now playing",
     chooseMusic: "Choose music",
     musicHint: "Tap to search songs and artists.",
+    rideDeckEyebrow: "STREEX RIDE DECK",
+    rideDeckTitle: "Private ride. Your music. Utah at your window.",
+    rideDeckDescription: "Meet the person behind your ride and the philosophy that makes STREEX different.",
+    meetHost: "Meet your host",
     quickAccess: "Quick access",
     musicDescription: "Curated sound for your ride",
     gamesDescription: "Utah trivia & light games",
@@ -102,6 +114,11 @@ const copy = {
     offline: "Offline",
     preview: "Simulated preview — no live music provider",
     spotifyPersonal: "Personal Spotify connection",
+    musicEyebrow: "Your soundtrack",
+    musicGettingReady: "Music is getting ready",
+    musicGettingReadyDescription: "Start Spotify on the vehicle audio, then tap Refresh.",
+    musicUnavailableTitle: "Music is unavailable right now",
+    musicUnavailableDescription: "Please ask your driver to get the vehicle audio ready.",
     spotifyDisabled: "The personal Spotify connection is not enabled.",
     spotifyDriverSetup: "Your driver can finish the private Spotify setup before controls become available.",
     spotifyNotConnected: "Your driver has not connected Spotify yet.",
@@ -119,7 +136,13 @@ const copy = {
     playSong: "Play song",
     explicit: "Explicit",
     musicTitle: "Music",
-    musicSubtitle: "A provider-neutral preview for your vehicle audio.",
+    musicSubtitle: "Search songs and shape the soundtrack for your ride.",
+    pickVibe: "Pick a vibe",
+    vibeChill: "Chill",
+    vibeThrowbacks: "Throwbacks",
+    vibeLatin: "Latin",
+    vibePop: "Pop",
+    vibeRnB: "R&B",
     jamTitle: "Spotify Jam",
     jamDescription:
       "Want to add your own music? Ask your driver to host a Jam, then scan the QR shown in Spotify with your phone.",
@@ -131,8 +154,12 @@ const copy = {
     comingSoon: "Coming soon",
     utahTrivia: "Utah Trivia",
     utahTriviaDescription: "Test what you know about the Beehive State.",
+    triviaPreview: "Utah edition",
     thisOrThat: "This or That",
     thisOrThatDescription: "Quick, playful choices between two options.",
+    choicePreview: "Pick a side",
+    choiceFirst: "THIS",
+    choiceSecond: "THAT",
     streexTitle: "Your STREEX experience",
     streexSubtitle: "Helpful links for the rest of your journey.",
     bookRide: "Book another ride",
@@ -190,6 +217,10 @@ const copy = {
     nowPlaying: "Reproduciendo",
     chooseMusic: "Elige la música",
     musicHint: "Toca para buscar canciones y artistas.",
+    rideDeckEyebrow: "STREEX RIDE DECK",
+    rideDeckTitle: "Viaje privado. Tu música. Utah frente a ti.",
+    rideDeckDescription: "Conoce a la persona detrás de tu viaje y la filosofía que hace diferente a STREEX.",
+    meetHost: "Conoce a tu anfitrión",
     quickAccess: "Accesos rápidos",
     musicDescription: "Sonido seleccionado para su viaje",
     gamesDescription: "Trivia de Utah y juegos ligeros",
@@ -199,6 +230,11 @@ const copy = {
     offline: "Sin conexión",
     preview: "Vista simulada — sin proveedor de música en vivo",
     spotifyPersonal: "Conexión personal de Spotify",
+    musicEyebrow: "Tu banda sonora",
+    musicGettingReady: "La música se está preparando",
+    musicGettingReadyDescription: "Inicia Spotify en el audio del vehículo y luego toca Actualizar.",
+    musicUnavailableTitle: "La música no está disponible en este momento",
+    musicUnavailableDescription: "Consulta a tu conductor para preparar el audio del vehículo.",
     spotifyDisabled: "La conexión personal de Spotify no está habilitada.",
     spotifyDriverSetup: "Tu conductor puede terminar la configuración privada de Spotify antes de que los controles estén disponibles.",
     spotifyNotConnected: "Tu conductor todavía no ha conectado Spotify.",
@@ -216,7 +252,13 @@ const copy = {
     playSong: "Reproducir canción",
     explicit: "Explícito",
     musicTitle: "Música",
-    musicSubtitle: "Una vista independiente del proveedor para el audio del vehículo.",
+    musicSubtitle: "Busca canciones y crea la banda sonora de tu viaje.",
+    pickVibe: "Elige un ambiente",
+    vibeChill: "Chill",
+    vibeThrowbacks: "Clásicos",
+    vibeLatin: "Latino",
+    vibePop: "Pop",
+    vibeRnB: "R&B",
     jamTitle: "Spotify Jam",
     jamDescription:
       "¿Quieres agregar tu propia música? Pide a tu conductor que inicie una Jam y escanea el QR que aparece en Spotify desde tu teléfono.",
@@ -228,8 +270,12 @@ const copy = {
     comingSoon: "Próximamente",
     utahTrivia: "Trivia de Utah",
     utahTriviaDescription: "Ponga a prueba lo que sabe del Beehive State.",
+    triviaPreview: "Edición Utah",
     thisOrThat: "Esto o Aquello",
     thisOrThatDescription: "Elecciones rápidas y divertidas entre dos opciones.",
+    choicePreview: "Elige un lado",
+    choiceFirst: "ESTO",
+    choiceSecond: "AQUELLO",
     streexTitle: "Tu experiencia STREEX",
     streexSubtitle: "Enlaces útiles para el resto de su viaje.",
     bookRide: "Reservar otro viaje",
@@ -343,7 +389,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
             />
           )}
           {view === "meet-juan" && (
-            <MeetJuanView config={config} onNavigate={setView} t={t} />
+            <MeetJuanView config={config} language={language} onNavigate={setView} t={t} />
           )}
           {view === "services" && <ServicesView config={config} onNavigate={setView} t={t} />}
           {view === "contact" && <ContactView config={config} onNavigate={setView} t={t} />}
@@ -584,6 +630,28 @@ function HomeView({
       <section className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]">
         <ServiceTicker config={config} />
       </section>
+
+      <button
+        type="button"
+        onClick={() => onNavigate("meet-juan")}
+        className="group relative overflow-hidden rounded-[28px] border border-[#E6CE20]/25 bg-gradient-to-br from-[#E6CE20]/15 via-white/[0.045] to-white/[0.02] p-6 text-left transition hover:border-[#E6CE20]/50 hover:bg-[#E6CE20]/[0.12]"
+      >
+        <div className="absolute -right-12 -top-16 h-40 w-40 rounded-full bg-[#E6CE20]/15 blur-3xl" />
+        <div className="relative flex items-end justify-between gap-5">
+          <div className="max-w-xl">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
+              {t.rideDeckEyebrow}
+            </p>
+            <p className="mt-2 text-xl font-bold leading-snug">{t.rideDeckTitle}</p>
+            <p className="mt-2 text-sm leading-relaxed text-white/60">{t.rideDeckDescription}</p>
+          </div>
+          <span className="flex shrink-0 items-center gap-2 rounded-full border border-[#E6CE20]/35 bg-[#E6CE20]/10 px-4 py-2 text-sm font-semibold text-[#E6CE20]">
+            <UserRound className="h-4 w-4" />
+            {t.meetHost}
+            <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </div>
+      </button>
     </div>
   );
 }
@@ -915,9 +983,8 @@ function PersonalSpotifyMusicView({
     }
   };
 
-  const search = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const normalizedQuery = query.trim();
+  const searchTracks = async (rawQuery: string) => {
+    const normalizedQuery = rawQuery.trim();
     if (normalizedQuery.length < 2) {
       setResults([]);
       setSearchMessage(t.searchMinLength);
@@ -941,6 +1008,16 @@ function PersonalSpotifyMusicView({
     }
   };
 
+  const search = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void searchTracks(query);
+  };
+
+  const searchVibe = (vibe: string) => {
+    setQuery(vibe);
+    void searchTracks(vibe);
+  };
+
   const playTrack = async (uri: string) => {
     setBusy(true);
     setError(null);
@@ -954,22 +1031,23 @@ function PersonalSpotifyMusicView({
     }
   };
 
+  const isMusicUnavailable = status?.state === "disabled";
   const message =
-    status?.state === "disabled"
-      ? t.spotifyDisabled
-      : status?.state === "driver-setup-required"
-        ? t.spotifyDriverSetup
-        : status?.state === "not-connected"
-          ? t.spotifyNotConnected
-          : null;
+    isMusicUnavailable
+      ? t.musicUnavailableDescription
+      : status?.state === "driver-setup-required" || status?.state === "not-connected"
+        ? t.musicGettingReadyDescription
+        : null;
   const playback = status?.state === "ready" ? status.playback : null;
 
   return (
     <div className="flex flex-col gap-5">
-      <ViewHeader eyebrow={t.spotifyPersonal} title={t.musicTitle} description={t.musicSubtitle} />
+      <ViewHeader eyebrow={t.musicEyebrow} title={t.musicTitle} description={t.musicSubtitle} />
       {message ? (
         <section className="rounded-[26px] border border-white/10 bg-white/[0.05] p-5">
-          <p className="text-lg font-bold">{t.spotifyPersonal}</p>
+          <p className="text-lg font-bold">
+            {isMusicUnavailable ? t.musicUnavailableTitle : t.musicGettingReady}
+          </p>
           <p className="mt-2 text-sm leading-relaxed text-white/60">{message}</p>
         </section>
       ) : playback ? (
@@ -1045,6 +1123,22 @@ function PersonalSpotifyMusicView({
             {t.searchSpotify}
           </p>
           <p className="mt-2 text-sm leading-relaxed text-white/60">{t.searchSpotifyHint}</p>
+          <div className="mt-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">{t.pickVibe}</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {MUSIC_VIBES.map((vibe) => (
+                <button
+                  key={vibe.query}
+                  type="button"
+                  disabled={searching}
+                  onClick={() => searchVibe(vibe.query)}
+                  className="rounded-full border border-[#E6CE20]/30 bg-[#E6CE20]/[0.08] px-3 py-1.5 text-xs font-semibold text-[#E6CE20] transition hover:bg-[#E6CE20]/[0.16] disabled:opacity-45"
+                >
+                  {t[vibe.labelKey]}
+                </button>
+              ))}
+            </div>
+          </div>
           <form className="mt-4 flex gap-2" onSubmit={(event) => void search(event)}>
             <input
               value={query}
@@ -1252,16 +1346,21 @@ function GamesView({ t }: { t: (typeof copy)[Language] }) {
   return (
     <div className="flex flex-1 flex-col gap-5">
       <ViewHeader eyebrow={t.comingSoon} title={t.gamesTitle} description={t.gamesSubtitle} />
-      <div className="grid flex-1 gap-4 sm:grid-cols-2">
+      <div className="grid flex-1 grid-cols-2 gap-4">
         <GameCard
+          kind="trivia"
           title={t.utahTrivia}
           description={t.utahTriviaDescription}
+          previewLabel={t.triviaPreview}
           icon={<Sparkles className="h-7 w-7" />}
           status={t.comingSoon}
         />
         <GameCard
+          kind="choice"
           title={t.thisOrThat}
           description={t.thisOrThatDescription}
+          previewLabel={t.choicePreview}
+          choiceLabels={[t.choiceFirst, t.choiceSecond]}
           icon={<Gamepad2 className="h-7 w-7" />}
           status={t.comingSoon}
         />
@@ -1281,21 +1380,55 @@ function GamesView({ t }: { t: (typeof copy)[Language] }) {
 function GameCard({
   description,
   icon,
+  kind,
+  previewLabel,
+  choiceLabels,
   status,
   title,
 }: {
   description: string;
   icon: React.ReactNode;
+  kind: "trivia" | "choice";
+  previewLabel: string;
+  choiceLabels?: [string, string];
   status: string;
   title: string;
 }) {
   return (
-    <section className="relative min-h-[230px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-6">
+    <section className="relative min-h-[380px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-6">
       <div className="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-[#E6CE20]/10 blur-3xl" />
       <div className="relative flex h-full flex-col">
         <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[#E6CE20]/15 text-[#E6CE20]">
           {icon}
         </span>
+        <div className="mt-6 min-h-36 overflow-hidden rounded-2xl border border-white/10 bg-black/20 p-4">
+          {kind === "trivia" ? (
+            <div className="relative h-full overflow-hidden rounded-xl border border-[#E6CE20]/15 bg-gradient-to-br from-[#E6CE20]/15 to-transparent p-3">
+              <span className="absolute -right-2 -top-6 text-7xl font-black tracking-tighter text-[#E6CE20]/15">UT</span>
+              <p className="relative text-[9px] font-semibold uppercase tracking-[0.16em] text-[#E6CE20]">{previewLabel}</p>
+              <div className="relative mt-5 flex items-end justify-between">
+                <span className="text-3xl font-black">01</span>
+                <span className="grid h-10 w-10 place-items-center rounded-full border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-lg font-black text-[#E6CE20]">?</span>
+              </div>
+              <div className="relative mt-3 h-1.5 w-4/5 rounded-full bg-white/10">
+                <div className="h-full w-2/5 rounded-full bg-[#E6CE20]" />
+              </div>
+            </div>
+          ) : (
+            <div className="flex h-full gap-2">
+              <div className="flex flex-1 flex-col justify-between rounded-xl border border-white/10 bg-white/[0.05] p-3">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/45">{previewLabel}</p>
+                <p className="text-2xl font-black tracking-tight">{choiceLabels?.[0] ?? "THIS"}</p>
+              </div>
+              <div className="flex flex-1 flex-col justify-between rounded-xl border border-[#E6CE20]/25 bg-[#E6CE20]/10 p-3">
+                <p className="text-right text-[9px] font-semibold uppercase tracking-[0.16em] text-[#E6CE20]">VS</p>
+                <p className="text-right text-2xl font-black tracking-tight text-[#E6CE20]">
+                  {choiceLabels?.[1] ?? "THAT"}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
         <p className="mt-auto text-2xl font-bold">{title}</p>
         <p className="mt-2 text-sm leading-relaxed text-white/60">{description}</p>
         <span className="mt-5 w-fit rounded-full border border-[#E6CE20]/35 bg-[#E6CE20]/10 px-3 py-1.5 text-xs font-semibold text-[#E6CE20]">
@@ -1610,13 +1743,17 @@ function ActionButton({
 
 function MeetJuanView({
   config,
+  language,
   onNavigate,
   t,
 }: {
   config: AppConfig;
+  language: Language;
   onNavigate: (view: View) => void;
   t: (typeof copy)[Language];
 }) {
+  const meetBody = language === "es" ? config.meetBodyEs : config.meetBody;
+
   return (
     <div className="flex flex-col gap-5">
       <button
@@ -1642,7 +1779,7 @@ function MeetJuanView({
           </div>
         </div>
         <div className="relative mt-6 space-y-3 text-sm leading-relaxed text-white/75">
-          {config.meetBody.slice(0, 4).map((paragraph) => (
+          {meetBody.slice(0, 4).map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
         </div>

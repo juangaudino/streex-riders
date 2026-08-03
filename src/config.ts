@@ -228,6 +228,13 @@ export const CONFIG = {
     "While continuing my studies at Weber State University, I'm building Streex as a more personal, elevated and human way to move around Utah.",
     "I look forward to being your driver.",
   ],
+  meetBodyEs: [
+    "Hola, soy Juan — creador de Streex Rides.",
+    "Creo que el transporte puede ser más que un viaje: puede ser una experiencia genuinamente cómoda y considerada.",
+    "Hablo inglés y español. Con experiencia en branding, tecnología y proyectos creativos, construí Streex alrededor de una idea simple: los detalles importan.",
+    "Mientras continúo mis estudios en Weber State University, construyo Streex como una forma más personal, elevada y humana de moverse por Utah.",
+    "Espero ser tu conductor.",
+  ],
 
   // ─── AREAS SERVED ────────────────────────────
   areas: [
