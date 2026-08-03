@@ -73,6 +73,9 @@ const MUSIC_VIBES = [
   { query: "latin", labelKey: "vibeLatin" },
   { query: "pop", labelKey: "vibePop" },
   { query: "r&b", labelKey: "vibeRnB" },
+  { query: "spotify top 50 usa", labelKey: "vibeTopUs" },
+  { query: "spotify top 50 global", labelKey: "vibeTopGlobal" },
+  { query: "today's top hits", labelKey: "vibeToday" },
 ] as const;
 
 const copy = {
@@ -138,11 +141,15 @@ const copy = {
     musicTitle: "Music",
     musicSubtitle: "Search songs and shape the soundtrack for your ride.",
     pickVibe: "Pick a vibe",
+    exploreMusic: "Explore music",
     vibeChill: "Chill",
     vibeThrowbacks: "Throwbacks",
     vibeLatin: "Latin",
     vibePop: "Pop",
     vibeRnB: "R&B",
+    vibeTopUs: "Top 50 U.S.",
+    vibeTopGlobal: "Top 50 Global",
+    vibeToday: "Today's Top Hits",
     jamTitle: "Spotify Jam",
     jamDescription:
       "Want to add your own music? Ask your driver to host a Jam, then scan the QR shown in Spotify with your phone.",
@@ -170,6 +177,15 @@ const copy = {
     continuePhone: "Continue on your phone",
     continuePhoneDescription: "Scan to continue your STREEX experience on your phone.",
     meetJuan: "Meet Juan",
+    guestNotesEyebrow: "STREEX GUEST NOTES",
+    guestNotesTitle: "A few words from the road",
+    guestNotesPreview: "Sample layout — live reviews will appear here later.",
+    guestNoteOne: "“Thoughtful, smooth, and exactly what I needed after a long flight.”",
+    guestNoteOneBy: "Airport guest",
+    guestNoteTwo: "“The small details made the ride feel genuinely personal.”",
+    guestNoteTwoBy: "Park City guest",
+    guestNoteThree: "“Comfortable, easy, and wonderfully professional.”",
+    guestNoteThreeBy: "Salt Lake City guest",
     unavailable: "Coming soon",
     meetIntro: "Hi, I’m Juan.",
     gratitude:
@@ -254,11 +270,15 @@ const copy = {
     musicTitle: "Música",
     musicSubtitle: "Busca canciones y crea la banda sonora de tu viaje.",
     pickVibe: "Elige un ambiente",
+    exploreMusic: "Explora música",
     vibeChill: "Chill",
     vibeThrowbacks: "Clásicos",
     vibeLatin: "Latino",
     vibePop: "Pop",
     vibeRnB: "R&B",
+    vibeTopUs: "Top 50 EE. UU.",
+    vibeTopGlobal: "Top 50 Global",
+    vibeToday: "Éxitos de hoy",
     jamTitle: "Spotify Jam",
     jamDescription:
       "¿Quieres agregar tu propia música? Pide a tu conductor que inicie una Jam y escanea el QR que aparece en Spotify desde tu teléfono.",
@@ -286,6 +306,15 @@ const copy = {
     continuePhone: "Continuar en su teléfono",
     continuePhoneDescription: "Escanee para continuar su experiencia STREEX en su teléfono.",
     meetJuan: "Conoce a Juan",
+    guestNotesEyebrow: "NOTAS DE HUÉSPEDES STREEX",
+    guestNotesTitle: "Algunas palabras del camino",
+    guestNotesPreview: "Diseño de ejemplo — las reseñas en vivo aparecerán aquí más adelante.",
+    guestNoteOne: "“Considerado, fluido y exactamente lo que necesitaba después de un vuelo largo.”",
+    guestNoteOneBy: "Huésped de aeropuerto",
+    guestNoteTwo: "“Los pequeños detalles hicieron que el viaje se sintiera realmente personal.”",
+    guestNoteTwoBy: "Huésped de Park City",
+    guestNoteThree: "“Cómodo, sencillo y maravillosamente profesional.”",
+    guestNoteThreeBy: "Huésped de Salt Lake City",
     unavailable: "Próximamente",
     meetIntro: "Hola, soy Juan.",
     gratitude:
@@ -358,8 +387,8 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
   }, []);
 
   return (
-    <div className="min-h-dvh bg-[#0B0B0B] text-white">
-      <div className="mx-auto flex min-h-dvh w-full max-w-[740px] flex-col px-5 pb-4 pt-5 sm:px-7">
+    <div className="h-dvh overflow-hidden bg-[#0B0B0B] text-white">
+      <div className="mx-auto flex h-dvh w-full max-w-[740px] flex-col px-7 pb-4 pt-5">
         <ConsoleHeader
           config={config}
           language={language}
@@ -367,7 +396,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           setLanguage={setLanguage}
           status={online ? t.online : t.offline}
         />
-        <main className="flex min-h-0 flex-1 flex-col pb-24 pt-5">
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-5 pt-5">
           {view === "home" && (
             <HomeView
               config={config}
@@ -382,6 +411,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           {view === "games" && <GamesView t={t} />}
           {view === "streex" && (
             <StreexView
+              config={config}
               onBookRide={() => setBookingOpen(true)}
               onNavigate={setView}
               phoneContinuation={consoleConfig.links.phoneContinuation}
@@ -417,19 +447,13 @@ function ConsoleHeader({
   status: string;
 }) {
   return (
-    <header className="flex items-center justify-between gap-3">
-      <div className="flex min-w-0 items-center gap-3">
+    <header className="flex shrink-0 items-center justify-between gap-3">
+      <div className="flex min-w-0 items-center">
         <img
           src={config.logoSrc}
           alt={config.brandName}
-          className="h-10 w-auto max-w-[132px] shrink-0 object-contain"
+          className="h-11 w-auto max-w-[154px] shrink-0 object-contain"
         />
-        <div className="min-w-0">
-          <p className="truncate text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55">
-            Passenger Console
-          </p>
-          <p className="text-sm font-semibold leading-none text-white/80">{config.brandName}</p>
-        </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white/65 sm:flex">
@@ -608,7 +632,7 @@ function HomeView({
         <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
           {t.quickAccess}
         </p>
-        <div className="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <QuickAccessCard
             accent
             badge={t.comingSoon}
@@ -1124,7 +1148,7 @@ function PersonalSpotifyMusicView({
           </p>
           <p className="mt-2 text-sm leading-relaxed text-white/60">{t.searchSpotifyHint}</p>
           <div className="mt-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">{t.pickVibe}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">{t.exploreMusic}</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {MUSIC_VIBES.map((vibe) => (
                 <button
@@ -1440,11 +1464,13 @@ function GameCard({
 }
 
 function StreexView({
+  config,
   onBookRide,
   onNavigate,
   phoneContinuation,
   t,
 }: {
+  config: AppConfig;
   onBookRide: () => void;
   onNavigate: (view: View) => void;
   phoneContinuation: string | null;
@@ -1453,8 +1479,10 @@ function StreexView({
   return (
     <div className="flex flex-col gap-5">
       <ViewHeader eyebrow="STREEX" title={t.streexTitle} description={t.streexSubtitle} />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <ActionButton accent icon={<CalendarPlus />} label={t.bookRide} onClick={onBookRide} />
+      <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2">
+          <ActionButton accent icon={<CalendarPlus />} label={t.bookRide} onClick={onBookRide} />
+        </div>
         <ActionButton icon={<Menu />} label={t.services} onClick={() => onNavigate("services")} />
         <ActionButton icon={<Phone />} label={t.contact} onClick={() => onNavigate("contact")} />
         <ActionButton icon={<Star />} label={t.reviews} onClick={() => onNavigate("reviews")} />
@@ -1471,9 +1499,11 @@ function StreexView({
         onClick={() => onNavigate("meet-juan")}
         className="flex items-center gap-4 rounded-[26px] border border-white/10 bg-white/[0.05] p-5 text-left hover:bg-white/[0.08]"
       >
-        <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[#E6CE20] text-black">
-          <UserRound className="h-6 w-6" />
-        </span>
+        <img
+          src={config.meetPhoto}
+          alt={config.ownerName}
+          className="h-14 w-14 shrink-0 rounded-2xl border border-[#E6CE20]/45 object-cover"
+        />
         <span className="min-w-0 flex-1">
           <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
             STREEX
@@ -1622,8 +1652,8 @@ function PhoneContinuationCard({
       aria-label={label}
       className={
         compact
-          ? "flex min-h-[166px] flex-col rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
-          : "flex min-h-[142px] items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07] sm:col-span-2"
+          ? "flex min-h-[166px] flex-col rounded-[24px] border border-white/10 bg-white/[0.04] p-3 text-left transition hover:bg-white/[0.07]"
+          : "col-span-2 flex min-h-[142px] items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
       }
     >
       <span
@@ -1631,7 +1661,7 @@ function PhoneContinuationCard({
       >
         <QRCodeSVG
           value={href}
-          size={compact ? 58 : 88}
+          size={compact ? 92 : 88}
           bgColor="#FFFFFF"
           fgColor="#0B0B0B"
           level="M"
@@ -1726,7 +1756,7 @@ function ActionButton({
     <button
       type="button"
       onClick={onClick}
-      className={`flex min-h-[88px] items-center gap-4 rounded-[22px] border p-4 text-left transition ${accent ? "border-[#E6CE20] bg-[#E6CE20] text-black hover:brightness-105" : "border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.07]"}`}
+      className={`flex w-full min-h-[88px] items-center gap-4 rounded-[22px] border p-4 text-left transition ${accent ? "border-[#E6CE20] bg-[#E6CE20] text-black hover:brightness-105" : "border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.07]"}`}
     >
       <span
         className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${accent ? "bg-black/10" : "bg-[#E6CE20]/15 text-[#E6CE20]"}`}
@@ -1795,7 +1825,56 @@ function MeetJuanView({
           <ActionButton accent icon={<HandCoins />} label={t.leaveTip} onClick={() => onNavigate("tip")} />
         </div>
       </section>
+      <GuestNotesMosaic t={t} />
     </div>
+  );
+}
+
+function GuestNotesMosaic({ t }: { t: (typeof copy)[Language] }) {
+  return (
+    <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
+            {t.guestNotesEyebrow}
+          </p>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight">{t.guestNotesTitle}</h2>
+        </div>
+        <p className="max-w-[210px] text-right text-[10px] leading-relaxed text-white/40">
+          {t.guestNotesPreview}
+        </p>
+      </div>
+      <div className="mt-5 grid grid-cols-3 gap-3">
+        <GuestNote className="col-span-2" quote={t.guestNoteOne} by={t.guestNoteOneBy} />
+        <GuestNote className="row-span-2" quote={t.guestNoteTwo} by={t.guestNoteTwoBy} featured />
+        <GuestNote className="col-span-2" quote={t.guestNoteThree} by={t.guestNoteThreeBy} />
+      </div>
+    </section>
+  );
+}
+
+function GuestNote({
+  by,
+  className,
+  featured = false,
+  quote,
+}: {
+  by: string;
+  className: string;
+  featured?: boolean;
+  quote: string;
+}) {
+  return (
+    <article
+      className={`flex min-h-[118px] flex-col justify-between rounded-[22px] border p-4 ${
+        featured
+          ? "border-[#E6CE20]/30 bg-gradient-to-br from-[#E6CE20]/18 to-[#E6CE20]/[0.03]"
+          : "border-white/10 bg-black/20"
+      } ${className}`}
+    >
+      <p className="text-sm font-medium leading-relaxed text-white/85">{quote}</p>
+      <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.15em] text-[#E6CE20]">{by}</p>
+    </article>
   );
 }
 
@@ -1865,7 +1944,7 @@ function ConsoleNavigation({
   return (
     <nav
       aria-label="Passenger console"
-      className="sticky bottom-2 z-20 mt-4 flex gap-1 rounded-[28px] border border-white/10 bg-[#161614]/95 p-2 backdrop-blur"
+      className="z-20 mt-4 flex shrink-0 gap-1 rounded-[28px] border border-white/10 bg-[#161614]/95 p-2 backdrop-blur"
     >
       {items.map((item) => (
         <button
