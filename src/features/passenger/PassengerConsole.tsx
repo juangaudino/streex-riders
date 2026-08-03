@@ -24,6 +24,13 @@ import {
   UserRound,
   Wifi,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ServiceTicker } from "@/components/streex/ServiceTicker";
 import { BookingFormModal } from "@/components/streex/BookingFormModal";
 import { FeedbackForm } from "@/components/streex/FeedbackForm";
@@ -74,6 +81,15 @@ const copy = {
     newYork: "New York",
     losAngeles: "Los Angeles",
     weather: "Weather",
+    weatherHint: "Tap for the forecast",
+    weatherDetailTitle: "Weather forecast",
+    weatherDetailDescription: "A quick look at the next few hours in",
+    nextHours: "Next few hours",
+    feelsLike: "Feels like",
+    humidity: "Humidity",
+    wind: "Wind",
+    clearSkies: "Clear skies",
+    partlyCloudy: "Partly cloudy",
     nowPlaying: "Now playing",
     chooseMusic: "Choose music",
     musicHint: "Tap to search songs and artists.",
@@ -162,6 +178,15 @@ const copy = {
     newYork: "Nueva York",
     losAngeles: "Los Ángeles",
     weather: "Clima",
+    weatherHint: "Toca para ver el pronóstico",
+    weatherDetailTitle: "Pronóstico del clima",
+    weatherDetailDescription: "Una vista rápida de las próximas horas en",
+    nextHours: "Próximas horas",
+    feelsLike: "Sensación",
+    humidity: "Humedad",
+    wind: "Viento",
+    clearSkies: "Cielo despejado",
+    partlyCloudy: "Parcialmente nublado",
     nowPlaying: "Reproduciendo",
     chooseMusic: "Elige la música",
     musicHint: "Toca para buscar canciones y artistas.",
@@ -404,6 +429,7 @@ function HomeView({
   t: (typeof copy)[Language];
 }) {
   const now = useClock();
+  const [weatherOpen, setWeatherOpen] = useState(false);
   const locale = language === "es" ? "es-MX" : "en-US";
   const clockConfig = config.passengerConsole.clock;
   const time = now
@@ -467,13 +493,21 @@ function HomeView({
               <p className="text-5xl font-black tracking-tight tabular-nums sm:text-6xl">{time}</p>
               <p className="mt-1 text-sm capitalize text-white/55">{date}</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-right backdrop-blur">
+            <button
+              type="button"
+              onClick={() => setWeatherOpen(true)}
+              aria-label={`${t.weather}: ${weatherCity}. ${t.weatherHint}`}
+              className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-right backdrop-blur transition hover:border-[#E6CE20]/40 hover:bg-black/35 focus:outline-none focus:ring-2 focus:ring-[#E6CE20]/60"
+            >
               <p className="flex items-center justify-end gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
                 <Cloud className="h-3.5 w-3.5" /> {t.weather}
               </p>
               <p className="mt-1 text-2xl font-bold">{temperature}</p>
               <p className="text-xs text-white/55">{weatherCity}</p>
-            </div>
+              <span className="mt-1 flex items-center justify-end gap-1 text-[9px] font-semibold text-[#E6CE20]">
+                {t.weatherHint} <ChevronRight className="h-3 w-3" />
+              </span>
+            </button>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-4 border-t border-white/10 pt-3">
             <SecondaryClock label={t.newYork} time={eastTime} />
@@ -481,6 +515,17 @@ function HomeView({
           </div>
         </div>
       </section>
+
+      <WeatherDetailDialog
+        city={weatherCity}
+        language={language}
+        now={now}
+        open={weatherOpen}
+        onOpenChange={setWeatherOpen}
+        temperatureFahrenheit={temperatureFahrenheit}
+        timeZone={clockConfig.localTimeZone}
+        t={t}
+      />
 
       {config.passengerConsole.music.mode === "provider" && config.passengerConsole.music.providerName === "Spotify" ? (
         <PersonalSpotifyHomeCard onNavigate={onNavigate} t={t} />
@@ -550,6 +595,96 @@ function SecondaryClock({ label, time }: { label: string; time: string }) {
         {label}
       </span>
       <span className="shrink-0 text-xs font-semibold tabular-nums text-white/70">{time}</span>
+    </div>
+  );
+}
+
+function WeatherDetailDialog({
+  city,
+  language,
+  now,
+  onOpenChange,
+  open,
+  temperatureFahrenheit,
+  timeZone,
+  t,
+}: {
+  city: string;
+  language: Language;
+  now: Date | null;
+  onOpenChange: (open: boolean) => void;
+  open: boolean;
+  temperatureFahrenheit: number;
+  timeZone: string;
+  t: (typeof copy)[Language];
+}) {
+  const locale = language === "es" ? "es-MX" : "en-US";
+  const forecast = [0, 1, 2, 3].map((offset) => {
+    const forecastDate = new Date((now ?? new Date()).getTime() + offset * 60 * 60 * 1000);
+    const temperatureFahrenheitAtHour = temperatureFahrenheit + [0, 1, 1, 0][offset];
+    return {
+      label: forecastDate.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        timeZone,
+      }),
+      temperature:
+        language === "es"
+          ? `${Math.round(((temperatureFahrenheitAtHour - 32) * 5) / 9)}°C`
+          : `${Math.round(temperatureFahrenheitAtHour)}°F`,
+      condition: offset === 2 ? t.partlyCloudy : t.clearSkies,
+    };
+  });
+  const feelsLikeFahrenheit = temperatureFahrenheit + 1;
+  const feelsLike =
+    language === "es"
+      ? `${Math.round(((feelsLikeFahrenheit - 32) * 5) / 9)}°C`
+      : `${Math.round(feelsLikeFahrenheit)}°F`;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="w-[calc(100%_-_2rem)] max-w-xl rounded-[28px] border-white/10 bg-[#151515] text-white">
+        <DialogHeader>
+          <DialogTitle className="text-left text-2xl font-extrabold">{t.weatherDetailTitle}</DialogTitle>
+          <DialogDescription className="text-left text-white/55">
+            {t.weatherDetailDescription} {city}.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+          <WeatherMetric label={t.weather} value={t.clearSkies} />
+          <WeatherMetric label={t.feelsLike} value={feelsLike} />
+          <WeatherMetric label={t.humidity} value="42%" />
+        </div>
+
+        <div>
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+            {t.nextHours}
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {forecast.map((hour) => (
+              <div key={hour.label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-3">
+                <p className="text-xs font-semibold text-white/55">{hour.label}</p>
+                <p className="mt-2 text-xl font-bold">{hour.temperature}</p>
+                <p className="mt-1 text-[10px] leading-tight text-white/50">{hour.condition}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 border-t border-white/10 pt-3 text-xs text-white/50">
+          <Cloud className="h-4 w-4 text-[#E6CE20]" />
+          <span>{t.wind}: 6 mph</span>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function WeatherMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-white/45">{label}</p>
+      <p className="mt-1 truncate text-sm font-bold">{value}</p>
     </div>
   );
 }
