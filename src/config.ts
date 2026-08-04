@@ -70,7 +70,7 @@ export const CONFIG = {
       jamNoticeEnabled: true,
     },
     games: {
-      utahTriviaEnabled: false,
+      utahTriviaEnabled: true,
       thisOrThatEnabled: false,
     },
     links: {

@@ -52,6 +52,7 @@ import {
   usePassengerWeather,
   type PassengerWeatherStatus,
 } from "./usePassengerState";
+import { UtahTrivia } from "./UtahTrivia";
 
 type Language = "en" | "es";
 type View =
@@ -184,7 +185,9 @@ const copy = {
     results: "Results",
     gamesTitle: "Games",
     gamesSubtitle: "Light entertainment for the road.",
+    gamesEyebrow: "Ride games",
     comingSoon: "Coming soon",
+    playNow: "Play now",
     utahTrivia: "Utah Trivia",
     utahTriviaDescription: "Test what you know about the Beehive State.",
     triviaPreview: "Utah edition",
@@ -343,7 +346,9 @@ const copy = {
     results: "Resultados",
     gamesTitle: "Juegos",
     gamesSubtitle: "Entretenimiento ligero para el camino.",
+    gamesEyebrow: "Juegos de viaje",
     comingSoon: "Próximamente",
+    playNow: "Jugar ahora",
     utahTrivia: "Trivia de Utah",
     utahTriviaDescription: "Ponga a prueba lo que sabe del Beehive State.",
     triviaPreview: "Edición Utah",
@@ -460,7 +465,13 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
             />
           )}
           {view === "music" && <MusicView config={config} onNavigate={setView} t={t} />}
-          {view === "games" && <GamesView t={t} />}
+          {view === "games" && (
+            <GamesView
+              language={language}
+              t={t}
+              utahTriviaEnabled={consoleConfig.games.utahTriviaEnabled}
+            />
+          )}
           {view === "streex" && (
             <StreexView
               config={config}
@@ -1553,11 +1564,25 @@ function SimulatedMusicView({
   );
 }
 
-function GamesView({ t }: { t: (typeof copy)[Language] }) {
+function GamesView({
+  language,
+  t,
+  utahTriviaEnabled,
+}: {
+  language: Language;
+  t: (typeof copy)[Language];
+  utahTriviaEnabled: boolean;
+}) {
+  const [triviaOpen, setTriviaOpen] = useState(false);
+
+  if (triviaOpen && utahTriviaEnabled) {
+    return <UtahTrivia language={language} onExit={() => setTriviaOpen(false)} />;
+  }
+
   return (
     <div className="passenger-games-layout flex flex-1 flex-col gap-5">
       <div className="passenger-games-header">
-        <ViewHeader eyebrow={t.comingSoon} title={t.gamesTitle} description={t.gamesSubtitle} />
+        <ViewHeader eyebrow={t.gamesEyebrow} title={t.gamesTitle} description={t.gamesSubtitle} />
       </div>
       <div className="passenger-games-grid grid flex-1 grid-cols-2 gap-4">
         <GameCard
@@ -1566,7 +1591,8 @@ function GamesView({ t }: { t: (typeof copy)[Language] }) {
           description={t.utahTriviaDescription}
           previewLabel={t.triviaPreview}
           icon={<Sparkles className="h-7 w-7" />}
-          status={t.comingSoon}
+          onClick={utahTriviaEnabled ? () => setTriviaOpen(true) : undefined}
+          status={utahTriviaEnabled ? t.playNow : t.comingSoon}
         />
         <GameCard
           kind="choice"
@@ -1596,6 +1622,7 @@ function GameCard({
   kind,
   previewLabel,
   choiceLabels,
+  onClick,
   status,
   title,
 }: {
@@ -1604,11 +1631,17 @@ function GameCard({
   kind: "trivia" | "choice";
   previewLabel: string;
   choiceLabels?: [string, string];
+  onClick?: () => void;
   status: string;
   title: string;
 }) {
   return (
-    <section className="relative min-h-[380px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-6">
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
+      className="relative min-h-[380px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-6 text-left transition enabled:hover:border-[#E6CE20]/35 enabled:hover:bg-white/[0.065] enabled:active:scale-[0.995]"
+    >
       <div className="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-[#E6CE20]/10 blur-3xl" />
       <div className="relative flex h-full flex-col">
         <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[#E6CE20]/15 text-[#E6CE20]">
@@ -1658,7 +1691,7 @@ function GameCard({
           {status}
         </span>
       </div>
-    </section>
+    </button>
   );
 }
 
