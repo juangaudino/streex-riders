@@ -251,8 +251,10 @@ const copy = {
     tipSecure: "Your payment is completed securely on your own device.",
     venmo: "Venmo",
     cashApp: "Cash App",
-    cardAndWallet: "Card & mobile wallet",
-    stripeDetail: "Card, Apple Pay or Google Pay",
+    applePay: "Apple Pay",
+    applePayDetail: "Pay with Apple Pay on your iPhone",
+    cardAndWallet: "Card & Google Pay",
+    stripeDetail: "Credit card, debit card or Google Pay",
     stripePending: "Stripe setup pending",
   },
   es: {
@@ -421,8 +423,10 @@ const copy = {
     tipSecure: "El pago se completa de forma segura en su propio dispositivo.",
     venmo: "Venmo",
     cashApp: "Cash App",
-    cardAndWallet: "Tarjeta y billetera móvil",
-    stripeDetail: "Tarjeta, Apple Pay o Google Pay",
+    applePay: "Apple Pay",
+    applePayDetail: "Pague con Apple Pay desde su iPhone",
+    cardAndWallet: "Tarjeta y Google Pay",
+    stripeDetail: "Tarjeta de crédito, débito o Google Pay",
     stripePending: "Configuración de Stripe pendiente",
   },
 } as const;
@@ -1929,6 +1933,13 @@ function TipView({
       icon: <span className="text-xl font-black">$</span>,
     },
     {
+      id: "applepay",
+      label: t.applePay,
+      detail: config.passengerConsole.links.stripeTip ? t.applePayDetail : t.stripePending,
+      href: config.passengerConsole.links.stripeTip,
+      icon: <ApplePayIcon />,
+    },
+    {
       id: "stripe",
       label: t.cardAndWallet,
       detail: config.passengerConsole.links.stripeTip ? t.stripeDetail : t.stripePending,
@@ -1984,6 +1995,9 @@ function TipView({
             })}
           </div>
           <div className="passenger-tip-qr flex min-w-0 flex-col items-center justify-center rounded-[24px] border border-white/10 bg-black/25 p-5 text-center">
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-[#E6CE20]">
+              {selectedMethod.label}
+            </p>
             {selectedMethod.href && (
               <div className="rounded-[20px] bg-white p-3 shadow-[0_0_45px_rgba(230,206,32,0.12)]">
                 <QRCodeSVG
@@ -2003,6 +2017,14 @@ function TipView({
         </div>
       </div>
     </div>
+  );
+}
+
+function ApplePayIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 fill-current">
+      <path d="M12.005 3.16c-.8.96-2.08 1.71-3.33 1.6-.16-1.27.46-2.62 1.2-3.45C10.67.33 12.03-.37 13.14-.5c.13 1.31-.38 2.59-1.135 3.66zm1.12 1.76c-1.84-.11-3.41 1.05-4.28 1.05-.88 0-2.21-.99-3.66-.96-1.88.03-3.63 1.1-4.59 2.79-1.97 3.4-.51 8.44 1.4 11.21.94 1.37 2.07 2.89 3.55 2.84 1.4-.06 1.95-.91 3.65-.91 1.71 0 2.2.91 3.68.88 1.54-.03 2.51-1.38 3.45-2.75 1.08-1.57 1.53-3.09 1.56-3.17-.03-.01-3-1.15-3.03-4.54-.03-2.84 2.32-4.2 2.43-4.27-1.33-1.97-3.4-2.18-4.12-2.21z" />
+    </svg>
   );
 }
 
