@@ -132,6 +132,8 @@ const copy = {
     spotifyControlError: "Spotify could not update playback. Please try again.",
     searchSpotify: "Search Spotify",
     searchSpotifyHint: "Find a song to play on the active vehicle audio device.",
+    musicDiscoveryTitle: "Choose what plays next",
+    musicDiscoveryDescription: "Search for a song or start with one of the collections above.",
     searchButton: "Search",
     searchResults: "Song results",
     searchEmpty: "No songs found. Try another search.",
@@ -261,6 +263,8 @@ const copy = {
     spotifyControlError: "Spotify no pudo actualizar la reproducción. Inténtalo de nuevo.",
     searchSpotify: "Buscar en Spotify",
     searchSpotifyHint: "Encuentra una canción para reproducir en el dispositivo de audio activo del vehículo.",
+    musicDiscoveryTitle: "Elige qué sonará después",
+    musicDiscoveryDescription: "Busca una canción o comienza con una de las colecciones de arriba.",
     searchButton: "Buscar",
     searchResults: "Resultados de canciones",
     searchEmpty: "No se encontraron canciones. Prueba otra búsqueda.",
@@ -390,6 +394,11 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
     <div className="h-dvh overflow-hidden bg-[#0B0B0B] text-white">
       <div
         className="passenger-console-shell mx-auto flex h-dvh w-full max-w-[740px] flex-col px-7 pb-4 pt-5"
+        data-music-layout={
+          consoleConfig.music.mode === "provider" && consoleConfig.music.providerName === "Spotify"
+            ? "spotify"
+            : "simulated"
+        }
         data-view={view}
       >
         <ConsoleHeader
@@ -1070,17 +1079,19 @@ function PersonalSpotifyMusicView({
   const playback = status?.state === "ready" ? status.playback : null;
 
   return (
-    <div className="flex flex-col gap-5">
-      <ViewHeader eyebrow={t.musicEyebrow} title={t.musicTitle} description={t.musicSubtitle} />
+    <div className="passenger-music-layout flex flex-col gap-5">
+      <div className="passenger-music-header">
+        <ViewHeader eyebrow={t.musicEyebrow} title={t.musicTitle} description={t.musicSubtitle} />
+      </div>
       {message ? (
-        <section className="rounded-[26px] border border-white/10 bg-white/[0.05] p-5">
+        <section className="passenger-music-playback rounded-[26px] border border-white/10 bg-white/[0.05] p-5">
           <p className="text-lg font-bold">
             {isMusicUnavailable ? t.musicUnavailableTitle : t.musicGettingReady}
           </p>
           <p className="mt-2 text-sm leading-relaxed text-white/60">{message}</p>
         </section>
       ) : playback ? (
-        <section className="flex items-center gap-4 rounded-[26px] border border-white/10 bg-white/[0.05] p-5">
+        <section className="passenger-music-playback flex items-center gap-4 rounded-[26px] border border-white/10 bg-white/[0.05] p-5">
           {playback.track?.artworkUrl ? (
             <img
               src={playback.track.artworkUrl}
@@ -1124,11 +1135,11 @@ function PersonalSpotifyMusicView({
           </div>
         </section>
       ) : (
-        <section className="rounded-[26px] border border-white/10 bg-white/[0.05] p-5 text-sm text-white/60">
+        <section className="passenger-music-playback rounded-[26px] border border-white/10 bg-white/[0.05] p-5 text-sm text-white/60">
           {t.spotifyRefresh}
         </section>
       )}
-      <div className="flex items-center justify-between gap-3">
+      <div className="passenger-music-actions flex items-center justify-between gap-3">
         <button
           type="button"
           disabled={busy}
@@ -1145,9 +1156,9 @@ function PersonalSpotifyMusicView({
           {t.home}
         </button>
       </div>
-      {error && <p className="text-sm text-red-300">{error}</p>}
+      {error && <p className="passenger-music-error text-sm text-red-300">{error}</p>}
       {searchEnabled && (
-        <section className="rounded-[26px] border border-white/10 bg-white/[0.035] p-5">
+        <section className="passenger-music-search rounded-[26px] border border-white/10 bg-white/[0.035] p-5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
             {t.searchSpotify}
           </p>
@@ -1186,6 +1197,17 @@ function PersonalSpotifyMusicView({
             </button>
           </form>
           {searchMessage && <p className="mt-3 text-sm text-white/55">{searchMessage}</p>}
+          {!searchMessage && results.length === 0 && (
+            <div className="passenger-music-landscape-prompt hidden">
+              <span className="grid h-16 w-16 place-items-center rounded-2xl border border-[#E6CE20]/25 bg-[#E6CE20]/10 text-[#E6CE20]">
+                <Search className="h-7 w-7" />
+              </span>
+              <p className="mt-4 text-xl font-bold">{t.musicDiscoveryTitle}</p>
+              <p className="mt-2 max-w-sm text-center text-sm leading-relaxed text-white/50">
+                {t.musicDiscoveryDescription}
+              </p>
+            </div>
+          )}
           {results.length > 0 && (
             <div className="mt-4">
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
@@ -1225,7 +1247,7 @@ function PersonalSpotifyMusicView({
           )}
         </section>
       )}
-      <aside className="rounded-[24px] border border-[#E6CE20]/25 bg-[#E6CE20]/[0.06] p-5">
+      <aside className="passenger-music-jam rounded-[24px] border border-[#E6CE20]/25 bg-[#E6CE20]/[0.06] p-5">
         <div className="flex items-start gap-3">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#E6CE20]/15 text-[#E6CE20]">
             <Music2 className="h-5 w-5" />
