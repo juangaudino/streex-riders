@@ -18,12 +18,16 @@ export function ExperienceGallery({
             style={{
               width: 240,
               minHeight: 200,
-              backgroundImage: `url(${e.image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
               border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
+            <img
+              src={e.image}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
             <div
               className="absolute inset-0 pointer-events-none"
               style={{

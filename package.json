@@ -14,7 +14,8 @@
     "check": "bun run typecheck && bun run build",
     "check:full": "bun run typecheck && bun run lint && bun run build",
     "format": "prettier --write .",
-    "optimize:images": "node scripts/optimize-images.mjs"
+    "optimize:images": "node scripts/optimize-images.mjs",
+    "optimize:rides-images": "node scripts/optimize-rides-images.mjs"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.20",

@@ -38,6 +38,8 @@ export function MeetJuan({ config }: { config: AppConfig }) {
           <img
             src={config.meetPhoto}
             alt={config.ownerName}
+            loading="lazy"
+            decoding="async"
             className="rounded-full mb-4 object-cover"
             style={{
               width: 90,

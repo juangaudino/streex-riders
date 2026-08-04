@@ -191,25 +191,29 @@ export const CONFIG = {
 
   // ─── TENANT MEDIA ────────────────────────────
   galleryImages: [
-    { label: "Salt Lake City", image: "/images/streex/slc.jpg", microLabel: null as string | null },
+    {
+      label: "Salt Lake City",
+      image: "/images/streex/slc.webp",
+      microLabel: null as string | null,
+    },
     {
       label: "Park City",
-      image: "/images/streex/park-city.jpg",
+      image: "/images/streex/park-city.webp",
       microLabel: null as string | null,
     },
     {
       label: "SLC Airport",
-      image: "/images/streex/airport.jpg",
+      image: "/images/streex/airport.webp",
       microLabel: null as string | null,
     },
     {
       label: "Mountain Routes",
-      image: "/images/streex/mountains.jpg",
+      image: "/images/streex/mountains.webp",
       microLabel: null as string | null,
     },
     {
       label: "Your Ride",
-      image: "/images/streex/rav4.jpg",
+      image: "/images/streex/rav4.webp",
       microLabel: "✦ Toyota RAV4 • Spacious SUV" as string | null,
     },
   ],
@@ -223,7 +227,7 @@ export const CONFIG = {
 
   // ─── MEET OWNER ──────────────────────────────
   meetTitle: "Meet Juan",
-  meetPhoto: "/images/streex/juan.jpg",
+  meetPhoto: "/images/streex/juan.webp",
   meetBody: [
     "Hi, I'm Juan — creator of Streex Rides.",
     "I believe transportation can be more than a ride — it can be a genuinely comfortable and thoughtful experience.",

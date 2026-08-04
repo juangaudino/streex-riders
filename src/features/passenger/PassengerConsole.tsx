@@ -1781,6 +1781,8 @@ function StreexView({
           <img
             src={config.meetPhoto}
             alt={config.ownerName}
+            loading="lazy"
+            decoding="async"
             className="h-14 w-14 shrink-0 rounded-2xl border border-[#E6CE20]/45 object-cover"
           />
           <span className="min-w-0 flex-1">
@@ -2130,6 +2132,8 @@ function MeetJuanView({
           <img
             src={config.meetPhoto}
             alt={config.ownerName}
+            loading="lazy"
+            decoding="async"
             className="h-20 w-20 rounded-3xl border-2 border-[#E6CE20]/45 object-cover"
           />
           <div>
