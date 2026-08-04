@@ -209,6 +209,8 @@ const copy = {
     reviewSubtitle: "Your feedback helps us make every ride better.",
     tipTitle: "Thank you for riding with STREEX",
     tipSubtitle: "Optional ways to show your appreciation.",
+    tipOptionsTitle: "Choose a convenient option",
+    tipOptionsNote: "Only if you wish — thank you for riding with STREEX.",
   },
   es: {
     home: "Inicio",
@@ -340,6 +342,8 @@ const copy = {
     reviewSubtitle: "Sus comentarios nos ayudan a mejorar cada viaje.",
     tipTitle: "Gracias por viajar con STREEX",
     tipSubtitle: "Formas opcionales de mostrar su agradecimiento.",
+    tipOptionsTitle: "Elija la opción más conveniente",
+    tipOptionsNote: "Solo si lo desea — gracias por viajar con STREEX.",
   },
 } as const;
 
@@ -1395,9 +1399,11 @@ function SimulatedMusicView({
 
 function GamesView({ t }: { t: (typeof copy)[Language] }) {
   return (
-    <div className="flex flex-1 flex-col gap-5">
-      <ViewHeader eyebrow={t.comingSoon} title={t.gamesTitle} description={t.gamesSubtitle} />
-      <div className="grid flex-1 grid-cols-2 gap-4">
+    <div className="passenger-games-layout flex flex-1 flex-col gap-5">
+      <div className="passenger-games-header">
+        <ViewHeader eyebrow={t.comingSoon} title={t.gamesTitle} description={t.gamesSubtitle} />
+      </div>
+      <div className="passenger-games-grid grid flex-1 grid-cols-2 gap-4">
         <GameCard
           kind="trivia"
           title={t.utahTrivia}
@@ -1416,7 +1422,7 @@ function GamesView({ t }: { t: (typeof copy)[Language] }) {
           status={t.comingSoon}
         />
       </div>
-      <div className="rounded-[26px] border border-white/10 bg-gradient-to-br from-white/[0.05] to-[#E6CE20]/10 p-6">
+      <div className="passenger-games-note rounded-[26px] border border-white/10 bg-gradient-to-br from-white/[0.05] to-[#E6CE20]/10 p-6">
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
           STREEX
         </p>
@@ -1504,10 +1510,12 @@ function StreexView({
   t: (typeof copy)[Language];
 }) {
   return (
-    <div className="flex flex-col gap-5">
-      <ViewHeader eyebrow="STREEX" title={t.streexTitle} description={t.streexSubtitle} />
-      <div className="grid grid-cols-2 gap-3">
-        <div className="col-span-2">
+    <div className="passenger-streex-layout flex flex-col gap-5">
+      <div className="passenger-streex-header">
+        <ViewHeader eyebrow="STREEX RIDES" title={t.streexTitle} description={t.streexSubtitle} />
+      </div>
+      <div className="passenger-streex-actions grid grid-cols-2 gap-3">
+        <div className="passenger-streex-book col-span-2">
           <ActionButton accent icon={<CalendarPlus />} label={t.bookRide} onClick={onBookRide} />
         </div>
         <ActionButton icon={<Menu />} label={t.services} onClick={() => onNavigate("services")} />
@@ -1524,7 +1532,7 @@ function StreexView({
       <button
         type="button"
         onClick={() => onNavigate("meet-juan")}
-        className="flex items-center gap-4 rounded-[26px] border border-white/10 bg-white/[0.05] p-5 text-left hover:bg-white/[0.08]"
+        className="passenger-streex-meet flex items-center gap-4 rounded-[26px] border border-white/10 bg-white/[0.05] p-5 text-left hover:bg-white/[0.08]"
       >
         <img
           src={config.meetPhoto}
@@ -1540,6 +1548,9 @@ function StreexView({
         </span>
         <ChevronRight className="h-5 w-5 text-white/45" />
       </button>
+      <div className="passenger-streex-ticker hidden">
+        <ServiceTicker config={config} />
+      </div>
     </div>
   );
 }
@@ -1566,10 +1577,14 @@ function ServicesView({
   t: (typeof copy)[Language];
 }) {
   return (
-    <div className="flex flex-col gap-5">
-      <PassengerBackButton onNavigate={onNavigate} t={t} />
-      <ViewHeader eyebrow="STREEX" title={t.services} description={t.servicesTitle} />
-      <ServicesSection className="mt-0 px-0" config={config} title={t.services} />
+    <div className="passenger-subview passenger-services-layout flex flex-col gap-5">
+      <div className="passenger-subview-intro flex flex-col gap-5">
+        <PassengerBackButton onNavigate={onNavigate} t={t} />
+        <ViewHeader eyebrow="STREEX RIDES" title={t.services} description={t.servicesTitle} />
+      </div>
+      <div className="passenger-services-content min-h-0">
+        <ServicesSection className="mt-0 px-0" config={config} title={t.services} />
+      </div>
     </div>
   );
 }
@@ -1591,10 +1606,12 @@ function ContactView({
   ].filter((action) => Boolean(action.href));
 
   return (
-    <div className="flex flex-col gap-5">
-      <PassengerBackButton onNavigate={onNavigate} t={t} />
-      <ViewHeader eyebrow="STREEX" title={t.contactTitle} description={t.contactSubtitle} />
-      <div className="grid gap-3 sm:grid-cols-2">
+    <div className="passenger-subview passenger-contact-layout flex flex-col gap-5">
+      <div className="passenger-subview-intro flex flex-col gap-5">
+        <PassengerBackButton onNavigate={onNavigate} t={t} />
+        <ViewHeader eyebrow="STREEX RIDES" title={t.contactTitle} description={t.contactSubtitle} />
+      </div>
+      <div className="passenger-contact-actions grid gap-3 sm:grid-cols-2">
         {actions.map((action) => (
           <a
             key={action.label}
@@ -1628,10 +1645,14 @@ function ReviewsView({
   t: (typeof copy)[Language];
 }) {
   return (
-    <div className="flex flex-col gap-5">
-      <PassengerBackButton onNavigate={onNavigate} t={t} />
-      <ViewHeader eyebrow="STREEX" title={t.reviewTitle} description={t.reviewSubtitle} />
-      <FeedbackForm compact language={language} />
+    <div className="passenger-subview passenger-review-layout flex flex-col gap-5">
+      <div className="passenger-subview-intro flex flex-col gap-5">
+        <PassengerBackButton onNavigate={onNavigate} t={t} />
+        <ViewHeader eyebrow="STREEX RIDES" title={t.reviewTitle} description={t.reviewSubtitle} />
+      </div>
+      <div className="passenger-review-content min-h-0">
+        <FeedbackForm compact language={language} />
+      </div>
     </div>
   );
 }
@@ -1646,10 +1667,18 @@ function TipView({
   t: (typeof copy)[Language];
 }) {
   return (
-    <div className="flex flex-col gap-5">
-      <PassengerBackButton onNavigate={onNavigate} t={t} />
-      <ViewHeader eyebrow="STREEX" title={t.tipTitle} description={t.tipSubtitle} />
-      <PaymentOptions className="mt-0 px-0" config={config} compact />
+    <div className="passenger-subview passenger-tip-layout flex flex-col gap-5">
+      <div className="passenger-subview-intro flex flex-col gap-5">
+        <PassengerBackButton onNavigate={onNavigate} t={t} />
+        <ViewHeader eyebrow="STREEX RIDES" title={t.tipTitle} description={t.tipSubtitle} />
+      </div>
+      <div className="passenger-tip-content rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.05] to-[#E6CE20]/10 p-8">
+        <div className="passenger-tip-copy text-center">
+          <p className="text-2xl font-extrabold tracking-tight">{t.tipOptionsTitle}</p>
+          <p className="mt-2 text-sm text-white/55">{t.tipOptionsNote}</p>
+        </div>
+        <PaymentOptions className="mt-0 px-0" config={config} compact />
+      </div>
     </div>
   );
 }
@@ -1812,15 +1841,15 @@ function MeetJuanView({
   const meetBody = language === "es" ? config.meetBodyEs : config.meetBody;
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="passenger-meet-layout flex flex-col gap-5">
       <button
         type="button"
         onClick={() => onNavigate("streex")}
-        className="flex w-fit items-center gap-2 text-sm text-white/55 hover:text-white"
+        className="passenger-meet-back flex w-fit items-center gap-2 text-sm text-white/55 hover:text-white"
       >
         <ArrowLeft className="h-4 w-4" /> {t.back}
       </button>
-      <section className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.05] p-6">
+      <section className="passenger-meet-profile relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.05] p-6">
         <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#E6CE20]/15 blur-3xl" />
         <div className="relative flex items-center gap-5">
           <img
@@ -1845,14 +1874,16 @@ function MeetJuanView({
           <Chip icon={<Sparkles className="h-4 w-4" />} label={t.hospitality} />
         </div>
       </section>
-      <section className="rounded-[26px] border border-white/10 bg-white/[0.035] p-5">
+      <section className="passenger-meet-gratitude rounded-[26px] border border-white/10 bg-white/[0.035] p-5">
         <p className="text-sm leading-relaxed text-white/65">{t.gratitude}</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <ActionButton icon={<Star />} label={t.leaveReview} onClick={() => onNavigate("reviews")} />
           <ActionButton accent icon={<HandCoins />} label={t.leaveTip} onClick={() => onNavigate("tip")} />
         </div>
       </section>
-      <GuestNotesMosaic t={t} />
+      <div className="passenger-meet-notes min-h-0">
+        <GuestNotesMosaic t={t} />
+      </div>
     </div>
   );
 }

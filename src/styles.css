@@ -631,14 +631,13 @@ input[type="time"] {
 
 /* Passenger Console: dedicated 16:10 tablet landscape composition. */
 @media (orientation: landscape) and (min-width: 900px) {
-  .passenger-console-shell[data-view="home"],
-  .passenger-console-shell[data-view="music"][data-music-layout="spotify"] {
+  .passenger-console-shell {
     max-width: 1220px !important;
     padding-top: 16px;
   }
 
-  .passenger-console-shell[data-view="home"] > main,
-  .passenger-console-shell[data-view="music"][data-music-layout="spotify"] > main {
+  .passenger-console-shell > main {
+    overflow-y: hidden;
     padding-top: 12px !important;
     padding-bottom: 0 !important;
   }
@@ -751,5 +750,270 @@ input[type="time"] {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+  }
+
+  .passenger-games-layout {
+    display: grid !important;
+    height: 100%;
+    min-height: 0;
+    grid-template-columns: minmax(260px, 0.68fr) minmax(0, 1.7fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 18px;
+    row-gap: 16px;
+  }
+
+  .passenger-games-header {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .passenger-games-grid {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .passenger-games-grid > section {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .passenger-games-note {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: end;
+    padding: 22px !important;
+  }
+
+  .passenger-streex-layout {
+    display: grid !important;
+    height: 100%;
+    min-height: 0;
+    grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.28fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    column-gap: 20px;
+    row-gap: 14px;
+  }
+
+  .passenger-streex-header {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .passenger-streex-actions {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    height: 100%;
+    min-width: 0;
+    grid-template-rows: 84px 92px 92px minmax(0, 1fr);
+    align-content: stretch;
+  }
+
+  .passenger-streex-actions button,
+  .passenger-streex-actions a {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .passenger-streex-book,
+  .passenger-streex-book button {
+    height: 100%;
+  }
+
+  .passenger-streex-actions > a.col-span-2 {
+    min-height: 0;
+  }
+
+  .passenger-streex-actions > a.col-span-2 > span:first-child > svg {
+    width: 118px;
+    height: 118px;
+  }
+
+  .passenger-streex-meet {
+    grid-column: 1;
+    grid-row: 2;
+    position: relative;
+    align-self: stretch;
+    overflow: hidden;
+    flex-direction: column;
+    align-items: flex-start !important;
+    justify-content: flex-end;
+    padding: 24px !important;
+  }
+
+  .passenger-streex-meet::before {
+    position: absolute;
+    top: -80px;
+    right: -70px;
+    width: 230px;
+    height: 230px;
+    border-radius: 999px;
+    background: rgb(230 206 32 / 0.12);
+    filter: blur(42px);
+    content: "";
+  }
+
+  .passenger-streex-meet > img {
+    position: relative;
+    width: 86px;
+    height: 86px;
+    border-radius: 24px;
+  }
+
+  .passenger-streex-meet > span {
+    position: relative;
+    margin-top: 18px;
+  }
+
+  .passenger-streex-meet > svg {
+    position: absolute;
+    right: 24px;
+    bottom: 24px;
+  }
+
+  .passenger-streex-ticker {
+    display: block !important;
+    grid-column: 1 / 3;
+    grid-row: 3;
+    min-width: 0;
+  }
+
+  .passenger-subview {
+    display: grid !important;
+    height: 100%;
+    min-height: 0;
+    grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.28fr);
+    column-gap: 24px;
+  }
+
+  .passenger-subview-intro {
+    grid-column: 1;
+    align-self: start;
+  }
+
+  .passenger-services-content,
+  .passenger-contact-actions,
+  .passenger-review-content,
+  .passenger-tip-content {
+    grid-column: 2;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .passenger-services-content {
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .passenger-services-content > section > h2 {
+    display: none;
+  }
+
+  .passenger-services-content > section {
+    height: 100%;
+  }
+
+  .passenger-services-content > section > div {
+    display: grid;
+    height: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-content: center;
+  }
+
+  .passenger-contact-actions {
+    align-self: center;
+  }
+
+  .passenger-review-content {
+    align-self: center;
+  }
+
+  .passenger-tip-content {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  .passenger-tip-content > section {
+    width: 100%;
+  }
+
+  .passenger-tip-content > section > div {
+    gap: 44px;
+  }
+
+  .passenger-tip-content .streex-pay-icon {
+    width: 84px;
+    height: 84px;
+  }
+
+  .passenger-tip-content .streex-pay-icon svg {
+    width: 38px;
+    height: 38px;
+  }
+
+  .passenger-tip-content .streex-pay-icon + span {
+    margin-top: 12px !important;
+    font-size: 13px !important;
+  }
+
+  .passenger-meet-layout {
+    display: grid !important;
+    height: 100%;
+    min-height: 0;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 18px;
+    row-gap: 12px;
+  }
+
+  .passenger-meet-back {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .passenger-meet-profile {
+    grid-column: 1;
+    grid-row: 2;
+    min-height: 0;
+    padding: 20px !important;
+  }
+
+  .passenger-meet-profile > .relative.mt-6 {
+    margin-top: 16px !important;
+    font-size: 13px;
+  }
+
+  .passenger-meet-profile > .relative.mt-5 {
+    margin-top: 14px !important;
+  }
+
+  .passenger-meet-gratitude {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 16px !important;
+  }
+
+  .passenger-meet-gratitude > div {
+    margin-top: 12px !important;
+  }
+
+  .passenger-meet-gratitude button {
+    min-height: 72px;
+  }
+
+  .passenger-meet-notes {
+    grid-column: 2;
+    grid-row: 2;
+    overflow-y: auto;
+  }
+
+  .passenger-meet-notes > section {
+    min-height: 100%;
+    padding: 18px !important;
   }
 }
