@@ -713,7 +713,7 @@ function HomeView({
         <div className="grid grid-cols-2 gap-3">
           <QuickAccessCard
             accent
-            badge={t.comingSoon}
+            badge={t.playNow}
             icon={<Gamepad2 />}
             label={t.utahTrivia}
             description={t.utahTriviaDescription}
