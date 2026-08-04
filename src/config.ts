@@ -74,9 +74,10 @@ export const CONFIG = {
       thisOrThatEnabled: true,
     },
     links: {
-      // Booking, services, contact, reviews and tips reuse their native Rides components
-      // and the shared public config above. This is the only external continuation link.
+      // Public destinations rendered as QR codes or phone-continuation links. Keep payment
+      // provider secrets out of this object; a Stripe-hosted Payment Link is safe to expose.
       phoneContinuation: "https://rides.getstreex.com",
+      stripeTip: null as string | null,
     },
   },
 

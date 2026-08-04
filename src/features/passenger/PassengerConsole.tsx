@@ -5,13 +5,13 @@ import {
   CalendarPlus,
   ChevronRight,
   Cloud,
+  CreditCard,
   Gamepad2,
   HandCoins,
   Languages,
   Mail,
   Menu,
   MessageCircle,
-  MessageSquare,
   Music2,
   Pause,
   Phone,
@@ -35,7 +35,6 @@ import { ServiceTicker } from "@/components/streex/ServiceTicker";
 import { BookingFormModal } from "@/components/streex/BookingFormModal";
 import { FeedbackForm } from "@/components/streex/FeedbackForm";
 import { ExperienceGallery } from "@/components/streex/ExperienceGallery";
-import { PaymentOptions } from "@/components/streex/PaymentOptions";
 import { ServiceAreas } from "@/components/streex/ServiceAreas";
 import { ServicesSection } from "@/components/streex/ServicesSection";
 import { QRCodeSVG } from "qrcode.react";
@@ -236,9 +235,9 @@ const copy = {
     qrNote: "The phone continuation link will appear here when configured.",
     servicesTitle: "Services for every kind of ride.",
     contactTitle: "Contact STREEX",
-    contactSubtitle: "Choose the way that works best for you.",
-    call: "Call",
-    text: "Text",
+    contactSubtitle: "Contact details to use from your own phone.",
+    contactNote: "This tablet does not place calls or send messages.",
+    phoneAndText: "Call or text",
     whatsapp: "WhatsApp",
     email: "Email",
     reviewTitle: "Share your experience",
@@ -247,6 +246,14 @@ const copy = {
     tipSubtitle: "Optional ways to show your appreciation.",
     tipOptionsTitle: "Choose a convenient option",
     tipOptionsNote: "Only if you wish — thank you for riding with STREEX.",
+    tipInstruction: "Choose a method, then scan the QR with your phone.",
+    tipScan: "Scan to continue on your phone",
+    tipSecure: "Your payment is completed securely on your own device.",
+    venmo: "Venmo",
+    cashApp: "Cash App",
+    cardAndWallet: "Card & mobile wallet",
+    stripeDetail: "Card, Apple Pay or Google Pay",
+    stripePending: "Stripe setup pending",
   },
   es: {
     home: "Inicio",
@@ -398,9 +405,9 @@ const copy = {
     qrNote: "El enlace para continuar en su teléfono aparecerá aquí cuando se configure.",
     servicesTitle: "Servicios para cada tipo de viaje.",
     contactTitle: "Contactar a STREEX",
-    contactSubtitle: "Elija la forma que le resulte más cómoda.",
-    call: "Llamar",
-    text: "Mensaje",
+    contactSubtitle: "Datos de contacto para usar desde su propio teléfono.",
+    contactNote: "Esta tablet no realiza llamadas ni envía mensajes.",
+    phoneAndText: "Llamar o enviar mensaje",
     whatsapp: "WhatsApp",
     email: "Email",
     reviewTitle: "Comparta su experiencia",
@@ -409,6 +416,14 @@ const copy = {
     tipSubtitle: "Formas opcionales de mostrar su agradecimiento.",
     tipOptionsTitle: "Elija la opción más conveniente",
     tipOptionsNote: "Solo si lo desea — gracias por viajar con STREEX.",
+    tipInstruction: "Elija un método y escanee el QR con su teléfono.",
+    tipScan: "Escanee para continuar en su teléfono",
+    tipSecure: "El pago se completa de forma segura en su propio dispositivo.",
+    venmo: "Venmo",
+    cashApp: "Cash App",
+    cardAndWallet: "Tarjeta y billetera móvil",
+    stripeDetail: "Tarjeta, Apple Pay o Google Pay",
+    stripePending: "Configuración de Stripe pendiente",
   },
 } as const;
 
@@ -1832,22 +1847,11 @@ function ContactView({
   onNavigate: (view: View) => void;
   t: (typeof copy)[Language];
 }) {
-  const actions = [
-    { href: `tel:${config.phone}`, icon: <Phone />, label: t.call, detail: config.phoneDisplay },
-    {
-      href: `sms:${config.phone}`,
-      icon: <MessageSquare />,
-      label: t.text,
-      detail: config.phoneDisplay,
-    },
-    {
-      href: config.whatsapp,
-      icon: <MessageCircle />,
-      label: t.whatsapp,
-      detail: config.phoneDisplay,
-    },
-    { href: `mailto:${config.email}`, icon: <Mail />, label: t.email, detail: config.email },
-  ].filter((action) => Boolean(action.href));
+  const details = [
+    { icon: <Phone />, label: t.phoneAndText, detail: config.phoneDisplay },
+    { icon: <MessageCircle />, label: t.whatsapp, detail: config.phoneDisplay },
+    { icon: <Mail />, label: t.email, detail: config.email },
+  ].filter((item) => Boolean(item.detail));
 
   return (
     <div className="passenger-subview passenger-contact-layout flex flex-col gap-5">
@@ -1856,24 +1860,23 @@ function ContactView({
         <ViewHeader eyebrow="STREEX RIDES" title={t.contactTitle} description={t.contactSubtitle} />
       </div>
       <div className="passenger-contact-actions grid gap-3 sm:grid-cols-2">
-        {actions.map((action) => (
-          <a
-            key={action.label}
-            href={action.href}
-            target={action.href.startsWith("http") ? "_blank" : undefined}
-            rel={action.href.startsWith("http") ? "noreferrer" : undefined}
-            className="flex min-h-[104px] items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.07]"
+        {details.map((item) => (
+          <div
+            key={item.label}
+            className="flex min-h-[118px] items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.04] p-5"
           >
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#E6CE20]/15 text-[#E6CE20]">
-              {action.icon}
+              {item.icon}
             </span>
             <span className="min-w-0">
-              <span className="block font-bold">{action.label}</span>
-              <span className="mt-1 block truncate text-sm text-white/55">{action.detail}</span>
+              <span className="block font-bold">{item.label}</span>
+              <span className="mt-1 block text-sm text-white/65">{item.detail}</span>
             </span>
-            <ChevronRight className="ml-auto h-5 w-5 shrink-0 text-white/45" />
-          </a>
+          </div>
         ))}
+        <p className="rounded-[18px] border border-[#E6CE20]/20 bg-[#E6CE20]/[0.06] px-4 py-3 text-sm text-white/55 sm:col-span-2">
+          {t.contactNote}
+        </p>
       </div>
     </div>
   );
@@ -1910,18 +1913,94 @@ function TipView({
   onNavigate: (view: View) => void;
   t: (typeof copy)[Language];
 }) {
+  const paymentMethods = [
+    {
+      id: "venmo",
+      label: t.venmo,
+      detail: `@${config.venmo.split("/").filter(Boolean).at(-1) ?? "STREEX"}`,
+      href: config.venmo,
+      icon: <span className="text-xl font-black italic">V</span>,
+    },
+    {
+      id: "cashapp",
+      label: t.cashApp,
+      detail: config.cashapp.split("/").filter(Boolean).at(-1) ?? "$STREEX",
+      href: config.cashapp,
+      icon: <span className="text-xl font-black">$</span>,
+    },
+    {
+      id: "stripe",
+      label: t.cardAndWallet,
+      detail: config.passengerConsole.links.stripeTip ? t.stripeDetail : t.stripePending,
+      href: config.passengerConsole.links.stripeTip,
+      icon: <CreditCard className="h-5 w-5" />,
+    },
+  ] as const;
+  const firstAvailableMethod = paymentMethods.find((method) => method.href) ?? paymentMethods[0];
+  const [selectedMethodId, setSelectedMethodId] = useState(firstAvailableMethod.id);
+  const selectedMethod =
+    paymentMethods.find((method) => method.id === selectedMethodId && method.href) ??
+    firstAvailableMethod;
+
   return (
     <div className="passenger-subview passenger-tip-layout flex flex-col gap-5">
       <div className="passenger-subview-intro flex flex-col gap-5">
         <PassengerBackButton onNavigate={onNavigate} t={t} />
         <ViewHeader eyebrow="STREEX RIDES" title={t.tipTitle} description={t.tipSubtitle} />
       </div>
-      <div className="passenger-tip-content rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.05] to-[#E6CE20]/10 p-8">
-        <div className="passenger-tip-copy text-center">
+      <div className="passenger-tip-content rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.05] to-[#E6CE20]/10 p-6">
+        <div className="passenger-tip-copy">
           <p className="text-2xl font-extrabold tracking-tight">{t.tipOptionsTitle}</p>
           <p className="mt-2 text-sm text-white/55">{t.tipOptionsNote}</p>
         </div>
-        <PaymentOptions className="mt-0 px-0" config={config} compact />
+        <div className="passenger-tip-workspace grid min-h-0 gap-5">
+          <div className="passenger-tip-methods flex min-w-0 flex-col gap-3">
+            <p className="text-sm font-semibold text-white/70">{t.tipInstruction}</p>
+            {paymentMethods.map((method) => {
+              const active = method.id === selectedMethod.id;
+              const available = Boolean(method.href);
+              return (
+                <button
+                  key={method.id}
+                  type="button"
+                  disabled={!available}
+                  onClick={() => setSelectedMethodId(method.id)}
+                  className={`flex min-h-[78px] items-center gap-4 rounded-[20px] border p-4 text-left transition ${
+                    active ? "border-[#E6CE20]/70 bg-[#E6CE20]/15" : "border-white/10 bg-black/20"
+                  } ${available ? "hover:border-[#E6CE20]/45" : "cursor-not-allowed opacity-45"}`}
+                >
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#E6CE20]/15 text-[#E6CE20]">
+                    {method.icon}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-bold">{method.label}</span>
+                    <span className="mt-1 block truncate text-xs text-white/50">
+                      {method.detail}
+                    </span>
+                  </span>
+                  {available && <ChevronRight className="ml-auto h-5 w-5 text-white/35" />}
+                </button>
+              );
+            })}
+          </div>
+          <div className="passenger-tip-qr flex min-w-0 flex-col items-center justify-center rounded-[24px] border border-white/10 bg-black/25 p-5 text-center">
+            {selectedMethod.href && (
+              <div className="rounded-[20px] bg-white p-3 shadow-[0_0_45px_rgba(230,206,32,0.12)]">
+                <QRCodeSVG
+                  value={selectedMethod.href}
+                  size={196}
+                  bgColor="#FFFFFF"
+                  fgColor="#0B0B0B"
+                  level="M"
+                />
+              </div>
+            )}
+            <p className="mt-4 text-lg font-extrabold">{t.tipScan}</p>
+            <p className="mt-2 max-w-[280px] text-xs leading-relaxed text-white/50">
+              {t.tipSecure}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

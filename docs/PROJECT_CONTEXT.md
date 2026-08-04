@@ -72,9 +72,11 @@ show passenger data.
   from that round only. Neither game stores passenger data or uses a backend. Their public
   activation switches live under `CONFIG.passengerConsole.games`.
 - The STREEX actions reuse the real Rides experience: `BookingFormModal` for ride requests,
-  `FeedbackForm` for passenger reviews, `PaymentOptions` for tips, and shared public config for
-  services and contact. Only the phone-continuation QR URL lives under `CONFIG.passengerConsole`.
-  Never place tokens, PINs, credentials or personal data there.
+  `FeedbackForm` for passenger reviews, and shared public config for services. Contact details are
+  informational on the shared tablet and never launch phone apps. Tips remain optional and use
+  large QR codes so payment is completed on the passenger's own phone through configured public
+  Venmo, Cash App or Stripe-hosted links. Never place tokens, PINs, credentials or personal data
+  in Passenger config.
 - Passenger has an isolated PWA manifest and service worker: it installs into `/passenger` in
   standalone portrait mode, caches only static UI assets, and has an offline recovery screen.
   It does not enforce Android kiosk mode, cache API data, or store passenger details.
