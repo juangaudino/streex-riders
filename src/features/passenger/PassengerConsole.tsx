@@ -45,6 +45,8 @@ import {
   playPersonalSpotifyTrack,
   searchPersonalSpotifyTracks,
 } from "@/lib/spotify.functions";
+import { getPassengerWeather } from "@/lib/weather.functions";
+import type { PassengerWeatherCondition, PassengerWeatherSnapshot } from "@/lib/weather";
 
 type Language = "en" | "es";
 type View =
@@ -98,9 +100,22 @@ const copy = {
     weatherDetailTitle: "Weather forecast",
     weatherDetailDescription: "A quick look at the next few hours in",
     nextHours: "Next few hours",
-    feelsLike: "Feels like",
-    humidity: "Humidity",
+    precipitation: "Precipitation",
     wind: "Wind",
+    updated: "Updated",
+    weatherUnavailable: "Live weather unavailable",
+    weatherUnavailableDescription: "The last forecast will return when the connection is restored.",
+    conditionClear: "Clear",
+    conditionMostlyClear: "Mostly clear",
+    conditionPartlyCloudy: "Partly cloudy",
+    conditionCloudy: "Cloudy",
+    conditionRain: "Rain",
+    conditionThunderstorms: "Thunderstorms",
+    conditionSnow: "Snow",
+    conditionFog: "Fog",
+    conditionSmoke: "Smoke",
+    conditionWind: "Windy",
+    conditionUnknown: "Current conditions",
     clearSkies: "Clear skies",
     partlyCloudy: "Partly cloudy",
     nowPlaying: "Now playing",
@@ -108,7 +123,8 @@ const copy = {
     musicHint: "Tap to search songs and artists.",
     rideDeckEyebrow: "STREEX RIDE DECK",
     rideDeckTitle: "Private ride. Your music. Utah at your window.",
-    rideDeckDescription: "Meet the person behind your ride and the philosophy that makes STREEX different.",
+    rideDeckDescription:
+      "Meet the person behind your ride and the philosophy that makes STREEX different.",
     meetHost: "Meet your host",
     quickAccess: "Quick access",
     musicDescription: "Curated sound for your ride",
@@ -125,7 +141,8 @@ const copy = {
     musicUnavailableTitle: "Music is unavailable right now",
     musicUnavailableDescription: "Please ask your driver to get the vehicle audio ready.",
     spotifyDisabled: "The personal Spotify connection is not enabled.",
-    spotifyDriverSetup: "Your driver can finish the private Spotify setup before controls become available.",
+    spotifyDriverSetup:
+      "Your driver can finish the private Spotify setup before controls become available.",
     spotifyNotConnected: "Your driver has not connected Spotify yet.",
     spotifyNoDevice: "Start Spotify on the vehicle audio, then return here to choose music.",
     spotifyDevice: "Vehicle audio",
@@ -239,9 +256,23 @@ const copy = {
     weatherDetailTitle: "Pronóstico del clima",
     weatherDetailDescription: "Una vista rápida de las próximas horas en",
     nextHours: "Próximas horas",
-    feelsLike: "Sensación",
-    humidity: "Humedad",
+    precipitation: "Precipitación",
     wind: "Viento",
+    updated: "Actualizado",
+    weatherUnavailable: "Clima en vivo no disponible",
+    weatherUnavailableDescription:
+      "El último pronóstico volverá cuando se restablezca la conexión.",
+    conditionClear: "Despejado",
+    conditionMostlyClear: "Mayormente despejado",
+    conditionPartlyCloudy: "Parcialmente nublado",
+    conditionCloudy: "Nublado",
+    conditionRain: "Lluvia",
+    conditionThunderstorms: "Tormentas eléctricas",
+    conditionSnow: "Nieve",
+    conditionFog: "Niebla",
+    conditionSmoke: "Humo",
+    conditionWind: "Ventoso",
+    conditionUnknown: "Condiciones actuales",
     clearSkies: "Cielo despejado",
     partlyCloudy: "Parcialmente nublado",
     nowPlaying: "Reproduciendo",
@@ -249,7 +280,8 @@ const copy = {
     musicHint: "Toca para buscar canciones y artistas.",
     rideDeckEyebrow: "STREEX RIDE DECK",
     rideDeckTitle: "Viaje privado. Tu música. Utah frente a ti.",
-    rideDeckDescription: "Conoce a la persona detrás de tu viaje y la filosofía que hace diferente a STREEX.",
+    rideDeckDescription:
+      "Conoce a la persona detrás de tu viaje y la filosofía que hace diferente a STREEX.",
     meetHost: "Conoce a tu anfitrión",
     quickAccess: "Accesos rápidos",
     musicDescription: "Sonido seleccionado para su viaje",
@@ -262,11 +294,13 @@ const copy = {
     spotifyPersonal: "Conexión personal de Spotify",
     musicEyebrow: "Tu banda sonora",
     musicGettingReady: "La música se está preparando",
-    musicGettingReadyDescription: "Inicia Spotify en el audio del vehículo y luego toca Actualizar.",
+    musicGettingReadyDescription:
+      "Inicia Spotify en el audio del vehículo y luego toca Actualizar.",
     musicUnavailableTitle: "La música no está disponible en este momento",
     musicUnavailableDescription: "Consulta a tu conductor para preparar el audio del vehículo.",
     spotifyDisabled: "La conexión personal de Spotify no está habilitada.",
-    spotifyDriverSetup: "Tu conductor puede terminar la configuración privada de Spotify antes de que los controles estén disponibles.",
+    spotifyDriverSetup:
+      "Tu conductor puede terminar la configuración privada de Spotify antes de que los controles estén disponibles.",
     spotifyNotConnected: "Tu conductor todavía no ha conectado Spotify.",
     spotifyNoDevice: "Inicia Spotify en el audio del vehículo y vuelve aquí para elegir música.",
     spotifyDevice: "Audio del vehículo",
@@ -274,7 +308,8 @@ const copy = {
     spotifyRefresh: "Actualizar",
     spotifyControlError: "Spotify no pudo actualizar la reproducción. Inténtalo de nuevo.",
     searchSpotify: "Buscar en Spotify",
-    searchSpotifyHint: "Encuentra una canción para reproducir en el dispositivo de audio activo del vehículo.",
+    searchSpotifyHint:
+      "Encuentra una canción para reproducir en el dispositivo de audio activo del vehículo.",
     musicDiscoveryTitle: "Elige qué sonará después",
     musicDiscoveryDescription: "Busca una canción o comienza con una de las colecciones de arriba.",
     searchButton: "Buscar",
@@ -333,7 +368,8 @@ const copy = {
     guestNotesEyebrow: "NOTAS DE HUÉSPEDES STREEX",
     guestNotesTitle: "Algunas palabras del camino",
     guestNotesPreview: "Diseño de ejemplo — las reseñas en vivo aparecerán aquí más adelante.",
-    guestNoteOne: "“Considerado, fluido y exactamente lo que necesitaba después de un vuelo largo.”",
+    guestNoteOne:
+      "“Considerado, fluido y exactamente lo que necesitaba después de un vuelo largo.”",
     guestNoteOneBy: "Huésped de aeropuerto",
     guestNoteTwo: "“Los pequeños detalles hicieron que el viaje se sintiera realmente personal.”",
     guestNoteTwoBy: "Huésped de Park City",
@@ -395,6 +431,58 @@ function useOnlineStatus() {
   return online;
 }
 
+const PASSENGER_WEATHER_CACHE_KEY = "streex-passenger-weather-v1";
+
+function usePassengerWeather(online: boolean, refreshMinutes: number) {
+  const [snapshot, setSnapshot] = useState<PassengerWeatherSnapshot | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "unavailable">("loading");
+
+  const refresh = useCallback(async () => {
+    if (!navigator.onLine) {
+      setStatus("unavailable");
+      return;
+    }
+
+    try {
+      const response = await getPassengerWeather({ data: {} });
+      if (response.state !== "ready") {
+        setStatus("unavailable");
+        return;
+      }
+      setSnapshot(response.weather);
+      setStatus("ready");
+      localStorage.setItem(PASSENGER_WEATHER_CACHE_KEY, JSON.stringify(response.weather));
+    } catch {
+      setStatus("unavailable");
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem(PASSENGER_WEATHER_CACHE_KEY);
+      if (cached) setSnapshot(JSON.parse(cached) as PassengerWeatherSnapshot);
+    } catch {
+      localStorage.removeItem(PASSENGER_WEATHER_CACHE_KEY);
+    }
+
+    void refresh();
+    const interval = window.setInterval(
+      () => {
+        if (document.visibilityState === "visible") void refresh();
+      },
+      Math.max(1, refreshMinutes) * 60_000,
+    );
+    return () => window.clearInterval(interval);
+  }, [refresh, refreshMinutes]);
+
+  useEffect(() => {
+    if (online) void refresh();
+    else setStatus("unavailable");
+  }, [online, refresh]);
+
+  return { snapshot, status };
+}
+
 export function PassengerConsole({ config }: PassengerConsoleProps) {
   const [language, setLanguage] = useState<Language>("en");
   const [view, setView] = useState<View>("home");
@@ -403,6 +491,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
   const online = useOnlineStatus();
 
   const consoleConfig = config.passengerConsole;
+  const weather = usePassengerWeather(online, consoleConfig.weather.refreshMinutes);
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
@@ -436,8 +525,10 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               config={config}
               language={language}
               onNavigate={setView}
-              temperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
+              fallbackTemperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
+              weather={weather.snapshot}
               weatherCity={consoleConfig.weather.city}
+              weatherStatus={weather.status}
               t={t}
             />
           )}
@@ -521,15 +612,19 @@ function HomeView({
   config,
   language,
   onNavigate,
-  temperatureFahrenheit,
+  fallbackTemperatureFahrenheit,
+  weather,
   weatherCity,
+  weatherStatus,
   t,
 }: {
   config: AppConfig;
   language: Language;
   onNavigate: (view: View) => void;
-  temperatureFahrenheit: number;
+  fallbackTemperatureFahrenheit: number;
+  weather: PassengerWeatherSnapshot | null;
   weatherCity: string;
+  weatherStatus: "loading" | "ready" | "unavailable";
   t: (typeof copy)[Language];
 }) {
   const now = useClock();
@@ -565,6 +660,8 @@ function HomeView({
         timeZone: clockConfig.secondaryTimeZones.pacific,
       })
     : "--:--";
+  const temperatureFahrenheit =
+    weather?.periods[0]?.temperatureFahrenheit ?? fallbackTemperatureFahrenheit;
   const temperature =
     language === "es"
       ? `${Math.round(((temperatureFahrenheit - 32) * 5) / 9)}°C`
@@ -609,7 +706,8 @@ function HomeView({
               <p className="mt-1 text-2xl font-bold">{temperature}</p>
               <p className="text-xs text-white/55">{weatherCity}</p>
               <span className="mt-1 flex items-center justify-end gap-1 text-[9px] font-semibold text-[#E6CE20]">
-                {t.weatherHint} <ChevronRight className="h-3 w-3" />
+                {weatherStatus === "unavailable" && !weather ? t.weatherUnavailable : t.weatherHint}{" "}
+                <ChevronRight className="h-3 w-3" />
               </span>
             </button>
           </div>
@@ -623,16 +721,18 @@ function HomeView({
       <WeatherDetailDialog
         city={weatherCity}
         language={language}
-        now={now}
         open={weatherOpen}
         onOpenChange={setWeatherOpen}
-        temperatureFahrenheit={temperatureFahrenheit}
+        fallbackTemperatureFahrenheit={fallbackTemperatureFahrenheit}
+        weather={weather}
+        weatherStatus={weatherStatus}
         timeZone={clockConfig.localTimeZone}
         t={t}
       />
 
       <div className="passenger-home-music">
-        {config.passengerConsole.music.mode === "provider" && config.passengerConsole.music.providerName === "Spotify" ? (
+        {config.passengerConsole.music.mode === "provider" &&
+        config.passengerConsole.music.providerName === "Spotify" ? (
           <PersonalSpotifyHomeCard onNavigate={onNavigate} t={t} />
         ) : (
           <button
@@ -647,7 +747,9 @@ function HomeView({
               <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
                 {t.nowPlaying}
               </span>
-              <span className="mt-1 block truncate text-lg font-bold">{MUSIC_LIBRARY[0].title}</span>
+              <span className="mt-1 block truncate text-lg font-bold">
+                {MUSIC_LIBRARY[0].title}
+              </span>
               <span className="block truncate text-sm text-white/55">
                 {MUSIC_LIBRARY[0].artist} · {MUSIC_LIBRARY[0].album}
               </span>
@@ -729,89 +831,142 @@ function SecondaryClock({ label, time }: { label: string; time: string }) {
 
 function WeatherDetailDialog({
   city,
+  fallbackTemperatureFahrenheit,
   language,
-  now,
   onOpenChange,
   open,
-  temperatureFahrenheit,
   timeZone,
   t,
+  weather,
+  weatherStatus,
 }: {
   city: string;
+  fallbackTemperatureFahrenheit: number;
   language: Language;
-  now: Date | null;
   onOpenChange: (open: boolean) => void;
   open: boolean;
-  temperatureFahrenheit: number;
   timeZone: string;
   t: (typeof copy)[Language];
+  weather: PassengerWeatherSnapshot | null;
+  weatherStatus: "loading" | "ready" | "unavailable";
 }) {
   const locale = language === "es" ? "es-MX" : "en-US";
-  const forecast = [0, 1, 2, 3].map((offset) => {
-    const forecastDate = new Date((now ?? new Date()).getTime() + offset * 60 * 60 * 1000);
-    const temperatureFahrenheitAtHour = temperatureFahrenheit + [0, 1, 1, 0][offset];
+  const formatTemperature = (temperatureFahrenheit: number) =>
+    language === "es"
+      ? `${Math.round(((temperatureFahrenheit - 32) * 5) / 9)}°C`
+      : `${Math.round(temperatureFahrenheit)}°F`;
+  const forecast = (weather?.periods ?? []).slice(0, 4).map((period) => {
+    const forecastDate = new Date(period.startTime);
     return {
       label: forecastDate.toLocaleTimeString("en-US", {
         hour: "numeric",
         timeZone,
       }),
-      temperature:
-        language === "es"
-          ? `${Math.round(((temperatureFahrenheitAtHour - 32) * 5) / 9)}°C`
-          : `${Math.round(temperatureFahrenheitAtHour)}°F`,
-      condition: offset === 2 ? t.partlyCloudy : t.clearSkies,
+      temperature: formatTemperature(period.temperatureFahrenheit),
+      condition: weatherConditionLabel(period.condition, t),
     };
   });
-  const feelsLikeFahrenheit = temperatureFahrenheit + 1;
-  const feelsLike =
-    language === "es"
-      ? `${Math.round(((feelsLikeFahrenheit - 32) * 5) / 9)}°C`
-      : `${Math.round(feelsLikeFahrenheit)}°F`;
+  const current = weather?.periods[0];
+  const updatedAt = weather
+    ? new Date(weather.updatedAt).toLocaleTimeString(locale, {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone,
+      })
+    : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[calc(100%_-_2rem)] max-w-xl rounded-[28px] border-white/10 bg-[#151515] text-white">
         <DialogHeader>
-          <DialogTitle className="text-left text-2xl font-extrabold">{t.weatherDetailTitle}</DialogTitle>
+          <DialogTitle className="text-left text-2xl font-extrabold">
+            {t.weatherDetailTitle}
+          </DialogTitle>
           <DialogDescription className="text-left text-white/55">
             {t.weatherDetailDescription} {city}.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-          <WeatherMetric label={t.weather} value={t.clearSkies} />
-          <WeatherMetric label={t.feelsLike} value={feelsLike} />
-          <WeatherMetric label={t.humidity} value="42%" />
-        </div>
+        {current ? (
+          <>
+            <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+              <WeatherMetric
+                label={t.weather}
+                value={weatherConditionLabel(current.condition, t)}
+              />
+              <WeatherMetric
+                label={t.precipitation}
+                value={
+                  current.precipitationChance === null ? "—" : `${current.precipitationChance}%`
+                }
+              />
+              <WeatherMetric
+                label={t.wind}
+                value={[current.windDirection, current.windSpeed].filter(Boolean).join(" ") || "—"}
+              />
+            </div>
 
-        <div>
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
-            {t.nextHours}
-          </p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {forecast.map((hour) => (
-              <div key={hour.label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-3">
-                <p className="text-xs font-semibold text-white/55">{hour.label}</p>
-                <p className="mt-2 text-xl font-bold">{hour.temperature}</p>
-                <p className="mt-1 text-[10px] leading-tight text-white/50">{hour.condition}</p>
+            <div>
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+                {t.nextHours}
+              </p>
+              <div className="grid grid-cols-4 gap-2">
+                {forecast.map((hour, index) => (
+                  <div
+                    key={`${hour.label}-${index}`}
+                    className="rounded-2xl border border-white/10 bg-white/[0.035] p-3"
+                  >
+                    <p className="text-xs font-semibold text-white/55">{hour.label}</p>
+                    <p className="mt-2 text-xl font-bold">{hour.temperature}</p>
+                    <p className="mt-1 text-[10px] leading-tight text-white/50">{hour.condition}</p>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+          </>
+        ) : (
+          <div className="rounded-2xl border border-[#E6CE20]/25 bg-[#E6CE20]/[0.06] p-4">
+            <p className="text-lg font-bold">{formatTemperature(fallbackTemperatureFahrenheit)}</p>
+            <p className="mt-2 font-semibold text-white/80">{t.weatherUnavailable}</p>
+            <p className="mt-1 text-sm text-white/55">{t.weatherUnavailableDescription}</p>
           </div>
-        </div>
+        )}
 
         <div className="flex items-center gap-2 border-t border-white/10 pt-3 text-xs text-white/50">
           <Cloud className="h-4 w-4 text-[#E6CE20]" />
-          <span>{t.wind}: 6 mph</span>
+          <span>
+            {updatedAt ? `${t.updated} ${updatedAt}` : t.weatherUnavailable}
+            {weatherStatus === "unavailable" && weather ? ` · ${t.offline}` : ""}
+          </span>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
 
+function weatherConditionLabel(condition: PassengerWeatherCondition, t: (typeof copy)[Language]) {
+  const labels: Record<PassengerWeatherCondition, string> = {
+    clear: t.conditionClear,
+    "mostly-clear": t.conditionMostlyClear,
+    "partly-cloudy": t.conditionPartlyCloudy,
+    cloudy: t.conditionCloudy,
+    rain: t.conditionRain,
+    thunderstorms: t.conditionThunderstorms,
+    snow: t.conditionSnow,
+    fog: t.conditionFog,
+    smoke: t.conditionSmoke,
+    wind: t.conditionWind,
+    unknown: t.conditionUnknown,
+  };
+  return labels[condition];
+}
+
 function WeatherMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-white/45">{label}</p>
+      <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-white/45">
+        {label}
+      </p>
       <p className="mt-1 truncate text-sm font-bold">{value}</p>
     </div>
   );
@@ -965,7 +1120,11 @@ function PersonalSpotifyHomeCard({
       className="flex min-h-[96px] w-full min-w-0 items-center gap-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
     >
       {track?.artworkUrl ? (
-        <img src={track.artworkUrl} alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover" />
+        <img
+          src={track.artworkUrl}
+          alt=""
+          className="h-16 w-16 shrink-0 rounded-2xl object-cover"
+        />
       ) : (
         <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black">
           <Music2 className="h-7 w-7" />
@@ -975,7 +1134,9 @@ function PersonalSpotifyHomeCard({
         <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
           {t.nowPlaying}
         </span>
-        <span className="mt-1 block truncate text-lg font-bold">{track?.title ?? t.chooseMusic}</span>
+        <span className="mt-1 block truncate text-lg font-bold">
+          {track?.title ?? t.chooseMusic}
+        </span>
         <span className="block truncate text-sm text-white/55">
           {track ? `${track.artist}${track.album ? ` · ${track.album}` : ""}` : t.spotifyNoDevice}
         </span>
@@ -1016,19 +1177,22 @@ function PersonalSpotifyMusicView({
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
 
-  const refresh = useCallback(async (silent = false) => {
-    if (!silent) setError(null);
-    try {
-      const next = await getPersonalSpotifyPlayback({ data: {} });
-      setStatus(next);
-      return next;
-    } catch (requestError) {
-      if (!silent) {
-        setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
+  const refresh = useCallback(
+    async (silent = false) => {
+      if (!silent) setError(null);
+      try {
+        const next = await getPersonalSpotifyPlayback({ data: {} });
+        setStatus(next);
+        return next;
+      } catch (requestError) {
+        if (!silent) {
+          setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
+        }
+        return null;
       }
-      return null;
-    }
-  }, [t.spotifyControlError]);
+    },
+    [t.spotifyControlError],
+  );
 
   useEffect(() => {
     void refresh();
@@ -1123,12 +1287,11 @@ function PersonalSpotifyMusicView({
   };
 
   const isMusicUnavailable = status?.state === "disabled";
-  const message =
-    isMusicUnavailable
-      ? t.musicUnavailableDescription
-      : status?.state === "driver-setup-required" || status?.state === "not-connected"
-        ? t.musicGettingReadyDescription
-        : null;
+  const message = isMusicUnavailable
+    ? t.musicUnavailableDescription
+    : status?.state === "driver-setup-required" || status?.state === "not-connected"
+      ? t.musicGettingReadyDescription
+      : null;
   const playback = status?.state === "ready" ? status.playback : null;
 
   return (
@@ -1158,9 +1321,13 @@ function PersonalSpotifyMusicView({
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}
             </p>
-            <p className="mt-1 truncate text-lg font-bold">{playback.track?.title ?? t.chooseMusic}</p>
+            <p className="mt-1 truncate text-lg font-bold">
+              {playback.track?.title ?? t.chooseMusic}
+            </p>
             <p className="truncate text-sm text-white/55">
-              {playback.track ? `${playback.track.artist}${playback.track.album ? ` · ${playback.track.album}` : ""}` : t.spotifyNoDevice}
+              {playback.track
+                ? `${playback.track.artist}${playback.track.album ? ` · ${playback.track.album}` : ""}`
+                : t.spotifyNoDevice}
             </p>
             <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
               {t.spotifyDevice}: {playback.hasActiveDevice ? t.spotifyActive : "—"}
@@ -1174,7 +1341,11 @@ function PersonalSpotifyMusicView({
               className="grid h-12 w-12 place-items-center rounded-full bg-[#E6CE20] text-black disabled:opacity-45"
               aria-label={playback.isPlaying ? "Pause" : "Play"}
             >
-              {playback.isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current" />}
+              {playback.isPlaying ? (
+                <Pause className="h-5 w-5 fill-current" />
+              ) : (
+                <Play className="h-5 w-5 fill-current" />
+              )}
             </button>
             <button
               type="button"
@@ -1217,7 +1388,9 @@ function PersonalSpotifyMusicView({
           </p>
           <p className="mt-2 text-sm leading-relaxed text-white/60">{t.searchSpotifyHint}</p>
           <div className="mt-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">{t.exploreMusic}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
+              {t.exploreMusic}
+            </p>
             <div className="mt-2 flex flex-wrap gap-2">
               {MUSIC_VIBES.map((vibe) => (
                 <button
@@ -1277,7 +1450,11 @@ function PersonalSpotifyMusicView({
                     aria-label={`${t.playSong}: ${track.title}`}
                   >
                     {track.artworkUrl ? (
-                      <img src={track.artworkUrl} alt="" className="h-11 w-11 shrink-0 rounded-xl object-cover" />
+                      <img
+                        src={track.artworkUrl}
+                        alt=""
+                        className="h-11 w-11 shrink-0 rounded-xl object-cover"
+                      />
                     ) : (
                       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#E6CE20]/15 text-[#E6CE20]">
                         <Music2 className="h-4 w-4" />
@@ -1286,11 +1463,14 @@ function PersonalSpotifyMusicView({
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-semibold">{track.title}</span>
                       <span className="block truncate text-xs text-white/55">
-                        {track.artist}{track.album ? ` · ${track.album}` : ""}
+                        {track.artist}
+                        {track.album ? ` · ${track.album}` : ""}
                       </span>
                     </span>
                     <span className="flex shrink-0 items-center gap-1 text-[#E6CE20]">
-                      {track.explicit && <span className="text-[9px] font-bold uppercase">{t.explicit}</span>}
+                      {track.explicit && (
+                        <span className="text-[9px] font-bold uppercase">{t.explicit}</span>
+                      )}
                       <Play className="h-4 w-4 fill-current" />
                     </span>
                   </button>
@@ -1510,11 +1690,17 @@ function GameCard({
         <div className="mt-6 min-h-36 overflow-hidden rounded-2xl border border-white/10 bg-black/20 p-4">
           {kind === "trivia" ? (
             <div className="relative h-full overflow-hidden rounded-xl border border-[#E6CE20]/15 bg-gradient-to-br from-[#E6CE20]/15 to-transparent p-3">
-              <span className="absolute -right-2 -top-6 text-7xl font-black tracking-tighter text-[#E6CE20]/15">UT</span>
-              <p className="relative text-[9px] font-semibold uppercase tracking-[0.16em] text-[#E6CE20]">{previewLabel}</p>
+              <span className="absolute -right-2 -top-6 text-7xl font-black tracking-tighter text-[#E6CE20]/15">
+                UT
+              </span>
+              <p className="relative text-[9px] font-semibold uppercase tracking-[0.16em] text-[#E6CE20]">
+                {previewLabel}
+              </p>
               <div className="relative mt-5 flex items-end justify-between">
                 <span className="text-3xl font-black">01</span>
-                <span className="grid h-10 w-10 place-items-center rounded-full border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-lg font-black text-[#E6CE20]">?</span>
+                <span className="grid h-10 w-10 place-items-center rounded-full border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-lg font-black text-[#E6CE20]">
+                  ?
+                </span>
               </div>
               <div className="relative mt-3 h-1.5 w-4/5 rounded-full bg-white/10">
                 <div className="h-full w-2/5 rounded-full bg-[#E6CE20]" />
@@ -1523,11 +1709,15 @@ function GameCard({
           ) : (
             <div className="flex h-full gap-2">
               <div className="flex flex-1 flex-col justify-between rounded-xl border border-white/10 bg-white/[0.05] p-3">
-                <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/45">{previewLabel}</p>
+                <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/45">
+                  {previewLabel}
+                </p>
                 <p className="text-2xl font-black tracking-tight">{choiceLabels?.[0] ?? "THIS"}</p>
               </div>
               <div className="flex flex-1 flex-col justify-between rounded-xl border border-[#E6CE20]/25 bg-[#E6CE20]/10 p-3">
-                <p className="text-right text-[9px] font-semibold uppercase tracking-[0.16em] text-[#E6CE20]">VS</p>
+                <p className="text-right text-[9px] font-semibold uppercase tracking-[0.16em] text-[#E6CE20]">
+                  VS
+                </p>
                 <p className="text-right text-2xl font-black tracking-tight text-[#E6CE20]">
                   {choiceLabels?.[1] ?? "THAT"}
                 </p>
@@ -1622,7 +1812,13 @@ function StreexView({
   );
 }
 
-function PassengerBackButton({ onNavigate, t }: { onNavigate: (view: View) => void; t: (typeof copy)[Language] }) {
+function PassengerBackButton({
+  onNavigate,
+  t,
+}: {
+  onNavigate: (view: View) => void;
+  t: (typeof copy)[Language];
+}) {
   return (
     <button
       type="button"
@@ -1667,8 +1863,18 @@ function ContactView({
 }) {
   const actions = [
     { href: `tel:${config.phone}`, icon: <Phone />, label: t.call, detail: config.phoneDisplay },
-    { href: `sms:${config.phone}`, icon: <MessageSquare />, label: t.text, detail: config.phoneDisplay },
-    { href: config.whatsapp, icon: <MessageCircle />, label: t.whatsapp, detail: config.phoneDisplay },
+    {
+      href: `sms:${config.phone}`,
+      icon: <MessageSquare />,
+      label: t.text,
+      detail: config.phoneDisplay,
+    },
+    {
+      href: config.whatsapp,
+      icon: <MessageCircle />,
+      label: t.whatsapp,
+      detail: config.phoneDisplay,
+    },
     { href: `mailto:${config.email}`, icon: <Mail />, label: t.email, detail: config.email },
   ].filter((action) => Boolean(action.href));
 
@@ -1779,9 +1985,7 @@ function PhoneContinuationCard({
           : "col-span-2 flex min-h-[142px] items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
       }
     >
-      <span
-        className={`shrink-0 self-start rounded-xl bg-white ${compact ? "p-1.5" : "p-2"}`}
-      >
+      <span className={`shrink-0 self-start rounded-xl bg-white ${compact ? "p-1.5" : "p-2"}`}>
         <QRCodeSVG
           value={href}
           size={compact ? 92 : 88}
@@ -1944,8 +2148,17 @@ function MeetJuanView({
       <section className="passenger-meet-gratitude rounded-[26px] border border-white/10 bg-white/[0.035] p-5">
         <p className="text-sm leading-relaxed text-white/65">{t.gratitude}</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <ActionButton icon={<Star />} label={t.leaveReview} onClick={() => onNavigate("reviews")} />
-          <ActionButton accent icon={<HandCoins />} label={t.leaveTip} onClick={() => onNavigate("tip")} />
+          <ActionButton
+            icon={<Star />}
+            label={t.leaveReview}
+            onClick={() => onNavigate("reviews")}
+          />
+          <ActionButton
+            accent
+            icon={<HandCoins />}
+            label={t.leaveTip}
+            onClick={() => onNavigate("tip")}
+          />
         </div>
       </section>
       <div className="passenger-meet-notes min-h-0">
@@ -1998,7 +2211,9 @@ function GuestNote({
       } ${className}`}
     >
       <p className="text-sm font-medium leading-relaxed text-white/85">{quote}</p>
-      <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.15em] text-[#E6CE20]">{by}</p>
+      <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.15em] text-[#E6CE20]">
+        {by}
+      </p>
     </article>
   );
 }

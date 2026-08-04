@@ -50,7 +50,10 @@ export const CONFIG = {
     },
     weather: {
       city: "Salt Lake City",
-      // A presentation fallback until a weather provider is explicitly approved.
+      latitude: 40.7608,
+      longitude: -111.891,
+      refreshMinutes: 15,
+      // Used only when live weather has not loaded yet or is temporarily unavailable.
       fallbackTemperatureFahrenheit: 72,
     },
     music: {
