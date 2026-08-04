@@ -77,7 +77,7 @@ export const CONFIG = {
       // Public destinations rendered as QR codes or phone-continuation links. Keep payment
       // provider secrets out of this object; a Stripe-hosted Payment Link is safe to expose.
       phoneContinuation: "https://rides.getstreex.com",
-      stripeTip: null as string | null,
+      stripeTip: "https://buy.stripe.com/aFa00ibto7GZ6aYaa45AQ00" as string | null,
     },
   },
 
