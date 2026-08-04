@@ -45,8 +45,13 @@ import {
   playPersonalSpotifyTrack,
   searchPersonalSpotifyTracks,
 } from "@/lib/spotify.functions";
-import { getPassengerWeather } from "@/lib/weather.functions";
 import type { PassengerWeatherCondition, PassengerWeatherSnapshot } from "@/lib/weather";
+import {
+  useClock,
+  useOnlineStatus,
+  usePassengerWeather,
+  type PassengerWeatherStatus,
+} from "./usePassengerState";
 
 type Language = "en" | "es";
 type View =
@@ -401,88 +406,6 @@ const copy = {
   },
 } as const;
 
-function useClock() {
-  const [now, setNow] = useState<Date | null>(null);
-
-  useEffect(() => {
-    const update = () => setNow(new Date());
-    update();
-    const id = window.setInterval(update, 30_000);
-    return () => window.clearInterval(id);
-  }, []);
-
-  return now;
-}
-
-function useOnlineStatus() {
-  const [online, setOnline] = useState(true);
-
-  useEffect(() => {
-    const update = () => setOnline(navigator.onLine);
-    update();
-    window.addEventListener("online", update);
-    window.addEventListener("offline", update);
-    return () => {
-      window.removeEventListener("online", update);
-      window.removeEventListener("offline", update);
-    };
-  }, []);
-
-  return online;
-}
-
-const PASSENGER_WEATHER_CACHE_KEY = "streex-passenger-weather-v1";
-
-function usePassengerWeather(online: boolean, refreshMinutes: number) {
-  const [snapshot, setSnapshot] = useState<PassengerWeatherSnapshot | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "unavailable">("loading");
-
-  const refresh = useCallback(async () => {
-    if (!navigator.onLine) {
-      setStatus("unavailable");
-      return;
-    }
-
-    try {
-      const response = await getPassengerWeather({ data: {} });
-      if (response.state !== "ready") {
-        setStatus("unavailable");
-        return;
-      }
-      setSnapshot(response.weather);
-      setStatus("ready");
-      localStorage.setItem(PASSENGER_WEATHER_CACHE_KEY, JSON.stringify(response.weather));
-    } catch {
-      setStatus("unavailable");
-    }
-  }, []);
-
-  useEffect(() => {
-    try {
-      const cached = localStorage.getItem(PASSENGER_WEATHER_CACHE_KEY);
-      if (cached) setSnapshot(JSON.parse(cached) as PassengerWeatherSnapshot);
-    } catch {
-      localStorage.removeItem(PASSENGER_WEATHER_CACHE_KEY);
-    }
-
-    void refresh();
-    const interval = window.setInterval(
-      () => {
-        if (document.visibilityState === "visible") void refresh();
-      },
-      Math.max(1, refreshMinutes) * 60_000,
-    );
-    return () => window.clearInterval(interval);
-  }, [refresh, refreshMinutes]);
-
-  useEffect(() => {
-    if (online) void refresh();
-    else setStatus("unavailable");
-  }, [online, refresh]);
-
-  return { snapshot, status };
-}
-
 export function PassengerConsole({ config }: PassengerConsoleProps) {
   const [language, setLanguage] = useState<Language>("en");
   const [view, setView] = useState<View>("home");
@@ -628,7 +551,7 @@ function HomeView({
   fallbackTemperatureFahrenheit: number;
   weather: PassengerWeatherSnapshot | null;
   weatherCity: string;
-  weatherStatus: "loading" | "ready" | "unavailable";
+  weatherStatus: PassengerWeatherStatus;
   t: (typeof copy)[Language];
 }) {
   const now = useClock();
@@ -852,7 +775,7 @@ function WeatherDetailDialog({
   timeZone: string;
   t: (typeof copy)[Language];
   weather: PassengerWeatherSnapshot | null;
-  weatherStatus: "loading" | "ready" | "unavailable";
+  weatherStatus: PassengerWeatherStatus;
 }) {
   const locale = language === "es" ? "es-MX" : "en-US";
   const formatTemperature = (temperatureFahrenheit: number) =>
