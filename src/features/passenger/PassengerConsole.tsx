@@ -501,6 +501,10 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
     });
   }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   return (
     <div className="h-dvh overflow-hidden bg-[#0B0B0B] text-white">
       <div

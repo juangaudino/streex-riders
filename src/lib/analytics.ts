@@ -1,9 +1,8 @@
 const FALLBACK_MEASUREMENT_ID = "G-1WJPHXQKSN";
 const MEASUREMENT_ID =
-  (import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined)?.trim() ||
-  FALLBACK_MEASUREMENT_ID;
+  (import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined)?.trim() || FALLBACK_MEASUREMENT_ID;
 
-const EXCLUDED_PATH_PREFIXES = ["/admin", "/runner-lab"];
+const EXCLUDED_PATH_PREFIXES = ["/admin", "/passenger", "/runner-lab", "/spotify"];
 
 type AnalyticsValue = string | number | boolean | undefined;
 type AnalyticsParams = Record<string, AnalyticsValue>;
@@ -65,4 +64,3 @@ export function trackEvent(name: string, params: AnalyticsParams = {}) {
   if (!initialized || !window.gtag || !isAnalyticsAllowed()) return;
   window.gtag("event", name, params);
 }
-
