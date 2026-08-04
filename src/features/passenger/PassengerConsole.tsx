@@ -53,6 +53,7 @@ import {
   type PassengerWeatherStatus,
 } from "./usePassengerState";
 import { UtahTrivia } from "./UtahTrivia";
+import { ThisOrThat } from "./ThisOrThat";
 
 type Language = "en" | "es";
 type View =
@@ -469,6 +470,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
             <GamesView
               language={language}
               t={t}
+              thisOrThatEnabled={consoleConfig.games.thisOrThatEnabled}
               utahTriviaEnabled={consoleConfig.games.utahTriviaEnabled}
             />
           )}
@@ -1567,16 +1569,22 @@ function SimulatedMusicView({
 function GamesView({
   language,
   t,
+  thisOrThatEnabled,
   utahTriviaEnabled,
 }: {
   language: Language;
   t: (typeof copy)[Language];
+  thisOrThatEnabled: boolean;
   utahTriviaEnabled: boolean;
 }) {
-  const [triviaOpen, setTriviaOpen] = useState(false);
+  const [activeGame, setActiveGame] = useState<"trivia" | "choice" | null>(null);
 
-  if (triviaOpen && utahTriviaEnabled) {
-    return <UtahTrivia language={language} onExit={() => setTriviaOpen(false)} />;
+  if (activeGame === "trivia" && utahTriviaEnabled) {
+    return <UtahTrivia language={language} onExit={() => setActiveGame(null)} />;
+  }
+
+  if (activeGame === "choice" && thisOrThatEnabled) {
+    return <ThisOrThat language={language} onExit={() => setActiveGame(null)} />;
   }
 
   return (
@@ -1591,7 +1599,7 @@ function GamesView({
           description={t.utahTriviaDescription}
           previewLabel={t.triviaPreview}
           icon={<Sparkles className="h-7 w-7" />}
-          onClick={utahTriviaEnabled ? () => setTriviaOpen(true) : undefined}
+          onClick={utahTriviaEnabled ? () => setActiveGame("trivia") : undefined}
           status={utahTriviaEnabled ? t.playNow : t.comingSoon}
         />
         <GameCard
@@ -1601,7 +1609,8 @@ function GamesView({
           previewLabel={t.choicePreview}
           choiceLabels={[t.choiceFirst, t.choiceSecond]}
           icon={<Gamepad2 className="h-7 w-7" />}
-          status={t.comingSoon}
+          onClick={thisOrThatEnabled ? () => setActiveGame("choice") : undefined}
+          status={thisOrThatEnabled ? t.playNow : t.comingSoon}
         />
       </div>
       <div className="passenger-games-note rounded-[26px] border border-white/10 bg-gradient-to-br from-white/[0.05] to-[#E6CE20]/10 p-6">

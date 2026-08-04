@@ -71,7 +71,7 @@ export const CONFIG = {
     },
     games: {
       utahTriviaEnabled: true,
-      thisOrThatEnabled: false,
+      thisOrThatEnabled: true,
     },
     links: {
       // Booking, services, contact, reviews and tips reuse their native Rides components
