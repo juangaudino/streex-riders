@@ -75,10 +75,9 @@ show passenger data.
   `FeedbackForm` for passenger reviews, and shared public config for services. Contact details are
   informational on the shared tablet and never launch phone apps. Tips remain optional and use
   large QR codes so payment is completed on the passenger's own phone through configured public
-  Venmo, Cash App or Stripe-hosted links. Apple Pay has a dedicated Passenger option that uses the
-  same Stripe-hosted checkout; compatible iPhones surface Apple Pay there, while card and Google
-  Pay remain a separate visible choice. Never place tokens, PINs, credentials or personal data in
-  Passenger config.
+  Venmo, Cash App or Stripe-hosted links. Apple Pay, Google Pay and cards share one clearly labeled
+  Stripe-hosted checkout because Apple Pay has no direct public payment URL comparable to Venmo or
+  Cash App. Never place tokens, PINs, credentials or personal data in Passenger config.
 - Passenger has an isolated PWA manifest and service worker: it installs into `/passenger` in
   standalone portrait mode, caches only static UI assets, and has an offline recovery screen.
   It does not enforce Android kiosk mode, cache API data, or store passenger details.
@@ -167,7 +166,8 @@ existing static assets remain valid fallbacks.
 
 ## Passenger Roadmap Order
 
-1. Add and validate Apple Pay as a dedicated Passenger payment choice.
+1. Present Apple Pay, Google Pay and cards as payment methods within one Stripe-hosted Passenger
+   checkout; do not duplicate that link as separate payment choices.
 2. Apply the next visual improvements supplied and approved by the user.
 3. Complete Passenger hardening in this order: restrict `/passenger` to the paired tablet, replace
    sample Meet Juan reviews with approved live reviews, run a full in-vehicle field test, and add
