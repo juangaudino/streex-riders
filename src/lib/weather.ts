@@ -115,7 +115,7 @@ export function normalizeNwsHourlyForecast(payload: unknown): PassengerWeatherSn
 
   return {
     updatedAt:
-      [properties.updateTime, properties.generatedAt, properties.updated].find(
+      [properties.generatedAt, properties.updateTime, properties.updated].find(
         (value): value is string => typeof value === "string",
       ) ?? new Date().toISOString(),
     periods,

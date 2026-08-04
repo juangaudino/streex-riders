@@ -6,6 +6,7 @@ describe("NWS hourly weather normalization", () => {
     const result = normalizeNwsHourlyForecast({
       properties: {
         updateTime: "2026-08-04T12:00:00Z",
+        generatedAt: "2026-08-04T16:35:07Z",
         periods: [
           {
             startTime: "2026-08-04T08:00:00-06:00",
@@ -22,7 +23,7 @@ describe("NWS hourly weather normalization", () => {
     });
 
     expect(result).toEqual({
-      updatedAt: "2026-08-04T12:00:00Z",
+      updatedAt: "2026-08-04T16:35:07Z",
       periods: [
         {
           startTime: "2026-08-04T08:00:00-06:00",
