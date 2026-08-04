@@ -20,28 +20,52 @@ const AREA_GROUPS = [
   },
 ] as const;
 
-export function ServiceAreas({ config }: { config: AppConfig }) {
+type ServiceAreasCopy = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  serviceArea: string;
+  moreDestinations: string;
+  extendedRides: string;
+};
+
+const DEFAULT_COPY: ServiceAreasCopy = {
+  eyebrow: "Where We Ride",
+  title: "Utah roots. Longer horizons.",
+  description:
+    "Private transportation throughout Northern Utah, Park City and beyond — with every route planned around your schedule.",
+  serviceArea: "Service Area",
+  moreDestinations: "More Destinations",
+  extendedRides: "Extended Rides",
+};
+
+export function ServiceAreas({
+  config,
+  copy = DEFAULT_COPY,
+}: {
+  config: AppConfig;
+  copy?: ServiceAreasCopy;
+}) {
   const groups = config.areas.length
     ? [
-        { icon: MapPin, title: "Service Area", areas: config.areas.slice(0, 6).join(" · ") },
+        { icon: MapPin, title: copy.serviceArea, areas: config.areas.slice(0, 6).join(" · ") },
         {
           icon: Navigation,
-          title: "More Destinations",
+          title: copy.moreDestinations,
           areas: config.areas.slice(6, 12).join(" · "),
         },
-        { icon: Mountain, title: "Extended Rides", areas: config.areas.slice(12).join(" · ") },
+        { icon: Mountain, title: copy.extendedRides, areas: config.areas.slice(12).join(" · ") },
       ].filter((group) => group.areas)
     : AREA_GROUPS;
   return (
     <Reveal as="section" className="px-6 mt-16">
       <div className="streex-divider w-16 mb-5" />
       <p className="text-[11px] uppercase streex-tracking text-[#E6CE20] font-semibold mb-2">
-        Where We Ride
+        {copy.eyebrow}
       </p>
-      <h2 className="text-2xl font-bold">Utah roots. Longer horizons.</h2>
+      <h2 className="text-2xl font-bold">{copy.title}</h2>
       <p className="mt-3 text-sm leading-relaxed text-white/60">
-        Private transportation throughout Northern Utah, Park City and beyond — with every route
-        planned around your schedule.
+        {copy.description}
       </p>
 
       <div className="mt-6 space-y-3">

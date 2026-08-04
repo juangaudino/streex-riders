@@ -34,7 +34,9 @@ import {
 import { ServiceTicker } from "@/components/streex/ServiceTicker";
 import { BookingFormModal } from "@/components/streex/BookingFormModal";
 import { FeedbackForm } from "@/components/streex/FeedbackForm";
+import { ExperienceGallery } from "@/components/streex/ExperienceGallery";
 import { PaymentOptions } from "@/components/streex/PaymentOptions";
+import { ServiceAreas } from "@/components/streex/ServiceAreas";
 import { ServicesSection } from "@/components/streex/ServicesSection";
 import { QRCodeSVG } from "qrcode.react";
 import {
@@ -169,8 +171,16 @@ const copy = {
     choicePreview: "Pick a side",
     choiceFirst: "THIS",
     choiceSecond: "THAT",
-    streexTitle: "Your STREEX experience",
-    streexSubtitle: "Helpful links for the rest of your journey.",
+    streexTitle: "Private rides. Elevated.",
+    streexSubtitle: "Premium private transportation, designed around your journey.",
+    streexExperienceTitle: "The STREEX Experience",
+    whereWeRide: "Where We Ride",
+    whereWeRideTitle: "Utah roots. Longer horizons.",
+    whereWeRideDescription:
+      "Private transportation throughout Northern Utah, Park City and beyond — with every route planned around your schedule.",
+    serviceArea: "Service Area",
+    moreDestinations: "More Destinations",
+    extendedRides: "Extended Rides",
     bookRide: "Book another ride",
     services: "Services",
     contact: "Contact",
@@ -302,8 +312,16 @@ const copy = {
     choicePreview: "Elige un lado",
     choiceFirst: "ESTO",
     choiceSecond: "AQUELLO",
-    streexTitle: "Tu experiencia STREEX",
-    streexSubtitle: "Enlaces útiles para el resto de su viaje.",
+    streexTitle: "Viajes privados. Elevados.",
+    streexSubtitle: "Transporte privado premium, diseñado alrededor de su viaje.",
+    streexExperienceTitle: "La experiencia STREEX",
+    whereWeRide: "Dónde viajamos",
+    whereWeRideTitle: "Raíces en Utah. Horizontes más amplios.",
+    whereWeRideDescription:
+      "Transporte privado en el norte de Utah, Park City y más allá, con cada ruta planificada según su horario.",
+    serviceArea: "Área de servicio",
+    moreDestinations: "Más destinos",
+    extendedRides: "Viajes extendidos",
     bookRide: "Reservar otro viaje",
     services: "Servicios",
     contact: "Contacto",
@@ -1511,45 +1529,63 @@ function StreexView({
 }) {
   return (
     <div className="passenger-streex-layout flex flex-col gap-5">
-      <div className="passenger-streex-header">
-        <ViewHeader eyebrow="STREEX RIDES" title={t.streexTitle} description={t.streexSubtitle} />
-      </div>
-      <div className="passenger-streex-actions grid grid-cols-2 gap-3">
-        <div className="passenger-streex-book col-span-2">
-          <ActionButton accent icon={<CalendarPlus />} label={t.bookRide} onClick={onBookRide} />
+      <section className="passenger-streex-overview flex flex-col gap-5">
+        <div className="passenger-streex-header">
+          <ViewHeader eyebrow="STREEX RIDES" title={t.streexTitle} description={t.streexSubtitle} />
         </div>
-        <ActionButton icon={<Menu />} label={t.services} onClick={() => onNavigate("services")} />
-        <ActionButton icon={<Phone />} label={t.contact} onClick={() => onNavigate("contact")} />
-        <ActionButton icon={<Star />} label={t.reviews} onClick={() => onNavigate("reviews")} />
-        <ActionButton icon={<HandCoins />} label={t.tip} onClick={() => onNavigate("tip")} />
-        <PhoneContinuationCard
-          description={t.continuePhoneDescription}
-          href={phoneContinuation}
-          label={t.continuePhone}
-          unavailable={t.unavailable}
-        />
-      </div>
-      <button
-        type="button"
-        onClick={() => onNavigate("meet-juan")}
-        className="passenger-streex-meet flex items-center gap-4 rounded-[26px] border border-white/10 bg-white/[0.05] p-5 text-left hover:bg-white/[0.08]"
-      >
-        <img
-          src={config.meetPhoto}
-          alt={config.ownerName}
-          className="h-14 w-14 shrink-0 rounded-2xl border border-[#E6CE20]/45 object-cover"
-        />
-        <span className="min-w-0 flex-1">
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
-            STREEX
+        <div className="passenger-streex-actions grid grid-cols-2 gap-3">
+          <div className="passenger-streex-book col-span-2">
+            <ActionButton accent icon={<CalendarPlus />} label={t.bookRide} onClick={onBookRide} />
+          </div>
+          <ActionButton icon={<Menu />} label={t.services} onClick={() => onNavigate("services")} />
+          <ActionButton icon={<Phone />} label={t.contact} onClick={() => onNavigate("contact")} />
+          <ActionButton icon={<Star />} label={t.reviews} onClick={() => onNavigate("reviews")} />
+          <ActionButton icon={<HandCoins />} label={t.tip} onClick={() => onNavigate("tip")} />
+          <PhoneContinuationCard
+            description={t.continuePhoneDescription}
+            href={phoneContinuation}
+            label={t.continuePhone}
+            unavailable={t.unavailable}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => onNavigate("meet-juan")}
+          className="passenger-streex-meet flex w-full items-center gap-4 rounded-[26px] border border-white/10 bg-white/[0.05] p-5 text-left hover:bg-white/[0.08]"
+        >
+          <img
+            src={config.meetPhoto}
+            alt={config.ownerName}
+            className="h-14 w-14 shrink-0 rounded-2xl border border-[#E6CE20]/45 object-cover"
+          />
+          <span className="min-w-0 flex-1">
+            <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+              STREEX
+            </span>
+            <span className="mt-1 block text-lg font-bold">{t.meetJuan}</span>
+            <span className="block text-sm text-white/55">{configOwnerLine(t)}</span>
           </span>
-          <span className="mt-1 block text-lg font-bold">{t.meetJuan}</span>
-          <span className="block text-sm text-white/55">{configOwnerLine(t)}</span>
-        </span>
-        <ChevronRight className="h-5 w-5 text-white/45" />
-      </button>
-      <div className="passenger-streex-ticker hidden">
-        <ServiceTicker config={config} />
+          <ChevronRight className="h-5 w-5 text-white/45" />
+        </button>
+        <div className="passenger-streex-ticker hidden">
+          <ServiceTicker config={config} />
+        </div>
+      </section>
+      <div className="passenger-streex-experience">
+        <ExperienceGallery config={config} title={t.streexExperienceTitle} />
+      </div>
+      <div className="passenger-streex-areas">
+        <ServiceAreas
+          config={config}
+          copy={{
+            eyebrow: t.whereWeRide,
+            title: t.whereWeRideTitle,
+            description: t.whereWeRideDescription,
+            serviceArea: t.serviceArea,
+            moreDestinations: t.moreDestinations,
+            extendedRides: t.extendedRides,
+          }}
+        />
       </div>
     </div>
   );

@@ -1,9 +1,15 @@
 import type { AppConfig } from "@/config";
 
-export function ExperienceGallery({ config }: { config: AppConfig }) {
+export function ExperienceGallery({
+  config,
+  title = "The Streex Experience",
+}: {
+  config: AppConfig;
+  title?: string;
+}) {
   return (
     <section className="mt-16">
-      <h2 className="text-2xl font-bold mb-5 px-6">The Streex Experience</h2>
+      <h2 className="text-2xl font-bold mb-5 px-6">{title}</h2>
       <div className="flex gap-4 overflow-x-auto no-scrollbar px-6 pb-2 snap-x snap-mandatory">
         {config.galleryImages.map((e) => (
           <div
