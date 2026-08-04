@@ -64,9 +64,7 @@ export function ServiceAreas({
         {copy.eyebrow}
       </p>
       <h2 className="text-2xl font-bold">{copy.title}</h2>
-      <p className="mt-3 text-sm leading-relaxed text-white/60">
-        {copy.description}
-      </p>
+      <p className="mt-3 text-sm leading-relaxed text-white/60">{copy.description}</p>
 
       <div className="mt-6 space-y-3">
         {groups.map(({ icon: Icon, title, areas }) => (

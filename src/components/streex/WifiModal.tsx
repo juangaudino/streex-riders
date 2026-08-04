@@ -3,7 +3,13 @@ import { Wifi } from "lucide-react";
 // To customize this template, edit src/config.ts
 import { CONFIG } from "@/config";
 
-export function WifiModal({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+export function WifiModal({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
   const handleOpenWifi = () => {
     try {
       window.location.href = "App-Prefs:root=WIFI";
@@ -14,9 +20,7 @@ export function WifiModal({ open, onOpenChange }: { open: boolean; onOpenChange:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="border-0 p-0 bg-transparent shadow-none max-w-sm"
-      >
+      <DialogContent className="border-0 p-0 bg-transparent shadow-none max-w-sm">
         <div className="streex-glass p-6 text-white">
           <DialogHeader>
             <div className="flex items-center gap-3">
@@ -45,7 +49,8 @@ export function WifiModal({ open, onOpenChange }: { open: boolean; onOpenChange:
             </button>
 
             <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-xs leading-relaxed text-white/55">
-              To connect: open your iPhone Settings → WiFi → select <span className="text-[#E6CE20]">{CONFIG.wifiName}</span>
+              To connect: open your iPhone Settings → WiFi → select{" "}
+              <span className="text-[#E6CE20]">{CONFIG.wifiName}</span>
             </div>
           </div>
         </div>

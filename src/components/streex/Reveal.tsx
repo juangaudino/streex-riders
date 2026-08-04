@@ -25,7 +25,10 @@ export function Reveal({
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
-    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    ) {
       setVisible(true);
       return;
     }
@@ -38,7 +41,7 @@ export function Reveal({
           }
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
     );
     obs.observe(node);
     return () => obs.disconnect();

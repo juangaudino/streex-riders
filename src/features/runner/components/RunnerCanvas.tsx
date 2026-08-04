@@ -17,7 +17,7 @@ import { createSpawnMemory, createSpawnWave } from "../engine/spawnEngine";
 const DUST_PARTICLES = Array.from({ length: 22 }, (_, i) => ({
   xPct: ((i * 137 + 23) % 1000) / 1000,
   yBand: ((i * 53 + 11) % 100) / 100,
-  speed: 0.55 + (((i * 17) % 50) / 100),
+  speed: 0.55 + ((i * 17) % 50) / 100,
   size: 0.7 + (((i * 7) % 18) / 18) * 1.4,
   phase: ((i * 211) % 1000) / 1000,
 }));
@@ -157,9 +157,7 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
     const docEl = document.documentElement as HTMLElement & {
       webkitRequestFullscreen?: () => Promise<void>;
     };
-    const supported = Boolean(
-      docEl.requestFullscreen || docEl.webkitRequestFullscreen,
-    );
+    const supported = Boolean(docEl.requestFullscreen || docEl.webkitRequestFullscreen);
     setFullscreenSupported(supported);
     const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
     document.addEventListener("fullscreenchange", onChange);
@@ -175,13 +173,9 @@ export function RunnerCanvas({ onGameOver, onRestart, onBack }: RunnerControls) 
       webkitExitFullscreen?: () => Promise<void>;
     };
     if (document.fullscreenElement) {
-      (document.exitFullscreen?.() ?? docAny.webkitExitFullscreen?.())?.catch(
-        () => {},
-      );
+      (document.exitFullscreen?.() ?? docAny.webkitExitFullscreen?.())?.catch(() => {});
     } else {
-      (docEl.requestFullscreen?.() ?? docEl.webkitRequestFullscreen?.())?.catch(
-        () => {},
-      );
+      (docEl.requestFullscreen?.() ?? docEl.webkitRequestFullscreen?.())?.catch(() => {});
     }
   }, []);
 
@@ -1051,7 +1045,7 @@ function drawRoad(
     // near the camera. Sourced from roadOffset — never used for gameplay,
     // entities, scoring, or collisions. Tune between 1.5 and 2.0 if needed.
     const ROAD_DASH_VISUAL_SPEED = 1.75;
-    const flow = ((offset * 0.012 * ROAD_DASH_VISUAL_SPEED) % 1 + 1) % 1;
+    const flow = (((offset * 0.012 * ROAD_DASH_VISUAL_SPEED) % 1) + 1) % 1;
     ctx.save();
     for (let i = -1; i < segments; i += 1) {
       const t0 = (i + flow) / segments;
@@ -2020,8 +2014,10 @@ function drawDustParticles(
     const y = horizonY + t * bandHeight;
     const depth = t; // 0 near horizon, 1 near camera
     const driftWidth = 0.04 + depth * 0.6;
-    const x = (p.xPct - 0.5) * width * driftWidth + width * 0.5
-      + Math.sin((time * 0.0005 + p.phase) * Math.PI * 2) * (4 + depth * 10);
+    const x =
+      (p.xPct - 0.5) * width * driftWidth +
+      width * 0.5 +
+      Math.sin((time * 0.0005 + p.phase) * Math.PI * 2) * (4 + depth * 10);
     const radius = p.size * (0.4 + depth * 1.4);
     ctx.globalAlpha = 0.08 + depth * 0.32;
     ctx.beginPath();
@@ -2031,10 +2027,7 @@ function drawDustParticles(
   ctx.restore();
 }
 
-function computePlayerAura(
-  rewardFx: RunnerRewardFx[],
-  time: number,
-) {
+function computePlayerAura(rewardFx: RunnerRewardFx[], time: number) {
   if (rewardFx.length === 0) return 0;
   let total = 0;
   for (let i = 0; i < rewardFx.length; i += 1) {

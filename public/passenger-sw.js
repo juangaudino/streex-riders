@@ -1,6 +1,10 @@
 const CACHE_NAME = "streex-passenger-v1";
 const OFFLINE_PAGE = "/passenger-offline.html";
-const PRECACHE_URLS = [OFFLINE_PAGE, "/icons/streex-app-icon-192.png", "/icons/streex-app-icon-512.png"];
+const PRECACHE_URLS = [
+  OFFLINE_PAGE,
+  "/icons/streex-app-icon-192.png",
+  "/icons/streex-app-icon-512.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)));

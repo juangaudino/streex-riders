@@ -53,12 +53,16 @@ function SpotifySetupPage() {
         </p>
         <h1 className="mt-3 text-2xl font-bold">Connect personal Spotify</h1>
         <p className="mt-3 text-sm leading-relaxed text-white/60">
-          This pairs only this tablet. Your Spotify credentials and tokens are never stored in the browser.
+          This pairs only this tablet. Your Spotify credentials and tokens are never stored in the
+          browser.
         </p>
 
         {!paired ? (
           <form className="mt-6 space-y-4" onSubmit={pair}>
-            <label className="block text-sm font-medium text-white/80" htmlFor="driver-pairing-code">
+            <label
+              className="block text-sm font-medium text-white/80"
+              htmlFor="driver-pairing-code"
+            >
               Driver pairing code
             </label>
             <input
@@ -81,7 +85,9 @@ function SpotifySetupPage() {
         ) : (
           <div className="mt-6 rounded-2xl border border-[#E6CE20]/25 bg-[#E6CE20]/10 p-4">
             <p className="font-semibold text-[#E6CE20]">Tablet paired</p>
-            <p className="mt-1 text-sm text-white/60">Continue to Spotify and approve access with your personal account.</p>
+            <p className="mt-1 text-sm text-white/60">
+              Continue to Spotify and approve access with your personal account.
+            </p>
             <button
               type="button"
               disabled={busy}
@@ -94,7 +100,10 @@ function SpotifySetupPage() {
         )}
 
         {message && <p className="mt-4 text-sm text-red-300">{message}</p>}
-        <Link to="/passenger" className="mt-6 inline-flex text-sm text-white/55 underline underline-offset-4">
+        <Link
+          to="/passenger"
+          className="mt-6 inline-flex text-sm text-white/55 underline underline-offset-4"
+        >
           Return to Passenger Console
         </Link>
       </section>

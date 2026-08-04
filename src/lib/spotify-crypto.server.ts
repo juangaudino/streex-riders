@@ -1,4 +1,10 @@
-import { createCipheriv, createDecipheriv, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHmac,
+  randomBytes,
+  timingSafeEqual,
+} from "node:crypto";
 
 const STATE_MAX_AGE_MS = 10 * 60 * 1000;
 

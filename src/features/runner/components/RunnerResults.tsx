@@ -290,32 +290,18 @@ export function RunnerResults({ snapshot, onReplay, onBack }: RunnerResultsProps
         )}
 
         <div className="runner-result-actions">
-          <button
-            className="runner-primary-button runner-action-primary"
-            onClick={onReplay}
-          >
+          <button className="runner-primary-button runner-action-primary" onClick={onReplay}>
             Play Again
           </button>
           <div className="runner-action-secondary-row">
-            <button
-              className="runner-secondary-button"
-              type="button"
-              onClick={handleSaveCard}
-            >
+            <button className="runner-secondary-button" type="button" onClick={handleSaveCard}>
               {saveLabel}
             </button>
-            <button
-              className="runner-secondary-button"
-              type="button"
-              onClick={handleShareRide}
-            >
+            <button className="runner-secondary-button" type="button" onClick={handleShareRide}>
               {shareLabel}
             </button>
           </div>
-          <button
-            className="runner-ghost-button runner-action-tertiary"
-            onClick={onBack}
-          >
+          <button className="runner-ghost-button runner-action-tertiary" onClick={onBack}>
             Discover Streex
           </button>
         </div>

@@ -74,6 +74,10 @@ show passenger data.
 - Passenger has an isolated PWA manifest and service worker: it installs into `/passenger` in
   standalone portrait mode, caches only static UI assets, and has an offline recovery screen.
   It does not enforce Android kiosk mode, cache API data, or store passenger details.
+- Passenger weather uses the public National Weather Service API through a fixed server function.
+  Salt Lake City coordinates and refresh cadence are CONFIG-driven; sanitized hourly forecasts
+  are cached server-side and the last successful snapshot is retained locally for hotspot outages.
+  English displays Fahrenheit and Spanish displays Celsius. No API credential is required.
 - Android kiosk enforcement belongs to Android/MDM/launcher. The web app may later add PWA cache
   and recovery behavior, but must not claim to enforce kiosk mode.
 - Do not modify the Google Calendar integration for Passenger Console work.
@@ -142,9 +146,16 @@ existing static assets remain valid fallbacks.
 ## Analytics
 
 - Google Analytics 4 measurement ID: `G-1WJPHXQKSN`.
-- Analytics loads only in production and excludes `/admin` and `/runner-lab`.
+- Analytics loads only in production and excludes `/admin`, `/passenger`, `/runner-lab` and
+  `/spotify`. The permanently mounted tablet must not distort public Rides traffic.
 - `booking_submitted` is the primary conversion/key event.
 - Funnel and contact events are centralized through `src/lib/analytics.ts`.
+
+## Automated Quality Checks
+
+- GitHub Actions runs on pushes to `main` and pull requests.
+- CI installs from `bun.lock` with Bun 1.3.14, then runs TypeScript, ESLint, the Bun test suite and
+  the production build.
 
 ## Environment Notes
 

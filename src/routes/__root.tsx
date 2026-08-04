@@ -77,100 +77,103 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     );
 
     return {
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Streex Rides" },
-      { name: "theme-color", content: "#0B0B0B" },
-      { name: "mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "Streex" },
-      {
-        name: "description",
-        content:
-          "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
-      },
-      { name: "author", content: "STREEX Rides" },
-      { name: "google-site-verification", content: "Li1UygnAqd-GVqjtntcBG4J8ApZzJGwIfFJsjZ6WLh4" },
-      { property: "og:title", content: "Streex Rides — Private rides. Elevated." },
-      {
-        property: "og:description",
-        content:
-          "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
-      },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://rides.getstreex.com" },
-      { property: "og:site_name", content: "Streex Rides" },
-      {
-        property: "og:image",
-        content: "https://rides.getstreex.com/images/streex/streex-og-preview-v2.jpg",
-      },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Streex Rides — Private rides. Elevated." },
-      {
-        name: "twitter:description",
-        content:
-          "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
-      },
-      {
-        name: "twitter:image",
-        content: "https://rides.getstreex.com/images/streex/streex-og-preview-v2.jpg",
-      },
-    ],
-    links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap",
-      },
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      {
-        rel: "icon",
-        href: "/favicon.ico",
-      },
-      {
-        rel: "icon",
-        type: "image/png",
-        sizes: "16x16",
-        href: "/icons/streex-wordmark-black-16.png",
-      },
-      {
-        rel: "icon",
-        type: "image/png",
-        sizes: "32x32",
-        href: "/icons/streex-wordmark-black-32.png",
-      },
-      {
-        rel: "icon",
-        type: "image/png",
-        sizes: "48x48",
-        href: "/icons/streex-wordmark-black-48.png",
-      },
-      {
-        rel: "apple-touch-icon",
-        sizes: "180x180",
-        href: "/icons/streex-wordmark-black-180.png",
-      },
-      {
-        rel: "apple-touch-icon",
-        sizes: "167x167",
-        href: "/icons/streex-wordmark-black-167.png",
-      },
-      {
-        rel: "apple-touch-icon",
-        sizes: "152x152",
-        href: "/icons/streex-wordmark-black-152.png",
-      },
-      {
-        rel: "manifest",
-        href: isPassengerConsole ? "/passenger.webmanifest" : "/manifest.webmanifest",
-      },
-    ],
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { title: "Streex Rides" },
+        { name: "theme-color", content: "#0B0B0B" },
+        { name: "mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+        { name: "apple-mobile-web-app-title", content: "Streex" },
+        {
+          name: "description",
+          content:
+            "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
+        },
+        { name: "author", content: "STREEX Rides" },
+        {
+          name: "google-site-verification",
+          content: "Li1UygnAqd-GVqjtntcBG4J8ApZzJGwIfFJsjZ6WLh4",
+        },
+        { property: "og:title", content: "Streex Rides — Private rides. Elevated." },
+        {
+          property: "og:description",
+          content:
+            "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
+        },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: "https://rides.getstreex.com" },
+        { property: "og:site_name", content: "Streex Rides" },
+        {
+          property: "og:image",
+          content: "https://rides.getstreex.com/images/streex/streex-og-preview-v2.jpg",
+        },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: "Streex Rides — Private rides. Elevated." },
+        {
+          name: "twitter:description",
+          content:
+            "Private rides. Elevated. Premium transportation designed around comfort, reliability and personal service.",
+        },
+        {
+          name: "twitter:image",
+          content: "https://rides.getstreex.com/images/streex/streex-og-preview-v2.jpg",
+        },
+      ],
+      links: [
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap",
+        },
+        {
+          rel: "stylesheet",
+          href: appCss,
+        },
+        {
+          rel: "icon",
+          href: "/favicon.ico",
+        },
+        {
+          rel: "icon",
+          type: "image/png",
+          sizes: "16x16",
+          href: "/icons/streex-wordmark-black-16.png",
+        },
+        {
+          rel: "icon",
+          type: "image/png",
+          sizes: "32x32",
+          href: "/icons/streex-wordmark-black-32.png",
+        },
+        {
+          rel: "icon",
+          type: "image/png",
+          sizes: "48x48",
+          href: "/icons/streex-wordmark-black-48.png",
+        },
+        {
+          rel: "apple-touch-icon",
+          sizes: "180x180",
+          href: "/icons/streex-wordmark-black-180.png",
+        },
+        {
+          rel: "apple-touch-icon",
+          sizes: "167x167",
+          href: "/icons/streex-wordmark-black-167.png",
+        },
+        {
+          rel: "apple-touch-icon",
+          sizes: "152x152",
+          href: "/icons/streex-wordmark-black-152.png",
+        },
+        {
+          rel: "manifest",
+          href: isPassengerConsole ? "/passenger.webmanifest" : "/manifest.webmanifest",
+        },
+      ],
     };
   },
   shellComponent: RootShell,

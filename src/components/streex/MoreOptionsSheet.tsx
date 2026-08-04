@@ -3,7 +3,13 @@ import { MessageCircle, Instagram } from "lucide-react";
 // To customize this template, edit src/config.ts
 import { CONFIG } from "@/config";
 
-export function MoreOptionsSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+export function MoreOptionsSheet({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent

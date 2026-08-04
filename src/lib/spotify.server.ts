@@ -192,7 +192,10 @@ export async function getSpotifyPlayback(accessToken: string): Promise<PersonalS
     track: item?.name
       ? {
           title: item.name,
-          artist: (item.artists ?? []).flatMap((artist) => (artist.name ? [artist.name] : [])).join(", ") || "Spotify",
+          artist:
+            (item.artists ?? [])
+              .flatMap((artist) => (artist.name ? [artist.name] : []))
+              .join(", ") || "Spotify",
           album: item.album?.name ?? null,
           artworkUrl: item.album?.images?.find((image) => image.url)?.url ?? null,
         }
@@ -245,9 +248,10 @@ export async function searchSpotifyTracks(
         id: track.id,
         uri: track.uri,
         title: track.name,
-        artist: (track.artists ?? [])
-          .flatMap((artist) => (artist.name ? [artist.name] : []))
-          .join(", ") || "Spotify",
+        artist:
+          (track.artists ?? [])
+            .flatMap((artist) => (artist.name ? [artist.name] : []))
+            .join(", ") || "Spotify",
         album: track.album?.name ?? null,
         artworkUrl: track.album?.images?.find((image) => image.url)?.url ?? null,
         durationMs: typeof track.duration_ms === "number" ? track.duration_ms : null,

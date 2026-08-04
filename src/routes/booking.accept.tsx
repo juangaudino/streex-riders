@@ -20,8 +20,7 @@ export const Route = createFileRoute("/booking/accept")({
     try {
       const result = await acceptBooking({ data: { id: deps.id } });
       if (result.status === "not_found") return { state: "not_found" as const };
-      if (result.status === "already_processed")
-        return { state: "already" as const };
+      if (result.status === "already_processed") return { state: "already" as const };
       return { state: "ok" as const };
     } catch {
       return { state: "error" as const };
