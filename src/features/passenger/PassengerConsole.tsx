@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AppConfig } from "@/config";
 import {
   ArrowLeft,
@@ -1016,26 +1016,56 @@ function PersonalSpotifyMusicView({
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
 
-  const refresh = async () => {
-    setError(null);
+  const refresh = useCallback(async (silent = false) => {
+    if (!silent) setError(null);
     try {
       const next = await getPersonalSpotifyPlayback({ data: {} });
       setStatus(next);
+      return next;
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
+      if (!silent) {
+        setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
+      }
+      return null;
     }
-  };
+  }, [t.spotifyControlError]);
 
   useEffect(() => {
     void refresh();
-  }, []);
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") void refresh(true);
+    }, 15_000);
+
+    return () => window.clearInterval(interval);
+  }, [refresh]);
+
+  const trackKey = (playbackStatus: SpotifyPlaybackState | null) => {
+    if (playbackStatus?.state !== "ready" || !playbackStatus.playback.track) return null;
+    const { artist, title } = playbackStatus.playback.track;
+    return `${artist}\u0000${title}`;
+  };
+
+  const refreshUntilTrackChanges = async (previousTrackKey: string | null) => {
+    for (const delay of [500, 800, 1_200]) {
+      await new Promise((resolve) => window.setTimeout(resolve, delay));
+      const next = await refresh(true);
+      const nextTrackKey = trackKey(next);
+      if (nextTrackKey && nextTrackKey !== previousTrackKey) return;
+    }
+  };
 
   const control = async (command: "play" | "pause" | "next") => {
     setBusy(true);
     setError(null);
     try {
+      const previousTrackKey = trackKey(status);
       await controlPersonalSpotifyPlayback({ data: { command } });
-      await refresh();
+      if (command === "next") {
+        await refreshUntilTrackChanges(previousTrackKey);
+      } else {
+        await new Promise((resolve) => window.setTimeout(resolve, 300));
+        await refresh();
+      }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
     } finally {
@@ -1082,8 +1112,9 @@ function PersonalSpotifyMusicView({
     setBusy(true);
     setError(null);
     try {
+      const previousTrackKey = trackKey(status);
       await playPersonalSpotifyTrack({ data: { uri } });
-      await refresh();
+      await refreshUntilTrackChanges(previousTrackKey);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
     } finally {
