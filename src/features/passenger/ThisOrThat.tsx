@@ -248,12 +248,14 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
                 <span className="mt-auto text-3xl font-black leading-tight tracking-tight">
                   {option.label[language]}
                 </span>
-                <span
-                  className={`mt-5 text-xs font-bold uppercase tracking-[0.16em] ${selected ? "opacity-100" : "opacity-0"}`}
-                  role={selected ? "status" : undefined}
-                >
-                  {t.picked}
-                </span>
+                {selected && (
+                  <span
+                    className="mt-5 text-xs font-bold uppercase tracking-[0.16em]"
+                    role="status"
+                  >
+                    {t.picked}
+                  </span>
+                )}
               </button>
             );
           })}
