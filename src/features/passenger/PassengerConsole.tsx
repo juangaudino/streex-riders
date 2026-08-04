@@ -388,7 +388,10 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
 
   return (
     <div className="h-dvh overflow-hidden bg-[#0B0B0B] text-white">
-      <div className="mx-auto flex h-dvh w-full max-w-[740px] flex-col px-7 pb-4 pt-5">
+      <div
+        className="passenger-console-shell mx-auto flex h-dvh w-full max-w-[740px] flex-col px-7 pb-4 pt-5"
+        data-view={view}
+      >
         <ConsoleHeader
           config={config}
           language={language}
@@ -396,7 +399,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           setLanguage={setLanguage}
           status={online ? t.online : t.offline}
         />
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-5 pt-5">
+        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-5 pt-5">
           {view === "home" && (
             <HomeView
               config={config}
@@ -537,8 +540,8 @@ function HomeView({
       : `${Math.round(temperatureFahrenheit)}°F`;
 
   return (
-    <div className="flex flex-1 flex-col gap-5">
-      <section className="relative overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-[#E6CE20]/15 p-6">
+    <div className="passenger-home-layout flex flex-1 flex-col gap-5">
+      <section className="passenger-home-hero relative overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-[#E6CE20]/15 p-6">
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#E6CE20]/15 blur-3xl" />
         <div className="relative">
           <div className="flex items-center justify-between gap-3">
@@ -555,7 +558,7 @@ function HomeView({
             <Sparkles className="h-3.5 w-3.5" />
             {t.exploreCue}
           </p>
-          <div className="mt-7 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
+          <div className="passenger-home-time mt-7 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">
                 {t.localTime}
@@ -597,38 +600,40 @@ function HomeView({
         t={t}
       />
 
-      {config.passengerConsole.music.mode === "provider" && config.passengerConsole.music.providerName === "Spotify" ? (
-        <PersonalSpotifyHomeCard onNavigate={onNavigate} t={t} />
-      ) : (
-        <button
-          type="button"
-          onClick={() => onNavigate("music")}
-          className="flex min-h-[96px] items-center gap-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
-        >
-          <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black">
-            <Play className="h-7 w-7 fill-current" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
-              {t.nowPlaying}
+      <div className="passenger-home-music">
+        {config.passengerConsole.music.mode === "provider" && config.passengerConsole.music.providerName === "Spotify" ? (
+          <PersonalSpotifyHomeCard onNavigate={onNavigate} t={t} />
+        ) : (
+          <button
+            type="button"
+            onClick={() => onNavigate("music")}
+            className="flex min-h-[96px] w-full items-center gap-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
+          >
+            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black">
+              <Play className="h-7 w-7 fill-current" />
             </span>
-            <span className="mt-1 block truncate text-lg font-bold">{MUSIC_LIBRARY[0].title}</span>
-            <span className="block truncate text-sm text-white/55">
-              {MUSIC_LIBRARY[0].artist} · {MUSIC_LIBRARY[0].album}
+            <span className="min-w-0 flex-1">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+                {t.nowPlaying}
+              </span>
+              <span className="mt-1 block truncate text-lg font-bold">{MUSIC_LIBRARY[0].title}</span>
+              <span className="block truncate text-sm text-white/55">
+                {MUSIC_LIBRARY[0].artist} · {MUSIC_LIBRARY[0].album}
+              </span>
             </span>
-          </span>
-          <span className="flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 px-3 py-2 text-right text-[#E6CE20]">
-            <span className="hidden max-w-32 text-xs leading-tight sm:block">
-              <span className="block font-semibold">{t.chooseMusic}</span>
-              <span className="mt-0.5 block text-[10px] text-white/55">{t.musicHint}</span>
+            <span className="flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 px-3 py-2 text-right text-[#E6CE20]">
+              <span className="hidden max-w-32 text-xs leading-tight sm:block">
+                <span className="block font-semibold">{t.chooseMusic}</span>
+                <span className="mt-0.5 block text-[10px] text-white/55">{t.musicHint}</span>
+              </span>
+              <span className="text-xs font-semibold sm:hidden">{t.chooseMusic}</span>
+              <ChevronRight className="h-4 w-4" />
             </span>
-            <span className="text-xs font-semibold sm:hidden">{t.chooseMusic}</span>
-            <ChevronRight className="h-4 w-4" />
-          </span>
-        </button>
-      )}
+          </button>
+        )}
+      </div>
 
-      <section>
+      <section className="passenger-home-quick-access">
         <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
           {t.quickAccess}
         </p>
@@ -651,14 +656,14 @@ function HomeView({
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]">
+      <section className="passenger-home-ticker overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]">
         <ServiceTicker config={config} />
       </section>
 
       <button
         type="button"
         onClick={() => onNavigate("meet-juan")}
-        className="group relative overflow-hidden rounded-[28px] border border-[#E6CE20]/25 bg-gradient-to-br from-[#E6CE20]/15 via-white/[0.045] to-white/[0.02] p-6 text-left transition hover:border-[#E6CE20]/50 hover:bg-[#E6CE20]/[0.12]"
+        className="passenger-home-ride-deck group relative overflow-hidden rounded-[28px] border border-[#E6CE20]/25 bg-gradient-to-br from-[#E6CE20]/15 via-white/[0.045] to-white/[0.02] p-6 text-left transition hover:border-[#E6CE20]/50 hover:bg-[#E6CE20]/[0.12]"
       >
         <div className="absolute -right-12 -top-16 h-40 w-40 rounded-full bg-[#E6CE20]/15 blur-3xl" />
         <div className="relative flex items-end justify-between gap-5">
@@ -926,7 +931,7 @@ function PersonalSpotifyHomeCard({
     <button
       type="button"
       onClick={() => onNavigate("music")}
-      className="flex min-h-[96px] items-center gap-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
+      className="flex min-h-[96px] w-full min-w-0 items-center gap-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
     >
       {track?.artworkUrl ? (
         <img src={track.artworkUrl} alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover" />
