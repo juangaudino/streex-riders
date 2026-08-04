@@ -48,6 +48,7 @@ import type { PassengerWeatherCondition, PassengerWeatherSnapshot } from "@/lib/
 import {
   useClock,
   useOnlineStatus,
+  usePassengerIdleReset,
   usePassengerWeather,
   type PassengerWeatherStatus,
 } from "./usePassengerState";
@@ -254,6 +255,11 @@ const copy = {
     cardAndWallet: "Apple Pay, Google Pay & Card",
     stripeDetail: "Choose your preferred option in the secure checkout",
     stripePending: "Stripe setup pending",
+    idleTitle: "Ready for your STREEX experience?",
+    idleDescription: "This console is ready for your ride.",
+    idleAction: "Tap to explore",
+    idleReturning: "Returning home in",
+    seconds: "seconds",
   },
   es: {
     home: "Inicio",
@@ -424,6 +430,11 @@ const copy = {
     cardAndWallet: "Apple Pay, Google Pay y tarjeta",
     stripeDetail: "Elija su opción preferida en el pago seguro",
     stripePending: "Configuración de Stripe pendiente",
+    idleTitle: "¿Listo para tu experiencia STREEX?",
+    idleDescription: "Esta consola está lista para tu viaje.",
+    idleAction: "Toca para explorar",
+    idleReturning: "Volviendo al inicio en",
+    seconds: "segundos",
   },
 } as const;
 
@@ -431,11 +442,23 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
   const [language, setLanguage] = useState<Language>("en");
   const [view, setView] = useState<View>("home");
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [sessionKey, setSessionKey] = useState(0);
   const t = copy[language];
   const online = useOnlineStatus();
 
   const consoleConfig = config.passengerConsole;
   const weather = usePassengerWeather(online, consoleConfig.weather.refreshMinutes);
+  const resetPassengerSession = useCallback(() => {
+    setBookingOpen(false);
+    setView("home");
+    setLanguage(consoleConfig.idleReset.defaultLanguage);
+    setSessionKey((current) => current + 1);
+  }, [consoleConfig.idleReset.defaultLanguage]);
+  const idleReset = usePassengerIdleReset({
+    inactivityMinutes: consoleConfig.idleReset.inactivityMinutes,
+    onReset: resetPassengerSession,
+    promptSeconds: consoleConfig.idleReset.promptSeconds,
+  });
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
@@ -467,7 +490,10 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           setLanguage={setLanguage}
           status={online ? t.online : t.offline}
         />
-        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-5 pt-5">
+        <main
+          key={sessionKey}
+          className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-5 pt-5"
+        >
           {view === "home" && (
             <HomeView
               config={config}
@@ -509,6 +535,71 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
         <ConsoleNavigation activeView={view} onNavigate={setView} t={t} />
       </div>
       <BookingFormModal language={language} open={bookingOpen} onOpenChange={setBookingOpen} />
+      {idleReset.promptOpen && (
+        <PassengerIdlePrompt
+          config={config}
+          language={language}
+          onResume={idleReset.resume}
+          secondsRemaining={idleReset.secondsRemaining}
+        />
+      )}
+    </div>
+  );
+}
+
+function PassengerIdlePrompt({
+  config,
+  language,
+  onResume,
+  secondsRemaining,
+}: {
+  config: AppConfig;
+  language: Language;
+  onResume: () => void;
+  secondsRemaining: number;
+}) {
+  const primary = copy[language];
+  const secondary = copy[language === "en" ? "es" : "en"];
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="passenger-idle-title"
+      className="fixed inset-0 z-[100] grid place-items-center overflow-hidden bg-[#080808]/95 p-8 text-white backdrop-blur-xl"
+    >
+      <div className="absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E6CE20]/10 blur-[110px]" />
+      <div className="relative flex w-full max-w-2xl flex-col items-center text-center">
+        <img
+          src={config.logoSrc}
+          alt={config.brandName}
+          className="h-16 w-auto max-w-[240px] object-contain"
+        />
+        <p className="mt-8 text-xs font-semibold uppercase tracking-[0.3em] text-[#E6CE20]">
+          STREEX RIDES
+        </p>
+        <h1
+          id="passenger-idle-title"
+          className="mt-4 max-w-xl text-4xl font-black tracking-tight sm:text-5xl"
+        >
+          {primary.idleTitle}
+        </h1>
+        <p className="mt-3 text-xl font-semibold text-white/55">{secondary.idleTitle}</p>
+        <p className="mt-7 text-base text-white/55">{primary.idleDescription}</p>
+        <button
+          type="button"
+          onClick={onResume}
+          className="mt-8 min-w-[280px] rounded-full bg-[#E6CE20] px-9 py-5 text-lg font-black text-black shadow-[0_0_45px_rgba(230,206,32,0.2)] transition active:scale-[0.98]"
+        >
+          <span className="block">{primary.idleAction}</span>
+          <span className="mt-0.5 block text-xs font-semibold text-black/60">
+            {secondary.idleAction}
+          </span>
+        </button>
+        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-white/35">
+          {primary.idleReturning} {secondsRemaining} {primary.seconds}
+        </p>
+      </div>
     </div>
   );
 }

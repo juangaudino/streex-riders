@@ -41,6 +41,13 @@ export const CONFIG = {
   // Keep credentials, device PINs, provider tokens and passenger data out of this object.
   passengerConsole: {
     enabled: true,
+    idleReset: {
+      // Start a bilingual invitation after this many minutes without tablet interaction.
+      inactivityMinutes: 5,
+      // Return to a clean Home session if the invitation is not answered.
+      promptSeconds: 30,
+      defaultLanguage: "en" as "en" | "es",
+    },
     clock: {
       localTimeZone: "America/Denver",
       secondaryTimeZones: {

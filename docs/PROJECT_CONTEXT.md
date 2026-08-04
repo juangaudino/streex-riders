@@ -81,6 +81,10 @@ show passenger data.
 - Passenger has an isolated PWA manifest and service worker: it installs into `/passenger` in
   standalone portrait mode, caches only static UI assets, and has an offline recovery screen.
   It does not enforce Android kiosk mode, cache API data, or store passenger details.
+- Passenger automatically starts a bilingual interaction prompt after the CONFIG-driven idle
+  interval. If unanswered, it returns to a clean Home session, resets transient UI and language,
+  and preserves the driver's Spotify connection and active playback. Elapsed-time checks on
+  visibility/focus recovery make the reset reliable after Android suspends the browser.
 - Passenger weather uses the public National Weather Service API through a fixed server function.
   Salt Lake City coordinates and refresh cadence are CONFIG-driven; sanitized hourly forecasts
   are cached server-side and the last successful snapshot is retained locally for hotspot outages.
