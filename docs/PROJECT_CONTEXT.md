@@ -83,7 +83,8 @@ show passenger data.
   It does not enforce Android kiosk mode, cache API data, or store passenger details.
 - Passenger automatically resets transient UI and language after the CONFIG-driven idle interval,
   then remains on a bilingual branded attract screen until touched. The screen presents current
-  Spotify artwork and track details without altering the driver's connection or playback.
+  Spotify artwork and track details, local time, dual-unit temperature and a compact host identity
+  without altering the driver's connection or playback.
   Elapsed-time checks on visibility/focus recovery make the reset reliable after Android suspends
   the browser. The temporary testing interval is 15 seconds; switch it to 120 seconds after the
   attract screen is accepted on the official tablet.

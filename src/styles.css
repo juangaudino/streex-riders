@@ -648,6 +648,15 @@ input[type="time"] {
   .passenger-idle-artwork {
     max-width: min(46vh, 420px);
   }
+
+  .passenger-idle-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .passenger-idle-footer > span:last-child {
+    text-align: center;
+  }
 }
 
 @media (orientation: landscape) {

@@ -262,6 +262,7 @@ const copy = {
     idleMusicReady: "Your STREEX soundtrack",
     idleChooseMusic: "Choose the soundtrack for your ride",
     idleChooseMusicDescription: "Search songs and shape what plays next.",
+    idleHost: "Your STREEX host",
   },
   es: {
     home: "Inicio",
@@ -439,6 +440,7 @@ const copy = {
     idleMusicReady: "Tu banda sonora STREEX",
     idleChooseMusic: "Elige la música para tu viaje",
     idleChooseMusicDescription: "Busca canciones y elige qué sonará después.",
+    idleHost: "Tu anfitrión STREEX",
   },
 } as const;
 
@@ -539,7 +541,13 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
       </div>
       <BookingFormModal language={language} open={bookingOpen} onOpenChange={setBookingOpen} />
       {idleReset.promptOpen && (
-        <PassengerIdlePrompt config={config} language={language} onResume={idleReset.resume} />
+        <PassengerIdlePrompt
+          config={config}
+          fallbackTemperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
+          language={language}
+          onResume={idleReset.resume}
+          weather={weather.snapshot}
+        />
       )}
     </div>
   );
@@ -547,15 +555,30 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
 
 function PassengerIdlePrompt({
   config,
+  fallbackTemperatureFahrenheit,
   language,
   onResume,
+  weather,
 }: {
   config: AppConfig;
+  fallbackTemperatureFahrenheit: number;
   language: Language;
   onResume: () => void;
+  weather: PassengerWeatherSnapshot | null;
 }) {
   const primary = copy[language];
   const secondary = copy[language === "en" ? "es" : "en"];
+  const now = useClock();
+  const time = now
+    ? now.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: config.passengerConsole.clock.localTimeZone,
+      })
+    : "--:--";
+  const temperatureFahrenheit =
+    weather?.periods[0]?.temperatureFahrenheit ?? fallbackTemperatureFahrenheit;
+  const temperatureCelsius = Math.round(((temperatureFahrenheit - 32) * 5) / 9);
 
   return (
     <div
@@ -576,8 +599,14 @@ function PassengerIdlePrompt({
             alt={config.brandName}
             className="h-14 w-auto max-w-[220px] object-contain"
           />
-          <span className="rounded-full border border-[#E6CE20]/25 bg-[#E6CE20]/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#E6CE20]">
-            {primary.idleAction}
+          <span className="flex shrink-0 items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-right">
+            <span>
+              <span className="block text-xl font-black tabular-nums tracking-tight">{time}</span>
+              <span className="mt-0.5 flex items-center justify-end gap-1.5 text-[10px] font-semibold text-white/45">
+                <Cloud className="h-3 w-3 text-[#E6CE20]" />
+                {Math.round(temperatureFahrenheit)}°F · {temperatureCelsius}°C
+              </span>
+            </span>
           </span>
         </div>
 
@@ -598,6 +627,25 @@ function PassengerIdlePrompt({
           </h1>
           <p className="mt-2 text-lg font-semibold text-white/45">{secondary.idleTitle}</p>
           <p className="mt-4 text-sm text-white/50">{primary.idleDescription}</p>
+        </div>
+
+        <div className="passenger-idle-footer flex w-full items-center justify-between gap-4">
+          <span className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-left">
+            <img
+              src={config.meetPhoto}
+              alt={config.ownerName}
+              className="h-12 w-12 shrink-0 rounded-xl border border-[#E6CE20]/35 object-cover"
+            />
+            <span>
+              <span className="block text-sm font-extrabold">{config.ownerName}</span>
+              <span className="mt-0.5 block text-[10px] font-semibold text-white/50">
+                {primary.idleHost} · {secondary.idleHost}
+              </span>
+            </span>
+          </span>
+          <span className="rounded-full border border-[#E6CE20]/25 bg-[#E6CE20]/10 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#E6CE20]">
+            {primary.idleAction}
+          </span>
         </div>
       </div>
     </div>
