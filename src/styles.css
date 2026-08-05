@@ -637,6 +637,21 @@ input[type="time"] {
 .passenger-idle-artwork {
   max-width: 320px;
   justify-self: center;
+  border-radius: 28px;
+  box-shadow:
+    0 24px 70px rgb(0 0 0 / 0.38),
+    0 0 42px rgb(230 206 32 / 0.1);
+}
+
+.passenger-idle-ticker {
+  overflow: hidden;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.passenger-idle-ticker .streex-led-board {
+  border-top: 0;
+  border-bottom: 0;
 }
 
 @media (orientation: portrait) {
@@ -654,8 +669,27 @@ input[type="time"] {
     flex-direction: column;
   }
 
-  .passenger-idle-footer > span:last-child {
+  .passenger-idle-action {
+    width: 100%;
     text-align: center;
+  }
+
+  .passenger-idle-meta {
+    gap: 0.65rem;
+  }
+
+  .passenger-idle-meta > span:first-child {
+    font-size: 1.85rem;
+  }
+
+  .passenger-idle-meta > span:last-child {
+    gap: 0.35rem;
+    font-size: 0.78rem;
+  }
+
+  .passenger-idle-meta > span:last-child svg {
+    width: 1rem;
+    height: 1rem;
   }
 }
 

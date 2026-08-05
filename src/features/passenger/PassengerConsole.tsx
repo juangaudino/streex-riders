@@ -599,13 +599,14 @@ function PassengerIdlePrompt({
             alt={config.brandName}
             className="h-14 w-auto max-w-[220px] object-contain"
           />
-          <span className="flex shrink-0 items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-right">
-            <span>
-              <span className="block text-xl font-black tabular-nums tracking-tight">{time}</span>
-              <span className="mt-0.5 flex items-center justify-end gap-1.5 text-[10px] font-semibold text-white/45">
-                <Cloud className="h-3 w-3 text-[#E6CE20]" />
-                {Math.round(temperatureFahrenheit)}°F · {temperatureCelsius}°C
-              </span>
+          <span className="passenger-idle-meta flex shrink-0 items-center gap-4 text-right">
+            <span className="text-3xl font-black tabular-nums tracking-tight sm:text-4xl">
+              {time}
+            </span>
+            <span className="h-9 w-px bg-[#E6CE20]/45" aria-hidden="true" />
+            <span className="flex items-center gap-2 text-base font-semibold text-white/65 sm:text-lg">
+              <Cloud className="h-5 w-5 text-[#E6CE20]" />
+              {Math.round(temperatureFahrenheit)}°F · {temperatureCelsius}°C
             </span>
           </span>
         </div>
@@ -629,22 +630,29 @@ function PassengerIdlePrompt({
           <p className="mt-4 text-sm text-white/50">{primary.idleDescription}</p>
         </div>
 
+        <div className="passenger-idle-ticker w-full" aria-hidden="true">
+          <ServiceTicker config={config} />
+        </div>
+
         <div className="passenger-idle-footer flex w-full items-center justify-between gap-4">
-          <span className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-left">
+          <span className="passenger-idle-host flex items-center gap-3 text-left">
             <img
               src={config.meetPhoto}
               alt={config.ownerName}
-              className="h-12 w-12 shrink-0 rounded-xl border border-[#E6CE20]/35 object-cover"
+              className="h-14 w-14 shrink-0 rounded-2xl border border-[#E6CE20]/45 object-cover shadow-[0_0_24px_rgba(230,206,32,0.12)]"
             />
             <span>
-              <span className="block text-sm font-extrabold">{config.ownerName}</span>
-              <span className="mt-0.5 block text-[10px] font-semibold text-white/50">
+              <span className="block text-base font-extrabold">{config.ownerName}</span>
+              <span className="mt-1 block text-xs font-semibold text-white/50">
                 {primary.idleHost} · {secondary.idleHost}
               </span>
             </span>
           </span>
-          <span className="rounded-full border border-[#E6CE20]/25 bg-[#E6CE20]/10 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#E6CE20]">
-            {primary.idleAction}
+          <span className="passenger-idle-action rounded-full border border-[#E6CE20] bg-[#E6CE20] px-8 py-4 text-center text-sm font-black uppercase tracking-[0.12em] text-black shadow-[0_0_35px_rgba(230,206,32,0.18)] sm:min-w-[300px]">
+            <span className="block">{primary.idleAction}</span>
+            <span className="mt-0.5 block text-[10px] font-semibold normal-case tracking-normal text-black/60">
+              {secondary.idleAction}
+            </span>
           </span>
         </div>
       </div>
@@ -682,7 +690,7 @@ function IdleSpotifyNowPlaying({ enabled, t }: { enabled: boolean; t: (typeof co
   const track = playback?.track ?? null;
 
   return (
-    <section className="passenger-idle-music grid w-full max-w-4xl items-center gap-7 rounded-[32px] border border-white/10 bg-white/[0.05] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
+    <div className="passenger-idle-music grid w-full max-w-4xl items-center gap-7">
       {track?.artworkUrl ? (
         <img
           src={track.artworkUrl}
@@ -714,7 +722,7 @@ function IdleSpotifyNowPlaying({ enabled, t }: { enabled: boolean; t: (typeof co
             : t.idleChooseMusicDescription}
         </span>
       </span>
-    </section>
+    </div>
   );
 }
 
