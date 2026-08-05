@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
-  CircleDot,
+  ArrowLeftRight,
   Compass,
   RotateCcw,
   Route,
@@ -18,7 +18,11 @@ import {
   type ThisOrThatOption,
   type ThisOrThatQuestion,
 } from "./this-or-that";
-import { THIS_OR_THAT_TRAILER_VISUALS, THIS_OR_THAT_VISUALS } from "./this-or-that-visuals";
+import {
+  THIS_OR_THAT_TRAILER_VISUALS,
+  THIS_OR_THAT_VISUALS,
+  preloadThisOrThatVisuals,
+} from "./this-or-that-visuals";
 
 const ROUND_SIZE = 10;
 const RECENT_QUESTION_IDS_KEY = "streex-passenger-this-or-that-recent";
@@ -148,6 +152,7 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
     }
 
     const nextRound = createChoiceRound(availableQuestions, ROUND_SIZE);
+    preloadThisOrThatVisuals(nextRound.slice(0, 2).flatMap((question) => question.options));
     saveRecentQuestionIds([...recentQuestionIds, ...nextRound.map((question) => question.id)]);
     setRound(nextRound);
     setChoiceIndex(0);
@@ -171,6 +176,14 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
     return () => window.clearTimeout(timer);
   }, [choiceIndex, phase, round.length, selectedIndex]);
 
+  useEffect(() => {
+    if (phase !== "playing") return;
+
+    preloadThisOrThatVisuals(
+      round.slice(choiceIndex, choiceIndex + 2).flatMap((question) => question.options),
+    );
+  }, [choiceIndex, phase, round]);
+
   if (phase === "intro") {
     return (
       <div className="passenger-choice-layout flex min-h-full flex-col gap-5">
@@ -183,7 +196,7 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
           <span className="passenger-choice-hero-glow passenger-choice-hero-glow--bottom" />
           <div className="passenger-choice-hero-content relative z-10 flex w-full flex-col justify-center">
             <span className="grid h-16 w-16 place-items-center rounded-[20px] border border-[#E6CE20]/40 bg-[#E6CE20] text-black shadow-[0_12px_40px_rgba(230,206,32,0.18)]">
-              <CircleDot className="h-8 w-8" />
+              <ArrowLeftRight className="h-8 w-8" />
             </span>
             <p className="mt-7 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#E6CE20]">
               {t.eyebrow}
@@ -215,6 +228,8 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
                 alt=""
                 className={`passenger-choice-hero-frame passenger-choice-hero-frame--${index + 1}`}
                 style={{ objectPosition: visual.objectPosition }}
+                decoding="async"
+                loading="eager"
               />
             ))}
             <span className="passenger-choice-hero-core">10</span>
@@ -371,7 +386,7 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
           {t.exit}
         </button>
         <span className="passenger-choice-count">
-          <CircleDot className="h-3.5 w-3.5" />
+          <ArrowLeftRight className="h-3.5 w-3.5" />
           {t.choice} {choiceIndex + 1}/{ROUND_SIZE}
         </span>
       </div>
@@ -415,6 +430,8 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
                   aria-hidden="true"
                   className="passenger-choice-option-art"
                   style={{ objectPosition: visual.objectPosition }}
+                  decoding="async"
+                  loading="eager"
                 />
                 <span className="passenger-choice-option-scrim" aria-hidden="true" />
                 <span className="passenger-choice-option-flare" aria-hidden="true" />

@@ -64,6 +64,7 @@ import {
 } from "./usePassengerState";
 import { UtahTrivia } from "./UtahTrivia";
 import { ThisOrThat } from "./ThisOrThat";
+import { HoneycombMark } from "./game-marks";
 import { THIS_OR_THAT_TRAILER_VISUALS } from "./this-or-that-visuals";
 import horizonQuickActionCard from "@/features/runner/assets/quick-action/horizon_quick_action_card.webp";
 import utahTriviaSymbols from "@/assets/passenger-games/utah-trivia-symbols.jpg";
@@ -2045,17 +2046,6 @@ function GameCard({
         <span className="passenger-game-card-status">{status}</span>
       </div>
     </button>
-  );
-}
-
-function HoneycombMark() {
-  return (
-    <span className="passenger-honeycomb-mark" aria-hidden="true">
-      <i />
-      <i />
-      <i />
-      <i />
-    </span>
   );
 }
 

@@ -14,7 +14,22 @@ export type ThisOrThatVisualKey =
   | "alpineLake"
   | "wildflowerTrail"
   | "musicRoom"
-  | "nightMarket";
+  | "canyonTrail"
+  | "roadsideDiner"
+  | "eveningReservation"
+  | "alpineSpa"
+  | "readingNook"
+  | "sunroofDrive"
+  | "paperMap"
+  | "passengerWindow"
+  | "cityBoulevard"
+  | "mountainTown"
+  | "localFestival"
+  | "vinylRitual"
+  | "localBakery"
+  | "viewpointCamera"
+  | "neighborhoodDusk"
+  | "hiddenCourtyard";
 
 export type ThisOrThatOption = {
   label: LocalizedChoiceText;
@@ -512,48 +527,48 @@ const THIS_OR_THAT_QUESTION_SEEDS: ThisOrThatQuestionSeed[] = [
 ];
 
 const QUESTION_VISUAL_KEYS: Record<string, [ThisOrThatVisualKey, ThisOrThatVisualKey]> = {
-  "sunrise-or-brunch": ["wildflowerTrail", "coffeeDawn"],
-  "scenic-or-direct": ["goldenDrive", "nightTeal"],
-  "windows-or-climate": ["goldenDrive", "mountainLodge"],
-  "canyon-or-city": ["desertSunrise", "cityViolet"],
-  "classics-or-new": ["musicRoom", "nightMarket"],
+  "sunrise-or-brunch": ["wildflowerTrail", "localBakery"],
+  "scenic-or-direct": ["viewpointCamera", "goldenDrive"],
+  "windows-or-climate": ["sunroofDrive", "mountainLodge"],
+  "canyon-or-city": ["canyonTrail", "cityBoulevard"],
+  "classics-or-new": ["vinylRitual", "musicRoom"],
   "mountain-or-desert": ["alpineSnow", "desertSunrise"],
-  "coffee-or-snacks": ["coffeeDawn", "goldenDrive"],
-  "plan-or-surprise": ["mountainLodge", "wildflowerTrail"],
-  "sing-or-listen": ["musicRoom", "alpineLake"],
-  "local-or-favorite": ["nightMarket", "mountainLodge"],
-  "photo-or-moment": ["wildflowerTrail", "alpineLake"],
+  "coffee-or-snacks": ["coffeeDawn", "roadsideDiner"],
+  "plan-or-surprise": ["paperMap", "canyonTrail"],
+  "sing-or-listen": ["localFestival", "musicRoom"],
+  "local-or-favorite": ["hiddenCourtyard", "roadsideDiner"],
+  "photo-or-moment": ["viewpointCamera", "alpineLake"],
   "day-or-night": ["goldenDrive", "nightTeal"],
-  "conversation-or-quiet": ["nightMarket", "alpineLake"],
-  "park-city-or-moab": ["alpineSnow", "desertSunrise"],
-  "playlist-or-radio": ["musicRoom", "nightTeal"],
-  "one-more-stop": ["nightMarket", "mountainLodge"],
-  "solo-or-friends": ["alpineLake", "nightMarket"],
-  "map-or-instinct": ["goldenDrive", "wildflowerTrail"],
-  "window-seat-or-aisle": ["alpineLake", "cityViolet"],
-  "sunset-or-city-lights": ["goldenDrive", "cityViolet"],
-  "mountain-town-or-downtown": ["mountainLodge", "nightMarket"],
+  "conversation-or-quiet": ["eveningReservation", "readingNook"],
+  "park-city-or-moab": ["mountainTown", "canyonTrail"],
+  "playlist-or-radio": ["vinylRitual", "musicRoom"],
+  "one-more-stop": ["hiddenCourtyard", "mountainLodge"],
+  "solo-or-friends": ["alpineLake", "localFestival"],
+  "map-or-instinct": ["paperMap", "canyonTrail"],
+  "window-seat-or-aisle": ["passengerWindow", "cityBoulevard"],
+  "sunset-or-city-lights": ["goldenDrive", "cityBoulevard"],
+  "mountain-town-or-downtown": ["mountainTown", "cityBoulevard"],
   "first-light-or-last-light": ["wildflowerTrail", "goldenDrive"],
-  "treat-or-takeout": ["nightMarket", "coffeeDawn"],
-  "dj-or-discover": ["musicRoom", "nightMarket"],
+  "treat-or-takeout": ["localBakery", "roadsideDiner"],
+  "dj-or-discover": ["vinylRitual", "musicRoom"],
   "lodge-or-campfire": ["mountainLodge", "desertCampfire"],
-  "festival-or-hidden-gem": ["nightMarket", "wildflowerTrail"],
-  "slow-morning-or-big-day": ["coffeeDawn", "goldenDrive"],
-  "lake-or-trail": ["alpineLake", "wildflowerTrail"],
-  "lyrics-or-beat": ["musicRoom", "cityViolet"],
-  "small-group-or-new-faces": ["mountainLodge", "nightMarket"],
-  "roadside-or-reservation": ["goldenDrive", "nightMarket"],
-  "canyon-walk-or-spa-day": ["wildflowerTrail", "mountainLodge"],
-  "backroads-or-boulevard": ["desertSunrise", "cityViolet"],
-  "read-or-look-out": ["coffeeDawn", "alpineLake"],
-  "spontaneous-or-signature": ["wildflowerTrail", "coffeeDawn"],
-  "local-guide-or-go-with-it": ["nightMarket", "desertSunrise"],
-  "singalong-or-sunroof": ["musicRoom", "goldenDrive"],
+  "festival-or-hidden-gem": ["localFestival", "hiddenCourtyard"],
+  "slow-morning-or-big-day": ["coffeeDawn", "paperMap"],
+  "lake-or-trail": ["alpineLake", "canyonTrail"],
+  "lyrics-or-beat": ["vinylRitual", "cityViolet"],
+  "small-group-or-new-faces": ["eveningReservation", "localFestival"],
+  "roadside-or-reservation": ["roadsideDiner", "eveningReservation"],
+  "canyon-walk-or-spa-day": ["canyonTrail", "alpineSpa"],
+  "backroads-or-boulevard": ["goldenDrive", "cityBoulevard"],
+  "read-or-look-out": ["readingNook", "passengerWindow"],
+  "spontaneous-or-signature": ["canyonTrail", "neighborhoodDusk"],
+  "local-guide-or-go-with-it": ["hiddenCourtyard", "paperMap"],
+  "singalong-or-sunroof": ["localFestival", "sunroofDrive"],
   "sweater-or-jacket": ["mountainLodge", "alpineSnow"],
-  "neighborhood-or-new-route": ["nightMarket", "nightTeal"],
-  "one-song-or-full-album": ["musicRoom", "mountainLodge"],
+  "neighborhood-or-new-route": ["neighborhoodDusk", "goldenDrive"],
+  "one-song-or-full-album": ["musicRoom", "vinylRitual"],
   "snow-day-or-sun-day": ["alpineSnow", "desertSunrise"],
-  "conversation-or-playlist": ["nightMarket", "musicRoom"],
+  "conversation-or-playlist": ["eveningReservation", "vinylRitual"],
 };
 
 export const THIS_OR_THAT_QUESTIONS: ThisOrThatQuestion[] = THIS_OR_THAT_QUESTION_SEEDS.map(

@@ -21,7 +21,7 @@ describe("This or That", () => {
     }
   });
 
-  test("gives every local choice a reusable visual scene", () => {
+  test("gives every local choice a context-aware visual scene", () => {
     const visualKeys = new Set();
 
     for (const question of THIS_OR_THAT_QUESTIONS) {
@@ -31,7 +31,8 @@ describe("This or That", () => {
       }
     }
 
-    expect(visualKeys.size).toBeGreaterThanOrEqual(10);
+    expect(visualKeys.size).toBeGreaterThanOrEqual(24);
+    expect(visualKeys.has("nightMarket")).toBe(false);
   });
 
   test("returns the strongest ride vibe", () => {

@@ -1,15 +1,5 @@
 import { useState } from "react";
-import {
-  ArrowLeft,
-  Check,
-  ChevronRight,
-  Flag,
-  MapPinned,
-  RotateCcw,
-  Sparkles,
-  Trophy,
-  X,
-} from "lucide-react";
+import { ArrowLeft, Check, ChevronRight, Flag, RotateCcw, Sparkles, Trophy, X } from "lucide-react";
 import {
   createTriviaRound,
   UTAH_TRIVIA_QUESTIONS,
@@ -20,6 +10,7 @@ import utahTriviaHero from "@/assets/passenger-games/utah-trivia-hero.jpg";
 import utahTriviaNationalParks from "@/assets/passenger-games/utah-trivia-national-parks.jpg";
 import utahTriviaSymbols from "@/assets/passenger-games/utah-trivia-symbols.jpg";
 import utahTriviaAtlas from "@/assets/passenger-games/utah-trivia-atlas.jpg";
+import { HoneycombMark } from "./game-marks";
 
 const ROUND_SIZE = 10;
 const RECENT_QUESTION_IDS_KEY = "streex-passenger-utah-trivia-recent";
@@ -183,7 +174,7 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
           <span className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/15" />
           <div className="relative z-10 flex max-w-xl flex-col justify-center">
             <span className="grid h-16 w-16 place-items-center rounded-[20px] border border-[#E6CE20]/45 bg-[#E6CE20] text-black shadow-[0_12px_40px_rgba(230,206,32,0.2)]">
-              <MapPinned className="h-8 w-8" />
+              <HoneycombMark />
             </span>
             <p className="mt-7 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#E6CE20]">
               {t.eyebrow}
@@ -314,7 +305,7 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
           {t.exit}
         </button>
         <span className="passenger-trivia-mile text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
-          <MapPinned className="h-3.5 w-3.5 text-[#E6CE20]" />
+          <HoneycombMark className="passenger-honeycomb-mark--compact text-[#E6CE20]" />
           {t.question} {questionIndex + 1}/{ROUND_SIZE}
         </span>
       </div>
