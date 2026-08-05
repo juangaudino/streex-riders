@@ -17,6 +17,7 @@ import {
   Mail,
   Menu,
   MessageCircle,
+  MoonStar,
   Music2,
   MapPin,
   Pause,
@@ -515,7 +516,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
         />
         <main
           key={sessionKey}
-          className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-5 pt-5"
+          className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-5 pt-8"
         >
           {view === "home" && (
             <HomeView
@@ -892,27 +893,36 @@ function HomeView({
               type="button"
               onClick={() => setWeatherOpen(true)}
               aria-label={`${t.weather}: ${weatherCity}. ${t.weatherHint}`}
-              className="min-w-[154px] rounded-2xl border border-white/10 bg-black/25 px-5 py-4 text-right backdrop-blur transition hover:border-[#E6CE20]/40 hover:bg-black/35 focus:outline-none focus:ring-2 focus:ring-[#E6CE20]/60"
+              className="min-w-[208px] rounded-2xl border border-white/10 bg-black/25 px-5 py-4 text-left backdrop-blur transition hover:border-[#E6CE20]/40 hover:bg-black/35 focus:outline-none focus:ring-2 focus:ring-[#E6CE20]/60"
             >
-              <p className="flex items-center justify-end gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
-                <WeatherConditionIcon
-                  condition={weather?.periods[0]?.condition ?? "unknown"}
-                  className="h-4 w-4 text-[#E6CE20]"
-                />
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
                 {t.weather}
               </p>
-              <p className="mt-1 text-3xl font-black tracking-tight">{temperature}</p>
-              <p className="mt-0.5 text-xs font-medium text-white/75">
-                {weatherConditionLabel(weather?.periods[0]?.condition ?? "unknown", t)}
-              </p>
-              <p className="text-xs text-white/55">{weatherCity}</p>
-              <span className="mt-1 flex items-center justify-end gap-1 text-[9px] font-semibold text-[#E6CE20]">
+              <span className="mt-2 flex items-center gap-3">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#E6CE20]/10 text-[#E6CE20]">
+                  <WeatherConditionIcon
+                    condition={weather?.periods[0]?.condition ?? "unknown"}
+                    className="h-7 w-7"
+                    night={isNightAt(now, clockConfig.localTimeZone)}
+                  />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-3xl font-black leading-none tracking-tight">
+                    {temperature}
+                  </span>
+                  <span className="mt-1 block truncate text-xs font-semibold text-white/75">
+                    {weatherConditionLabel(weather?.periods[0]?.condition ?? "unknown", t)}
+                  </span>
+                  <span className="mt-0.5 block truncate text-xs text-white/55">{weatherCity}</span>
+                </span>
+              </span>
+              <span className="mt-2 flex items-center gap-1 text-[9px] font-semibold text-[#E6CE20]">
                 {weatherStatus === "unavailable" && !weather ? t.weatherUnavailable : t.weatherHint}{" "}
                 <ChevronRight className="h-3 w-3" />
               </span>
             </button>
           </div>
-          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-white/10 pt-3">
+          <div className="mt-4 grid grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-3">
             <SecondaryClock label={t.newYork} time={eastTime} />
             <SecondaryClock label={t.dallas} time={centralTime} />
             <SecondaryClock label={t.losAngeles} time={pacificTime} />
@@ -1022,13 +1032,25 @@ function HomeView({
 
 function SecondaryClock({ label, time }: { label: string; time: string }) {
   return (
-    <div className="flex min-w-0 items-baseline justify-between gap-2">
-      <span className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-white/45">
+    <div className="flex min-w-0 flex-col items-center gap-1 px-2 text-center">
+      <span className="truncate text-[10px] font-semibold uppercase tracking-[0.1em] text-white/55">
         {label}
       </span>
-      <span className="shrink-0 text-xs font-semibold tabular-nums text-white/70">{time}</span>
+      <span className="text-[10px] font-semibold tabular-nums text-white/75">{time}</span>
     </div>
   );
+}
+
+function isNightAt(now: Date | null, timeZone: string) {
+  if (!now) return false;
+  const hour = Number(
+    now.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      hour12: false,
+      timeZone,
+    }),
+  );
+  return Number.isFinite(hour) && (hour >= 19 || hour < 6);
 }
 
 function WeatherDetailDialog({
@@ -1166,13 +1188,17 @@ function weatherConditionLabel(condition: PassengerWeatherCondition, t: (typeof 
 function WeatherConditionIcon({
   className,
   condition,
+  night = false,
 }: {
   className?: string;
   condition: PassengerWeatherCondition;
+  night?: boolean;
 }) {
   const Icon =
     condition === "clear" || condition === "mostly-clear"
-      ? Sun
+      ? night
+        ? MoonStar
+        : Sun
       : condition === "partly-cloudy" || condition === "cloudy"
         ? CloudSun
         : condition === "rain"
@@ -1346,25 +1372,25 @@ function PersonalSpotifyHomeCard({
     <button
       type="button"
       onClick={() => onNavigate("music")}
-      className="group relative flex min-h-[154px] w-full min-w-0 items-center gap-5 overflow-hidden rounded-[26px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.09] p-5 text-left transition hover:border-[#E6CE20]/35 hover:bg-white/[0.07]"
+      className="passenger-home-music-card group relative flex min-h-[318px] w-full min-w-0 flex-col items-center justify-center gap-4 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.13] p-6 text-center transition hover:border-[#E6CE20]/35 hover:bg-white/[0.07]"
     >
-      <span className="absolute -right-14 -top-20 h-48 w-48 rounded-full bg-[#E6CE20]/10 blur-3xl" />
+      <span className="absolute -right-14 -top-20 h-56 w-56 rounded-full bg-[#E6CE20]/15 blur-3xl" />
       {track?.artworkUrl ? (
         <img
           src={track.artworkUrl}
           alt=""
-          className="relative h-24 w-24 shrink-0 rounded-[22px] object-cover shadow-xl"
+          className="passenger-home-music-art relative h-36 w-36 shrink-0 rounded-[26px] object-cover shadow-2xl"
         />
       ) : (
-        <span className="relative grid h-24 w-24 shrink-0 place-items-center rounded-[22px] bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black shadow-xl">
-          <Music2 className="h-9 w-9" />
+        <span className="passenger-home-music-art relative grid h-36 w-36 shrink-0 place-items-center rounded-[26px] bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black shadow-2xl">
+          <Music2 className="h-12 w-12" />
         </span>
       )}
-      <span className="relative min-w-0 flex-1">
+      <span className="relative min-w-0 max-w-md">
         <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
           {t.nowPlaying}
         </span>
-        <span className="mt-2 block truncate text-xl font-black tracking-tight">
+        <span className="mt-2 block truncate text-2xl font-black tracking-tight">
           {track?.title ?? t.chooseMusic}
         </span>
         <span className="mt-1 block truncate text-sm text-white/60">
@@ -1374,12 +1400,11 @@ function PersonalSpotifyHomeCard({
           {t.spotifyDevice}: {hasActiveDevice ? t.spotifyActive : "—"}
         </span>
       </span>
-      <span className="relative flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/40 bg-[#E6CE20]/12 px-4 py-3 text-right text-[#E6CE20] transition group-hover:bg-[#E6CE20]/18">
-        <span className="hidden max-w-36 text-xs leading-tight sm:block">
+      <span className="relative flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/40 bg-[#E6CE20]/12 px-5 py-3 text-left text-[#E6CE20] transition group-hover:bg-[#E6CE20]/18">
+        <span className="max-w-40 text-xs leading-tight">
           <span className="block font-semibold">{t.chooseMusic}</span>
           <span className="mt-0.5 block text-[10px] text-white/55">{t.musicHint}</span>
         </span>
-        <span className="text-xs font-semibold sm:hidden">{t.chooseMusic}</span>
         <ChevronRight className="h-4 w-4" />
       </span>
     </button>
@@ -2016,13 +2041,14 @@ function StreexView({
           />
         </div>
         <div className="passenger-streex-actions grid grid-cols-2 gap-3">
-          <ActionButton accent icon={<CalendarPlus />} label={t.bookRide} onClick={onBookRide} />
-          <ActionButton
-            accent
-            icon={<HandCoins />}
-            label={t.tip}
-            onClick={() => onNavigate("tip")}
-          />
+          <div className="col-span-2">
+            <ActionButton
+              accent
+              icon={<HandCoins />}
+              label={t.tip}
+              onClick={() => onNavigate("tip")}
+            />
+          </div>
           <ActionButton icon={<Menu />} label={t.services} onClick={() => onNavigate("services")} />
           <ActionButton icon={<Phone />} label={t.contact} onClick={() => onNavigate("contact")} />
           <ActionButton icon={<Star />} label={t.reviews} onClick={() => onNavigate("reviews")} />
@@ -2031,6 +2057,13 @@ function StreexView({
             label={t.whereWeRide}
             onClick={() => onNavigate("where-we-ride")}
           />
+          <ActionButton accent icon={<CalendarPlus />} label={t.bookRide} onClick={onBookRide} />
+          <MeetJuanAction
+            config={config}
+            label={t.meetJuan}
+            onClick={() => onNavigate("meet-juan")}
+            subtitle={configOwnerLine(t)}
+          />
           <PhoneContinuationCard
             description={t.continuePhoneDescription}
             href={phoneContinuation}
@@ -2038,35 +2071,50 @@ function StreexView({
             unavailable={t.unavailable}
           />
         </div>
-        <button
-          type="button"
-          onClick={() => onNavigate("meet-juan")}
-          className="passenger-streex-meet flex w-full items-center gap-4 rounded-[26px] border border-white/10 bg-white/[0.05] p-5 text-left hover:bg-white/[0.08]"
-        >
-          <img
-            src={config.meetPhoto}
-            alt={config.ownerName}
-            loading="lazy"
-            decoding="async"
-            className="h-14 w-14 shrink-0 rounded-2xl border border-[#E6CE20]/45 object-cover"
-          />
-          <span className="min-w-0 flex-1">
-            <span className="block text-[10px] font-semibold tracking-[0.18em] text-[#E6CE20]">
-              {t.streex}
-            </span>
-            <span className="mt-1 block text-lg font-bold">{t.meetJuan}</span>
-            <span className="block text-sm text-white/55">{configOwnerLine(t)}</span>
-          </span>
-          <ChevronRight className="h-5 w-5 text-white/45" />
-        </button>
         <div className="passenger-streex-ticker hidden">
           <ServiceTicker config={config} />
         </div>
       </section>
       <div className="passenger-streex-experience">
-        <ExperienceGallery config={config} prioritizeVehicle title={t.yourRideGallery} />
+        <PassengerVehicleGrid config={config} title={t.yourRideGallery} />
       </div>
     </div>
+  );
+}
+
+function PassengerVehicleGrid({ config, title }: { config: AppConfig; title: string }) {
+  const vehicle =
+    config.galleryImages.find((image) => image.image.includes("rav4")) ?? config.galleryImages[0];
+
+  if (!vehicle) return null;
+
+  return (
+    <section className="passenger-vehicle-grid-section">
+      <div className="flex items-end justify-between gap-4">
+        <h2 className="text-2xl font-bold">{title}</h2>
+        <span className="text-xs font-semibold text-[#E6CE20]">Toyota RAV4</span>
+      </div>
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        {["object-left", "object-center", "object-right"].map((position, index) => (
+          <div
+            key={position}
+            className="relative aspect-[0.9] min-h-[168px] overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.04]"
+          >
+            <img
+              src={vehicle.image}
+              alt={index === 0 ? "Toyota RAV4" : ""}
+              loading="lazy"
+              decoding="async"
+              className={`h-full w-full object-cover ${position}`}
+            />
+            <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+            <span className="absolute bottom-3 left-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80">
+              Toyota RAV4
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -2120,6 +2168,14 @@ function WhereWeRideView({
             extendedRides: t.extendedRides,
           }}
         />
+        <div className="passenger-destination-carousel-wrap">
+          <ExperienceGallery
+            autoScroll
+            config={config}
+            excludeVehicle
+            title={t.streexExperienceTitle}
+          />
+        </div>
       </div>
     </div>
   );
@@ -2365,13 +2421,13 @@ function PhoneContinuationCard({
       className={
         compact
           ? "flex min-h-[166px] flex-col rounded-[24px] border border-white/10 bg-white/[0.04] p-3 text-left transition hover:bg-white/[0.07]"
-          : "col-span-2 flex min-h-[142px] items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
+          : "col-span-2 flex min-h-[182px] items-center gap-5 rounded-[24px] border border-white/10 bg-white/[0.04] p-5 text-left transition hover:bg-white/[0.07]"
       }
     >
-      <span className={`shrink-0 self-start rounded-xl bg-white ${compact ? "p-1.5" : "p-2"}`}>
+      <span className={`shrink-0 self-start rounded-xl bg-white ${compact ? "p-1.5" : "p-3"}`}>
         <QRCodeSVG
           value={href}
-          size={compact ? 92 : 88}
+          size={compact ? 92 : 118}
           bgColor="#FFFFFF"
           fgColor="#0B0B0B"
           level="M"
@@ -2398,6 +2454,39 @@ function configOwnerLine(t: (typeof copy)[Language]) {
   return t.meetJuan === "Meet Juan"
     ? "The person behind your ride."
     : "La persona detrás de su viaje.";
+}
+
+function MeetJuanAction({
+  config,
+  label,
+  onClick,
+  subtitle,
+}: {
+  config: AppConfig;
+  label: string;
+  onClick: () => void;
+  subtitle: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex min-h-[88px] w-full items-center gap-3 rounded-[22px] border border-[#E6CE20] bg-[#E6CE20] p-3 text-left text-black transition hover:brightness-105"
+    >
+      <img
+        src={config.meetPhoto}
+        alt={config.ownerName}
+        loading="lazy"
+        decoding="async"
+        className="h-11 w-11 shrink-0 rounded-xl border border-black/10 object-cover"
+      />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-bold">{label}</span>
+        <span className="mt-0.5 block truncate text-xs text-black/60">{subtitle}</span>
+      </span>
+      <ChevronRight className="h-5 w-5 shrink-0 text-black/70" />
+    </button>
+  );
 }
 
 function ActionLink({
