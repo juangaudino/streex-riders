@@ -42,8 +42,8 @@ export const CONFIG = {
   passengerConsole: {
     enabled: true,
     idleReset: {
-      // Testing value: 15 seconds. Change to 120 after the attract screen is approved.
-      inactivitySeconds: 15,
+      // Return to the attract screen after two minutes without passenger interaction.
+      inactivitySeconds: 120,
       defaultLanguage: "en" as "en" | "es",
     },
     clock: {

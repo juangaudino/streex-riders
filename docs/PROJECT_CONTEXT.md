@@ -86,8 +86,7 @@ show passenger data.
   Spotify artwork and track details, local time, dual-unit temperature and a compact host identity
   without altering the driver's connection or playback.
   Elapsed-time checks on visibility/focus recovery make the reset reliable after Android suspends
-  the browser. The temporary testing interval is 15 seconds; switch it to 120 seconds after the
-  attract screen is accepted on the official tablet.
+  the browser. The operational interval is two minutes on the official tablet.
 - Passenger weather uses the public National Weather Service API through a fixed server function.
   Salt Lake City coordinates and refresh cadence are CONFIG-driven; sanitized hourly forecasts
   are cached server-side and the last successful snapshot is retained locally for hotspot outages.
