@@ -1049,6 +1049,17 @@ input[type="time"] {
     border-radius: 22px !important;
   }
 
+  .passenger-music-now-playing-ready {
+    min-height: 220px !important;
+    gap: 20px !important;
+  }
+
+  .passenger-music-now-playing-ready .passenger-music-now-playing-art {
+    width: 160px !important;
+    height: 160px !important;
+    border-radius: 26px !important;
+  }
+
   .passenger-home-quick-access {
     grid-column: 2;
     grid-row: 2;
@@ -1063,13 +1074,6 @@ input[type="time"] {
     grid-column: 2;
     grid-row: 3;
     min-width: 0;
-  }
-
-  .passenger-home-ride-deck {
-    grid-column: 2;
-    grid-row: 4;
-    min-width: 0;
-    padding: 20px !important;
   }
 
   .passenger-music-layout {

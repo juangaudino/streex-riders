@@ -30,7 +30,6 @@ import {
   Star,
   Sun,
   Snowflake,
-  UserRound,
   Wifi,
   Wind,
 } from "lucide-react";
@@ -142,11 +141,6 @@ const copy = {
     nowPlaying: "Now playing",
     chooseMusic: "Choose music",
     musicHint: "Tap to search songs and artists.",
-    rideDeckEyebrow: "Ride highlights",
-    rideDeckTitle: "Private ride. Your music. Utah at your window.",
-    rideDeckDescription:
-      "Meet the person behind your ride and the philosophy that makes Streex different.",
-    meetHost: "Meet your host",
     quickAccess: "Quick access",
     musicDescription: "Curated sound for your ride",
     gamesDescription: "Utah trivia & light games",
@@ -322,11 +316,6 @@ const copy = {
     nowPlaying: "Reproduciendo",
     chooseMusic: "Elige la música",
     musicHint: "Toca para buscar canciones y artistas.",
-    rideDeckEyebrow: "Detalles del viaje",
-    rideDeckTitle: "Viaje privado. Tu música. Utah frente a ti.",
-    rideDeckDescription:
-      "Conoce a la persona detrás de tu viaje y la filosofía que hace diferente a Streex.",
-    meetHost: "Conoce a tu anfitrión",
     quickAccess: "Accesos rápidos",
     musicDescription: "Sonido seleccionado para su viaje",
     gamesDescription: "Trivia de Utah y juegos ligeros",
@@ -1006,28 +995,6 @@ function HomeView({
       <section className="passenger-home-ticker overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]">
         <ServiceTicker config={config} />
       </section>
-
-      <button
-        type="button"
-        onClick={() => onNavigate("meet-juan")}
-        className="passenger-home-ride-deck group relative overflow-hidden rounded-[28px] border border-[#E6CE20]/25 bg-gradient-to-br from-[#E6CE20]/15 via-white/[0.045] to-white/[0.02] p-6 text-left transition hover:border-[#E6CE20]/50 hover:bg-[#E6CE20]/[0.12]"
-      >
-        <div className="absolute -right-12 -top-16 h-40 w-40 rounded-full bg-[#E6CE20]/15 blur-3xl" />
-        <div className="relative flex items-end justify-between gap-5">
-          <div className="max-w-xl">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
-              {t.rideDeckEyebrow}
-            </p>
-            <p className="mt-2 text-xl font-bold leading-snug">{t.rideDeckTitle}</p>
-            <p className="mt-2 text-sm leading-relaxed text-white/60">{t.rideDeckDescription}</p>
-          </div>
-          <span className="flex shrink-0 items-center gap-2 rounded-full border border-[#E6CE20]/35 bg-[#E6CE20]/10 px-4 py-2 text-sm font-semibold text-[#E6CE20]">
-            <UserRound className="h-4 w-4" />
-            {t.meetHost}
-            <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </span>
-        </div>
-      </button>
     </div>
   );
 }
@@ -1374,7 +1341,7 @@ function PersonalSpotifyHomeCard({
     <button
       type="button"
       onClick={() => onNavigate("music")}
-      className="group relative flex min-h-[154px] w-full min-w-0 items-center gap-5 overflow-hidden rounded-[26px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.09] p-5 text-left transition hover:border-[#E6CE20]/35 hover:bg-white/[0.07]"
+      className="group relative flex min-h-[174px] w-full min-w-0 items-center gap-5 overflow-hidden rounded-[26px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.09] p-5 text-left transition hover:border-[#E6CE20]/35 hover:bg-white/[0.07]"
     >
       <span className="absolute -right-14 -top-20 h-48 w-48 rounded-full bg-[#E6CE20]/10 blur-3xl" />
       {track?.artworkUrl ? (
@@ -1568,18 +1535,18 @@ function PersonalSpotifyMusicView({
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/60">{message}</p>
         </section>
       ) : playback ? (
-        <section className="passenger-music-playback passenger-music-now-playing relative flex min-h-[348px] flex-col items-center justify-center gap-4 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.13] p-6 text-center">
+        <section className="passenger-music-playback passenger-music-now-playing passenger-music-now-playing-ready relative flex min-h-[286px] items-center gap-6 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.13] p-7 text-left">
           <span className="absolute -right-14 -top-20 h-56 w-56 rounded-full bg-[#E6CE20]/15 blur-3xl" />
           {playback.track?.artworkUrl ? (
             <img
               src={playback.track.artworkUrl}
               alt=""
-              className="passenger-music-now-playing-art relative h-36 w-36 shrink-0 rounded-[26px] object-cover shadow-2xl"
+              className="passenger-music-now-playing-art relative h-52 w-52 shrink-0 rounded-[28px] object-cover shadow-2xl"
             />
           ) : (
-            <div className="passenger-music-now-playing-art relative h-36 w-36 shrink-0 rounded-[26px] bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700 shadow-2xl" />
+            <div className="passenger-music-now-playing-art relative h-52 w-52 shrink-0 rounded-[28px] bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700 shadow-2xl" />
           )}
-          <div className="relative min-w-0 max-w-md">
+          <div className="relative min-w-0 flex-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}
             </p>
