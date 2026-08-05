@@ -749,8 +749,27 @@ function IdleSpotifyNowPlaying({
           className="passenger-idle-artwork aspect-square w-full rounded-[28px] object-cover shadow-2xl"
         />
       ) : (
-        <span className="passenger-idle-artwork passenger-idle-artwork--placeholder grid aspect-square w-full place-items-center rounded-[28px] bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black shadow-2xl">
-          <Music2 className="h-20 w-20" />
+        <span
+          aria-hidden="true"
+          className="passenger-idle-artwork passenger-idle-soundboard grid aspect-square w-full place-items-center rounded-[28px] text-black shadow-2xl"
+        >
+          <span className="passenger-idle-soundboard-orbit passenger-idle-soundboard-orbit--outer" />
+          <span className="passenger-idle-soundboard-orbit passenger-idle-soundboard-orbit--inner" />
+          <span className="passenger-idle-soundboard-choices">
+            <span>{t.idleMusicSearch}</span>
+            <span>{t.idleMusicTop}</span>
+            <span>{t.idleMusicVibes}</span>
+          </span>
+          <span className="passenger-idle-soundboard-core">
+            <span className="passenger-idle-soundboard-equalizer">
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+            </span>
+            <Music2 className="passenger-idle-soundboard-note" />
+          </span>
         </span>
       )}
       <span className="passenger-idle-track-copy min-w-0">
