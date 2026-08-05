@@ -282,8 +282,12 @@ const copy = {
     idleAction: "Tap anywhere to explore",
     idleNowPlaying: "Now playing on Streex",
     idleMusicReady: "Your Streex soundtrack",
+    idleMusicPrompt: "Your soundtrack starts here",
     idleChooseMusic: "Choose the soundtrack for your ride",
-    idleChooseMusicDescription: "Search songs and shape what plays next.",
+    idleChooseMusicDescription: "Search songs, explore Top 50, or pick a vibe for the road.",
+    idleMusicSearch: "Search songs",
+    idleMusicTop: "Top 50",
+    idleMusicVibes: "Pick a vibe",
     idleHost: "Your Streex host",
   },
   es: {
@@ -464,8 +468,13 @@ const copy = {
     idleAction: "Toca cualquier lugar para explorar",
     idleNowPlaying: "Reproduciendo en Streex",
     idleMusicReady: "Tu banda sonora Streex",
+    idleMusicPrompt: "Tu banda sonora empieza aquí",
     idleChooseMusic: "Elige la música para tu viaje",
-    idleChooseMusicDescription: "Busca canciones y elige qué sonará después.",
+    idleChooseMusicDescription:
+      "Busca canciones, explora el Top 50 o elige un estilo para el viaje.",
+    idleMusicSearch: "Buscar canciones",
+    idleMusicTop: "Top 50",
+    idleMusicVibes: "Elige un estilo",
     idleHost: "Tu anfitrión Streex",
   },
 } as const;
@@ -575,6 +584,10 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           config={config}
           fallbackTemperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
           language={language}
+          onExploreMusic={() => {
+            idleReset.resume();
+            setView("music");
+          }}
           onResume={idleReset.resume}
           weather={weather.snapshot}
         />
@@ -587,12 +600,14 @@ function PassengerIdlePrompt({
   config,
   fallbackTemperatureFahrenheit,
   language,
+  onExploreMusic,
   onResume,
   weather,
 }: {
   config: AppConfig;
   fallbackTemperatureFahrenheit: number;
   language: Language;
+  onExploreMusic: () => void;
   onResume: () => void;
   weather: PassengerWeatherSnapshot | null;
 }) {
@@ -612,13 +627,7 @@ function PassengerIdlePrompt({
 
   return (
     <div
-      role="button"
-      tabIndex={0}
-      aria-label={`${primary.idleTitle} ${primary.idleAction}`}
       onClick={onResume}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") onResume();
-      }}
       className="fixed inset-0 z-[100] grid cursor-pointer place-items-center overflow-hidden bg-[#080808]/95 p-8 text-left text-white backdrop-blur-xl focus:outline-none focus:ring-4 focus:ring-inset focus:ring-[#E6CE20]/60"
     >
       <div className="absolute left-1/2 top-1/2 h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E6CE20]/10 blur-[130px]" />
@@ -646,6 +655,7 @@ function PassengerIdlePrompt({
             config.passengerConsole.music.mode === "provider" &&
             config.passengerConsole.music.providerName === "Spotify"
           }
+          onExploreMusic={onExploreMusic}
           t={primary}
         />
 
@@ -676,10 +686,11 @@ function PassengerIdlePrompt({
               </span>
             </span>
           </span>
-          <span className="passenger-idle-action rounded-full border border-[#E6CE20] bg-[#E6CE20] px-8 py-4 text-center text-sm font-black uppercase tracking-[0.12em] text-black shadow-[0_0_35px_rgba(230,206,32,0.18)] sm:min-w-[300px]">
+          <span className="passenger-idle-action rounded-full border border-[#E6CE20] bg-[#E6CE20] px-8 py-4 text-center text-sm font-black uppercase tracking-[0.12em] text-black shadow-[0_0_35px_rgba(230,206,32,0.26)] sm:min-w-[300px]">
             <span className="block">{primary.idleAction}</span>
-            <span className="mt-0.5 block text-[10px] font-semibold normal-case tracking-normal text-black/60">
-              {secondary.idleAction}
+            <span className="mt-1 flex items-center justify-center gap-1.5 text-[10px] font-bold normal-case tracking-normal text-black/65">
+              <Sparkles className="h-3 w-3" />
+              Music · Games · Streex
             </span>
           </span>
         </div>
@@ -688,7 +699,15 @@ function PassengerIdlePrompt({
   );
 }
 
-function IdleSpotifyNowPlaying({ enabled, t }: { enabled: boolean; t: (typeof copy)[Language] }) {
+function IdleSpotifyNowPlaying({
+  enabled,
+  onExploreMusic,
+  t,
+}: {
+  enabled: boolean;
+  onExploreMusic: () => void;
+  t: (typeof copy)[Language];
+}) {
   const [status, setStatus] = useState<SpotifyPlaybackState | null>(null);
 
   useEffect(() => {
@@ -716,9 +735,13 @@ function IdleSpotifyNowPlaying({ enabled, t }: { enabled: boolean; t: (typeof co
 
   const playback = status?.state === "ready" ? status.playback : null;
   const track = playback?.track ?? null;
+  const isDiscoverable = !track;
+  const className = `passenger-idle-music grid w-full max-w-4xl items-center gap-7${
+    isDiscoverable ? " passenger-idle-music--discover" : ""
+  }`;
 
-  return (
-    <div className="passenger-idle-music grid w-full max-w-4xl items-center gap-7">
+  const content = (
+    <>
       {track?.artworkUrl ? (
         <img
           src={track.artworkUrl}
@@ -726,7 +749,7 @@ function IdleSpotifyNowPlaying({ enabled, t }: { enabled: boolean; t: (typeof co
           className="passenger-idle-artwork aspect-square w-full rounded-[28px] object-cover shadow-2xl"
         />
       ) : (
-        <span className="passenger-idle-artwork grid aspect-square w-full place-items-center rounded-[28px] bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black shadow-2xl">
+        <span className="passenger-idle-artwork passenger-idle-artwork--placeholder grid aspect-square w-full place-items-center rounded-[28px] bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black shadow-2xl">
           <Music2 className="h-20 w-20" />
         </span>
       )}
@@ -739,7 +762,11 @@ function IdleSpotifyNowPlaying({ enabled, t }: { enabled: boolean; t: (typeof co
               <span className="h-3 w-1 animate-pulse rounded-full bg-[#E6CE20]" />
             </span>
           )}
-          {playback?.isPlaying ? t.idleNowPlaying : t.idleMusicReady}
+          {playback?.isPlaying
+            ? t.idleNowPlaying
+            : isDiscoverable
+              ? t.idleMusicPrompt
+              : t.idleMusicReady}
         </span>
         <span className="mt-4 block text-3xl font-black leading-tight tracking-tight sm:text-4xl">
           {track?.title ?? t.idleChooseMusic}
@@ -749,8 +776,37 @@ function IdleSpotifyNowPlaying({ enabled, t }: { enabled: boolean; t: (typeof co
             ? `${track.artist}${track.album ? ` · ${track.album}` : ""}`
             : t.idleChooseMusicDescription}
         </span>
+        {isDiscoverable && (
+          <span className="passenger-idle-discovery mt-5 flex flex-wrap items-center gap-3">
+            <span className="passenger-idle-discovery-pills flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white/55">
+              <span>{t.idleMusicSearch}</span>
+              <span>{t.idleMusicTop}</span>
+              <span>{t.idleMusicVibes}</span>
+            </span>
+            <span className="passenger-idle-discovery-action inline-flex items-center gap-2 rounded-full bg-[#E6CE20] px-4 py-2 text-xs font-black text-black shadow-[0_0_25px_rgba(230,206,32,0.18)]">
+              <Search className="h-4 w-4" />
+              {t.chooseMusic}
+              <ChevronRight className="h-4 w-4" />
+            </span>
+          </span>
+        )}
       </span>
-    </div>
+    </>
+  );
+
+  if (!isDiscoverable) return <div className={className}>{content}</div>;
+
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={(event) => {
+        event.stopPropagation();
+        onExploreMusic();
+      }}
+    >
+      {content}
+    </button>
   );
 }
 
