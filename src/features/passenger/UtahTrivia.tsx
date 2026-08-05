@@ -5,7 +5,6 @@ import {
   ChevronRight,
   Flag,
   MapPinned,
-  Mountain,
   RotateCcw,
   Sparkles,
   Trophy,
@@ -17,6 +16,7 @@ import {
   type TriviaLanguage,
   type UtahTriviaQuestion,
 } from "./utah-trivia";
+import utahTriviaHero from "@/assets/passenger-games/utah-trivia-hero.jpg";
 
 const ROUND_SIZE = 10;
 const RECENT_QUESTION_IDS_KEY = "streex-passenger-utah-trivia-recent";
@@ -136,7 +136,14 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
           {t.exit}
         </button>
         <section className="passenger-trivia-hero passenger-trivia-hero--road relative flex flex-1 overflow-hidden rounded-[30px] border border-[#E6CE20]/30 p-7">
-          <div className="passenger-trivia-road-glow" />
+          <img
+            src={utahTriviaHero}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover object-[68%_center]"
+          />
+          <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,9,0.97)_0%,rgba(5,7,9,0.84)_42%,rgba(5,7,9,0.26)_100%)]" />
+          <span className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/15" />
           <div className="relative z-10 flex max-w-xl flex-col justify-center">
             <span className="grid h-16 w-16 place-items-center rounded-[20px] border border-[#E6CE20]/45 bg-[#E6CE20] text-black shadow-[0_12px_40px_rgba(230,206,32,0.2)]">
               <MapPinned className="h-8 w-8" />
@@ -163,13 +170,9 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
-          <div className="passenger-trivia-route-map" aria-hidden="true">
-            <Mountain className="h-32 w-32" />
-            <span className="passenger-trivia-route-line" />
-            <span className="passenger-trivia-route-dot passenger-trivia-route-dot--start" />
-            <span className="passenger-trivia-route-dot passenger-trivia-route-dot--finish" />
-            <Flag className="passenger-trivia-route-flag h-6 w-6" />
-            <span className="passenger-trivia-route-label">10 MILES</span>
+          <div className="passenger-trivia-hero-route relative z-10" aria-hidden="true">
+            <Flag className="h-4 w-4" />
+            <span>UTAH ROUTE · 10</span>
           </div>
         </section>
       </div>
