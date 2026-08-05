@@ -33,7 +33,6 @@ const triviaCopy = {
     round: "10 questions",
     offline: "Works offline",
     noTimer: "No timer",
-    fieldNote: "Utah field note",
     question: "Question",
     next: "Next question",
     results: "See results",
@@ -59,7 +58,6 @@ const triviaCopy = {
     round: "10 preguntas",
     offline: "Funciona sin conexión",
     noTimer: "Sin límite de tiempo",
-    fieldNote: "Nota de Utah",
     question: "Pregunta",
     next: "Siguiente pregunta",
     results: "Ver resultados",
@@ -348,10 +346,7 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
             />
             <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,9,0.95),rgba(5,7,9,0.54),rgba(5,7,9,0.08))]" />
             <span className="relative flex min-h-[118px] flex-col justify-center px-4">
-              <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
-                {t.fieldNote}
-              </span>
-              <span className="mt-1 text-sm font-extrabold text-white">
+              <span className="text-sm font-extrabold text-white">
                 {question.category[language]}
               </span>
             </span>
