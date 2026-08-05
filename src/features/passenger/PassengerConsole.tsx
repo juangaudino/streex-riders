@@ -211,6 +211,8 @@ const copy = {
     choicePreview: "Pick a side",
     choiceFirst: "THIS",
     choiceSecond: "THAT",
+    horizonTabletSoon: "Coming soon to your tablet experience",
+    horizonPhone: "Play on your phone",
     streexTitle: "Private rides. Elevated.",
     streexSubtitle: "Designed around you.",
     streexExperienceTitle: "The Streex Experience",
@@ -390,6 +392,8 @@ const copy = {
     choicePreview: "Elige un lado",
     choiceFirst: "ESTO",
     choiceSecond: "AQUELLO",
+    horizonTabletSoon: "Próximamente en tu experiencia de tablet",
+    horizonPhone: "Juega en tu teléfono",
     streexTitle: "Viajes privados. Elevados.",
     streexSubtitle: "Diseñado para ti.",
     streexExperienceTitle: "La experiencia Streex",
@@ -533,6 +537,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           {view === "games" && (
             <GamesView
               language={language}
+              phoneContinuation={consoleConfig.links.phoneContinuation}
               t={t}
               thisOrThatEnabled={consoleConfig.games.thisOrThatEnabled}
               utahTriviaEnabled={consoleConfig.games.utahTriviaEnabled}
@@ -1891,11 +1896,13 @@ function SimulatedMusicView({
 
 function GamesView({
   language,
+  phoneContinuation,
   t,
   thisOrThatEnabled,
   utahTriviaEnabled,
 }: {
   language: Language;
+  phoneContinuation: string | null;
   t: (typeof copy)[Language];
   thisOrThatEnabled: boolean;
   utahTriviaEnabled: boolean;
@@ -1936,19 +1943,37 @@ function GamesView({
           status={thisOrThatEnabled ? t.playNow : t.comingSoon}
         />
       </div>
-      <a
-        href="/runner-lab"
-        className="passenger-games-horizon group relative block aspect-[1200/509] overflow-hidden rounded-[26px] border border-[#E6CE20]/35 bg-[#12120c] shadow-[0_16px_45px_rgba(0,0,0,0.28)]"
-        aria-label="Play Streex Horizon"
-      >
+      <section className="passenger-games-horizon relative aspect-[1200/509] overflow-hidden rounded-[26px] border border-[#E6CE20]/35 bg-[#12120c] shadow-[0_16px_45px_rgba(0,0,0,0.28)]">
         <img
           src={horizonQuickActionCard}
           alt="Streex Horizon. Play the challenge."
-          className="block h-full w-full object-cover transition-transform duration-500 group-active:scale-[0.99]"
+          className="block h-full w-full object-cover"
           loading="lazy"
           decoding="async"
         />
-      </a>
+        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-4 bg-gradient-to-t from-black via-black/95 to-transparent px-5 pb-4 pt-12">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E6CE20]">
+              {t.comingSoon}
+            </p>
+            <p className="mt-1 text-sm font-semibold leading-tight text-white">
+              {t.horizonTabletSoon}
+            </p>
+            <p className="mt-1 text-xs text-white/60">{t.horizonPhone}</p>
+          </div>
+          {phoneContinuation && (
+            <div className="shrink-0 rounded-xl bg-white p-1.5 shadow-[0_0_26px_rgba(230,206,32,0.2)]">
+              <QRCodeSVG
+                value={phoneContinuation}
+                size={56}
+                bgColor="#FFFFFF"
+                fgColor="#0B0B0B"
+                level="M"
+              />
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
