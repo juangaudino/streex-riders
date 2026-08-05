@@ -1195,11 +1195,10 @@ input[type="time"] {
     min-height: 0;
   }
 
-  .passenger-games-note {
+  .passenger-games-horizon {
     grid-column: 1;
     grid-row: 2;
     align-self: end;
-    padding: 22px !important;
   }
 
   .passenger-console-shell[data-view="streex"] > main {

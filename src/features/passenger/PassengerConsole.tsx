@@ -63,6 +63,10 @@ import {
 } from "./usePassengerState";
 import { UtahTrivia } from "./UtahTrivia";
 import { ThisOrThat } from "./ThisOrThat";
+import horizonQuickActionCard from "@/features/runner/assets/quick-action/horizon_quick_action_card.webp";
+import passengerRav4Front from "@/assets/streex-gallery/passenger-rav4-front.jpg";
+import passengerRav4Rear from "@/assets/streex-gallery/passenger-rav4-rear.jpg";
+import passengerRav4Snow from "@/assets/streex-gallery/passenger-rav4-snow.jpg";
 
 type Language = "en" | "es";
 type View =
@@ -1932,12 +1936,19 @@ function GamesView({
           status={thisOrThatEnabled ? t.playNow : t.comingSoon}
         />
       </div>
-      <div className="passenger-games-note rounded-[26px] border border-white/10 bg-gradient-to-br from-white/[0.05] to-[#E6CE20]/10 p-6">
-        <p className="text-[10px] font-semibold tracking-[0.22em] text-[#E6CE20]">{t.streex}</p>
-        <p className="mt-2 max-w-md text-xl font-bold">
-          Utah roads, local moments, and a little fun along the way.
-        </p>
-      </div>
+      <a
+        href="/runner-lab"
+        className="passenger-games-horizon group relative block aspect-[1200/509] overflow-hidden rounded-[26px] border border-[#E6CE20]/35 bg-[#12120c] shadow-[0_16px_45px_rgba(0,0,0,0.28)]"
+        aria-label="Play Streex Horizon"
+      >
+        <img
+          src={horizonQuickActionCard}
+          alt="Streex Horizon. Play the challenge."
+          className="block h-full w-full object-cover transition-transform duration-500 group-active:scale-[0.99]"
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
     </div>
   );
 }
@@ -2080,17 +2091,30 @@ function StreexView({
         </div>
       </section>
       <div className="passenger-streex-experience">
-        <PassengerVehicleGrid config={config} title={t.yourRideGallery} />
+        <PassengerVehicleGrid title={t.yourRideGallery} />
       </div>
     </div>
   );
 }
 
-function PassengerVehicleGrid({ config, title }: { config: AppConfig; title: string }) {
-  const vehicle =
-    config.galleryImages.find((image) => image.image.includes("rav4")) ?? config.galleryImages[0];
-
-  if (!vehicle) return null;
+function PassengerVehicleGrid({ title }: { title: string }) {
+  const vehicles = [
+    {
+      alt: "Silver Toyota RAV4, front three-quarter view",
+      image: passengerRav4Front,
+      position: "object-center",
+    },
+    {
+      alt: "Silver Toyota RAV4, rear view at dusk",
+      image: passengerRav4Rear,
+      position: "object-center",
+    },
+    {
+      alt: "Silver Toyota RAV4 in the snow",
+      image: passengerRav4Snow,
+      position: "object-center",
+    },
+  ];
 
   return (
     <section className="passenger-vehicle-grid-section">
@@ -2099,17 +2123,17 @@ function PassengerVehicleGrid({ config, title }: { config: AppConfig; title: str
         <span className="text-xs font-semibold text-[#E6CE20]">Toyota RAV4</span>
       </div>
       <div className="mt-4 grid grid-cols-3 gap-3">
-        {["object-left", "object-center", "object-right"].map((position, index) => (
+        {vehicles.map((vehicle) => (
           <div
-            key={position}
+            key={vehicle.image}
             className="relative aspect-[0.9] min-h-[168px] overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.04]"
           >
             <img
               src={vehicle.image}
-              alt={index === 0 ? "Toyota RAV4" : ""}
+              alt={vehicle.alt}
               loading="lazy"
               decoding="async"
-              className={`h-full w-full object-cover ${position}`}
+              className={`h-full w-full object-cover ${vehicle.position}`}
             />
             <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
             <span className="absolute bottom-3 left-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80">
