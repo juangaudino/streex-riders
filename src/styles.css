@@ -870,6 +870,10 @@ input[type="time"] {
     );
 }
 
+.passenger-trivia-postcard {
+  min-height: 92px;
+}
+
 .passenger-trivia-option {
   display: flex;
   min-height: 76px;

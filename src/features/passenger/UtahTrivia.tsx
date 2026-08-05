@@ -17,6 +17,7 @@ import {
   type UtahTriviaQuestion,
 } from "./utah-trivia";
 import utahTriviaHero from "@/assets/passenger-games/utah-trivia-hero.jpg";
+import utahTriviaNationalParks from "@/assets/passenger-games/utah-trivia-national-parks.jpg";
 
 const ROUND_SIZE = 10;
 const RECENT_QUESTION_IDS_KEY = "streex-passenger-utah-trivia-recent";
@@ -30,6 +31,7 @@ const triviaCopy = {
     round: "10 questions",
     offline: "Works offline",
     noTimer: "No timer",
+    fieldNote: "Utah field note",
     question: "Question",
     next: "Next question",
     results: "See results",
@@ -55,6 +57,7 @@ const triviaCopy = {
     round: "10 preguntas",
     offline: "Funciona sin conexión",
     noTimer: "Sin límite de tiempo",
+    fieldNote: "Nota de Utah",
     question: "Pregunta",
     next: "Siguiente pregunta",
     results: "Ver resultados",
@@ -232,6 +235,8 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
   const answered = selectedIndex !== null;
   const selectedCorrect = selectedIndex === question.correctIndex;
   const progress = ((questionIndex + (answered ? 1 : 0)) / ROUND_SIZE) * 100;
+  const showNationalParksPostcard =
+    question.category.en === "National parks" || question.category.en === "Landmarks";
 
   const chooseAnswer = (index: number) => {
     if (answered) return;
@@ -267,10 +272,30 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
         />
       </div>
       <section className="passenger-trivia-question passenger-trivia-question--route flex min-h-0 flex-1 flex-col rounded-[30px] border border-white/10 p-6">
-        <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
-          <span className="h-2 w-2 rounded-full bg-[#E6CE20] shadow-[0_0_12px_rgba(230,206,32,0.9)]" />
-          {question.category[language]}
-        </p>
+        {showNationalParksPostcard ? (
+          <div className="passenger-trivia-postcard relative overflow-hidden rounded-[18px] border border-[#E6CE20]/25">
+            <img
+              src={utahTriviaNationalParks}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover object-[50%_48%]"
+            />
+            <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,9,0.94),rgba(5,7,9,0.5),rgba(5,7,9,0.1))]" />
+            <span className="relative flex min-h-[90px] flex-col justify-center px-4">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
+                {t.fieldNote}
+              </span>
+              <span className="mt-1 text-sm font-extrabold text-white">
+                {question.category[language]}
+              </span>
+            </span>
+          </div>
+        ) : (
+          <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
+            <span className="h-2 w-2 rounded-full bg-[#E6CE20] shadow-[0_0_12px_rgba(230,206,32,0.9)]" />
+            {question.category[language]}
+          </p>
+        )}
         <h1 className="mt-3 max-w-2xl text-3xl font-black leading-tight tracking-tight">
           {question.prompt[language]}
         </h1>
