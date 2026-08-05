@@ -8,16 +8,13 @@ const PASSENGER_WEATHER_CACHE_KEY = "streex-passenger-weather-v1";
 const PASSENGER_LAST_ACTIVITY_KEY = "streex-passenger-last-activity-v1";
 
 export function usePassengerIdleReset({
-  inactivityMinutes,
+  inactivitySeconds,
   onReset,
-  promptSeconds,
 }: {
-  inactivityMinutes: number;
+  inactivitySeconds: number;
   onReset: () => void;
-  promptSeconds: number;
 }) {
   const [promptOpen, setPromptOpen] = useState(false);
-  const [secondsRemaining, setSecondsRemaining] = useState(promptSeconds);
   const onResetRef = useRef(onReset);
   const resumeRef = useRef<() => void>(() => undefined);
 
@@ -26,13 +23,10 @@ export function usePassengerIdleReset({
   }, [onReset]);
 
   useEffect(() => {
-    const inactivityMs = Math.max(1, inactivityMinutes) * 60_000;
-    const promptMs = Math.max(1, promptSeconds) * 1_000;
+    const inactivityMs = Math.max(1, inactivitySeconds) * 1_000;
     let promptVisible = false;
     let lastActivity = Date.now();
-    let promptDeadline = 0;
     let phaseTimer: number | undefined;
-    let countdownTimer: number | undefined;
 
     try {
       const storedActivity = Number(localStorage.getItem(PASSENGER_LAST_ACTIVITY_KEY));
@@ -51,9 +45,7 @@ export function usePassengerIdleReset({
 
     const clearTimers = () => {
       if (phaseTimer !== undefined) window.clearTimeout(phaseTimer);
-      if (countdownTimer !== undefined) window.clearInterval(countdownTimer);
       phaseTimer = undefined;
-      countdownTimer = undefined;
     };
 
     const beginActivePhase = (remainingMs: number) => {
@@ -63,35 +55,18 @@ export function usePassengerIdleReset({
       phaseTimer = window.setTimeout(evaluateElapsedTime, Math.max(0, remainingMs));
     };
 
-    const resetSession = () => {
-      clearTimers();
-      promptVisible = false;
-      setPromptOpen(false);
-      lastActivity = Date.now();
-      persistActivity();
-      onResetRef.current();
-      phaseTimer = window.setTimeout(evaluateElapsedTime, inactivityMs);
-    };
-
-    const beginPromptPhase = (remainingMs: number) => {
+    const beginPromptPhase = () => {
+      if (promptVisible) return;
       clearTimers();
       promptVisible = true;
-      promptDeadline = Date.now() + remainingMs;
-      setSecondsRemaining(Math.max(1, Math.ceil(remainingMs / 1_000)));
+      onResetRef.current();
       setPromptOpen(true);
-
-      countdownTimer = window.setInterval(() => {
-        setSecondsRemaining(Math.max(0, Math.ceil((promptDeadline - Date.now()) / 1_000)));
-      }, 250);
-      phaseTimer = window.setTimeout(resetSession, Math.max(0, remainingMs));
     };
 
     function evaluateElapsedTime() {
       const elapsed = Date.now() - lastActivity;
-      if (elapsed >= inactivityMs + promptMs) {
-        resetSession();
-      } else if (elapsed >= inactivityMs) {
-        beginPromptPhase(inactivityMs + promptMs - elapsed);
+      if (elapsed >= inactivityMs) {
+        beginPromptPhase();
       } else {
         beginActivePhase(inactivityMs - elapsed);
       }
@@ -136,11 +111,11 @@ export function usePassengerIdleReset({
       document.removeEventListener("visibilitychange", checkAfterWake);
       resumeRef.current = () => undefined;
     };
-  }, [inactivityMinutes, promptSeconds]);
+  }, [inactivitySeconds]);
 
   const resume = useCallback(() => resumeRef.current(), []);
 
-  return { promptOpen, resume, secondsRemaining };
+  return { promptOpen, resume };
 }
 
 export function useClock() {

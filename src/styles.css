@@ -630,6 +630,32 @@ input[type="time"] {
 }
 
 /* Passenger Console: dedicated 16:10 tablet landscape composition. */
+.passenger-idle-music {
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+}
+
+.passenger-idle-artwork {
+  max-width: 320px;
+  justify-self: center;
+}
+
+@media (orientation: portrait) {
+  .passenger-idle-music {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 620px;
+  }
+
+  .passenger-idle-artwork {
+    max-width: min(46vh, 420px);
+  }
+}
+
+@media (orientation: landscape) {
+  .passenger-idle-content {
+    gap: 1.25rem;
+  }
+}
+
 .passenger-trivia-back {
   display: inline-flex;
   width: fit-content;

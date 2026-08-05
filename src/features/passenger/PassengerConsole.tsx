@@ -256,10 +256,12 @@ const copy = {
     stripeDetail: "Choose your preferred option in the secure checkout",
     stripePending: "Stripe setup pending",
     idleTitle: "Ready for your STREEX experience?",
-    idleDescription: "This console is ready for your ride.",
-    idleAction: "Tap to explore",
-    idleReturning: "Returning home in",
-    seconds: "seconds",
+    idleDescription: "Your music, games and STREEX experience are one tap away.",
+    idleAction: "Tap anywhere to explore",
+    idleNowPlaying: "Now playing on STREEX",
+    idleMusicReady: "Your STREEX soundtrack",
+    idleChooseMusic: "Choose the soundtrack for your ride",
+    idleChooseMusicDescription: "Search songs and shape what plays next.",
   },
   es: {
     home: "Inicio",
@@ -431,10 +433,12 @@ const copy = {
     stripeDetail: "Elija su opción preferida en el pago seguro",
     stripePending: "Configuración de Stripe pendiente",
     idleTitle: "¿Listo para tu experiencia STREEX?",
-    idleDescription: "Esta consola está lista para tu viaje.",
-    idleAction: "Toca para explorar",
-    idleReturning: "Volviendo al inicio en",
-    seconds: "segundos",
+    idleDescription: "Tu música, juegos y experiencia STREEX están a un toque.",
+    idleAction: "Toca cualquier lugar para explorar",
+    idleNowPlaying: "Reproduciendo en STREEX",
+    idleMusicReady: "Tu banda sonora STREEX",
+    idleChooseMusic: "Elige la música para tu viaje",
+    idleChooseMusicDescription: "Busca canciones y elige qué sonará después.",
   },
 } as const;
 
@@ -455,9 +459,8 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
     setSessionKey((current) => current + 1);
   }, [consoleConfig.idleReset.defaultLanguage]);
   const idleReset = usePassengerIdleReset({
-    inactivityMinutes: consoleConfig.idleReset.inactivityMinutes,
+    inactivitySeconds: consoleConfig.idleReset.inactivitySeconds,
     onReset: resetPassengerSession,
-    promptSeconds: consoleConfig.idleReset.promptSeconds,
   });
 
   useEffect(() => {
@@ -536,12 +539,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
       </div>
       <BookingFormModal language={language} open={bookingOpen} onOpenChange={setBookingOpen} />
       {idleReset.promptOpen && (
-        <PassengerIdlePrompt
-          config={config}
-          language={language}
-          onResume={idleReset.resume}
-          secondsRemaining={idleReset.secondsRemaining}
-        />
+        <PassengerIdlePrompt config={config} language={language} onResume={idleReset.resume} />
       )}
     </div>
   );
@@ -551,56 +549,124 @@ function PassengerIdlePrompt({
   config,
   language,
   onResume,
-  secondsRemaining,
 }: {
   config: AppConfig;
   language: Language;
   onResume: () => void;
-  secondsRemaining: number;
 }) {
   const primary = copy[language];
   const secondary = copy[language === "en" ? "es" : "en"];
 
   return (
     <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="passenger-idle-title"
-      className="fixed inset-0 z-[100] grid place-items-center overflow-hidden bg-[#080808]/95 p-8 text-white backdrop-blur-xl"
+      role="button"
+      tabIndex={0}
+      aria-label={`${primary.idleTitle} ${primary.idleAction}`}
+      onClick={onResume}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") onResume();
+      }}
+      className="fixed inset-0 z-[100] grid cursor-pointer place-items-center overflow-hidden bg-[#080808]/95 p-8 text-left text-white backdrop-blur-xl focus:outline-none focus:ring-4 focus:ring-inset focus:ring-[#E6CE20]/60"
     >
-      <div className="absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E6CE20]/10 blur-[110px]" />
-      <div className="relative flex w-full max-w-2xl flex-col items-center text-center">
-        <img
-          src={config.logoSrc}
-          alt={config.brandName}
-          className="h-16 w-auto max-w-[240px] object-contain"
-        />
-        <p className="mt-8 text-xs font-semibold uppercase tracking-[0.3em] text-[#E6CE20]">
-          STREEX RIDES
-        </p>
-        <h1
-          id="passenger-idle-title"
-          className="mt-4 max-w-xl text-4xl font-black tracking-tight sm:text-5xl"
-        >
-          {primary.idleTitle}
-        </h1>
-        <p className="mt-3 text-xl font-semibold text-white/55">{secondary.idleTitle}</p>
-        <p className="mt-7 text-base text-white/55">{primary.idleDescription}</p>
-        <button
-          type="button"
-          onClick={onResume}
-          className="mt-8 min-w-[280px] rounded-full bg-[#E6CE20] px-9 py-5 text-lg font-black text-black shadow-[0_0_45px_rgba(230,206,32,0.2)] transition active:scale-[0.98]"
-        >
-          <span className="block">{primary.idleAction}</span>
-          <span className="mt-0.5 block text-xs font-semibold text-black/60">
-            {secondary.idleAction}
+      <div className="absolute left-1/2 top-1/2 h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E6CE20]/10 blur-[130px]" />
+      <div className="passenger-idle-content relative flex w-full max-w-5xl flex-col items-center gap-8">
+        <div className="flex w-full items-center justify-between gap-5">
+          <img
+            src={config.logoSrc}
+            alt={config.brandName}
+            className="h-14 w-auto max-w-[220px] object-contain"
+          />
+          <span className="rounded-full border border-[#E6CE20]/25 bg-[#E6CE20]/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#E6CE20]">
+            {primary.idleAction}
           </span>
-        </button>
-        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-white/35">
-          {primary.idleReturning} {secondsRemaining} {primary.seconds}
-        </p>
+        </div>
+
+        <IdleSpotifyNowPlaying
+          enabled={
+            config.passengerConsole.music.mode === "provider" &&
+            config.passengerConsole.music.providerName === "Spotify"
+          }
+          t={primary}
+        />
+
+        <div className="w-full text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#E6CE20]">
+            STREEX RIDES
+          </p>
+          <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+            {primary.idleTitle}
+          </h1>
+          <p className="mt-2 text-lg font-semibold text-white/45">{secondary.idleTitle}</p>
+          <p className="mt-4 text-sm text-white/50">{primary.idleDescription}</p>
+        </div>
       </div>
     </div>
+  );
+}
+
+function IdleSpotifyNowPlaying({ enabled, t }: { enabled: boolean; t: (typeof copy)[Language] }) {
+  const [status, setStatus] = useState<SpotifyPlaybackState | null>(null);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let isMounted = true;
+
+    const refresh = async () => {
+      try {
+        const next = await getPersonalSpotifyPlayback({ data: {} });
+        if (isMounted) setStatus(next);
+      } catch {
+        if (isMounted) setStatus(null);
+      }
+    };
+
+    void refresh();
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") void refresh();
+    }, 5_000);
+    return () => {
+      isMounted = false;
+      window.clearInterval(interval);
+    };
+  }, [enabled]);
+
+  const playback = status?.state === "ready" ? status.playback : null;
+  const track = playback?.track ?? null;
+
+  return (
+    <section className="passenger-idle-music grid w-full max-w-4xl items-center gap-7 rounded-[32px] border border-white/10 bg-white/[0.05] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
+      {track?.artworkUrl ? (
+        <img
+          src={track.artworkUrl}
+          alt=""
+          className="passenger-idle-artwork aspect-square w-full rounded-[28px] object-cover shadow-2xl"
+        />
+      ) : (
+        <span className="passenger-idle-artwork grid aspect-square w-full place-items-center rounded-[28px] bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black shadow-2xl">
+          <Music2 className="h-20 w-20" />
+        </span>
+      )}
+      <span className="min-w-0">
+        <span className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#E6CE20]">
+          {playback?.isPlaying && (
+            <span className="flex h-5 items-end gap-1" aria-hidden="true">
+              <span className="h-2 w-1 animate-pulse rounded-full bg-[#E6CE20]" />
+              <span className="h-5 w-1 animate-pulse rounded-full bg-[#E6CE20]" />
+              <span className="h-3 w-1 animate-pulse rounded-full bg-[#E6CE20]" />
+            </span>
+          )}
+          {playback?.isPlaying ? t.idleNowPlaying : t.idleMusicReady}
+        </span>
+        <span className="mt-4 block text-3xl font-black leading-tight tracking-tight sm:text-4xl">
+          {track?.title ?? t.idleChooseMusic}
+        </span>
+        <span className="mt-3 block text-lg text-white/55">
+          {track
+            ? `${track.artist}${track.album ? ` · ${track.album}` : ""}`
+            : t.idleChooseMusicDescription}
+        </span>
+      </span>
+    </section>
   );
 }
 

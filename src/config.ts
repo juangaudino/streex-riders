@@ -42,10 +42,8 @@ export const CONFIG = {
   passengerConsole: {
     enabled: true,
     idleReset: {
-      // Start a bilingual invitation after this many minutes without tablet interaction.
-      inactivityMinutes: 5,
-      // Return to a clean Home session if the invitation is not answered.
-      promptSeconds: 30,
+      // Testing value: 15 seconds. Change to 120 after the attract screen is approved.
+      inactivitySeconds: 15,
       defaultLanguage: "en" as "en" | "es",
     },
     clock: {
