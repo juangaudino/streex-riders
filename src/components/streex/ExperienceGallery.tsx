@@ -2,16 +2,26 @@ import type { AppConfig } from "@/config";
 
 export function ExperienceGallery({
   config,
+  prioritizeVehicle = false,
   title = "The Streex Experience",
 }: {
   config: AppConfig;
+  prioritizeVehicle?: boolean;
   title?: string;
 }) {
+  const images = prioritizeVehicle
+    ? [...config.galleryImages].sort((left, right) => {
+        const leftIsVehicle = left.image.includes("rav4");
+        const rightIsVehicle = right.image.includes("rav4");
+        return Number(rightIsVehicle) - Number(leftIsVehicle);
+      })
+    : config.galleryImages;
+
   return (
     <section className="mt-16">
       <h2 className="text-2xl font-bold mb-5 px-6">{title}</h2>
       <div className="flex gap-4 overflow-x-auto no-scrollbar px-6 pb-2 snap-x snap-mandatory">
-        {config.galleryImages.map((e) => (
+        {images.map((e) => (
           <div
             key={e.label}
             className="relative shrink-0 snap-start rounded-[20px] overflow-hidden border border-white/8 streex-glass"

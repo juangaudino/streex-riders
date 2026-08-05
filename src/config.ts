@@ -50,6 +50,7 @@ export const CONFIG = {
       localTimeZone: "America/Denver",
       secondaryTimeZones: {
         east: "America/New_York",
+        central: "America/Chicago",
         pacific: "America/Los_Angeles",
       },
     },

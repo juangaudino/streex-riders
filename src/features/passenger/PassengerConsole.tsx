@@ -5,14 +5,20 @@ import {
   CalendarPlus,
   ChevronRight,
   Cloud,
+  CloudFog,
+  CloudLightning,
+  CloudRain,
+  CloudSun,
   CreditCard,
   Gamepad2,
+  Globe2,
   HandCoins,
   Languages,
   Mail,
   Menu,
   MessageCircle,
   Music2,
+  MapPin,
   Pause,
   Phone,
   Play,
@@ -21,8 +27,11 @@ import {
   SkipForward,
   Sparkles,
   Star,
+  Sun,
+  Snowflake,
   UserRound,
   Wifi,
+  Wind,
 } from "lucide-react";
 import {
   Dialog,
@@ -65,7 +74,8 @@ type View =
   | "services"
   | "contact"
   | "reviews"
-  | "tip";
+  | "tip"
+  | "where-we-ride";
 
 type PassengerConsoleProps = {
   config: AppConfig;
@@ -94,13 +104,15 @@ const copy = {
     home: "Home",
     music: "Music",
     games: "Games",
-    streex: "STREEX",
-    welcome: "Welcome to your STREEX ride",
+    streex: "Streex",
+    privateRide: "Private ride",
+    welcome: "Welcome to your ride",
     subtitle: "A private ride, with a little more built in.",
     exploreCue: "Tap to explore your ride",
     hostedBy: "Hosted by",
     localTime: "Local time",
     newYork: "New York",
+    dallas: "Dallas",
     losAngeles: "Los Angeles",
     weather: "Weather",
     weatherHint: "Tap for the forecast",
@@ -128,10 +140,10 @@ const copy = {
     nowPlaying: "Now playing",
     chooseMusic: "Choose music",
     musicHint: "Tap to search songs and artists.",
-    rideDeckEyebrow: "STREEX RIDE DECK",
+    rideDeckEyebrow: "Ride highlights",
     rideDeckTitle: "Private ride. Your music. Utah at your window.",
     rideDeckDescription:
-      "Meet the person behind your ride and the philosophy that makes STREEX different.",
+      "Meet the person behind your ride and the philosophy that makes Streex different.",
     meetHost: "Meet your host",
     quickAccess: "Quick access",
     musicDescription: "Curated sound for your ride",
@@ -199,7 +211,8 @@ const copy = {
     choiceSecond: "THAT",
     streexTitle: "Private rides. Elevated.",
     streexSubtitle: "Premium private transportation, designed around your journey.",
-    streexExperienceTitle: "The STREEX Experience",
+    streexExperienceTitle: "The Streex Experience",
+    yourRideGallery: "Your Streex ride",
     whereWeRide: "Where We Ride",
     whereWeRideTitle: "Utah roots. Longer horizons.",
     whereWeRideDescription:
@@ -213,9 +226,9 @@ const copy = {
     reviews: "Reviews",
     tip: "Leave a tip",
     continuePhone: "Continue on your phone",
-    continuePhoneDescription: "Scan to continue your STREEX experience on your phone.",
+    continuePhoneDescription: "Scan to continue your Streex experience on your phone.",
     meetJuan: "Meet Juan",
-    guestNotesEyebrow: "STREEX GUEST NOTES",
+    guestNotesEyebrow: "Streex guest notes",
     guestNotesTitle: "A few words from the road",
     guestNotesPreview: "Sample layout — live reviews will appear here later.",
     guestNoteOne: "“Thoughtful, smooth, and exactly what I needed after a long flight.”",
@@ -230,23 +243,24 @@ const copy = {
       "If your ride felt right, a review or a tip is always appreciated — only if you feel like it.",
     leaveReview: "Leave a review",
     leaveTip: "Leave a tip",
-    back: "Back to STREEX",
+    back: "Back to Streex",
     bilingual: "English + Español",
     hospitality: "Hospitality first",
     qrNote: "The phone continuation link will appear here when configured.",
     servicesTitle: "Services for every kind of ride.",
-    contactTitle: "Contact STREEX",
+    contactTitle: "Contact Streex",
     contactSubtitle: "Contact details to use from your own phone.",
     contactNote: "This tablet does not place calls or send messages.",
     phoneAndText: "Call or text",
     whatsapp: "WhatsApp",
     email: "Email",
+    website: "Website",
     reviewTitle: "Share your experience",
     reviewSubtitle: "Your feedback helps us make every ride better.",
-    tipTitle: "Thank you for riding with STREEX",
+    tipTitle: "Thank you for riding with Streex",
     tipSubtitle: "Optional ways to show your appreciation.",
     tipOptionsTitle: "Choose a convenient option",
-    tipOptionsNote: "Only if you wish — thank you for riding with STREEX.",
+    tipOptionsNote: "Only if you wish — thank you for riding with Streex.",
     tipInstruction: "Choose a method, then scan the QR with your phone.",
     tipScan: "Scan to continue on your phone",
     tipSecure: "Your payment is completed securely on your own device.",
@@ -255,26 +269,28 @@ const copy = {
     cardAndWallet: "Apple Pay, Google Pay & Card",
     stripeDetail: "Choose your preferred option in the secure checkout",
     stripePending: "Stripe setup pending",
-    idleTitle: "Ready for your STREEX experience?",
-    idleDescription: "Your music, games and STREEX experience are one tap away.",
+    idleTitle: "Ready for your Streex experience?",
+    idleDescription: "Your music, games and Streex experience are one tap away.",
     idleAction: "Tap anywhere to explore",
-    idleNowPlaying: "Now playing on STREEX",
-    idleMusicReady: "Your STREEX soundtrack",
+    idleNowPlaying: "Now playing on Streex",
+    idleMusicReady: "Your Streex soundtrack",
     idleChooseMusic: "Choose the soundtrack for your ride",
     idleChooseMusicDescription: "Search songs and shape what plays next.",
-    idleHost: "Your STREEX host",
+    idleHost: "Your Streex host",
   },
   es: {
     home: "Inicio",
     music: "Música",
     games: "Juegos",
-    streex: "STREEX",
-    welcome: "Bienvenido a tu viaje STREEX",
+    streex: "Streex",
+    privateRide: "Viaje privado",
+    welcome: "Bienvenido a tu viaje",
     subtitle: "Un viaje privado, con algo más para disfrutar.",
     exploreCue: "Toca para explorar tu viaje",
     hostedBy: "Atendido por",
     localTime: "Hora local",
     newYork: "Nueva York",
+    dallas: "Dallas",
     losAngeles: "Los Ángeles",
     weather: "Clima",
     weatherHint: "Toca para ver el pronóstico",
@@ -303,10 +319,10 @@ const copy = {
     nowPlaying: "Reproduciendo",
     chooseMusic: "Elige la música",
     musicHint: "Toca para buscar canciones y artistas.",
-    rideDeckEyebrow: "STREEX RIDE DECK",
+    rideDeckEyebrow: "Detalles del viaje",
     rideDeckTitle: "Viaje privado. Tu música. Utah frente a ti.",
     rideDeckDescription:
-      "Conoce a la persona detrás de tu viaje y la filosofía que hace diferente a STREEX.",
+      "Conoce a la persona detrás de tu viaje y la filosofía que hace diferente a Streex.",
     meetHost: "Conoce a tu anfitrión",
     quickAccess: "Accesos rápidos",
     musicDescription: "Sonido seleccionado para su viaje",
@@ -376,7 +392,8 @@ const copy = {
     choiceSecond: "AQUELLO",
     streexTitle: "Viajes privados. Elevados.",
     streexSubtitle: "Transporte privado premium, diseñado alrededor de su viaje.",
-    streexExperienceTitle: "La experiencia STREEX",
+    streexExperienceTitle: "La experiencia Streex",
+    yourRideGallery: "Tu viaje Streex",
     whereWeRide: "Dónde viajamos",
     whereWeRideTitle: "Raíces en Utah. Horizontes más amplios.",
     whereWeRideDescription:
@@ -390,9 +407,9 @@ const copy = {
     reviews: "Reseñas",
     tip: "Dejar propina",
     continuePhone: "Continuar en su teléfono",
-    continuePhoneDescription: "Escanee para continuar su experiencia STREEX en su teléfono.",
+    continuePhoneDescription: "Escanee para continuar su experiencia Streex en su teléfono.",
     meetJuan: "Conoce a Juan",
-    guestNotesEyebrow: "NOTAS DE HUÉSPEDES STREEX",
+    guestNotesEyebrow: "Notas de huéspedes Streex",
     guestNotesTitle: "Algunas palabras del camino",
     guestNotesPreview: "Diseño de ejemplo — las reseñas en vivo aparecerán aquí más adelante.",
     guestNoteOne:
@@ -408,23 +425,24 @@ const copy = {
       "Si su viaje se sintió bien, una reseña o propina siempre se agradece — solo si lo desea.",
     leaveReview: "Dejar una reseña",
     leaveTip: "Dejar una propina",
-    back: "Volver a STREEX",
+    back: "Volver a Streex",
     bilingual: "Inglés + Español",
     hospitality: "Hospitalidad primero",
     qrNote: "El enlace para continuar en su teléfono aparecerá aquí cuando se configure.",
     servicesTitle: "Servicios para cada tipo de viaje.",
-    contactTitle: "Contactar a STREEX",
+    contactTitle: "Contactar a Streex",
     contactSubtitle: "Datos de contacto para usar desde su propio teléfono.",
     contactNote: "Esta tablet no realiza llamadas ni envía mensajes.",
     phoneAndText: "Llamar o enviar mensaje",
     whatsapp: "WhatsApp",
     email: "Email",
+    website: "Sitio web",
     reviewTitle: "Comparta su experiencia",
     reviewSubtitle: "Sus comentarios nos ayudan a mejorar cada viaje.",
-    tipTitle: "Gracias por viajar con STREEX",
+    tipTitle: "Gracias por viajar con Streex",
     tipSubtitle: "Formas opcionales de mostrar su agradecimiento.",
     tipOptionsTitle: "Elija la opción más conveniente",
-    tipOptionsNote: "Solo si lo desea — gracias por viajar con STREEX.",
+    tipOptionsNote: "Solo si lo desea — gracias por viajar con Streex.",
     tipInstruction: "Elija un método y escanee el QR con su teléfono.",
     tipScan: "Escanee para continuar en su teléfono",
     tipSecure: "El pago se completa de forma segura en su propio dispositivo.",
@@ -433,14 +451,14 @@ const copy = {
     cardAndWallet: "Apple Pay, Google Pay y tarjeta",
     stripeDetail: "Elija su opción preferida en el pago seguro",
     stripePending: "Configuración de Stripe pendiente",
-    idleTitle: "¿Listo para tu experiencia STREEX?",
-    idleDescription: "Tu música, juegos y experiencia STREEX están a un toque.",
+    idleTitle: "¿Listo para tu experiencia Streex?",
+    idleDescription: "Tu música, juegos y experiencia Streex están a un toque.",
     idleAction: "Toca cualquier lugar para explorar",
-    idleNowPlaying: "Reproduciendo en STREEX",
-    idleMusicReady: "Tu banda sonora STREEX",
+    idleNowPlaying: "Reproduciendo en Streex",
+    idleMusicReady: "Tu banda sonora Streex",
     idleChooseMusic: "Elige la música para tu viaje",
     idleChooseMusicDescription: "Busca canciones y elige qué sonará después.",
-    idleHost: "Tu anfitrión STREEX",
+    idleHost: "Tu anfitrión Streex",
   },
 } as const;
 
@@ -536,6 +554,9 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           {view === "contact" && <ContactView config={config} onNavigate={setView} t={t} />}
           {view === "reviews" && <ReviewsView language={language} onNavigate={setView} t={t} />}
           {view === "tip" && <TipView config={config} onNavigate={setView} t={t} />}
+          {view === "where-we-ride" && (
+            <WhereWeRideView config={config} onNavigate={setView} t={t} />
+          )}
         </main>
         <ConsoleNavigation activeView={view} onNavigate={setView} t={t} />
       </div>
@@ -620,9 +641,7 @@ function PassengerIdlePrompt({
         />
 
         <div className="w-full text-center">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#E6CE20]">
-            STREEX RIDES
-          </p>
+          <p className="text-[10px] font-semibold tracking-[0.28em] text-[#E6CE20]">Streex Rides</p>
           <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
             {primary.idleTitle}
           </h1>
@@ -828,6 +847,13 @@ function HomeView({
         timeZone: clockConfig.secondaryTimeZones.pacific,
       })
     : "--:--";
+  const centralTime = now
+    ? now.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: clockConfig.secondaryTimeZones.central,
+      })
+    : "--:--";
   const temperatureFahrenheit =
     weather?.periods[0]?.temperatureFahrenheit ?? fallbackTemperatureFahrenheit;
   const temperature =
@@ -842,7 +868,7 @@ function HomeView({
         <div className="relative">
           <div className="flex items-center justify-between gap-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#E6CE20]">
-              STREEX Rides
+              {t.privateRide}
             </p>
             <p className="shrink-0 text-[10px] font-semibold text-white/45">
               {t.hostedBy} {config.ownerName}
@@ -854,7 +880,7 @@ function HomeView({
             <Sparkles className="h-3.5 w-3.5" />
             {t.exploreCue}
           </p>
-          <div className="passenger-home-time mt-7 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
+          <div className="passenger-home-time mt-7 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-5">
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">
                 {t.localTime}
@@ -866,12 +892,19 @@ function HomeView({
               type="button"
               onClick={() => setWeatherOpen(true)}
               aria-label={`${t.weather}: ${weatherCity}. ${t.weatherHint}`}
-              className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-right backdrop-blur transition hover:border-[#E6CE20]/40 hover:bg-black/35 focus:outline-none focus:ring-2 focus:ring-[#E6CE20]/60"
+              className="min-w-[154px] rounded-2xl border border-white/10 bg-black/25 px-5 py-4 text-right backdrop-blur transition hover:border-[#E6CE20]/40 hover:bg-black/35 focus:outline-none focus:ring-2 focus:ring-[#E6CE20]/60"
             >
               <p className="flex items-center justify-end gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
-                <Cloud className="h-3.5 w-3.5" /> {t.weather}
+                <WeatherConditionIcon
+                  condition={weather?.periods[0]?.condition ?? "unknown"}
+                  className="h-4 w-4 text-[#E6CE20]"
+                />
+                {t.weather}
               </p>
-              <p className="mt-1 text-2xl font-bold">{temperature}</p>
+              <p className="mt-1 text-3xl font-black tracking-tight">{temperature}</p>
+              <p className="mt-0.5 text-xs font-medium text-white/75">
+                {weatherConditionLabel(weather?.periods[0]?.condition ?? "unknown", t)}
+              </p>
               <p className="text-xs text-white/55">{weatherCity}</p>
               <span className="mt-1 flex items-center justify-end gap-1 text-[9px] font-semibold text-[#E6CE20]">
                 {weatherStatus === "unavailable" && !weather ? t.weatherUnavailable : t.weatherHint}{" "}
@@ -879,8 +912,9 @@ function HomeView({
               </span>
             </button>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-4 border-t border-white/10 pt-3">
+          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-white/10 pt-3">
             <SecondaryClock label={t.newYork} time={eastTime} />
+            <SecondaryClock label={t.dallas} time={centralTime} />
             <SecondaryClock label={t.losAngeles} time={pacificTime} />
           </div>
         </div>
@@ -1129,6 +1163,33 @@ function weatherConditionLabel(condition: PassengerWeatherCondition, t: (typeof 
   return labels[condition];
 }
 
+function WeatherConditionIcon({
+  className,
+  condition,
+}: {
+  className?: string;
+  condition: PassengerWeatherCondition;
+}) {
+  const Icon =
+    condition === "clear" || condition === "mostly-clear"
+      ? Sun
+      : condition === "partly-cloudy" || condition === "cloudy"
+        ? CloudSun
+        : condition === "rain"
+          ? CloudRain
+          : condition === "thunderstorms"
+            ? CloudLightning
+            : condition === "snow"
+              ? Snowflake
+              : condition === "fog" || condition === "smoke"
+                ? CloudFog
+                : condition === "wind"
+                  ? Wind
+                  : Cloud;
+
+  return <Icon className={className} aria-hidden="true" />;
+}
+
 function WeatherMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
@@ -1285,35 +1346,36 @@ function PersonalSpotifyHomeCard({
     <button
       type="button"
       onClick={() => onNavigate("music")}
-      className="flex min-h-[96px] w-full min-w-0 items-center gap-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.07]"
+      className="group relative flex min-h-[154px] w-full min-w-0 items-center gap-5 overflow-hidden rounded-[26px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.09] p-5 text-left transition hover:border-[#E6CE20]/35 hover:bg-white/[0.07]"
     >
+      <span className="absolute -right-14 -top-20 h-48 w-48 rounded-full bg-[#E6CE20]/10 blur-3xl" />
       {track?.artworkUrl ? (
         <img
           src={track.artworkUrl}
           alt=""
-          className="h-16 w-16 shrink-0 rounded-2xl object-cover"
+          className="relative h-24 w-24 shrink-0 rounded-[22px] object-cover shadow-xl"
         />
       ) : (
-        <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black">
-          <Music2 className="h-7 w-7" />
+        <span className="relative grid h-24 w-24 shrink-0 place-items-center rounded-[22px] bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black shadow-xl">
+          <Music2 className="h-9 w-9" />
         </span>
       )}
-      <span className="min-w-0 flex-1">
+      <span className="relative min-w-0 flex-1">
         <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
           {t.nowPlaying}
         </span>
-        <span className="mt-1 block truncate text-lg font-bold">
+        <span className="mt-2 block truncate text-xl font-black tracking-tight">
           {track?.title ?? t.chooseMusic}
         </span>
-        <span className="block truncate text-sm text-white/55">
+        <span className="mt-1 block truncate text-sm text-white/60">
           {track ? `${track.artist}${track.album ? ` · ${track.album}` : ""}` : t.spotifyNoDevice}
         </span>
-        <span className="mt-2 block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
+        <span className="mt-3 block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
           {t.spotifyDevice}: {hasActiveDevice ? t.spotifyActive : "—"}
         </span>
       </span>
-      <span className="flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 px-3 py-2 text-right text-[#E6CE20]">
-        <span className="hidden max-w-32 text-xs leading-tight sm:block">
+      <span className="relative flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/40 bg-[#E6CE20]/12 px-4 py-3 text-right text-[#E6CE20] transition group-hover:bg-[#E6CE20]/18">
+        <span className="hidden max-w-36 text-xs leading-tight sm:block">
           <span className="block font-semibold">{t.chooseMusic}</span>
           <span className="mt-0.5 block text-[10px] text-white/55">{t.musicHint}</span>
         </span>
@@ -1842,9 +1904,7 @@ function GamesView({
         />
       </div>
       <div className="passenger-games-note rounded-[26px] border border-white/10 bg-gradient-to-br from-white/[0.05] to-[#E6CE20]/10 p-6">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
-          STREEX
-        </p>
+        <p className="text-[10px] font-semibold tracking-[0.22em] text-[#E6CE20]">{t.streex}</p>
         <p className="mt-2 max-w-md text-xl font-bold">
           Utah roads, local moments, and a little fun along the way.
         </p>
@@ -1949,16 +2009,28 @@ function StreexView({
     <div className="passenger-streex-layout flex flex-col gap-5">
       <section className="passenger-streex-overview flex flex-col gap-5">
         <div className="passenger-streex-header">
-          <ViewHeader eyebrow="STREEX RIDES" title={t.streexTitle} description={t.streexSubtitle} />
+          <ViewHeader
+            eyebrow={t.privateRide}
+            title={t.streexTitle}
+            description={t.streexSubtitle}
+          />
         </div>
         <div className="passenger-streex-actions grid grid-cols-2 gap-3">
-          <div className="passenger-streex-book col-span-2">
-            <ActionButton accent icon={<CalendarPlus />} label={t.bookRide} onClick={onBookRide} />
-          </div>
+          <ActionButton accent icon={<CalendarPlus />} label={t.bookRide} onClick={onBookRide} />
+          <ActionButton
+            accent
+            icon={<HandCoins />}
+            label={t.tip}
+            onClick={() => onNavigate("tip")}
+          />
           <ActionButton icon={<Menu />} label={t.services} onClick={() => onNavigate("services")} />
           <ActionButton icon={<Phone />} label={t.contact} onClick={() => onNavigate("contact")} />
           <ActionButton icon={<Star />} label={t.reviews} onClick={() => onNavigate("reviews")} />
-          <ActionButton icon={<HandCoins />} label={t.tip} onClick={() => onNavigate("tip")} />
+          <ActionButton
+            icon={<MapPin />}
+            label={t.whereWeRide}
+            onClick={() => onNavigate("where-we-ride")}
+          />
           <PhoneContinuationCard
             description={t.continuePhoneDescription}
             href={phoneContinuation}
@@ -1979,8 +2051,8 @@ function StreexView({
             className="h-14 w-14 shrink-0 rounded-2xl border border-[#E6CE20]/45 object-cover"
           />
           <span className="min-w-0 flex-1">
-            <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
-              STREEX
+            <span className="block text-[10px] font-semibold tracking-[0.18em] text-[#E6CE20]">
+              {t.streex}
             </span>
             <span className="mt-1 block text-lg font-bold">{t.meetJuan}</span>
             <span className="block text-sm text-white/55">{configOwnerLine(t)}</span>
@@ -1992,20 +2064,7 @@ function StreexView({
         </div>
       </section>
       <div className="passenger-streex-experience">
-        <ExperienceGallery config={config} title={t.streexExperienceTitle} />
-      </div>
-      <div className="passenger-streex-areas">
-        <ServiceAreas
-          config={config}
-          copy={{
-            eyebrow: t.whereWeRide,
-            title: t.whereWeRideTitle,
-            description: t.whereWeRideDescription,
-            serviceArea: t.serviceArea,
-            moreDestinations: t.moreDestinations,
-            extendedRides: t.extendedRides,
-          }}
-        />
+        <ExperienceGallery config={config} prioritizeVehicle title={t.yourRideGallery} />
       </div>
     </div>
   );
@@ -2029,6 +2088,43 @@ function PassengerBackButton({
   );
 }
 
+function WhereWeRideView({
+  config,
+  onNavigate,
+  t,
+}: {
+  config: AppConfig;
+  onNavigate: (view: View) => void;
+  t: (typeof copy)[Language];
+}) {
+  return (
+    <div className="passenger-subview passenger-areas-layout flex flex-col gap-5">
+      <div className="passenger-subview-intro flex flex-col gap-5">
+        <PassengerBackButton onNavigate={onNavigate} t={t} />
+        <ViewHeader
+          eyebrow={t.streex}
+          preserveEyebrowCase
+          title={t.whereWeRide}
+          description={t.whereWeRideDescription}
+        />
+      </div>
+      <div className="passenger-areas-content min-h-0">
+        <ServiceAreas
+          config={config}
+          copy={{
+            eyebrow: t.whereWeRide,
+            title: t.whereWeRideTitle,
+            description: t.whereWeRideDescription,
+            serviceArea: t.serviceArea,
+            moreDestinations: t.moreDestinations,
+            extendedRides: t.extendedRides,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function ServicesView({
   config,
   onNavigate,
@@ -2042,7 +2138,12 @@ function ServicesView({
     <div className="passenger-subview passenger-services-layout flex flex-col gap-5">
       <div className="passenger-subview-intro flex flex-col gap-5">
         <PassengerBackButton onNavigate={onNavigate} t={t} />
-        <ViewHeader eyebrow="STREEX RIDES" title={t.services} description={t.servicesTitle} />
+        <ViewHeader
+          eyebrow={t.streex}
+          preserveEyebrowCase
+          title={t.services}
+          description={t.servicesTitle}
+        />
       </div>
       <div className="passenger-services-content min-h-0">
         <ServicesSection className="mt-0 px-0" config={config} title={t.services} />
@@ -2064,13 +2165,19 @@ function ContactView({
     { icon: <Phone />, label: t.phoneAndText, detail: config.phoneDisplay },
     { icon: <MessageCircle />, label: t.whatsapp, detail: config.phoneDisplay },
     { icon: <Mail />, label: t.email, detail: config.email },
+    { icon: <Globe2 />, label: t.website, detail: config.website.replace(/^https?:\/\//, "") },
   ].filter((item) => Boolean(item.detail));
 
   return (
     <div className="passenger-subview passenger-contact-layout flex flex-col gap-5">
       <div className="passenger-subview-intro flex flex-col gap-5">
         <PassengerBackButton onNavigate={onNavigate} t={t} />
-        <ViewHeader eyebrow="STREEX RIDES" title={t.contactTitle} description={t.contactSubtitle} />
+        <ViewHeader
+          eyebrow={t.streex}
+          preserveEyebrowCase
+          title={t.contactTitle}
+          description={t.contactSubtitle}
+        />
       </div>
       <div className="passenger-contact-actions grid gap-3 sm:grid-cols-2">
         {details.map((item) => (
@@ -2108,7 +2215,12 @@ function ReviewsView({
     <div className="passenger-subview passenger-review-layout flex flex-col gap-5">
       <div className="passenger-subview-intro flex flex-col gap-5">
         <PassengerBackButton onNavigate={onNavigate} t={t} />
-        <ViewHeader eyebrow="STREEX RIDES" title={t.reviewTitle} description={t.reviewSubtitle} />
+        <ViewHeader
+          eyebrow={t.streex}
+          preserveEyebrowCase
+          title={t.reviewTitle}
+          description={t.reviewSubtitle}
+        />
       </div>
       <div className="passenger-review-content min-h-0">
         <FeedbackForm compact language={language} />
@@ -2159,7 +2271,12 @@ function TipView({
     <div className="passenger-subview passenger-tip-layout flex flex-col gap-5">
       <div className="passenger-subview-intro flex flex-col gap-5">
         <PassengerBackButton onNavigate={onNavigate} t={t} />
-        <ViewHeader eyebrow="STREEX RIDES" title={t.tipTitle} description={t.tipSubtitle} />
+        <ViewHeader
+          eyebrow={t.streex}
+          preserveEyebrowCase
+          title={t.tipTitle}
+          description={t.tipSubtitle}
+        />
       </div>
       <div className="passenger-tip-content rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.05] to-[#E6CE20]/10 p-6">
         <div className="passenger-tip-copy">
@@ -2498,15 +2615,21 @@ function Chip({ icon, label }: { icon: React.ReactNode; label: string }) {
 function ViewHeader({
   description,
   eyebrow,
+  preserveEyebrowCase = false,
   title,
 }: {
   description: string;
   eyebrow: string;
+  preserveEyebrowCase?: boolean;
   title: string;
 }) {
   return (
     <header>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
+      <p
+        className={`text-[10px] font-semibold tracking-[0.22em] text-[#E6CE20] ${
+          preserveEyebrowCase ? "" : "uppercase"
+        }`}
+      >
         {eyebrow}
       </p>
       <h1 className="mt-2 text-3xl font-extrabold tracking-tight">{title}</h1>
@@ -2529,7 +2652,8 @@ function ConsoleNavigation({
     activeView === "services" ||
     activeView === "contact" ||
     activeView === "reviews" ||
-    activeView === "tip"
+    activeView === "tip" ||
+    activeView === "where-we-ride"
       ? "streex"
       : activeView;
   const items = [
