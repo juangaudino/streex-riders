@@ -593,7 +593,7 @@ function PassengerIdlePrompt({
     >
       <div className="absolute left-1/2 top-1/2 h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E6CE20]/10 blur-[130px]" />
       <div className="passenger-idle-content relative flex w-full max-w-5xl flex-col items-center gap-8">
-        <div className="flex w-full items-center justify-between gap-5">
+        <div className="passenger-idle-header flex w-full items-center justify-between gap-5">
           <img
             src={config.logoSrc}
             alt={config.brandName}
@@ -702,7 +702,7 @@ function IdleSpotifyNowPlaying({ enabled, t }: { enabled: boolean; t: (typeof co
           <Music2 className="h-20 w-20" />
         </span>
       )}
-      <span className="min-w-0">
+      <span className="passenger-idle-track-copy min-w-0">
         <span className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#E6CE20]">
           {playback?.isPlaying && (
             <span className="flex h-5 items-end gap-1" aria-hidden="true">
