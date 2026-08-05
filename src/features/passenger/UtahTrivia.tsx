@@ -102,14 +102,14 @@ function getTriviaPostcard(category: string): TriviaPostcard {
   ) {
     return {
       image: utahTriviaSymbols,
-      objectPosition: "50% 52%",
+      objectPosition: "50% 40%",
       tone: "symbols",
     };
   }
 
   return {
     image: utahTriviaAtlas,
-    objectPosition: "50% 58%",
+    objectPosition: "50% 54%",
     tone: "atlas",
   };
 }
@@ -326,81 +326,91 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
           style={{ width: `${progress}%` }}
         />
       </div>
-      <section className="passenger-trivia-question passenger-trivia-question--route flex min-h-0 flex-1 flex-col rounded-[30px] border border-white/10 p-6">
-        <div
-          className={`passenger-trivia-postcard passenger-trivia-postcard--${postcard.tone} relative overflow-hidden rounded-[18px] border border-[#E6CE20]/25`}
-        >
-          <img
-            src={postcard.image}
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: postcard.objectPosition }}
-          />
-          <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,9,0.95),rgba(5,7,9,0.54),rgba(5,7,9,0.08))]" />
-          <span className="relative flex min-h-[90px] flex-col justify-center px-4">
-            <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
-              {t.fieldNote}
-            </span>
-            <span className="mt-1 text-sm font-extrabold text-white">
-              {question.category[language]}
-            </span>
-          </span>
-        </div>
-        <h1 className="mt-3 max-w-2xl text-3xl font-black leading-tight tracking-tight">
-          {question.prompt[language]}
-        </h1>
-        <div className="passenger-trivia-options mt-6 grid grid-cols-2 gap-3">
-          {question.options.map((option, index) => {
-            const isCorrect = answered && index === question.correctIndex;
-            const isWrong = answered && index === selectedIndex && !isCorrect;
-            return (
-              <button
-                key={option.en}
-                type="button"
-                onClick={() => chooseAnswer(index)}
-                disabled={answered}
-                className={`passenger-trivia-option ${isCorrect ? "is-correct" : ""} ${isWrong ? "is-wrong" : ""}`}
-              >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-current/20 bg-black/15 text-xs font-black">
-                  {isCorrect ? (
-                    <Check className="h-4 w-4" />
-                  ) : isWrong ? (
-                    <X className="h-4 w-4" />
-                  ) : (
-                    String.fromCharCode(65 + index)
-                  )}
-                </span>
-                <span>{option[language]}</span>
-              </button>
-            );
-          })}
-        </div>
-        {answered && (
+      <section className="passenger-trivia-question passenger-trivia-question--route relative flex min-h-0 flex-1 overflow-hidden rounded-[30px] border border-white/10 p-6">
+        <img
+          src={postcard.image}
+          alt=""
+          aria-hidden="true"
+          className="passenger-trivia-question-art absolute pointer-events-none"
+          style={{ objectPosition: postcard.objectPosition }}
+        />
+        <span className="passenger-trivia-question-art-fade absolute inset-0 pointer-events-none" />
+        <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col">
           <div
-            className={`passenger-trivia-feedback mt-5 ${selectedCorrect ? "is-correct" : "is-wrong"}`}
-            role="status"
+            className={`passenger-trivia-postcard passenger-trivia-postcard--${postcard.tone} relative overflow-hidden rounded-[18px] border border-[#E6CE20]/25`}
           >
-            <div className="min-w-0">
-              <p className="font-bold">{selectedCorrect ? t.correct : t.incorrect}</p>
-              <p className="mt-1 text-sm leading-relaxed text-white/65">
-                {!selectedCorrect && (
-                  <>
-                    {t.answerWas}{" "}
-                    <strong className="text-white">
-                      {question.options[question.correctIndex][language]}.
-                    </strong>{" "}
-                  </>
-                )}
-                {question.explanation[language]}
-              </p>
-            </div>
-            <button type="button" onClick={advance} className="passenger-trivia-primary shrink-0">
-              {questionIndex === round.length - 1 ? t.results : t.next}
-              <ChevronRight className="h-5 w-5" />
-            </button>
+            <img
+              src={postcard.image}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{ objectPosition: postcard.objectPosition }}
+            />
+            <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,9,0.95),rgba(5,7,9,0.54),rgba(5,7,9,0.08))]" />
+            <span className="relative flex min-h-[118px] flex-col justify-center px-4">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
+                {t.fieldNote}
+              </span>
+              <span className="mt-1 text-sm font-extrabold text-white">
+                {question.category[language]}
+              </span>
+            </span>
           </div>
-        )}
+          <h1 className="mt-3 max-w-2xl text-3xl font-black leading-tight tracking-tight">
+            {question.prompt[language]}
+          </h1>
+          <div className="passenger-trivia-options mt-6 grid grid-cols-2 gap-3">
+            {question.options.map((option, index) => {
+              const isCorrect = answered && index === question.correctIndex;
+              const isWrong = answered && index === selectedIndex && !isCorrect;
+              return (
+                <button
+                  key={option.en}
+                  type="button"
+                  onClick={() => chooseAnswer(index)}
+                  disabled={answered}
+                  className={`passenger-trivia-option ${isCorrect ? "is-correct" : ""} ${isWrong ? "is-wrong" : ""}`}
+                >
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-current/20 bg-black/15 text-xs font-black">
+                    {isCorrect ? (
+                      <Check className="h-4 w-4" />
+                    ) : isWrong ? (
+                      <X className="h-4 w-4" />
+                    ) : (
+                      String.fromCharCode(65 + index)
+                    )}
+                  </span>
+                  <span>{option[language]}</span>
+                </button>
+              );
+            })}
+          </div>
+          {answered && (
+            <div
+              className={`passenger-trivia-feedback mt-5 ${selectedCorrect ? "is-correct" : "is-wrong"}`}
+              role="status"
+            >
+              <div className="min-w-0">
+                <p className="font-bold">{selectedCorrect ? t.correct : t.incorrect}</p>
+                <p className="mt-1 text-sm leading-relaxed text-white/65">
+                  {!selectedCorrect && (
+                    <>
+                      {t.answerWas}{" "}
+                      <strong className="text-white">
+                        {question.options[question.correctIndex][language]}.
+                      </strong>{" "}
+                    </>
+                  )}
+                  {question.explanation[language]}
+                </p>
+              </div>
+              <button type="button" onClick={advance} className="passenger-trivia-primary shrink-0">
+                {questionIndex === round.length - 1 ? t.results : t.next}
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          )}
+        </div>
       </section>
     </div>
   );

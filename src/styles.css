@@ -871,7 +871,7 @@ input[type="time"] {
 }
 
 .passenger-trivia-postcard {
-  min-height: 92px;
+  min-height: clamp(104px, 13vh, 126px);
 }
 
 .passenger-trivia-postcard--symbols img {
@@ -880,6 +880,23 @@ input[type="time"] {
 
 .passenger-trivia-postcard--atlas img {
   filter: saturate(0.78) contrast(1.06);
+}
+
+.passenger-trivia-question-art {
+  right: -12%;
+  bottom: -18%;
+  height: 76%;
+  width: 76%;
+  object-fit: cover;
+  opacity: 0.16;
+  filter: saturate(0.78) contrast(1.1);
+  mask-image: linear-gradient(145deg, transparent 0%, black 35%, black 100%);
+}
+
+.passenger-trivia-question-art-fade {
+  background:
+    linear-gradient(90deg, rgb(12 13 14 / 0.96) 0%, rgb(12 13 14 / 0.72) 47%, transparent 100%),
+    linear-gradient(0deg, rgb(12 13 14 / 0.8) 0%, transparent 64%);
 }
 
 .passenger-trivia-results-content {
