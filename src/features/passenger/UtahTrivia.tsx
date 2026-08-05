@@ -346,12 +346,13 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
             />
             <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,9,0.95),rgba(5,7,9,0.54),rgba(5,7,9,0.08))]" />
             <span className="relative flex min-h-[118px] flex-col justify-center px-4">
-              <span className="text-sm font-extrabold text-white">
+              <span className="text-base font-black uppercase tracking-[0.14em] text-[#E6CE20]">
                 {question.category[language]}
               </span>
             </span>
           </div>
-          <h1 className="mt-3 max-w-2xl text-3xl font-black leading-tight tracking-tight">
+          <div className="mt-4 h-1 w-12 rounded-full bg-[#E6CE20] shadow-[0_0_14px_rgba(230,206,32,0.75)]" />
+          <h1 className="mt-3 max-w-2xl text-[clamp(2rem,4.5vw,3rem)] font-black leading-[1.06] tracking-tight">
             {question.prompt[language]}
           </h1>
           <div className="passenger-trivia-options mt-6 grid grid-cols-2 gap-3">
