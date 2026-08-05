@@ -2475,20 +2475,20 @@ function MeetJuanAction({
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-[88px] w-full items-center gap-3 rounded-[22px] border border-[#E6CE20] bg-[#E6CE20] p-3 text-left text-black transition hover:brightness-105"
+      className="group flex min-h-[88px] w-full items-center gap-3 rounded-[22px] border border-[#E6CE20]/35 bg-gradient-to-br from-white/[0.07] to-[#E6CE20]/[0.07] p-3 text-left text-white transition hover:border-[#E6CE20]/60 hover:bg-[#E6CE20]/[0.1]"
     >
       <img
         src={config.meetPhoto}
         alt={config.ownerName}
         loading="lazy"
         decoding="async"
-        className="h-11 w-11 shrink-0 rounded-xl border border-black/10 object-cover"
+        className="h-11 w-11 shrink-0 rounded-xl border border-[#E6CE20]/40 object-cover"
       />
       <span className="min-w-0 flex-1">
         <span className="block truncate font-bold">{label}</span>
-        <span className="mt-0.5 block truncate text-xs text-black/60">{subtitle}</span>
+        <span className="mt-0.5 block truncate text-xs text-white/55">{subtitle}</span>
       </span>
-      <ChevronRight className="h-5 w-5 shrink-0 text-black/70" />
+      <ChevronRight className="h-5 w-5 shrink-0 text-[#E6CE20] transition-transform group-hover:translate-x-0.5" />
     </button>
   );
 }
