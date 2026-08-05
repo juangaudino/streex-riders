@@ -38,7 +38,7 @@ const choiceCopy = {
       "Music up, good company nearby and ready to make the journey part of the story.",
   },
   es: {
-    eyebrow: "ESTO O AQUELLO",
+    eyebrow: "THIS OR THAT",
     title: "Dos opciones. Un estilo de viaje.",
     description:
       "Elige lo que más se parezca a ti. No hay respuestas incorrectas: solo diez decisiones rápidas para el camino.",

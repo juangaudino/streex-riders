@@ -1,8 +1,25 @@
 import { useState } from "react";
-import { ArrowLeft, Check, ChevronRight, RotateCcw, Sparkles, X } from "lucide-react";
-import { createTriviaRound, type TriviaLanguage, type UtahTriviaQuestion } from "./utah-trivia";
+import {
+  ArrowLeft,
+  Check,
+  ChevronRight,
+  Flag,
+  MapPinned,
+  Mountain,
+  RotateCcw,
+  Sparkles,
+  Trophy,
+  X,
+} from "lucide-react";
+import {
+  createTriviaRound,
+  UTAH_TRIVIA_QUESTIONS,
+  type TriviaLanguage,
+  type UtahTriviaQuestion,
+} from "./utah-trivia";
 
 const ROUND_SIZE = 10;
+const RECENT_QUESTION_IDS_KEY = "streex-passenger-utah-trivia-recent";
 
 const triviaCopy = {
   en: {
@@ -30,7 +47,7 @@ const triviaCopy = {
     exit: "Back to Games",
   },
   es: {
-    eyebrow: "TRIVIA DE UTAH",
+    eyebrow: "UTAH TRIVIA",
     title: "¿Cuánto sabes del Beehive State?",
     description:
       "Diez preguntas rápidas sobre los lugares, la historia, los símbolos y la cultura local de Utah.",
@@ -58,6 +75,29 @@ const triviaCopy = {
 
 type TriviaPhase = "intro" | "playing" | "finished";
 
+function readRecentQuestionIds() {
+  if (typeof window === "undefined") return [];
+
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(RECENT_QUESTION_IDS_KEY) ?? "[]");
+    return Array.isArray(saved)
+      ? saved.filter((value): value is string => typeof value === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentQuestionIds(questionIds: string[]) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(RECENT_QUESTION_IDS_KEY, JSON.stringify(questionIds));
+  } catch {
+    // Trivia remains playable if storage is unavailable in the kiosk browser.
+  }
+}
+
 export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onExit: () => void }) {
   const t = triviaCopy[language];
   const [phase, setPhase] = useState<TriviaPhase>("intro");
@@ -67,7 +107,21 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
   const [score, setScore] = useState(0);
 
   const startRound = () => {
-    setRound(createTriviaRound(undefined, ROUND_SIZE));
+    const knownQuestionIds = new Set(UTAH_TRIVIA_QUESTIONS.map((question) => question.id));
+    let recentQuestionIds = readRecentQuestionIds().filter((id) => knownQuestionIds.has(id));
+    let availableQuestions = UTAH_TRIVIA_QUESTIONS.filter(
+      (question) => !recentQuestionIds.includes(question.id),
+    );
+
+    // A passenger gets every question once before a new cycle begins.
+    if (availableQuestions.length < ROUND_SIZE) {
+      recentQuestionIds = [];
+      availableQuestions = UTAH_TRIVIA_QUESTIONS;
+    }
+
+    const nextRound = createTriviaRound(availableQuestions, ROUND_SIZE);
+    saveRecentQuestionIds([...recentQuestionIds, ...nextRound.map((question) => question.id)]);
+    setRound(nextRound);
     setQuestionIndex(0);
     setSelectedIndex(null);
     setScore(0);
@@ -81,11 +135,11 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
           <ArrowLeft className="h-4 w-4" />
           {t.exit}
         </button>
-        <section className="passenger-trivia-hero relative flex flex-1 overflow-hidden rounded-[30px] border border-[#E6CE20]/30 bg-gradient-to-br from-[#E6CE20]/20 via-white/[0.04] to-black p-7">
-          <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#E6CE20]/20 blur-3xl" />
-          <div className="relative flex max-w-xl flex-col justify-center">
-            <span className="grid h-16 w-16 place-items-center rounded-[20px] bg-[#E6CE20] text-black shadow-[0_12px_40px_rgba(230,206,32,0.2)]">
-              <Sparkles className="h-8 w-8" />
+        <section className="passenger-trivia-hero passenger-trivia-hero--road relative flex flex-1 overflow-hidden rounded-[30px] border border-[#E6CE20]/30 p-7">
+          <div className="passenger-trivia-road-glow" />
+          <div className="relative z-10 flex max-w-xl flex-col justify-center">
+            <span className="grid h-16 w-16 place-items-center rounded-[20px] border border-[#E6CE20]/45 bg-[#E6CE20] text-black shadow-[0_12px_40px_rgba(230,206,32,0.2)]">
+              <MapPinned className="h-8 w-8" />
             </span>
             <p className="mt-7 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#E6CE20]">
               {t.eyebrow}
@@ -109,8 +163,13 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
-          <div className="passenger-trivia-mark" aria-hidden="true">
-            UT
+          <div className="passenger-trivia-route-map" aria-hidden="true">
+            <Mountain className="h-32 w-32" />
+            <span className="passenger-trivia-route-line" />
+            <span className="passenger-trivia-route-dot passenger-trivia-route-dot--start" />
+            <span className="passenger-trivia-route-dot passenger-trivia-route-dot--finish" />
+            <Flag className="passenger-trivia-route-flag h-6 w-6" />
+            <span className="passenger-trivia-route-label">10 MILES</span>
           </div>
         </section>
       </div>
@@ -128,8 +187,8 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
           {t.exit}
         </button>
         <section className="passenger-trivia-results flex flex-1 flex-col items-center justify-center rounded-[30px] border border-white/10 bg-gradient-to-br from-white/[0.06] to-[#E6CE20]/10 p-8 text-center">
-          <span className="grid h-16 w-16 place-items-center rounded-full bg-[#E6CE20] text-black">
-            <Sparkles className="h-8 w-8" />
+          <span className="grid h-16 w-16 place-items-center rounded-[20px] bg-[#E6CE20] text-black shadow-[0_12px_40px_rgba(230,206,32,0.2)]">
+            <Trophy className="h-8 w-8" />
           </span>
           <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#E6CE20]">
             {t.finishedEyebrow}
@@ -142,6 +201,14 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
             {score}
             <span className="text-3xl text-white/35">/{ROUND_SIZE}</span>
           </p>
+          <div className="mt-6 flex gap-2" aria-label={`${score} of ${ROUND_SIZE}`}>
+            {Array.from({ length: ROUND_SIZE }, (_, index) => (
+              <span
+                key={index}
+                className={`h-2.5 w-2.5 rounded-full ${index < score ? "bg-[#E6CE20]" : "bg-white/15"}`}
+              />
+            ))}
+          </div>
           <p className="mt-4 max-w-md text-base leading-relaxed text-white/65">{message}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <button type="button" onClick={startRound} className="passenger-trivia-primary">
@@ -185,18 +252,20 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
           <ArrowLeft className="h-4 w-4" />
           {t.exit}
         </button>
-        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
+        <span className="passenger-trivia-mile text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
+          <MapPinned className="h-3.5 w-3.5 text-[#E6CE20]" />
           {t.question} {questionIndex + 1}/{ROUND_SIZE}
         </span>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+      <div className="passenger-trivia-progress h-1.5 overflow-hidden rounded-full bg-white/10">
         <div
           className="h-full rounded-full bg-[#E6CE20] transition-[width] duration-300"
           style={{ width: `${progress}%` }}
         />
       </div>
-      <section className="passenger-trivia-question flex min-h-0 flex-1 flex-col rounded-[30px] border border-white/10 bg-white/[0.045] p-6">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
+      <section className="passenger-trivia-question passenger-trivia-question--route flex min-h-0 flex-1 flex-col rounded-[30px] border border-white/10 p-6">
+        <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
+          <span className="h-2 w-2 rounded-full bg-[#E6CE20] shadow-[0_0_12px_rgba(230,206,32,0.9)]" />
           {question.category[language]}
         </p>
         <h1 className="mt-3 max-w-2xl text-3xl font-black leading-tight tracking-tight">
