@@ -2,11 +2,27 @@ import type { TriviaLanguage } from "./utah-trivia";
 
 export type RideVibe = "explorer" | "comfort" | "roadTrip";
 export type LocalizedChoiceText = Record<TriviaLanguage, string>;
+export type ThisOrThatVisualKey =
+  | "desertSunrise"
+  | "alpineSnow"
+  | "cityViolet"
+  | "goldenDrive"
+  | "nightTeal"
+  | "coffeeDawn"
+  | "mountainLodge"
+  | "desertCampfire"
+  | "alpineLake"
+  | "wildflowerTrail"
+  | "musicRoom"
+  | "nightMarket";
 
 export type ThisOrThatOption = {
   label: LocalizedChoiceText;
   vibe: RideVibe;
+  visualKey: ThisOrThatVisualKey;
 };
+
+type ThisOrThatOptionSeed = Omit<ThisOrThatOption, "visualKey">;
 
 export type ThisOrThatQuestion = {
   id: string;
@@ -15,9 +31,13 @@ export type ThisOrThatQuestion = {
   options: [ThisOrThatOption, ThisOrThatOption];
 };
 
+type ThisOrThatQuestionSeed = Omit<ThisOrThatQuestion, "options"> & {
+  options: [ThisOrThatOptionSeed, ThisOrThatOptionSeed];
+};
+
 const localized = (en: string, es: string): LocalizedChoiceText => ({ en, es });
 
-export const THIS_OR_THAT_QUESTIONS: ThisOrThatQuestion[] = [
+const THIS_OR_THAT_QUESTION_SEEDS: ThisOrThatQuestionSeed[] = [
   {
     id: "sunrise-or-brunch",
     category: localized("Utah morning", "Mañana en Utah"),
@@ -490,6 +510,69 @@ export const THIS_OR_THAT_QUESTIONS: ThisOrThatQuestion[] = [
     ],
   },
 ];
+
+const QUESTION_VISUAL_KEYS: Record<string, [ThisOrThatVisualKey, ThisOrThatVisualKey]> = {
+  "sunrise-or-brunch": ["wildflowerTrail", "coffeeDawn"],
+  "scenic-or-direct": ["goldenDrive", "nightTeal"],
+  "windows-or-climate": ["goldenDrive", "mountainLodge"],
+  "canyon-or-city": ["desertSunrise", "cityViolet"],
+  "classics-or-new": ["musicRoom", "nightMarket"],
+  "mountain-or-desert": ["alpineSnow", "desertSunrise"],
+  "coffee-or-snacks": ["coffeeDawn", "goldenDrive"],
+  "plan-or-surprise": ["mountainLodge", "wildflowerTrail"],
+  "sing-or-listen": ["musicRoom", "alpineLake"],
+  "local-or-favorite": ["nightMarket", "mountainLodge"],
+  "photo-or-moment": ["wildflowerTrail", "alpineLake"],
+  "day-or-night": ["goldenDrive", "nightTeal"],
+  "conversation-or-quiet": ["nightMarket", "alpineLake"],
+  "park-city-or-moab": ["alpineSnow", "desertSunrise"],
+  "playlist-or-radio": ["musicRoom", "nightTeal"],
+  "one-more-stop": ["nightMarket", "mountainLodge"],
+  "solo-or-friends": ["alpineLake", "nightMarket"],
+  "map-or-instinct": ["goldenDrive", "wildflowerTrail"],
+  "window-seat-or-aisle": ["alpineLake", "cityViolet"],
+  "sunset-or-city-lights": ["goldenDrive", "cityViolet"],
+  "mountain-town-or-downtown": ["mountainLodge", "nightMarket"],
+  "first-light-or-last-light": ["wildflowerTrail", "goldenDrive"],
+  "treat-or-takeout": ["nightMarket", "coffeeDawn"],
+  "dj-or-discover": ["musicRoom", "nightMarket"],
+  "lodge-or-campfire": ["mountainLodge", "desertCampfire"],
+  "festival-or-hidden-gem": ["nightMarket", "wildflowerTrail"],
+  "slow-morning-or-big-day": ["coffeeDawn", "goldenDrive"],
+  "lake-or-trail": ["alpineLake", "wildflowerTrail"],
+  "lyrics-or-beat": ["musicRoom", "cityViolet"],
+  "small-group-or-new-faces": ["mountainLodge", "nightMarket"],
+  "roadside-or-reservation": ["goldenDrive", "nightMarket"],
+  "canyon-walk-or-spa-day": ["wildflowerTrail", "mountainLodge"],
+  "backroads-or-boulevard": ["desertSunrise", "cityViolet"],
+  "read-or-look-out": ["coffeeDawn", "alpineLake"],
+  "spontaneous-or-signature": ["wildflowerTrail", "coffeeDawn"],
+  "local-guide-or-go-with-it": ["nightMarket", "desertSunrise"],
+  "singalong-or-sunroof": ["musicRoom", "goldenDrive"],
+  "sweater-or-jacket": ["mountainLodge", "alpineSnow"],
+  "neighborhood-or-new-route": ["nightMarket", "nightTeal"],
+  "one-song-or-full-album": ["musicRoom", "musicRoom"],
+  "snow-day-or-sun-day": ["alpineSnow", "desertSunrise"],
+  "conversation-or-playlist": ["nightMarket", "musicRoom"],
+};
+
+export const THIS_OR_THAT_QUESTIONS: ThisOrThatQuestion[] = THIS_OR_THAT_QUESTION_SEEDS.map(
+  (question) => {
+    const visualKeys = QUESTION_VISUAL_KEYS[question.id];
+
+    if (!visualKeys) {
+      throw new Error(`Missing This or That visuals for ${question.id}`);
+    }
+
+    return {
+      ...question,
+      options: question.options.map((option, index) => ({
+        ...option,
+        visualKey: visualKeys[index],
+      })) as [ThisOrThatOption, ThisOrThatOption],
+    };
+  },
+);
 
 export function createChoiceRound(
   questions: readonly ThisOrThatQuestion[] = THIS_OR_THAT_QUESTIONS,

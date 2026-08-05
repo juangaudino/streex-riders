@@ -21,6 +21,19 @@ describe("This or That", () => {
     }
   });
 
+  test("gives every local choice a reusable visual scene", () => {
+    const visualKeys = new Set();
+
+    for (const question of THIS_OR_THAT_QUESTIONS) {
+      for (const option of question.options) {
+        expect(typeof option.visualKey).toBe("string");
+        visualKeys.add(option.visualKey);
+      }
+    }
+
+    expect(visualKeys.size).toBeGreaterThanOrEqual(10);
+  });
+
   test("returns the strongest ride vibe", () => {
     expect(calculateRideVibe(["explorer", "comfort", "explorer", "roadTrip"])).toBe("explorer");
   });

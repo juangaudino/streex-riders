@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AppConfig } from "@/config";
 import {
   ArrowLeft,
+  ArrowLeftRight,
   CalendarPlus,
   ChevronRight,
   Cloud,
@@ -63,7 +64,9 @@ import {
 } from "./usePassengerState";
 import { UtahTrivia } from "./UtahTrivia";
 import { ThisOrThat } from "./ThisOrThat";
+import { THIS_OR_THAT_TRAILER_VISUALS } from "./this-or-that-visuals";
 import horizonQuickActionCard from "@/features/runner/assets/quick-action/horizon_quick_action_card.webp";
+import utahTriviaSymbols from "@/assets/passenger-games/utah-trivia-symbols.jpg";
 import passengerRav4Front from "@/assets/streex-gallery/passenger-rav4-front.jpg";
 import passengerRav4Rear from "@/assets/streex-gallery/passenger-rav4-rear.jpg";
 import passengerRav4Snow from "@/assets/streex-gallery/passenger-rav4-snow.jpg";
@@ -1928,7 +1931,7 @@ function GamesView({
           title={t.utahTrivia}
           description={t.utahTriviaDescription}
           previewLabel={t.triviaPreview}
-          icon={<Sparkles className="h-7 w-7" />}
+          icon={<HoneycombMark />}
           onClick={utahTriviaEnabled ? () => setActiveGame("trivia") : undefined}
           status={utahTriviaEnabled ? t.playNow : t.comingSoon}
         />
@@ -1938,7 +1941,7 @@ function GamesView({
           description={t.thisOrThatDescription}
           previewLabel={t.choicePreview}
           choiceLabels={[t.choiceFirst, t.choiceSecond]}
-          icon={<Gamepad2 className="h-7 w-7" />}
+          icon={<ArrowLeftRight className="h-7 w-7" />}
           onClick={thisOrThatEnabled ? () => setActiveGame("choice") : undefined}
           status={thisOrThatEnabled ? t.playNow : t.comingSoon}
         />
@@ -2002,58 +2005,57 @@ function GameCard({
       type="button"
       onClick={onClick}
       disabled={!onClick}
-      className="relative min-h-[380px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] p-6 text-left transition enabled:hover:border-[#E6CE20]/35 enabled:hover:bg-white/[0.065] enabled:active:scale-[0.995]"
+      className={`passenger-game-card passenger-game-card--${kind}`}
     >
-      <div className="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-[#E6CE20]/10 blur-3xl" />
-      <div className="relative flex h-full flex-col">
-        <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[#E6CE20]/15 text-[#E6CE20]">
-          {icon}
-        </span>
-        <div className="mt-6 min-h-36 overflow-hidden rounded-2xl border border-white/10 bg-black/20 p-4">
-          {kind === "trivia" ? (
-            <div className="relative h-full overflow-hidden rounded-xl border border-[#E6CE20]/15 bg-gradient-to-br from-[#E6CE20]/15 to-transparent p-3">
-              <span className="absolute -right-2 -top-6 text-7xl font-black tracking-tighter text-[#E6CE20]/15">
-                UT
+      <div className="passenger-game-card-art" aria-hidden="true">
+        {kind === "trivia" ? (
+          <>
+            <img src={utahTriviaSymbols} alt="" className="passenger-game-card-art-image" />
+            <span className="passenger-game-card-art-shade passenger-game-card-art-shade--trivia" />
+            <span className="passenger-game-card-trivia-stamp">UT</span>
+          </>
+        ) : (
+          <div className="passenger-game-card-choice-split">
+            {THIS_OR_THAT_TRAILER_VISUALS.slice(0, 2).map((visual, index) => (
+              <span key={visual.src} className="passenger-game-card-choice-panel">
+                <img src={visual.src} alt="" style={{ objectPosition: visual.objectPosition }} />
+                <span
+                  className={`passenger-game-card-choice-shade passenger-game-card-choice-shade--${index + 1}`}
+                />
               </span>
-              <p className="relative text-[9px] font-semibold uppercase tracking-[0.16em] text-[#E6CE20]">
-                {previewLabel}
-              </p>
-              <div className="relative mt-5 flex items-end justify-between">
-                <span className="text-3xl font-black">01</span>
-                <span className="grid h-10 w-10 place-items-center rounded-full border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-lg font-black text-[#E6CE20]">
-                  ?
-                </span>
-              </div>
-              <div className="relative mt-3 h-1.5 w-4/5 rounded-full bg-white/10">
-                <div className="h-full w-2/5 rounded-full bg-[#E6CE20]" />
-              </div>
-            </div>
-          ) : (
-            <div className="flex h-full gap-2">
-              <div className="flex flex-1 flex-col justify-between rounded-xl border border-white/10 bg-white/[0.05] p-3">
-                <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/45">
-                  {previewLabel}
-                </p>
-                <p className="text-2xl font-black tracking-tight">{choiceLabels?.[0] ?? "THIS"}</p>
-              </div>
-              <div className="flex flex-1 flex-col justify-between rounded-xl border border-[#E6CE20]/25 bg-[#E6CE20]/10 p-3">
-                <p className="text-right text-[9px] font-semibold uppercase tracking-[0.16em] text-[#E6CE20]">
-                  VS
-                </p>
-                <p className="text-right text-2xl font-black tracking-tight text-[#E6CE20]">
-                  {choiceLabels?.[1] ?? "THAT"}
-                </p>
-              </div>
-            </div>
+            ))}
+            <span className="passenger-game-card-or">OR</span>
+          </div>
+        )}
+      </div>
+      <div className="passenger-game-card-content">
+        <span className="passenger-game-card-icon">{icon}</span>
+        <div className="passenger-game-card-copy">
+          <p className="passenger-game-card-preview">
+            {kind === "trivia" ? "10 QUESTIONS · UTAH EDITION" : previewLabel}
+          </p>
+          <p className="passenger-game-card-title">{title}</p>
+          <p className="passenger-game-card-description">{description}</p>
+          {kind === "choice" && (
+            <span className="passenger-game-card-choice-words">
+              {choiceLabels?.[0] ?? "THIS"} <span>·</span> {choiceLabels?.[1] ?? "THAT"}
+            </span>
           )}
         </div>
-        <p className="mt-auto text-2xl font-bold">{title}</p>
-        <p className="mt-2 text-sm leading-relaxed text-white/60">{description}</p>
-        <span className="mt-5 w-fit rounded-full border border-[#E6CE20]/35 bg-[#E6CE20]/10 px-3 py-1.5 text-xs font-semibold text-[#E6CE20]">
-          {status}
-        </span>
+        <span className="passenger-game-card-status">{status}</span>
       </div>
     </button>
+  );
+}
+
+function HoneycombMark() {
+  return (
+    <span className="passenger-honeycomb-mark" aria-hidden="true">
+      <i />
+      <i />
+      <i />
+      <i />
+    </span>
   );
 }
 

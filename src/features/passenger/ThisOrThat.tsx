@@ -15,8 +15,10 @@ import {
   createChoiceRound,
   THIS_OR_THAT_QUESTIONS,
   type RideVibe,
+  type ThisOrThatOption,
   type ThisOrThatQuestion,
 } from "./this-or-that";
+import { THIS_OR_THAT_TRAILER_VISUALS, THIS_OR_THAT_VISUALS } from "./this-or-that-visuals";
 
 const ROUND_SIZE = 10;
 const RECENT_QUESTION_IDS_KEY = "streex-passenger-this-or-that-recent";
@@ -40,6 +42,7 @@ const choiceCopy = {
     finishedTitle: "This round says you're…",
     basedOnRound: "A playful read based only on this round. Nothing is saved.",
     mix: "Your choice mix",
+    roundFilm: "Your round, in frames",
     again: "Try another round",
     exit: "Back to Games",
     explorerName: "The Explorer",
@@ -73,6 +76,7 @@ const choiceCopy = {
     finishedTitle: "Esta ronda dice que eres…",
     basedOnRound: "Una lectura divertida basada solo en esta ronda. No se guarda nada.",
     mix: "Tu mezcla de elecciones",
+    roundFilm: "Tu ronda, en imágenes",
     again: "Probar otra ronda",
     exit: "Volver a Juegos",
     explorerName: "El Explorador",
@@ -91,6 +95,7 @@ const choiceCopy = {
 } as const;
 
 type ChoicePhase = "intro" | "playing" | "finished";
+type ChoiceSelection = Pick<ThisOrThatOption, "vibe" | "visualKey">;
 
 function readRecentQuestionIds() {
   if (typeof window === "undefined") return [];
@@ -127,7 +132,7 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
   const [round, setRound] = useState<ThisOrThatQuestion[]>([]);
   const [choiceIndex, setChoiceIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [selections, setSelections] = useState<RideVibe[]>([]);
+  const [selections, setSelections] = useState<ChoiceSelection[]>([]);
 
   const startRound = () => {
     const knownQuestionIds = new Set(THIS_OR_THAT_QUESTIONS.map((question) => question.id));
@@ -202,9 +207,16 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
               <ArrowRight className="h-5 w-5" />
             </button>
           </div>
-          <div className="passenger-choice-hero-art" aria-hidden="true">
-            <span className="passenger-choice-hero-orbit passenger-choice-hero-orbit--outer" />
-            <span className="passenger-choice-hero-orbit passenger-choice-hero-orbit--inner" />
+          <div className="passenger-choice-hero-art passenger-choice-hero-film" aria-hidden="true">
+            {THIS_OR_THAT_TRAILER_VISUALS.map((visual, index) => (
+              <img
+                key={visual.src}
+                src={visual.src}
+                alt=""
+                className={`passenger-choice-hero-frame passenger-choice-hero-frame--${index + 1}`}
+                style={{ objectPosition: visual.objectPosition }}
+              />
+            ))}
             <span className="passenger-choice-hero-core">10</span>
             <span className="passenger-choice-hero-this">THIS</span>
             <span className="passenger-choice-hero-that">THAT</span>
@@ -215,8 +227,15 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
   }
 
   if (phase === "finished") {
-    const vibe = calculateRideVibe(selections);
-    const scores = calculateRideVibeScores(selections);
+    const selectedVibes = selections.map((selection) => selection.vibe);
+    const vibe = calculateRideVibe(selectedVibes);
+    const scores = calculateRideVibeScores(selectedVibes);
+    const roundFrames = selections
+      .map((selection) => THIS_OR_THAT_VISUALS[selection.visualKey])
+      .filter(
+        (visual, index, visuals) => visuals.findIndex((item) => item.src === visual.src) === index,
+      )
+      .slice(0, 5);
     const result = {
       explorer: {
         name: t.explorerName,
@@ -270,6 +289,25 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
               <p className="mt-5 max-w-lg text-base leading-relaxed text-white/72">
                 {result.description}
               </p>
+              <div className="passenger-choice-filmstrip mt-6" aria-label={t.roundFilm}>
+                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/48">
+                  {t.roundFilm}
+                </p>
+                <div className="passenger-choice-filmstrip-frames">
+                  {roundFrames.map((visual, index) => (
+                    <span
+                      key={`${visual.src}-${index}`}
+                      className={`passenger-choice-filmstrip-frame passenger-choice-filmstrip-frame--${visual.accent}`}
+                    >
+                      <img
+                        src={visual.src}
+                        alt=""
+                        style={{ objectPosition: visual.objectPosition }}
+                      />
+                    </span>
+                  ))}
+                </div>
+              </div>
               <div className="passenger-choice-scorecard mt-7 rounded-[22px] border border-white/10 bg-black/25 p-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/48">
                   {t.mix}
@@ -321,7 +359,8 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
   const choose = (index: number) => {
     if (selectedIndex !== null) return;
     setSelectedIndex(index);
-    setSelections((current) => [...current, question.options[index].vibe]);
+    const option = question.options[index];
+    setSelections((current) => [...current, { vibe: option.vibe, visualKey: option.visualKey }]);
   };
 
   return (
@@ -361,17 +400,24 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
           {question.options.map((option, index) => {
             const selected = selectedIndex === index;
             const dimmed = selectedIndex !== null && !selected;
+            const visual = THIS_OR_THAT_VISUALS[option.visualKey];
             return (
               <button
                 key={option.label.en}
                 type="button"
                 onClick={() => choose(index)}
                 disabled={selectedIndex !== null}
-                className={`passenger-choice-option passenger-choice-option--${option.vibe} ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""}`}
+                className={`passenger-choice-option passenger-choice-option--${option.vibe} passenger-choice-option--${visual.accent} ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""}`}
               >
-                <span className="passenger-choice-option-watermark" aria-hidden="true">
-                  <VibeIcon vibe={option.vibe} />
-                </span>
+                <img
+                  src={visual.src}
+                  alt=""
+                  aria-hidden="true"
+                  className="passenger-choice-option-art"
+                  style={{ objectPosition: visual.objectPosition }}
+                />
+                <span className="passenger-choice-option-scrim" aria-hidden="true" />
+                <span className="passenger-choice-option-flare" aria-hidden="true" />
                 <span className="passenger-choice-option-kicker">
                   <span className="passenger-choice-option-icon">
                     <VibeIcon vibe={option.vibe} />
