@@ -369,6 +369,9 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
                 disabled={selectedIndex !== null}
                 className={`passenger-choice-option passenger-choice-option--${option.vibe} ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""}`}
               >
+                <span className="passenger-choice-option-watermark" aria-hidden="true">
+                  <VibeIcon vibe={option.vibe} />
+                </span>
                 <span className="passenger-choice-option-kicker">
                   <span className="passenger-choice-option-icon">
                     <VibeIcon vibe={option.vibe} />

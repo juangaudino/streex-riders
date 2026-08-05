@@ -1221,6 +1221,36 @@ input[type="time"] {
   pointer-events: none;
 }
 
+.passenger-choice-option-watermark {
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  display: grid;
+  height: clamp(86px, 13vw, 126px);
+  width: clamp(86px, 13vw, 126px);
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.09);
+  border-radius: 999px;
+  color: rgb(255 255 255 / 0.12);
+  transform: translate(-50%, -50%);
+}
+
+.passenger-choice-option-watermark svg {
+  height: 42%;
+  width: 42%;
+  stroke-width: 1.25;
+}
+
+.passenger-choice-option--explorer .passenger-choice-option-watermark {
+  border-color: rgb(230 206 32 / 0.18);
+  color: rgb(230 206 32 / 0.18);
+}
+
+.passenger-choice-option--roadTrip .passenger-choice-option-watermark {
+  border-color: rgb(94 234 212 / 0.18);
+  color: rgb(94 234 212 / 0.17);
+}
+
 .passenger-choice-option--explorer {
   background:
     radial-gradient(circle at 16% 13%, rgb(230 206 32 / 0.19), transparent 38%),
