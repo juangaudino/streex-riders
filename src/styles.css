@@ -2127,6 +2127,65 @@ input[type="time"] {
     min-height: 0;
   }
 
+  .passenger-choice-results {
+    padding: 1.35rem !important;
+  }
+
+  .passenger-choice-results-content {
+    column-gap: 1.35rem;
+  }
+
+  .passenger-choice-result-stage {
+    min-width: 118px;
+  }
+
+  .passenger-choice-result-icon {
+    height: 72px;
+    width: 72px;
+    border-radius: 22px;
+  }
+
+  .passenger-choice-results h1 {
+    font-size: clamp(2.3rem, 4vw, 3.55rem) !important;
+  }
+
+  .passenger-choice-results .passenger-choice-filmstrip {
+    margin-top: 0.85rem !important;
+  }
+
+  .passenger-choice-results .passenger-choice-filmstrip > p {
+    margin-bottom: 0.4rem !important;
+  }
+
+  .passenger-choice-filmstrip-frames {
+    min-height: 58px;
+  }
+
+  .passenger-choice-results .passenger-choice-scorecard {
+    margin-top: 0.85rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .passenger-choice-results .passenger-choice-scorecard .mt-4 {
+    margin-top: 0.45rem !important;
+  }
+
+  .passenger-choice-results .passenger-choice-scorecard .gap-3 {
+    gap: 0.35rem !important;
+  }
+
+  .passenger-choice-results .passenger-choice-scorecard .mt-2 {
+    margin-top: 0.2rem !important;
+  }
+
+  .passenger-choice-results .passenger-choice-scorecard + p {
+    margin-top: 0.55rem !important;
+  }
+
+  .passenger-choice-results .passenger-choice-scorecard + p + div {
+    margin-top: 0.85rem !important;
+  }
+
   .passenger-choice-option {
     min-height: 0;
   }

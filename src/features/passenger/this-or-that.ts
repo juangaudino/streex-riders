@@ -551,7 +551,7 @@ const QUESTION_VISUAL_KEYS: Record<string, [ThisOrThatVisualKey, ThisOrThatVisua
   "singalong-or-sunroof": ["musicRoom", "goldenDrive"],
   "sweater-or-jacket": ["mountainLodge", "alpineSnow"],
   "neighborhood-or-new-route": ["nightMarket", "nightTeal"],
-  "one-song-or-full-album": ["musicRoom", "musicRoom"],
+  "one-song-or-full-album": ["musicRoom", "mountainLodge"],
   "snow-day-or-sun-day": ["alpineSnow", "desertSunrise"],
   "conversation-or-playlist": ["nightMarket", "musicRoom"],
 };
