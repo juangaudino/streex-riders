@@ -111,6 +111,8 @@ const copy = {
     subtitle: "A private ride, with a little more built in.",
     exploreCue: "Tap to explore your ride",
     hostedBy: "Hosted by",
+    hostCardEyebrow: "Your Streex host",
+    hostCardDescription: "A local, bilingual ride with a little more built in.",
     localTime: "Local time",
     newYork: "New York",
     dallas: "Dallas",
@@ -285,6 +287,8 @@ const copy = {
     subtitle: "Un viaje privado, con algo más para disfrutar.",
     exploreCue: "Toca para explorar tu viaje",
     hostedBy: "Atendido por",
+    hostCardEyebrow: "Tu anfitrión Streex",
+    hostCardDescription: "Un viaje local y bilingüe, con algo más para disfrutar.",
     localTime: "Hora local",
     newYork: "Nueva York",
     dallas: "Dallas",
@@ -995,6 +999,31 @@ function HomeView({
       <section className="passenger-home-ticker overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]">
         <ServiceTicker config={config} />
       </section>
+      <button
+        type="button"
+        onClick={() => onNavigate("meet-juan")}
+        className="passenger-home-host group relative flex min-h-[104px] items-center gap-4 overflow-hidden rounded-[26px] border border-[#E6CE20]/20 bg-gradient-to-r from-[#E6CE20]/10 via-white/[0.045] to-white/[0.02] p-4 text-left transition hover:border-[#E6CE20]/45 hover:bg-[#E6CE20]/[0.1]"
+      >
+        <span className="absolute -right-10 -top-14 h-36 w-36 rounded-full bg-[#E6CE20]/15 blur-3xl" />
+        <img
+          src={config.meetPhoto}
+          alt={config.ownerName}
+          loading="lazy"
+          decoding="async"
+          className="relative h-16 w-16 shrink-0 rounded-2xl border border-[#E6CE20]/35 object-cover shadow-[0_0_20px_rgba(230,206,32,0.12)]"
+        />
+        <span className="relative min-w-0 flex-1">
+          <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+            {t.hostCardEyebrow}
+          </span>
+          <span className="mt-1 block text-lg font-extrabold">{config.ownerName}</span>
+          <span className="mt-1 block truncate text-sm text-white/60">{t.hostCardDescription}</span>
+        </span>
+        <span className="relative flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#E6CE20]">
+          {t.meetJuan}
+          <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </span>
+      </button>
     </div>
   );
 }
@@ -1546,14 +1575,14 @@ function PersonalSpotifyMusicView({
           ) : (
             <div className="passenger-music-now-playing-art relative h-52 w-52 shrink-0 rounded-[28px] bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700 shadow-2xl" />
           )}
-          <div className="relative min-w-0 flex-1">
+          <div className="relative flex min-w-0 flex-1 flex-col justify-center self-stretch">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}
             </p>
-            <p className="mt-2 truncate text-2xl font-black tracking-tight">
+            <p className="mt-2 line-clamp-2 text-2xl font-black leading-tight tracking-tight">
               {playback.track?.title ?? t.chooseMusic}
             </p>
-            <p className="mt-1 truncate text-sm text-white/60">
+            <p className="mt-1 line-clamp-2 text-sm leading-snug text-white/60">
               {playback.track
                 ? `${playback.track.artist}${playback.track.album ? ` · ${playback.track.album}` : ""}`
                 : t.spotifyNoDevice}
@@ -1561,30 +1590,30 @@ function PersonalSpotifyMusicView({
             <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
               {t.spotifyDevice}: {playback.hasActiveDevice ? t.spotifyActive : "—"}
             </p>
-          </div>
-          <div className="relative flex shrink-0 gap-3">
-            <button
-              type="button"
-              disabled={busy || !playback.hasActiveDevice}
-              onClick={() => void control(playback.isPlaying ? "pause" : "play")}
-              className="grid h-12 w-12 place-items-center rounded-full bg-[#E6CE20] text-black disabled:opacity-45"
-              aria-label={playback.isPlaying ? "Pause" : "Play"}
-            >
-              {playback.isPlaying ? (
-                <Pause className="h-5 w-5 fill-current" />
-              ) : (
-                <Play className="h-5 w-5 fill-current" />
-              )}
-            </button>
-            <button
-              type="button"
-              disabled={busy || !playback.hasActiveDevice}
-              onClick={() => void control("next")}
-              className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-45"
-              aria-label="Next"
-            >
-              <SkipForward className="h-5 w-5" />
-            </button>
+            <div className="mt-5 flex gap-3">
+              <button
+                type="button"
+                disabled={busy || !playback.hasActiveDevice}
+                onClick={() => void control(playback.isPlaying ? "pause" : "play")}
+                className="grid h-12 w-12 place-items-center rounded-full bg-[#E6CE20] text-black disabled:opacity-45"
+                aria-label={playback.isPlaying ? "Pause" : "Play"}
+              >
+                {playback.isPlaying ? (
+                  <Pause className="h-5 w-5 fill-current" />
+                ) : (
+                  <Play className="h-5 w-5 fill-current" />
+                )}
+              </button>
+              <button
+                type="button"
+                disabled={busy || !playback.hasActiveDevice}
+                onClick={() => void control("next")}
+                className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-45"
+                aria-label="Next"
+              >
+                <SkipForward className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </section>
       ) : (

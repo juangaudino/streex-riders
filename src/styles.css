@@ -1076,6 +1076,12 @@ input[type="time"] {
     min-width: 0;
   }
 
+  .passenger-home-host {
+    grid-column: 2;
+    grid-row: 4;
+    min-width: 0;
+  }
+
   .passenger-music-layout {
     display: grid !important;
     height: 100%;
