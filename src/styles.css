@@ -1035,7 +1035,7 @@ input[type="time"] {
     min-width: 0;
   }
 
-  .passenger-home-music-card {
+  .passenger-music-now-playing {
     min-height: 154px !important;
     flex-direction: row !important;
     justify-content: flex-start !important;
@@ -1043,7 +1043,7 @@ input[type="time"] {
     text-align: left !important;
   }
 
-  .passenger-home-music-card .passenger-home-music-art {
+  .passenger-music-now-playing .passenger-music-now-playing-art {
     width: 96px !important;
     height: 96px !important;
     border-radius: 22px !important;

@@ -107,6 +107,7 @@ const copy = {
     games: "Games",
     streex: "Streex",
     privateRide: "Private ride",
+    streexDifference: "The Streex difference",
     welcome: "Welcome to your ride",
     subtitle: "A private ride, with a little more built in.",
     exploreCue: "Tap to explore your ride",
@@ -199,7 +200,7 @@ const copy = {
     results: "Results",
     gamesTitle: "Games",
     gamesSubtitle: "Light entertainment for the road.",
-    gamesEyebrow: "Ride games",
+    gamesEyebrow: "Take a break",
     comingSoon: "Coming soon",
     playNow: "Play now",
     utahTrivia: "Utah Trivia",
@@ -211,7 +212,7 @@ const copy = {
     choiceFirst: "THIS",
     choiceSecond: "THAT",
     streexTitle: "Private rides. Elevated.",
-    streexSubtitle: "Premium private transportation, designed around your journey.",
+    streexSubtitle: "Designed around you.",
     streexExperienceTitle: "The Streex Experience",
     yourRideGallery: "Your Streex ride",
     whereWeRide: "Where We Ride",
@@ -285,6 +286,7 @@ const copy = {
     games: "Juegos",
     streex: "Streex",
     privateRide: "Viaje privado",
+    streexDifference: "La diferencia Streex",
     welcome: "Bienvenido a tu viaje",
     subtitle: "Un viaje privado, con algo más para disfrutar.",
     exploreCue: "Toca para explorar tu viaje",
@@ -380,7 +382,7 @@ const copy = {
     results: "Resultados",
     gamesTitle: "Juegos",
     gamesSubtitle: "Entretenimiento ligero para el camino.",
-    gamesEyebrow: "Juegos de viaje",
+    gamesEyebrow: "Tómate un descanso",
     comingSoon: "Próximamente",
     playNow: "Jugar ahora",
     utahTrivia: "Trivia de Utah",
@@ -392,7 +394,7 @@ const copy = {
     choiceFirst: "ESTO",
     choiceSecond: "AQUELLO",
     streexTitle: "Viajes privados. Elevados.",
-    streexSubtitle: "Transporte privado premium, diseñado alrededor de su viaje.",
+    streexSubtitle: "Diseñado para ti.",
     streexExperienceTitle: "La experiencia Streex",
     yourRideGallery: "Tu viaje Streex",
     whereWeRide: "Dónde viajamos",
@@ -516,7 +518,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
         />
         <main
           key={sessionKey}
-          className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-5 pt-8"
+          className="mt-3 min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-5 pt-5"
         >
           {view === "home" && (
             <HomeView
@@ -760,7 +762,7 @@ function ConsoleHeader({
   status: string;
 }) {
   return (
-    <header className="flex shrink-0 items-center justify-between gap-3">
+    <header className="passenger-console-header relative z-20 flex shrink-0 items-center justify-between gap-3 bg-[#0B0B0B]">
       <div className="flex min-w-0 items-center">
         <img
           src={config.logoSrc}
@@ -1372,25 +1374,25 @@ function PersonalSpotifyHomeCard({
     <button
       type="button"
       onClick={() => onNavigate("music")}
-      className="passenger-home-music-card group relative flex min-h-[318px] w-full min-w-0 flex-col items-center justify-center gap-4 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.13] p-6 text-center transition hover:border-[#E6CE20]/35 hover:bg-white/[0.07]"
+      className="group relative flex min-h-[154px] w-full min-w-0 items-center gap-5 overflow-hidden rounded-[26px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.09] p-5 text-left transition hover:border-[#E6CE20]/35 hover:bg-white/[0.07]"
     >
-      <span className="absolute -right-14 -top-20 h-56 w-56 rounded-full bg-[#E6CE20]/15 blur-3xl" />
+      <span className="absolute -right-14 -top-20 h-48 w-48 rounded-full bg-[#E6CE20]/10 blur-3xl" />
       {track?.artworkUrl ? (
         <img
           src={track.artworkUrl}
           alt=""
-          className="passenger-home-music-art relative h-36 w-36 shrink-0 rounded-[26px] object-cover shadow-2xl"
+          className="relative h-24 w-24 shrink-0 rounded-[22px] object-cover shadow-xl"
         />
       ) : (
-        <span className="passenger-home-music-art relative grid h-36 w-36 shrink-0 place-items-center rounded-[26px] bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black shadow-2xl">
-          <Music2 className="h-12 w-12" />
+        <span className="relative grid h-24 w-24 shrink-0 place-items-center rounded-[22px] bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black shadow-xl">
+          <Music2 className="h-9 w-9" />
         </span>
       )}
-      <span className="relative min-w-0 max-w-md">
+      <span className="relative min-w-0 flex-1">
         <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
           {t.nowPlaying}
         </span>
-        <span className="mt-2 block truncate text-2xl font-black tracking-tight">
+        <span className="mt-2 block truncate text-xl font-black tracking-tight">
           {track?.title ?? t.chooseMusic}
         </span>
         <span className="mt-1 block truncate text-sm text-white/60">
@@ -1400,11 +1402,12 @@ function PersonalSpotifyHomeCard({
           {t.spotifyDevice}: {hasActiveDevice ? t.spotifyActive : "—"}
         </span>
       </span>
-      <span className="relative flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/40 bg-[#E6CE20]/12 px-5 py-3 text-left text-[#E6CE20] transition group-hover:bg-[#E6CE20]/18">
-        <span className="max-w-40 text-xs leading-tight">
+      <span className="relative flex shrink-0 items-center gap-2 rounded-2xl border border-[#E6CE20]/40 bg-[#E6CE20]/12 px-4 py-3 text-right text-[#E6CE20] transition group-hover:bg-[#E6CE20]/18">
+        <span className="hidden max-w-36 text-xs leading-tight sm:block">
           <span className="block font-semibold">{t.chooseMusic}</span>
           <span className="mt-0.5 block text-[10px] text-white/55">{t.musicHint}</span>
         </span>
+        <span className="text-xs font-semibold sm:hidden">{t.chooseMusic}</span>
         <ChevronRight className="h-4 w-4" />
       </span>
     </button>
@@ -1555,31 +1558,35 @@ function PersonalSpotifyMusicView({
         <ViewHeader eyebrow={t.musicEyebrow} title={t.musicTitle} description={t.musicSubtitle} />
       </div>
       {message ? (
-        <section className="passenger-music-playback rounded-[26px] border border-white/10 bg-white/[0.05] p-5">
-          <p className="text-lg font-bold">
+        <section className="passenger-music-playback passenger-music-now-playing flex min-h-[312px] flex-col items-center justify-center overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.13] p-6 text-center">
+          <span className="grid h-28 w-28 place-items-center rounded-[26px] bg-gradient-to-br from-[#E6CE20] to-amber-600 text-black shadow-2xl">
+            <Music2 className="h-10 w-10" />
+          </span>
+          <p className="mt-5 text-xl font-black tracking-tight">
             {isMusicUnavailable ? t.musicUnavailableTitle : t.musicGettingReady}
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-white/60">{message}</p>
+          <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/60">{message}</p>
         </section>
       ) : playback ? (
-        <section className="passenger-music-playback flex items-center gap-4 rounded-[26px] border border-white/10 bg-white/[0.05] p-5">
+        <section className="passenger-music-playback passenger-music-now-playing relative flex min-h-[348px] flex-col items-center justify-center gap-4 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.13] p-6 text-center">
+          <span className="absolute -right-14 -top-20 h-56 w-56 rounded-full bg-[#E6CE20]/15 blur-3xl" />
           {playback.track?.artworkUrl ? (
             <img
               src={playback.track.artworkUrl}
               alt=""
-              className="h-20 w-20 shrink-0 rounded-2xl object-cover"
+              className="passenger-music-now-playing-art relative h-36 w-36 shrink-0 rounded-[26px] object-cover shadow-2xl"
             />
           ) : (
-            <div className="h-20 w-20 shrink-0 rounded-2xl bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700" />
+            <div className="passenger-music-now-playing-art relative h-36 w-36 shrink-0 rounded-[26px] bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700 shadow-2xl" />
           )}
-          <div className="min-w-0 flex-1">
+          <div className="relative min-w-0 max-w-md">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}
             </p>
-            <p className="mt-1 truncate text-lg font-bold">
+            <p className="mt-2 truncate text-2xl font-black tracking-tight">
               {playback.track?.title ?? t.chooseMusic}
             </p>
-            <p className="truncate text-sm text-white/55">
+            <p className="mt-1 truncate text-sm text-white/60">
               {playback.track
                 ? `${playback.track.artist}${playback.track.album ? ` · ${playback.track.album}` : ""}`
                 : t.spotifyNoDevice}
@@ -1588,7 +1595,7 @@ function PersonalSpotifyMusicView({
               {t.spotifyDevice}: {playback.hasActiveDevice ? t.spotifyActive : "—"}
             </p>
           </div>
-          <div className="flex shrink-0 flex-col gap-2">
+          <div className="relative flex shrink-0 gap-3">
             <button
               type="button"
               disabled={busy || !playback.hasActiveDevice}
@@ -1614,8 +1621,9 @@ function PersonalSpotifyMusicView({
           </div>
         </section>
       ) : (
-        <section className="passenger-music-playback rounded-[26px] border border-white/10 bg-white/[0.05] p-5 text-sm text-white/60">
-          {t.spotifyRefresh}
+        <section className="passenger-music-playback passenger-music-now-playing flex min-h-[280px] flex-col items-center justify-center rounded-[28px] border border-white/10 bg-white/[0.05] p-5 text-sm text-white/60">
+          <Music2 className="h-10 w-10 text-[#E6CE20]" />
+          <p className="mt-4">{t.spotifyRefresh}</p>
         </section>
       )}
       <div className="passenger-music-actions flex items-center justify-between gap-3">
@@ -2035,7 +2043,7 @@ function StreexView({
       <section className="passenger-streex-overview flex flex-col gap-5">
         <div className="passenger-streex-header">
           <ViewHeader
-            eyebrow={t.privateRide}
+            eyebrow={t.streexDifference}
             title={t.streexTitle}
             description={t.streexSubtitle}
           />
