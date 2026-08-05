@@ -874,6 +874,60 @@ input[type="time"] {
   min-height: 92px;
 }
 
+.passenger-trivia-postcard--symbols img {
+  filter: saturate(0.92) contrast(1.04);
+}
+
+.passenger-trivia-postcard--atlas img {
+  filter: saturate(0.78) contrast(1.06);
+}
+
+.passenger-trivia-results-content {
+  grid-template-columns: minmax(150px, 0.55fr) minmax(0, 1.45fr);
+}
+
+.passenger-trivia-score-stage {
+  display: flex;
+  min-width: 150px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.passenger-trivia-score-ring {
+  display: grid;
+  height: 142px;
+  width: 142px;
+  place-items: center;
+  border-radius: 999px;
+  box-shadow: 0 0 36px rgb(230 206 32 / 0.16);
+}
+
+.passenger-trivia-score-core {
+  display: flex;
+  height: calc(100% - 12px);
+  width: calc(100% - 12px);
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  border-radius: inherit;
+  background: rgb(7 8 8 / 0.91);
+  padding-top: 43px;
+}
+
+.passenger-trivia-score-core strong {
+  color: #e6ce20;
+  font-size: 3.4rem;
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  line-height: 1;
+}
+
+.passenger-trivia-score-core small {
+  color: rgb(255 255 255 / 0.45);
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
 .passenger-trivia-option {
   display: flex;
   min-height: 76px;
@@ -1022,6 +1076,15 @@ input[type="time"] {
 }
 
 @media (max-width: 620px) {
+  .passenger-trivia-results-content {
+    grid-template-columns: 1fr;
+  }
+
+  .passenger-trivia-score-stage {
+    align-items: center;
+    text-align: center;
+  }
+
   .passenger-trivia-options {
     grid-template-columns: 1fr !important;
   }

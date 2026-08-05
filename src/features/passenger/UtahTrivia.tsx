@@ -18,6 +18,8 @@ import {
 } from "./utah-trivia";
 import utahTriviaHero from "@/assets/passenger-games/utah-trivia-hero.jpg";
 import utahTriviaNationalParks from "@/assets/passenger-games/utah-trivia-national-parks.jpg";
+import utahTriviaSymbols from "@/assets/passenger-games/utah-trivia-symbols.jpg";
+import utahTriviaAtlas from "@/assets/passenger-games/utah-trivia-atlas.jpg";
 
 const ROUND_SIZE = 10;
 const RECENT_QUESTION_IDS_KEY = "streex-passenger-utah-trivia-recent";
@@ -77,6 +79,40 @@ const triviaCopy = {
 } as const;
 
 type TriviaPhase = "intro" | "playing" | "finished";
+
+type TriviaPostcard = {
+  image: string;
+  objectPosition: string;
+  tone: "parks" | "symbols" | "atlas";
+};
+
+function getTriviaPostcard(category: string): TriviaPostcard {
+  if (category === "National parks" || category === "Landmarks") {
+    return {
+      image: utahTriviaNationalParks,
+      objectPosition: "50% 48%",
+      tone: "parks",
+    };
+  }
+
+  if (
+    category === "State symbols" ||
+    category === "Utah culture" ||
+    category === "Local knowledge"
+  ) {
+    return {
+      image: utahTriviaSymbols,
+      objectPosition: "50% 52%",
+      tone: "symbols",
+    };
+  }
+
+  return {
+    image: utahTriviaAtlas,
+    objectPosition: "50% 58%",
+    tone: "atlas",
+  };
+}
 
 function readRecentQuestionIds() {
   if (typeof window === "undefined") return [];
@@ -185,6 +221,7 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
   if (phase === "finished") {
     const message =
       score === ROUND_SIZE ? t.perfect : score >= 8 ? t.strong : score >= 5 ? t.good : t.learning;
+    const scoreProgress = (score / ROUND_SIZE) * 360;
 
     return (
       <div className="passenger-trivia-layout flex min-h-full flex-col gap-5">
@@ -192,38 +229,57 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
           <ArrowLeft className="h-4 w-4" />
           {t.exit}
         </button>
-        <section className="passenger-trivia-results flex flex-1 flex-col items-center justify-center rounded-[30px] border border-white/10 bg-gradient-to-br from-white/[0.06] to-[#E6CE20]/10 p-8 text-center">
-          <span className="grid h-16 w-16 place-items-center rounded-[20px] bg-[#E6CE20] text-black shadow-[0_12px_40px_rgba(230,206,32,0.2)]">
-            <Trophy className="h-8 w-8" />
-          </span>
-          <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#E6CE20]">
-            {t.finishedEyebrow}
-          </p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight">{t.finishedTitle}</h1>
-          <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
-            {t.score}
-          </p>
-          <p className="mt-1 text-7xl font-black tracking-tight text-[#E6CE20]">
-            {score}
-            <span className="text-3xl text-white/35">/{ROUND_SIZE}</span>
-          </p>
-          <div className="mt-6 flex gap-2" aria-label={`${score} of ${ROUND_SIZE}`}>
-            {Array.from({ length: ROUND_SIZE }, (_, index) => (
-              <span
-                key={index}
-                className={`h-2.5 w-2.5 rounded-full ${index < score ? "bg-[#E6CE20]" : "bg-white/15"}`}
-              />
-            ))}
-          </div>
-          <p className="mt-4 max-w-md text-base leading-relaxed text-white/65">{message}</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <button type="button" onClick={startRound} className="passenger-trivia-primary">
-              <RotateCcw className="h-5 w-5" />
-              {t.again}
-            </button>
-            <button type="button" onClick={onExit} className="passenger-trivia-secondary">
-              {t.exit}
-            </button>
+        <section className="passenger-trivia-results relative flex flex-1 overflow-hidden rounded-[30px] border border-[#E6CE20]/25 p-6">
+          <img
+            src={utahTriviaHero}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover object-[64%_center] opacity-65"
+          />
+          <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,9,0.95)_0%,rgba(5,7,9,0.9)_43%,rgba(5,7,9,0.38)_100%)]" />
+          <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/20" />
+          <div className="passenger-trivia-results-content relative z-10 grid w-full items-center gap-8">
+            <div className="passenger-trivia-score-stage">
+              <span className="grid h-14 w-14 place-items-center rounded-[18px] bg-[#E6CE20] text-black shadow-[0_12px_40px_rgba(230,206,32,0.22)]">
+                <Trophy className="h-7 w-7" />
+              </span>
+              <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#E6CE20]">
+                {t.finishedEyebrow}
+              </p>
+              <div
+                className="passenger-trivia-score-ring mt-4"
+                aria-label={`${score} of ${ROUND_SIZE}`}
+                style={{
+                  background: `conic-gradient(#E6CE20 0deg ${scoreProgress}deg, rgb(255 255 255 / 0.12) ${scoreProgress}deg 360deg)`,
+                }}
+              >
+                <span className="passenger-trivia-score-core">
+                  <strong>{score}</strong>
+                  <small>/{ROUND_SIZE}</small>
+                </span>
+              </div>
+              <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">
+                {t.score}
+              </p>
+            </div>
+            <div className="max-w-lg">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55">
+                STREEX · UTAH ROUTE
+              </p>
+              <h1 className="mt-3 text-4xl font-black leading-[1.04] tracking-tight">
+                {t.finishedTitle}
+              </h1>
+              <p className="mt-4 max-w-md text-base leading-relaxed text-white/70">{message}</p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <button type="button" onClick={startRound} className="passenger-trivia-primary">
+                  <RotateCcw className="h-5 w-5" />
+                  {t.again}
+                </button>
+                <button type="button" onClick={onExit} className="passenger-trivia-secondary">
+                  {t.exit}
+                </button>
+              </div>
+            </div>
           </div>
         </section>
       </div>
@@ -235,8 +291,7 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
   const answered = selectedIndex !== null;
   const selectedCorrect = selectedIndex === question.correctIndex;
   const progress = ((questionIndex + (answered ? 1 : 0)) / ROUND_SIZE) * 100;
-  const showNationalParksPostcard =
-    question.category.en === "National parks" || question.category.en === "Landmarks";
+  const postcard = getTriviaPostcard(question.category.en);
 
   const chooseAnswer = (index: number) => {
     if (answered) return;
@@ -272,30 +327,26 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
         />
       </div>
       <section className="passenger-trivia-question passenger-trivia-question--route flex min-h-0 flex-1 flex-col rounded-[30px] border border-white/10 p-6">
-        {showNationalParksPostcard ? (
-          <div className="passenger-trivia-postcard relative overflow-hidden rounded-[18px] border border-[#E6CE20]/25">
-            <img
-              src={utahTriviaNationalParks}
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-0 h-full w-full object-cover object-[50%_48%]"
-            />
-            <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,9,0.94),rgba(5,7,9,0.5),rgba(5,7,9,0.1))]" />
-            <span className="relative flex min-h-[90px] flex-col justify-center px-4">
-              <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
-                {t.fieldNote}
-              </span>
-              <span className="mt-1 text-sm font-extrabold text-white">
-                {question.category[language]}
-              </span>
+        <div
+          className={`passenger-trivia-postcard passenger-trivia-postcard--${postcard.tone} relative overflow-hidden rounded-[18px] border border-[#E6CE20]/25`}
+        >
+          <img
+            src={postcard.image}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: postcard.objectPosition }}
+          />
+          <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,9,0.95),rgba(5,7,9,0.54),rgba(5,7,9,0.08))]" />
+          <span className="relative flex min-h-[90px] flex-col justify-center px-4">
+            <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
+              {t.fieldNote}
             </span>
-          </div>
-        ) : (
-          <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
-            <span className="h-2 w-2 rounded-full bg-[#E6CE20] shadow-[0_0_12px_rgba(230,206,32,0.9)]" />
-            {question.category[language]}
-          </p>
-        )}
+            <span className="mt-1 text-sm font-extrabold text-white">
+              {question.category[language]}
+            </span>
+          </span>
+        </div>
         <h1 className="mt-3 max-w-2xl text-3xl font-black leading-tight tracking-tight">
           {question.prompt[language]}
         </h1>
