@@ -71,6 +71,7 @@ import utahTriviaSymbols from "@/assets/passenger-games/utah-trivia-symbols.jpg"
 import passengerRav4Front from "@/assets/streex-gallery/passenger-rav4-front.jpg";
 import passengerRav4Rear from "@/assets/streex-gallery/passenger-rav4-rear.jpg";
 import passengerRav4Snow from "@/assets/streex-gallery/passenger-rav4-snow.jpg";
+import passengerRav4Side from "@/assets/streex-gallery/rav4.jpg";
 
 type Language = "en" | "es";
 type View =
@@ -2240,6 +2241,11 @@ function PassengerVehicleGrid({ title }: { title: string }) {
     {
       alt: "Silver Toyota RAV4 in the snow",
       image: passengerRav4Snow,
+      position: "object-center",
+    },
+    {
+      alt: "Silver Toyota RAV4 on the road",
+      image: passengerRav4Side,
       position: "object-center",
     },
   ];

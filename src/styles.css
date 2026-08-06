@@ -61,6 +61,135 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Keep these last: they intentionally supersede the first landscape pass. */
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="games"] > main > .passenger-trivia-layout,
+  .passenger-console-shell[data-view="games"] > main > .passenger-choice-layout {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  .passenger-streex-layout {
+    display: grid !important;
+    grid-template-columns: minmax(520px, 0.94fr) minmax(520px, 1.06fr) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    column-gap: 18px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+  .passenger-streex-overview {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    gap: 12px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+  .passenger-streex-header {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  .passenger-streex-header > header > h1 {
+    font-size: clamp(2rem, 2.7vw, 3rem) !important;
+  }
+  .passenger-streex-actions {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: 68px repeat(2, 58px) 64px minmax(68px, 1fr) !important;
+    gap: 6px !important;
+    min-height: 0 !important;
+  }
+  .passenger-streex-actions button,
+  .passenger-streex-actions a {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+  .passenger-streex-actions > a.col-span-2 > span:first-child > svg {
+    width: 76px !important;
+    height: 76px !important;
+  }
+  .passenger-streex-experience {
+    display: block !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    border: 1px solid rgb(255 255 255 / 0.1) !important;
+    border-radius: 28px !important;
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.05), rgb(230 206 32 / 0.06)) !important;
+    padding: 18px !important;
+  }
+  .passenger-vehicle-grid-section {
+    display: flex !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex-direction: column;
+  }
+  .passenger-vehicle-grid-section > div:first-child {
+    flex: 0 0 auto;
+  }
+  .passenger-vehicle-grid-section > div:last-child {
+    display: grid !important;
+    min-height: 0 !important;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .passenger-vehicle-grid-section > div:last-child > div {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .passenger-areas-content > section > .streex-divider,
+  .passenger-areas-content > section > p,
+  .passenger-areas-content > section > h2,
+  .passenger-areas-content > section > p + p {
+    display: block !important;
+  }
+  .passenger-areas-content > section > .streex-divider,
+  .passenger-areas-content > section > p:first-of-type {
+    display: none !important;
+  }
+  .passenger-areas-content > section > h2 {
+    margin: 0 !important;
+    font-size: 1.35rem !important;
+  }
+  .passenger-areas-content > section > h2 + p {
+    margin-top: 0.3rem !important;
+    font-size: 0.82rem !important;
+    line-height: 1.35 !important;
+  }
+  .passenger-areas-content > section > div.mt-6 {
+    margin-top: 0.8rem !important;
+  }
+  .passenger-areas-content > section > div.mt-6 > div {
+    min-height: 78px !important;
+    padding: 0.8rem !important;
+  }
+  .passenger-destination-carousel-wrap {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  .passenger-destination-carousel-wrap > section {
+    margin-top: 0.75rem !important;
+  }
+  .passenger-destination-carousel-wrap .passenger-gallery-track {
+    width: max-content !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  .passenger-destination-carousel-wrap .passenger-gallery-track > [aria-hidden="true"] {
+    display: none !important;
+  }
+  .passenger-destination-carousel-wrap > section > div > div > div {
+    width: 190px !important;
+    min-height: 126px !important;
+  }
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(0.145 0 0);
@@ -2922,8 +3051,294 @@ input[type="time"] {
   }
 
   .passenger-destination-carousel-wrap > section > div > div > div {
-    width: 180px !important;
+    width: 181px !important;
     min-height: 138px !important;
+  }
+}
+
+/* Final landscape corrections. This block stays after every earlier tablet rule. */
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="games"] > main > .passenger-trivia-layout,
+  .passenger-console-shell[data-view="games"] > main > .passenger-choice-layout {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  .passenger-streex-layout {
+    display: grid !important;
+    grid-template-columns: minmax(520px, 0.94fr) minmax(520px, 1.06fr) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    column-gap: 18px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+  .passenger-streex-overview {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    gap: 12px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+  .passenger-streex-header {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  .passenger-streex-header > header > h1 {
+    font-size: clamp(2rem, 2.7vw, 3rem) !important;
+  }
+  .passenger-streex-actions {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: 88px repeat(2, 74px) 82px minmax(112px, 1fr) !important;
+    gap: 10px !important;
+    min-height: 0 !important;
+  }
+  .passenger-streex-actions button,
+  .passenger-streex-actions a {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+  .passenger-streex-actions > a.col-span-2 > span:first-child > svg {
+    width: 76px !important;
+    height: 76px !important;
+  }
+  .passenger-streex-experience {
+    display: block !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    border: 1px solid rgb(255 255 255 / 0.1) !important;
+    border-radius: 28px !important;
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.05), rgb(230 206 32 / 0.06)) !important;
+    padding: 18px !important;
+  }
+  .passenger-vehicle-grid-section {
+    display: flex !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex-direction: column;
+  }
+  .passenger-vehicle-grid-section > div:first-child {
+    flex: 0 0 auto;
+  }
+  .passenger-vehicle-grid-section > div:last-child {
+    display: grid !important;
+    min-height: 0 !important;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .passenger-vehicle-grid-section > div:last-child > div {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .passenger-areas-content > section > .streex-divider,
+  .passenger-areas-content > section > p,
+  .passenger-areas-content > section > h2,
+  .passenger-areas-content > section > p + p {
+    display: block !important;
+  }
+  .passenger-areas-content > section > .streex-divider,
+  .passenger-areas-content > section > p:first-of-type {
+    display: none !important;
+  }
+  .passenger-areas-content > section > h2 {
+    margin: 0 !important;
+    font-size: 1.35rem !important;
+  }
+  .passenger-areas-content > section > h2 + p {
+    margin-top: 0.3rem !important;
+    font-size: 0.82rem !important;
+    line-height: 1.35 !important;
+  }
+  .passenger-areas-content > section > div.mt-6 {
+    margin-top: 0.8rem !important;
+  }
+  .passenger-areas-content > section > div.mt-6 > div {
+    min-height: 78px !important;
+    padding: 0.8rem !important;
+  }
+  .passenger-destination-carousel-wrap {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  .passenger-destination-carousel-wrap > section {
+    margin-top: 0.75rem !important;
+  }
+  .passenger-destination-carousel-wrap .passenger-gallery-track {
+    width: max-content !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  .passenger-destination-carousel-wrap .passenger-gallery-track > [aria-hidden="true"] {
+    display: none !important;
+  }
+  .passenger-destination-carousel-wrap > section > div > div > div {
+    width: 190px !important;
+    min-height: 126px !important;
+  }
+}
+
+/* Passenger Console landscape corrections: preserve the full game canvas and the
+   vertical STREEX hierarchy instead of substituting a different experience. */
+@media (orientation: landscape) and (min-width: 900px) {
+  /* Active games are rendered directly inside main, rather than inside the
+     catalogue grid. They must always claim the full canvas. */
+  .passenger-console-shell[data-view="games"] > main > .passenger-trivia-layout,
+  .passenger-console-shell[data-view="games"] > main > .passenger-choice-layout {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  /* STREEX overview: actions keep their familiar vertical rhythm at left;
+     the vehicle gallery is a deliberate second panel, never omitted. */
+  .passenger-streex-layout {
+    display: grid !important;
+    grid-template-columns: minmax(520px, 0.94fr) minmax(520px, 1.06fr) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    column-gap: 18px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-streex-overview {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    gap: 12px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-streex-header {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  .passenger-streex-header > header > h1 {
+    font-size: clamp(2rem, 2.7vw, 3rem) !important;
+  }
+
+  .passenger-streex-actions {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: 88px repeat(2, 74px) 82px minmax(112px, 1fr) !important;
+    gap: 10px !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-streex-actions button,
+  .passenger-streex-actions a {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  .passenger-streex-actions > a.col-span-2 > span:first-child > svg {
+    width: 76px !important;
+    height: 76px !important;
+  }
+
+  .passenger-streex-experience {
+    display: block !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    border: 1px solid rgb(255 255 255 / 0.1) !important;
+    border-radius: 28px !important;
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.05), rgb(230 206 32 / 0.06)) !important;
+    padding: 18px !important;
+  }
+
+  .passenger-vehicle-grid-section {
+    display: flex !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex-direction: column;
+  }
+
+  .passenger-vehicle-grid-section > div:first-child {
+    flex: 0 0 auto;
+  }
+
+  .passenger-vehicle-grid-section > div:last-child {
+    display: grid !important;
+    min-height: 0 !important;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .passenger-vehicle-grid-section > div:last-child > div {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  /* Where We Ride keeps its editorial message. A static, non-duplicated row
+     is safer and clearer in landscape than the portrait auto-scroller. */
+  .passenger-areas-content > section > .streex-divider,
+  .passenger-areas-content > section > p,
+  .passenger-areas-content > section > h2,
+  .passenger-areas-content > section > p + p {
+    display: block !important;
+  }
+
+  .passenger-areas-content > section > .streex-divider,
+  .passenger-areas-content > section > p:first-of-type {
+    display: none !important;
+  }
+
+  .passenger-areas-content > section > h2 {
+    margin: 0 !important;
+    font-size: 1.35rem !important;
+  }
+
+  .passenger-areas-content > section > h2 + p {
+    margin-top: 0.3rem !important;
+    font-size: 0.82rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .passenger-areas-content > section > div.mt-6 {
+    margin-top: 0.8rem !important;
+  }
+
+  .passenger-areas-content > section > div.mt-6 > div {
+    min-height: 78px !important;
+    padding: 0.8rem !important;
+  }
+
+  .passenger-destination-carousel-wrap {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .passenger-destination-carousel-wrap > section {
+    margin-top: 0.75rem !important;
+  }
+
+  .passenger-destination-carousel-wrap .passenger-gallery-track {
+    width: max-content !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .passenger-destination-carousel-wrap .passenger-gallery-track > [aria-hidden="true"] {
+    display: none !important;
+  }
+
+  .passenger-destination-carousel-wrap > section > div > div > div {
+    width: 190px !important;
+    min-height: 126px !important;
   }
 }
 
@@ -4032,5 +4447,135 @@ button.passenger-idle-music {
   .passenger-destination-carousel-wrap > section > div > div > div {
     width: 180px !important;
     min-height: 138px !important;
+  }
+}
+
+/* Final landscape corrections. This block intentionally overrides every earlier
+   responsive pass so games and the STREEX gallery retain their proper canvas. */
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="games"] > main > .passenger-trivia-layout,
+  .passenger-console-shell[data-view="games"] > main > .passenger-choice-layout {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  .passenger-streex-layout {
+    display: grid !important;
+    grid-template-columns: minmax(520px, 0.94fr) minmax(520px, 1.06fr) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    column-gap: 18px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+  .passenger-streex-overview {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    gap: 12px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+  .passenger-streex-header {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  .passenger-streex-header > header > h1 {
+    font-size: clamp(2rem, 2.7vw, 3rem) !important;
+  }
+  .passenger-streex-actions {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: 88px repeat(2, 74px) 82px minmax(112px, 1fr) !important;
+    gap: 10px !important;
+    min-height: 0 !important;
+  }
+  .passenger-streex-actions button,
+  .passenger-streex-actions a {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+  .passenger-streex-actions > a.col-span-2 > span:first-child > svg {
+    width: 76px !important;
+    height: 76px !important;
+  }
+  .passenger-streex-experience {
+    display: block !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    border: 1px solid rgb(255 255 255 / 0.1) !important;
+    border-radius: 28px !important;
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.05), rgb(230 206 32 / 0.06)) !important;
+    padding: 18px !important;
+  }
+  .passenger-vehicle-grid-section {
+    display: flex !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex-direction: column;
+  }
+  .passenger-vehicle-grid-section > div:first-child {
+    flex: 0 0 auto;
+  }
+  .passenger-vehicle-grid-section > div:last-child {
+    display: grid !important;
+    min-height: 0 !important;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .passenger-vehicle-grid-section > div:last-child > div {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .passenger-areas-content > section > .streex-divider,
+  .passenger-areas-content > section > p,
+  .passenger-areas-content > section > h2,
+  .passenger-areas-content > section > p + p {
+    display: block !important;
+  }
+  .passenger-areas-content > section > .streex-divider,
+  .passenger-areas-content > section > p:first-of-type {
+    display: none !important;
+  }
+  .passenger-areas-content > section > h2 {
+    margin: 0 !important;
+    font-size: 1.35rem !important;
+  }
+  .passenger-areas-content > section > h2 + p {
+    margin-top: 0.3rem !important;
+    font-size: 0.82rem !important;
+    line-height: 1.35 !important;
+  }
+  .passenger-areas-content > section > div.mt-6 {
+    margin-top: 0.8rem !important;
+  }
+  .passenger-areas-content > section > div.mt-6 > div {
+    min-height: 78px !important;
+    padding: 0.8rem !important;
+  }
+  .passenger-destination-carousel-wrap {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  .passenger-destination-carousel-wrap > section {
+    margin-top: 0.75rem !important;
+  }
+  .passenger-destination-carousel-wrap .passenger-gallery-track {
+    width: max-content !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  .passenger-destination-carousel-wrap .passenger-gallery-track > [aria-hidden="true"] {
+    display: none !important;
+  }
+  .passenger-destination-carousel-wrap > section > div > div > div {
+    width: 190px !important;
+    min-height: 126px !important;
   }
 }
