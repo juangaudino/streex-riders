@@ -217,6 +217,8 @@ const copy = {
     choiceSecond: "THAT",
     horizonTabletSoon: "Coming soon to your tablet experience",
     horizonPhone: "Play on your phone",
+    futureGameTitle: "Next up",
+    futureGameDescription: "A new road-side game is in the works.",
     streexTitle: "Private rides. Elevated.",
     streexSubtitle: "Designed around you.",
     streexExperienceTitle: "The Streex Experience",
@@ -402,6 +404,8 @@ const copy = {
     choiceSecond: "AQUELLO",
     horizonTabletSoon: "Próximamente en tu experiencia de tablet",
     horizonPhone: "Juega en tu teléfono",
+    futureGameTitle: "Próximamente",
+    futureGameDescription: "Estamos preparando un nuevo juego para el camino.",
     streexTitle: "Viajes privados. Elevados.",
     streexSubtitle: "Diseñado para ti.",
     streexExperienceTitle: "La experiencia Streex",
@@ -948,6 +952,13 @@ function HomeView({
   return (
     <div className="passenger-home-layout flex flex-1 flex-col gap-5">
       <section className="passenger-home-hero relative overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-[#E6CE20]/15 p-6">
+        <img
+          src={passengerRav4Front}
+          alt=""
+          aria-hidden="true"
+          className="passenger-home-hero-image absolute inset-y-0 right-0 h-full w-[58%] object-cover object-center"
+        />
+        <span className="passenger-home-hero-image-scrim absolute inset-0" aria-hidden="true" />
         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#E6CE20]/15 blur-3xl" />
         <div className="relative">
           <div className="flex items-center justify-between gap-3">
@@ -2039,37 +2050,48 @@ function GamesView({
           status={thisOrThatEnabled ? t.playNow : t.comingSoon}
         />
       </div>
-      <section className="passenger-games-horizon relative aspect-[1200/509] overflow-hidden rounded-[26px] border border-[#E6CE20]/35 bg-[#12120c] shadow-[0_16px_45px_rgba(0,0,0,0.28)]">
-        <img
-          src={horizonQuickActionCard}
-          alt="Streex Horizon. Play the challenge."
-          className="block h-full w-full object-cover"
-          loading="lazy"
-          decoding="async"
-        />
-        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-4 bg-gradient-to-t from-black via-black/95 to-transparent px-5 pb-4 pt-12">
-          <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E6CE20]">
-              {t.comingSoon}
-            </p>
-            <p className="mt-1 text-sm font-semibold leading-tight text-white">
-              {t.horizonTabletSoon}
-            </p>
-            <p className="mt-1 text-xs text-white/60">{t.horizonPhone}</p>
-          </div>
-          {phoneContinuation && (
-            <div className="shrink-0 rounded-xl bg-white p-1.5 shadow-[0_0_26px_rgba(230,206,32,0.2)]">
-              <QRCodeSVG
-                value={phoneContinuation}
-                size={56}
-                bgColor="#FFFFFF"
-                fgColor="#0B0B0B"
-                level="M"
-              />
+      <div className="passenger-games-coming-soon-grid grid gap-4">
+        <section className="passenger-games-horizon relative aspect-[1200/509] overflow-hidden rounded-[26px] border border-[#E6CE20]/35 bg-[#12120c] shadow-[0_16px_45px_rgba(0,0,0,0.28)]">
+          <img
+            src={horizonQuickActionCard}
+            alt="Streex Horizon. Play the challenge."
+            className="block h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/95 to-transparent px-5 pb-4 pt-12">
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E6CE20]">
+                {t.comingSoon}
+              </p>
+              <p className="mt-1 text-sm font-semibold leading-tight text-white">
+                {t.horizonTabletSoon}
+              </p>
+              <p className="mt-1 text-xs text-white/60">{t.horizonPhone}</p>
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+        <section className="passenger-games-future relative aspect-[1200/509] overflow-hidden rounded-[26px] border border-white/10 bg-gradient-to-br from-[#151515] via-[#0f1114] to-[#16211d] p-5 shadow-[0_16px_45px_rgba(0,0,0,0.22)]">
+          <span className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-[#E6CE20]/12 blur-3xl" />
+          <span className="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#E6CE20]/70 to-transparent" />
+          <div className="relative flex h-full flex-col justify-between">
+            <span className="grid h-11 w-11 place-items-center rounded-xl border border-[#E6CE20]/25 bg-[#E6CE20]/10 text-[#E6CE20]">
+              <Gamepad2 className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E6CE20]">
+                {t.comingSoon}
+              </p>
+              <p className="mt-2 text-xl font-black tracking-tight text-white">
+                {t.futureGameTitle}
+              </p>
+              <p className="mt-1 max-w-sm text-sm leading-relaxed text-white/55">
+                {t.futureGameDescription}
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
@@ -2194,9 +2216,6 @@ function StreexView({
             label={t.continuePhone}
             unavailable={t.unavailable}
           />
-        </div>
-        <div className="passenger-streex-ticker hidden">
-          <ServiceTicker config={config} />
         </div>
       </section>
       <div className="passenger-streex-experience">
@@ -2340,6 +2359,9 @@ function ServicesView({
       </div>
       <div className="passenger-services-content min-h-0">
         <ServicesSection className="mt-0 px-0" config={config} title={t.services} />
+        <div className="passenger-services-ticker overflow-hidden rounded-[18px] border border-white/10 bg-white/[0.025]">
+          <ServiceTicker config={config} />
+        </div>
       </div>
     </div>
   );

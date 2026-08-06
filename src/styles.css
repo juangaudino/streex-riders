@@ -1559,7 +1559,9 @@ input[type="time"] {
   border: 1px solid rgb(230 206 32 / 0.62);
   border-radius: 999px;
   background: #0b0b0b;
-  box-shadow: 0 0 0 6px rgb(11 11 11 / 0.38), 0 8px 28px rgb(0 0 0 / 0.55);
+  box-shadow:
+    0 0 0 6px rgb(11 11 11 / 0.38),
+    0 8px 28px rgb(0 0 0 / 0.55);
   color: #e6ce20;
   font-size: 0.68rem;
   font-weight: 950;
@@ -1605,10 +1607,22 @@ input[type="time"] {
   clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
 }
 
-.passenger-honeycomb-mark i:nth-child(1) { left: 7px; top: 0; }
-.passenger-honeycomb-mark i:nth-child(2) { left: 0; top: 8px; }
-.passenger-honeycomb-mark i:nth-child(3) { right: 0; top: 8px; }
-.passenger-honeycomb-mark i:nth-child(4) { left: 7px; top: 16px; }
+.passenger-honeycomb-mark i:nth-child(1) {
+  left: 7px;
+  top: 0;
+}
+.passenger-honeycomb-mark i:nth-child(2) {
+  left: 0;
+  top: 8px;
+}
+.passenger-honeycomb-mark i:nth-child(3) {
+  right: 0;
+  top: 8px;
+}
+.passenger-honeycomb-mark i:nth-child(4) {
+  left: 7px;
+  top: 16px;
+}
 
 .passenger-honeycomb-mark--compact {
   margin-right: -12px;
@@ -1675,7 +1689,9 @@ input[type="time"] {
 
 .passenger-trivia-postcard {
   min-height: clamp(156px, 19vh, 208px);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05), 0 14px 42px rgb(0 0 0 / 0.18);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.05),
+    0 14px 42px rgb(0 0 0 / 0.18);
 }
 
 .passenger-trivia-postcard > span {
@@ -1750,11 +1766,21 @@ input[type="time"] {
   display: none;
 }
 
-.passenger-choice-option--amber { --choice-accent: #e6ce20; }
-.passenger-choice-option--coral { --choice-accent: #fb8a66; }
-.passenger-choice-option--alpine { --choice-accent: #89c8ff; }
-.passenger-choice-option--teal { --choice-accent: #5eead4; }
-.passenger-choice-option--violet { --choice-accent: #c4a1ff; }
+.passenger-choice-option--amber {
+  --choice-accent: #e6ce20;
+}
+.passenger-choice-option--coral {
+  --choice-accent: #fb8a66;
+}
+.passenger-choice-option--alpine {
+  --choice-accent: #89c8ff;
+}
+.passenger-choice-option--teal {
+  --choice-accent: #5eead4;
+}
+.passenger-choice-option--violet {
+  --choice-accent: #c4a1ff;
+}
 
 .passenger-choice-option-art {
   position: absolute;
@@ -1783,7 +1809,11 @@ input[type="time"] {
   height: 72%;
   width: 72%;
   border-radius: 999px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--choice-accent) 40%, transparent), transparent 67%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--choice-accent) 40%, transparent),
+    transparent 67%
+  );
   filter: blur(2px);
   mix-blend-mode: screen;
   opacity: 0.72;
@@ -1833,7 +1863,9 @@ input[type="time"] {
 
 .passenger-choice-option.is-selected {
   border-color: var(--choice-accent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--choice-accent) 38%, transparent), 0 20px 54px color-mix(in srgb, var(--choice-accent) 22%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--choice-accent) 38%, transparent),
+    0 20px 54px color-mix(in srgb, var(--choice-accent) 22%, transparent);
   color: white;
 }
 
@@ -1863,20 +1895,40 @@ input[type="time"] {
   filter: saturate(0.88) contrast(1.06);
 }
 
-.passenger-choice-filmstrip-frame--amber { border-color: rgb(230 206 32 / 0.52); }
-.passenger-choice-filmstrip-frame--coral { border-color: rgb(251 138 102 / 0.52); }
-.passenger-choice-filmstrip-frame--alpine { border-color: rgb(137 200 255 / 0.52); }
-.passenger-choice-filmstrip-frame--teal { border-color: rgb(94 234 212 / 0.52); }
-.passenger-choice-filmstrip-frame--violet { border-color: rgb(196 161 255 / 0.52); }
+.passenger-choice-filmstrip-frame--amber {
+  border-color: rgb(230 206 32 / 0.52);
+}
+.passenger-choice-filmstrip-frame--coral {
+  border-color: rgb(251 138 102 / 0.52);
+}
+.passenger-choice-filmstrip-frame--alpine {
+  border-color: rgb(137 200 255 / 0.52);
+}
+.passenger-choice-filmstrip-frame--teal {
+  border-color: rgb(94 234 212 / 0.52);
+}
+.passenger-choice-filmstrip-frame--violet {
+  border-color: rgb(196 161 255 / 0.52);
+}
 
 @keyframes passenger-choice-pan {
-  from { transform: scale(1.04) translate3d(-1.2%, -0.8%, 0); }
-  to { transform: scale(1.1) translate3d(1.1%, 0.8%, 0); }
+  from {
+    transform: scale(1.04) translate3d(-1.2%, -0.8%, 0);
+  }
+  to {
+    transform: scale(1.1) translate3d(1.1%, 0.8%, 0);
+  }
 }
 
 @keyframes passenger-choice-flare {
-  from { opacity: 0.32; transform: translate3d(-4%, 2%, 0) scale(0.84); }
-  to { opacity: 0.8; transform: translate3d(5%, -4%, 0) scale(1.12); }
+  from {
+    opacity: 0.32;
+    transform: translate3d(-4%, 2%, 0) scale(0.84);
+  }
+  to {
+    opacity: 0.8;
+    transform: translate3d(5%, -4%, 0) scale(1.12);
+  }
 }
 
 @keyframes passenger-gallery-slide {
@@ -2454,6 +2506,427 @@ input[type="time"] {
   }
 }
 
+/* Passenger Console landscape system — 16:10 tablet canvas, not a stretched portrait page. */
+.passenger-home-hero-image {
+  opacity: 0.28;
+  filter: saturate(0.78) contrast(1.05);
+}
+
+.passenger-home-hero-image-scrim {
+  background: linear-gradient(
+    90deg,
+    rgb(15 15 15 / 0.98) 0%,
+    rgb(15 15 15 / 0.83) 45%,
+    rgb(15 15 15 / 0.22) 100%
+  );
+}
+
+.passenger-games-coming-soon-grid {
+  grid-template-columns: 1fr;
+}
+
+.passenger-services-ticker {
+  margin-top: 1rem;
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell {
+    max-width: 1720px !important;
+    padding: 20px 32px 16px !important;
+  }
+
+  .passenger-console-shell > main {
+    display: flex;
+    min-height: 0;
+    overflow: hidden !important;
+    padding: 18px 0 0 !important;
+  }
+
+  /* Home: a single editorial panel with the RAV4 as an atmospheric layer. */
+  .passenger-home-layout {
+    width: 100%;
+    height: 100%;
+    grid-template-columns: minmax(0, 0.97fr) minmax(0, 1.03fr) !important;
+    grid-template-rows: minmax(0, 1.05fr) auto auto minmax(94px, 0.72fr) !important;
+    gap: 14px 18px !important;
+  }
+
+  .passenger-home-hero {
+    min-height: 0 !important;
+  }
+
+  .passenger-home-hero-image {
+    width: 68%;
+    opacity: 0.36;
+  }
+
+  .passenger-home-hero-image-scrim {
+    background: linear-gradient(
+      90deg,
+      rgb(15 15 15 / 0.98) 0%,
+      rgb(15 15 15 / 0.85) 43%,
+      rgb(15 15 15 / 0.18) 100%
+    );
+  }
+
+  .passenger-home-hero > .relative {
+    max-width: 68%;
+  }
+
+  .passenger-home-time {
+    margin-top: auto !important;
+  }
+
+  .passenger-home-music > button {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .passenger-home-quick-access > div > * {
+    min-height: 132px !important;
+  }
+
+  .passenger-home-host {
+    min-height: 94px !important;
+  }
+
+  /* Music: two intentional panels, never a forced one-line empty state. */
+  .passenger-music-layout {
+    width: 100%;
+    height: 100%;
+    grid-template-columns: minmax(390px, 0.92fr) minmax(0, 1.08fr) !important;
+    grid-template-rows: auto minmax(210px, 1fr) auto minmax(116px, auto) !important;
+    column-gap: 24px !important;
+    row-gap: 14px !important;
+  }
+
+  .passenger-music-header {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .passenger-music-playback {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .passenger-music-actions {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .passenger-music-jam {
+    grid-column: 1;
+    grid-row: 4;
+    align-self: stretch;
+    min-height: 0 !important;
+  }
+  .passenger-music-search {
+    grid-column: 2;
+    grid-row: 1 / 5;
+    min-height: 0;
+    overflow: hidden !important;
+  }
+
+  .passenger-music-now-playing:not(.passenger-music-now-playing-ready) {
+    flex-direction: column !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .passenger-music-now-playing:not(.passenger-music-now-playing-ready) > p {
+    max-width: 26rem;
+  }
+
+  .passenger-music-now-playing-ready {
+    align-items: center !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-music-landscape-prompt {
+    min-height: 0 !important;
+    flex: 0 0 auto !important;
+    justify-content: flex-start !important;
+    padding-top: 2rem !important;
+  }
+
+  .passenger-music-landscape-prompt > span,
+  .passenger-music-landscape-prompt > p {
+    display: none;
+  }
+
+  .passenger-music-landscape-quick-picks {
+    margin-top: 0 !important;
+    max-width: none !important;
+  }
+
+  .passenger-music-landscape-quick-picks > button {
+    min-height: 76px !important;
+  }
+
+  /* Games: playable cards on the first row; two matching future cards below. */
+  .passenger-games-layout {
+    width: 100%;
+    height: 100%;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) auto !important;
+    gap: 14px !important;
+  }
+
+  .passenger-games-header,
+  .passenger-games-grid,
+  .passenger-games-coming-soon-grid {
+    grid-column: 1 / -1 !important;
+  }
+
+  .passenger-games-header {
+    grid-row: 1 !important;
+  }
+  .passenger-games-grid {
+    grid-row: 2 !important;
+  }
+  .passenger-games-coming-soon-grid {
+    grid-row: 3 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .passenger-games-horizon {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    height: auto !important;
+    align-self: auto !important;
+  }
+
+  .passenger-games-future {
+    min-height: 0;
+  }
+
+  /* Streex overview is the action canvas. The vehicle gallery belongs to its own vertical continuation. */
+  .passenger-console-shell[data-view="streex"] > main {
+    overflow: hidden !important;
+  }
+
+  .passenger-streex-layout {
+    width: 100%;
+    height: 100% !important;
+    min-height: 0 !important;
+    gap: 0 !important;
+  }
+
+  .passenger-streex-overview {
+    width: 100%;
+    height: 100%;
+    min-height: 0 !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  .passenger-streex-header {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    align-self: start !important;
+  }
+
+  .passenger-streex-header > header {
+    display: block !important;
+  }
+
+  .passenger-streex-header > header > h1 {
+    margin-top: 0.5rem !important;
+  }
+
+  .passenger-streex-header > header > p:last-child {
+    margin-top: 0.3rem !important;
+  }
+
+  .passenger-streex-actions {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    min-height: 0;
+    grid-template-rows: 1.15fr repeat(3, minmax(0, 1fr)) 1.2fr !important;
+    gap: 12px !important;
+  }
+
+  .passenger-streex-actions button,
+  .passenger-streex-actions a {
+    min-height: 0 !important;
+    height: 100%;
+  }
+
+  .passenger-streex-actions > a.col-span-2 > span:first-child > svg {
+    width: 94px !important;
+    height: 94px !important;
+  }
+
+  .passenger-streex-experience {
+    display: none !important;
+  }
+
+  /* Detail screens share one compact toolbar. */
+  .passenger-subview {
+    width: 100%;
+    height: 100%;
+    min-height: 0 !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  .passenger-subview-intro {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 18px !important;
+  }
+
+  .passenger-subview-intro > button {
+    align-self: center !important;
+    white-space: nowrap;
+  }
+
+  .passenger-subview-intro > header > h1 {
+    margin-top: 0.3rem !important;
+  }
+
+  .passenger-subview-intro > header > p:last-child {
+    margin-top: 0.2rem !important;
+  }
+
+  .passenger-services-content,
+  .passenger-areas-content,
+  .passenger-contact-actions,
+  .passenger-review-content,
+  .passenger-tip-content {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    align-self: stretch !important;
+  }
+
+  .passenger-services-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+  }
+
+  .passenger-services-content > section {
+    min-height: 0;
+    flex: 1;
+  }
+
+  .passenger-services-content > section > h2 {
+    display: none;
+  }
+
+  .passenger-services-content > section > div {
+    height: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+
+  .passenger-services-content > section > div > * > div {
+    padding: 1rem !important;
+  }
+
+  .passenger-services-ticker {
+    flex: 0 0 auto;
+    margin-top: 12px;
+  }
+
+  .passenger-contact-actions {
+    width: min(100%, 1120px) !important;
+    justify-self: center;
+    align-content: center;
+    grid-template-rows: repeat(2, minmax(112px, 1fr)) auto;
+  }
+
+  .passenger-contact-actions > div {
+    min-height: 0 !important;
+    padding: 1.25rem !important;
+  }
+
+  .passenger-review-content {
+    width: min(100%, 1040px) !important;
+    justify-self: center;
+    align-self: center !important;
+  }
+
+  .passenger-review-content > * {
+    max-height: 520px;
+  }
+
+  .passenger-tip-content {
+    max-width: 1280px;
+    justify-self: center;
+    padding: 1.5rem !important;
+  }
+
+  .passenger-tip-workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 0.85fr) !important;
+  }
+
+  .passenger-tip-methods > button {
+    min-height: 68px !important;
+  }
+  .passenger-tip-qr {
+    padding: 1rem !important;
+  }
+  .passenger-tip-qr > div {
+    transform: scale(0.84);
+    margin-block: -0.9rem;
+  }
+
+  .passenger-areas-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+  }
+
+  .passenger-areas-content > section {
+    flex: 0 0 auto;
+  }
+
+  .passenger-areas-content > section > .streex-divider,
+  .passenger-areas-content > section > p,
+  .passenger-areas-content > section > h2,
+  .passenger-areas-content > section > p + p {
+    display: none;
+  }
+
+  .passenger-areas-content > section > div.mt-6 {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px !important;
+    margin-top: 0 !important;
+  }
+
+  .passenger-areas-content > section > div.mt-6 > div {
+    min-height: 94px;
+    padding: 1rem !important;
+  }
+
+  .passenger-destination-carousel-wrap {
+    min-height: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .passenger-destination-carousel-wrap > section {
+    margin-top: 1rem !important;
+  }
+
+  .passenger-destination-carousel-wrap > section > h2 {
+    margin-bottom: 0.65rem !important;
+    font-size: 1.2rem !important;
+  }
+
+  .passenger-destination-carousel-wrap > section > div > div > div {
+    width: 180px !important;
+    min-height: 138px !important;
+  }
+}
+
 /* Passenger Games refinements: stable trivia rhythm and an intro that uses the full canvas. */
 .passenger-trivia-layout {
   height: 100%;
@@ -2591,7 +3064,12 @@ button.passenger-idle-music {
   inset: 0;
   z-index: -1;
   content: "";
-  background: linear-gradient(108deg, transparent 28%, rgb(255 255 255 / 0.12) 48%, transparent 67%);
+  background: linear-gradient(
+    108deg,
+    transparent 28%,
+    rgb(255 255 255 / 0.12) 48%,
+    transparent 67%
+  );
   opacity: 0.3;
   transform: translateX(-120%);
   animation: passenger-idle-discovery-glint 7s ease-in-out infinite;
@@ -2756,7 +3234,9 @@ button.passenger-idle-music {
 }
 
 .passenger-idle-discovery-action {
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .passenger-idle-music--discover:hover .passenger-idle-discovery-action,
@@ -3219,5 +3699,338 @@ button.passenger-idle-music {
 
   .passenger-meet-notes article {
     min-height: 0;
+  }
+}
+
+/* Final landscape cascade: native Galaxy Tab A9+ 16:10 composition. */
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell {
+    max-width: 1720px !important;
+    padding: 20px 32px 16px !important;
+  }
+  .passenger-console-shell > main {
+    display: flex;
+    min-height: 0;
+    overflow: hidden !important;
+    padding: 18px 0 0 !important;
+  }
+
+  .passenger-home-layout {
+    width: 100%;
+    height: 100%;
+    grid-template-columns: minmax(0, 0.97fr) minmax(0, 1.03fr) !important;
+    grid-template-rows: minmax(0, 1.05fr) auto auto minmax(94px, 0.72fr) !important;
+    gap: 14px 18px !important;
+  }
+  .passenger-home-hero {
+    min-height: 0 !important;
+  }
+  .passenger-home-hero-image {
+    width: 68%;
+    opacity: 0.36;
+  }
+  .passenger-home-hero-image-scrim {
+    background: linear-gradient(
+      90deg,
+      rgb(15 15 15 / 0.98) 0%,
+      rgb(15 15 15 / 0.85) 43%,
+      rgb(15 15 15 / 0.18) 100%
+    );
+  }
+  .passenger-home-hero > .relative {
+    max-width: 68%;
+  }
+  .passenger-home-time {
+    margin-top: auto !important;
+  }
+  .passenger-home-music > button {
+    min-height: 0;
+    height: 100%;
+  }
+  .passenger-home-quick-access > div > * {
+    min-height: 132px !important;
+  }
+  .passenger-home-host {
+    min-height: 94px !important;
+  }
+
+  .passenger-music-layout {
+    width: 100%;
+    height: 100%;
+    grid-template-columns: minmax(390px, 0.92fr) minmax(0, 1.08fr) !important;
+    grid-template-rows: auto minmax(210px, 1fr) auto minmax(116px, auto) !important;
+    column-gap: 24px !important;
+    row-gap: 14px !important;
+  }
+  .passenger-music-header {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .passenger-music-playback {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .passenger-music-actions {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .passenger-music-jam {
+    grid-column: 1;
+    grid-row: 4;
+    align-self: stretch;
+    min-height: 0 !important;
+  }
+  .passenger-music-search {
+    grid-column: 2;
+    grid-row: 1 / 5;
+    min-height: 0;
+    overflow: hidden !important;
+  }
+  .passenger-music-now-playing:not(.passenger-music-now-playing-ready) {
+    flex-direction: column !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  .passenger-music-now-playing-ready {
+    align-items: center !important;
+    min-height: 0 !important;
+  }
+  .passenger-music-landscape-prompt {
+    min-height: 0 !important;
+    flex: 0 0 auto !important;
+    justify-content: flex-start !important;
+    padding-top: 2rem !important;
+  }
+  .passenger-music-landscape-prompt > span,
+  .passenger-music-landscape-prompt > p {
+    display: none;
+  }
+  .passenger-music-landscape-quick-picks {
+    margin-top: 0 !important;
+    max-width: none !important;
+  }
+  .passenger-music-landscape-quick-picks > button {
+    min-height: 76px !important;
+  }
+
+  .passenger-games-layout {
+    width: 100%;
+    height: 100%;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) auto !important;
+    gap: 14px !important;
+  }
+  .passenger-games-header,
+  .passenger-games-grid,
+  .passenger-games-coming-soon-grid {
+    grid-column: 1 / -1 !important;
+  }
+  .passenger-games-header {
+    grid-row: 1 !important;
+  }
+  .passenger-games-grid {
+    grid-row: 2 !important;
+  }
+  .passenger-games-coming-soon-grid {
+    grid-row: 3 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .passenger-games-horizon {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    height: auto !important;
+    align-self: auto !important;
+  }
+  .passenger-games-future {
+    min-height: 0;
+  }
+
+  .passenger-console-shell[data-view="streex"] > main {
+    overflow: hidden !important;
+  }
+  .passenger-streex-layout {
+    width: 100%;
+    height: 100% !important;
+    min-height: 0 !important;
+    gap: 0 !important;
+  }
+  .passenger-streex-overview {
+    width: 100%;
+    height: 100%;
+    min-height: 0 !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    gap: 16px !important;
+  }
+  .passenger-streex-header {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    align-self: start !important;
+  }
+  .passenger-streex-header > header {
+    display: block !important;
+  }
+  .passenger-streex-header > header > h1 {
+    margin-top: 0.5rem !important;
+  }
+  .passenger-streex-header > header > p:last-child {
+    margin-top: 0.3rem !important;
+  }
+  .passenger-streex-actions {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    min-height: 0;
+    grid-template-rows: 1.15fr repeat(3, minmax(0, 1fr)) 1.2fr !important;
+    gap: 12px !important;
+  }
+  .passenger-streex-actions button,
+  .passenger-streex-actions a {
+    min-height: 0 !important;
+    height: 100%;
+  }
+  .passenger-streex-actions > a.col-span-2 > span:first-child > svg {
+    width: 94px !important;
+    height: 94px !important;
+  }
+  .passenger-streex-experience {
+    display: none !important;
+  }
+
+  .passenger-subview {
+    width: 100%;
+    height: 100%;
+    min-height: 0 !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    gap: 14px !important;
+  }
+  .passenger-subview-intro {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 18px !important;
+  }
+  .passenger-subview-intro > button {
+    align-self: center !important;
+    white-space: nowrap;
+  }
+  .passenger-subview-intro > header > h1 {
+    margin-top: 0.3rem !important;
+  }
+  .passenger-subview-intro > header > p:last-child {
+    margin-top: 0.2rem !important;
+  }
+  .passenger-services-content,
+  .passenger-areas-content,
+  .passenger-contact-actions,
+  .passenger-review-content,
+  .passenger-tip-content {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    align-self: stretch !important;
+  }
+  .passenger-services-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+  }
+  .passenger-services-content > section {
+    min-height: 0;
+    flex: 1;
+  }
+  .passenger-services-content > section > h2 {
+    display: none;
+  }
+  .passenger-services-content > section > div {
+    height: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+  .passenger-services-content > section > div > * > div {
+    padding: 1rem !important;
+  }
+  .passenger-services-ticker {
+    flex: 0 0 auto;
+    margin-top: 12px;
+  }
+  .passenger-contact-actions {
+    width: min(100%, 1120px) !important;
+    justify-self: center;
+    align-content: center;
+    grid-template-rows: repeat(2, minmax(112px, 1fr)) auto;
+  }
+  .passenger-contact-actions > div {
+    min-height: 0 !important;
+    padding: 1.25rem !important;
+  }
+  .passenger-review-content {
+    width: min(100%, 1040px) !important;
+    justify-self: center;
+    align-self: center !important;
+  }
+  .passenger-review-content > * {
+    max-height: 520px;
+  }
+  .passenger-tip-content {
+    max-width: 1280px;
+    justify-self: center;
+    padding: 1.5rem !important;
+  }
+  .passenger-tip-workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 0.85fr) !important;
+  }
+  .passenger-tip-methods > button {
+    min-height: 68px !important;
+  }
+  .passenger-tip-qr {
+    padding: 1rem !important;
+  }
+  .passenger-tip-qr > div {
+    transform: scale(0.84);
+    margin-block: -0.9rem;
+  }
+  .passenger-areas-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+  }
+  .passenger-areas-content > section {
+    flex: 0 0 auto;
+  }
+  .passenger-areas-content > section > .streex-divider,
+  .passenger-areas-content > section > p,
+  .passenger-areas-content > section > h2,
+  .passenger-areas-content > section > p + p {
+    display: none;
+  }
+  .passenger-areas-content > section > div.mt-6 {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px !important;
+    margin-top: 0 !important;
+  }
+  .passenger-areas-content > section > div.mt-6 > div {
+    min-height: 94px;
+    padding: 1rem !important;
+  }
+  .passenger-destination-carousel-wrap {
+    min-height: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+  .passenger-destination-carousel-wrap > section {
+    margin-top: 1rem !important;
+  }
+  .passenger-destination-carousel-wrap > section > h2 {
+    margin-bottom: 0.65rem !important;
+    font-size: 1.2rem !important;
+  }
+  .passenger-destination-carousel-wrap > section > div > div > div {
+    width: 180px !important;
+    min-height: 138px !important;
   }
 }
