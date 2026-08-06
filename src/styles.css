@@ -2892,3 +2892,332 @@ button.passenger-idle-music {
     width: 42%;
   }
 }
+
+/* Passenger Console: landscape is a separate tablet composition, not a stretched portrait page. */
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-music-layout {
+    grid-template-columns: minmax(0, 0.84fr) minmax(0, 1.16fr);
+    grid-template-rows: auto minmax(160px, 1fr) auto auto;
+    column-gap: 24px;
+    row-gap: 14px;
+  }
+
+  .passenger-music-playback {
+    height: 100%;
+    min-height: 0 !important;
+  }
+
+  .passenger-music-now-playing {
+    min-height: 190px !important;
+  }
+
+  .passenger-music-now-playing-ready {
+    min-height: 230px !important;
+  }
+
+  .passenger-music-jam {
+    min-height: 132px;
+    padding: 1.15rem !important;
+  }
+
+  .passenger-music-search {
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+
+  .passenger-music-landscape-prompt {
+    min-height: 0;
+    padding: 1.5rem 0 0;
+  }
+
+  .passenger-music-landscape-quick-picks > button {
+    min-height: 82px;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
+  }
+
+  .passenger-console-shell[data-view="games"] > main {
+    overflow-y: hidden;
+  }
+
+  .passenger-games-layout {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 18px;
+    row-gap: 16px;
+  }
+
+  .passenger-games-header {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .passenger-games-header > header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 18px;
+    align-items: end;
+  }
+
+  .passenger-games-header > header > p:first-child {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: center;
+  }
+
+  .passenger-games-header > header > h1,
+  .passenger-games-header > header > p:last-child {
+    grid-column: 2;
+  }
+
+  .passenger-games-header > header > h1 {
+    margin-top: 0;
+  }
+
+  .passenger-games-header > header > p:last-child {
+    margin-top: 0.15rem;
+  }
+
+  .passenger-games-grid {
+    grid-column: 1 / 3;
+    grid-row: 2;
+    height: 100%;
+  }
+
+  .passenger-games-horizon {
+    grid-column: 3;
+    grid-row: 2;
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: auto;
+    align-self: stretch;
+  }
+
+  .passenger-games-horizon > .absolute {
+    padding: 1.2rem !important;
+  }
+
+  .passenger-games-horizon .bg-white {
+    padding: 0.5rem !important;
+  }
+
+  .passenger-games-horizon svg {
+    width: 88px !important;
+    height: 88px !important;
+  }
+
+  .passenger-trivia-layout {
+    height: 100%;
+    min-height: 0 !important;
+    gap: 0.6rem !important;
+  }
+
+  .passenger-trivia-question {
+    overflow-y: hidden !important;
+    padding: 1rem !important;
+  }
+
+  .passenger-trivia-question > .relative {
+    display: grid;
+    height: 100%;
+    min-height: 0;
+    grid-template-rows: 96px 4px auto minmax(112px, 1fr) auto;
+    gap: 0;
+  }
+
+  .passenger-trivia-postcard {
+    min-height: 96px !important;
+  }
+
+  .passenger-trivia-postcard > span {
+    min-height: 96px !important;
+    padding: 0.9rem 1.1rem !important;
+  }
+
+  .passenger-trivia-postcard > span > span {
+    font-size: clamp(1rem, 1.7vw, 1.35rem) !important;
+  }
+
+  .passenger-trivia-question > .relative > .mt-4 {
+    margin-top: 0.65rem !important;
+  }
+
+  .passenger-trivia-question h1 {
+    min-height: 0;
+    margin-top: 0.65rem !important;
+    font-size: clamp(1.6rem, 3vw, 2.45rem) !important;
+    line-height: 1.03;
+  }
+
+  .passenger-trivia-options {
+    min-height: 0;
+    margin-top: 0.75rem !important;
+    grid-auto-rows: minmax(52px, 1fr);
+    gap: 0.6rem !important;
+  }
+
+  .passenger-trivia-option {
+    min-height: 52px;
+    padding: 0.65rem 0.8rem;
+    font-size: 0.86rem;
+  }
+
+  .passenger-trivia-feedback {
+    min-height: 0;
+    margin-top: 0.7rem !important;
+    gap: 0.75rem;
+    padding: 0.65rem 0.8rem;
+  }
+
+  .passenger-trivia-feedback p {
+    font-size: 0.78rem;
+    line-height: 1.25;
+  }
+
+  .passenger-trivia-feedback .passenger-trivia-primary {
+    min-height: 42px;
+    padding: 0 0.9rem;
+  }
+
+  .passenger-streex-overview {
+    min-height: calc(100dvh - 184px);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    row-gap: 14px;
+  }
+
+  .passenger-streex-header {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  .passenger-streex-header > header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 18px;
+    align-items: end;
+  }
+
+  .passenger-streex-header > header > p:first-child {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: center;
+  }
+
+  .passenger-streex-header > header > h1,
+  .passenger-streex-header > header > p:last-child {
+    grid-column: 2;
+  }
+
+  .passenger-streex-header > header > h1 {
+    margin-top: 0;
+  }
+
+  .passenger-streex-header > header > p:last-child {
+    margin-top: 0.15rem;
+  }
+
+  .passenger-streex-actions {
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-rows: repeat(4, minmax(62px, 0.86fr)) minmax(132px, 1.45fr);
+  }
+
+  .passenger-streex-ticker {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .passenger-subview {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .passenger-subview-intro {
+    display: grid !important;
+    grid-column: 1;
+    grid-template-columns: minmax(150px, 0.22fr) minmax(0, 1fr);
+    align-items: end;
+    gap: 20px;
+  }
+
+  .passenger-subview-intro > button {
+    align-self: center;
+  }
+
+  .passenger-subview-intro > header {
+    min-width: 0;
+  }
+
+  .passenger-subview-intro > header > h1 {
+    margin-top: 0.1rem;
+  }
+
+  .passenger-subview-intro > header > p:last-child {
+    margin-top: 0.2rem;
+  }
+
+  .passenger-services-content,
+  .passenger-areas-content,
+  .passenger-contact-actions,
+  .passenger-review-content,
+  .passenger-tip-content {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    align-self: start;
+  }
+
+  .passenger-services-content,
+  .passenger-areas-content {
+    overflow-y: auto;
+  }
+
+  .passenger-services-content > section > div {
+    align-content: start;
+  }
+
+  .passenger-contact-actions {
+    align-self: start;
+  }
+
+  .passenger-contact-actions > div {
+    min-height: 132px;
+  }
+
+  .passenger-review-content {
+    width: min(100%, 1080px);
+    justify-self: center;
+    align-self: start;
+  }
+
+  .passenger-tip-content {
+    height: 100%;
+    max-height: none;
+  }
+
+  .passenger-tip-workspace {
+    grid-template-columns: minmax(300px, 1fr) minmax(350px, 1fr);
+  }
+
+  .passenger-meet-profile,
+  .passenger-meet-notes > section {
+    height: 100%;
+  }
+
+  .passenger-meet-notes > section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .passenger-meet-notes > section > .mt-5 {
+    min-height: 0;
+    flex: 1;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+
+  .passenger-meet-notes article {
+    min-height: 0;
+  }
+}
