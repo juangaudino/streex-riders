@@ -66,6 +66,12 @@ import { UtahTrivia } from "./UtahTrivia";
 import { ThisOrThat } from "./ThisOrThat";
 import { HoneycombMark } from "./game-marks";
 import { THIS_OR_THAT_TRAILER_VISUALS } from "./this-or-that-visuals";
+import { AroundYouHomeCard } from "./around-you/AroundYouHomeCard";
+import { AroundYouView } from "./around-you/AroundYouView";
+import { AROUND_YOU_SEED_PLACES } from "./around-you/around-you-data";
+import type { AroundYouLanguage } from "./around-you/around-you-types";
+import { useAroundYouEngine } from "./around-you/useAroundYouEngine";
+import { usePassengerLocation } from "./around-you/usePassengerLocation";
 import horizonQuickActionCard from "@/features/runner/assets/quick-action/horizon_quick_action_card.webp";
 import utahTriviaSymbols from "@/assets/passenger-games/utah-trivia-symbols.jpg";
 import passengerRav4Front from "@/assets/streex-gallery/passenger-rav4-front.jpg";
@@ -73,10 +79,11 @@ import passengerRav4Rear from "@/assets/streex-gallery/passenger-rav4-rear.jpg";
 import passengerRav4Snow from "@/assets/streex-gallery/passenger-rav4-snow.jpg";
 import passengerRav4Side from "@/assets/streex-gallery/rav4.jpg";
 
-type Language = "en" | "es";
+type Language = AroundYouLanguage;
 type View =
   | "home"
   | "music"
+  | "around-you"
   | "games"
   | "streex"
   | "meet-juan"
@@ -493,6 +500,17 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
 
   const consoleConfig = config.passengerConsole;
   const weather = usePassengerWeather(online, consoleConfig.weather.refreshMinutes);
+  const passengerLocation = usePassengerLocation({
+    enabled: consoleConfig.aroundYou.enabled,
+    options: consoleConfig.aroundYou.geolocation,
+  });
+  const aroundYou = useAroundYouEngine({
+    enabled: consoleConfig.aroundYou.enabled,
+    location: passengerLocation,
+    options: consoleConfig.aroundYou.selection,
+    places: AROUND_YOU_SEED_PLACES,
+    sessionKey,
+  });
   const resetPassengerSession = useCallback(() => {
     setBookingOpen(false);
     setView("home");
@@ -541,6 +559,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           {view === "home" && (
             <HomeView
               config={config}
+              aroundYou={aroundYou}
               language={language}
               onNavigate={setView}
               fallbackTemperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
@@ -548,6 +567,14 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               weatherCity={consoleConfig.weather.city}
               weatherStatus={weather.status}
               t={t}
+            />
+          )}
+          {view === "around-you" && (
+            <AroundYouView
+              language={language}
+              onBack={() => setView("home")}
+              showDistance={consoleConfig.aroundYou.ui.showDistance}
+              state={aroundYou}
             />
           )}
           {view === "music" && <MusicView config={config} onNavigate={setView} t={t} />}
@@ -588,6 +615,11 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           config={config}
           fallbackTemperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
           language={language}
+          aroundYou={aroundYou}
+          onExploreAroundYou={() => {
+            idleReset.resume();
+            setView("around-you");
+          }}
           onExploreMusic={() => {
             idleReset.resume();
             setView("music");
@@ -601,22 +633,25 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
 }
 
 function PassengerIdlePrompt({
+  aroundYou,
   config,
   fallbackTemperatureFahrenheit,
   language,
+  onExploreAroundYou,
   onExploreMusic,
   onResume,
   weather,
 }: {
+  aroundYou: import("./around-you/around-you-types").AroundYouEngineState;
   config: AppConfig;
   fallbackTemperatureFahrenheit: number;
   language: Language;
+  onExploreAroundYou: () => void;
   onExploreMusic: () => void;
   onResume: () => void;
   weather: PassengerWeatherSnapshot | null;
 }) {
   const primary = copy[language];
-  const secondary = copy[language === "en" ? "es" : "en"];
   const now = useClock();
   const time = now
     ? now.toLocaleTimeString("en-US", {
@@ -663,38 +698,27 @@ function PassengerIdlePrompt({
           t={primary}
         />
 
-        <div className="w-full text-center">
-          <p className="text-[10px] font-semibold tracking-[0.28em] text-[#E6CE20]">Streex Rides</p>
-          <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-            {primary.idleTitle}
-          </h1>
-          <p className="mt-2 text-lg font-semibold text-white/45">{secondary.idleTitle}</p>
-          <p className="mt-4 text-sm text-white/50">{primary.idleDescription}</p>
-        </div>
+        {config.passengerConsole.aroundYou.ui.showIdleCard && (
+          <div className="w-full max-w-4xl">
+            <AroundYouHomeCard
+              language={language}
+              onOpen={onExploreAroundYou}
+              state={aroundYou}
+              variant="idle"
+            />
+          </div>
+        )}
 
         <div className="passenger-idle-ticker w-full" aria-hidden="true">
           <ServiceTicker config={config} />
         </div>
 
-        <div className="passenger-idle-footer flex w-full items-center justify-between gap-4">
-          <span className="passenger-idle-host flex items-center gap-3 text-left">
-            <img
-              src={config.meetPhoto}
-              alt={config.ownerName}
-              className="h-14 w-14 shrink-0 rounded-2xl border border-[#E6CE20]/45 object-cover shadow-[0_0_24px_rgba(230,206,32,0.12)]"
-            />
-            <span>
-              <span className="block text-base font-extrabold">{config.ownerName}</span>
-              <span className="mt-1 block text-xs font-semibold text-white/50">
-                {primary.idleHost} · {secondary.idleHost}
-              </span>
-            </span>
-          </span>
+        <div className="passenger-idle-footer flex w-full items-center justify-end gap-4">
           <span className="passenger-idle-action rounded-full border border-[#E6CE20] bg-[#E6CE20] px-8 py-4 text-center text-sm font-black uppercase tracking-[0.12em] text-black shadow-[0_0_35px_rgba(230,206,32,0.26)] sm:min-w-[300px]">
             <span className="block">{primary.idleAction}</span>
             <span className="mt-1 flex items-center justify-center gap-1.5 text-[10px] font-bold normal-case tracking-normal text-black/65">
               <Sparkles className="h-3 w-3" />
-              Music · Games · Streex
+              Music · Around You · Games · Streex
             </span>
           </span>
         </div>
@@ -884,6 +908,7 @@ function ConsoleHeader({
 }
 
 function HomeView({
+  aroundYou,
   config,
   language,
   onNavigate,
@@ -893,6 +918,7 @@ function HomeView({
   weatherStatus,
   t,
 }: {
+  aroundYou: import("./around-you/around-you-types").AroundYouEngineState;
   config: AppConfig;
   language: Language;
   onNavigate: (view: View) => void;
@@ -1086,13 +1112,13 @@ function HomeView({
             onClick={() => onNavigate("games")}
             artwork={utahTriviaSymbols}
           />
-          <PhoneContinuationCard
-            compact
-            description={t.continuePhoneDescription}
-            href={config.passengerConsole.links.phoneContinuation}
-            label={t.continuePhone}
-            unavailable={t.unavailable}
-          />
+          {config.passengerConsole.aroundYou.ui.showHomeCard && (
+            <AroundYouHomeCard
+              language={language}
+              onOpen={() => onNavigate("around-you")}
+              state={aroundYou}
+            />
+          )}
         </div>
       </section>
 
@@ -1374,7 +1400,9 @@ function QuickAccessCard({
           </span>
         )}
       </span>
-      <span className={`relative mt-auto block text-base font-bold leading-tight ${accent ? "text-white" : ""}`}>
+      <span
+        className={`relative mt-auto block text-base font-bold leading-tight ${accent ? "text-white" : ""}`}
+      >
         {label} <ChevronRight className="inline h-4 w-4" />
       </span>
       <span
@@ -2930,14 +2958,16 @@ function ConsoleNavigation({
   t: (typeof copy)[Language];
 }) {
   const active =
-    activeView === "meet-juan" ||
-    activeView === "services" ||
-    activeView === "contact" ||
-    activeView === "reviews" ||
-    activeView === "tip" ||
-    activeView === "where-we-ride"
-      ? "streex"
-      : activeView;
+    activeView === "around-you"
+      ? "home"
+      : activeView === "meet-juan" ||
+          activeView === "services" ||
+          activeView === "contact" ||
+          activeView === "reviews" ||
+          activeView === "tip" ||
+          activeView === "where-we-ride"
+        ? "streex"
+        : activeView;
   const items = [
     { id: "home" as const, label: t.home, icon: <Play className="h-5 w-5 rotate-[270deg]" /> },
     { id: "music" as const, label: t.music, icon: <Music2 className="h-5 w-5" /> },

@@ -91,6 +91,14 @@ show passenger data.
   Salt Lake City coordinates and refresh cadence are CONFIG-driven; sanitized hourly forecasts
   are cached server-side and the last successful snapshot is retained locally for hotspot outages.
   English displays Fahrenheit and Spanish displays Celsius. No API credential is required.
+- Passenger Around You is a client-only local context engine under
+  `src/features/passenger/around-you/`. It watches the tablet's browser geolocation only while the
+  Passenger Console is mounted and the public feature flag is enabled, matches accepted positions
+  against a bundled bilingual POI catalog, and exposes a stable featured place plus nearby places.
+  Raw GPS coordinates are transient React/ref state only: they are never persisted, added to URLs,
+  logged intentionally, sent to analytics, or transmitted to the server. The initial Sol foundation
+  is intentionally disabled until location permission and GPS behavior are validated on the Galaxy
+  Tab A9+ in the vehicle. See `docs/AROUND_YOU_SOL_HANDOFF.md` before continuing the feature.
 - Android kiosk enforcement belongs to Android/MDM/launcher. The web app may later add PWA cache
   and recovery behavior, but must not claim to enforce kiosk mode.
 - Do not modify the Google Calendar integration for Passenger Console work.

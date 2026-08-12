@@ -77,6 +77,35 @@ export const CONFIG = {
       utahTriviaEnabled: true,
       thisOrThatEnabled: true,
     },
+    aroundYou: {
+      // Keep the watcher off until the dedicated tablet has been provisioned and its
+      // browser location permission has been validated in the vehicle.
+      enabled: false,
+      geolocation: {
+        enableHighAccuracy: true,
+        timeoutMs: 15_000,
+        maximumAgeMs: 10_000,
+        minimumAcceptedIntervalMs: 8_000,
+        minimumMovementMeters: 60,
+        maximumUsableAccuracyMeters: 180,
+        maximumLastGoodPositionAgeMs: 60_000,
+        materialAccuracyImprovementMeters: 35,
+        maximumPlausibleSpeedMetersPerSecond: 85,
+      },
+      selection: {
+        nearbyLimit: 5,
+        minimumFeaturedDwellMs: 30_000,
+        exitRadiusMultiplier: 1.25,
+        challengerScoreRatio: 1.15,
+        recentlyShownCooldownMs: 10 * 60_000,
+      },
+      ui: {
+        showHomeCard: true,
+        showDistance: true,
+        showAccuracyDebug: false,
+        showIdleCard: true,
+      },
+    },
     links: {
       // Public destinations rendered as QR codes or phone-continuation links. Keep payment
       // provider secrets out of this object; a Stripe-hosted Payment Link is safe to expose.
