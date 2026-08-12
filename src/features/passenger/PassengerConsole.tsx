@@ -1822,7 +1822,7 @@ function PersonalSpotifyMusicView({
             </div>
           )}
           {results.length > 0 && (
-            <div className="mt-4">
+            <div className="passenger-music-results-block mt-4">
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
                 {t.searchResults}
               </p>
@@ -1942,7 +1942,7 @@ function SimulatedMusicView({
           className="h-14 w-full rounded-2xl border border-white/10 bg-white/[0.04] pl-12 pr-4 text-base text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#E6CE20]/60"
         />
       </label>
-      <section>
+      <section className="passenger-music-results-block">
         <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
           {t.results}
         </p>

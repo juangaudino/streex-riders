@@ -901,6 +901,13 @@ input[type="time"] {
   background-clip: padding-box;
 }
 
+/* Keep long music searches inside their own scroll area, above the fixed console navigation. */
+@media (orientation: portrait) {
+  .passenger-console-shell[data-view="music"] .passenger-music-results {
+    max-height: min(28dvh, 360px);
+  }
+}
+
 @media (orientation: portrait) {
   .passenger-idle-content {
     width: 100%;
@@ -4734,6 +4741,18 @@ button.passenger-idle-music {
     max-height: none;
     min-height: 0;
     flex: 1 1 0%;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-results-block {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 0%;
+    flex-direction: column;
   }
 
   .passenger-console-shell[data-view="games"] > main > .passenger-trivia-layout,
