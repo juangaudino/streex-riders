@@ -5048,7 +5048,7 @@ button.passenger-idle-music {
     grid-area: auto !important;
   }
   .passenger-console-shell[data-view="around-you"] .passenger-around-featured {
-    min-height: 0 !important;
+    min-height: 150px !important;
   }
   .passenger-console-shell[data-view="around-you"] .passenger-around-browse-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
