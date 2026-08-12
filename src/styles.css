@@ -5029,6 +5029,27 @@ button.passenger-idle-music {
 }
 
 @media (orientation: landscape) and (min-width: 900px) {
+  /* The local-guide fallback occupies its own row; it must not sit beneath the
+     browse grid when no live GPS position is available. */
+  .passenger-console-shell[data-view="around-you"] > main {
+    overflow-y: auto !important;
+  }
+  .passenger-console-shell[data-view="around-you"] .passenger-around-layout {
+    display: flex !important;
+    min-height: auto !important;
+    flex-direction: column !important;
+    gap: 0.9rem !important;
+  }
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured {
+    min-height: 0 !important;
+  }
+  .passenger-console-shell[data-view="around-you"] .passenger-around-browse-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  .passenger-console-shell[data-view="around-you"] .passenger-around-place-card--browse {
+    min-height: 160px !important;
+  }
+
   /* Final live fixes for the current Passenger Console request. */
   .passenger-console-shell[data-view="music"] .passenger-music-layout {
     grid-template-rows: auto minmax(140px, 1fr) auto 0 196px !important;
