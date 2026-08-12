@@ -1084,6 +1084,7 @@ function HomeView({
             label={t.utahTrivia}
             description={t.utahTriviaDescription}
             onClick={() => onNavigate("games")}
+            artwork={utahTriviaSymbols}
           />
           <PhoneContinuationCard
             compact
@@ -1326,6 +1327,7 @@ function WeatherMetric({ label, value }: { label: string; value: string }) {
 
 function QuickAccessCard({
   accent = false,
+  artwork,
   badge,
   description,
   icon,
@@ -1333,6 +1335,7 @@ function QuickAccessCard({
   onClick,
 }: {
   accent?: boolean;
+  artwork?: string;
   badge?: string;
   description: string;
   icon: React.ReactNode;
@@ -1345,31 +1348,37 @@ function QuickAccessCard({
       onClick={onClick}
       className={`relative flex min-h-[166px] flex-col overflow-hidden rounded-[24px] border p-4 text-left transition ${
         accent
-          ? "border-[#E6CE20] bg-[#E6CE20] text-black"
+          ? "border-[#E6CE20]/65 bg-[#0B0B0B] text-white hover:border-[#E6CE20]"
           : "border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.07]"
       }`}
     >
+      {artwork && (
+        <>
+          <img src={artwork} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <span className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.1)_0%,rgba(5,5,5,0.22)_38%,rgba(5,5,5,0.93)_100%)]" />
+        </>
+      )}
       <span className="flex items-start justify-between gap-2">
         <span
-          className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${accent ? "bg-black/10" : "bg-[#E6CE20]/15 text-[#E6CE20]"}`}
+          className={`relative grid h-10 w-10 shrink-0 place-items-center rounded-xl ${accent ? "bg-[#E6CE20]/90 text-black" : "bg-[#E6CE20]/15 text-[#E6CE20]"}`}
         >
           {icon}
         </span>
         {badge && (
           <span
-            className={`rounded-full px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] ${
-              accent ? "bg-black/10 text-black/65" : "bg-[#E6CE20]/10 text-[#E6CE20]"
+            className={`relative rounded-full px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] ${
+              accent ? "bg-[#E6CE20]/90 text-black" : "bg-[#E6CE20]/10 text-[#E6CE20]"
             }`}
           >
             {badge}
           </span>
         )}
       </span>
-      <span className="mt-auto block text-base font-bold leading-tight">
+      <span className={`relative mt-auto block text-base font-bold leading-tight ${accent ? "text-white" : ""}`}>
         {label} <ChevronRight className="inline h-4 w-4" />
       </span>
       <span
-        className={`mt-1 block text-xs leading-snug ${accent ? "text-black/70" : "text-white/55"}`}
+        className={`relative mt-1 block text-xs leading-snug ${accent ? "text-white/70" : "text-white/55"}`}
       >
         {description}
       </span>
@@ -1817,7 +1826,7 @@ function PersonalSpotifyMusicView({
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
                 {t.searchResults}
               </p>
-              <div className="overflow-hidden rounded-2xl border border-white/10">
+              <div className="passenger-music-results overflow-y-auto rounded-2xl border border-white/10">
                 {results.map((track) => (
                   <button
                     key={track.id}
@@ -1858,7 +1867,6 @@ function PersonalSpotifyMusicView({
           )}
         </section>
       )}
-      <PassengerMusicSupport config={config} onNavigate={onNavigate} t={t} />
     </div>
   );
 }
@@ -1938,7 +1946,7 @@ function SimulatedMusicView({
         <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
           {t.results}
         </p>
-        <div className="overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.03]">
+        <div className="passenger-music-results overflow-y-auto rounded-[24px] border border-white/10 bg-white/[0.03]">
           {results.map((track) => {
             const index = MUSIC_LIBRARY.indexOf(track);
             return (
@@ -1964,56 +1972,12 @@ function SimulatedMusicView({
           })}
         </div>
       </section>
-      <PassengerMusicSupport config={config} onNavigate={onNavigate} t={t} />
       <button
         type="button"
         onClick={() => onNavigate("home")}
         className="w-fit text-sm text-white/55 underline underline-offset-4"
       >
         {t.home}
-      </button>
-    </div>
-  );
-}
-
-function PassengerMusicSupport({
-  config,
-  onNavigate,
-  t,
-}: {
-  config: AppConfig;
-  onNavigate: (view: View) => void;
-  t: (typeof copy)[Language];
-}) {
-  return (
-    <div className="passenger-music-support">
-      <section className="passenger-music-support-ticker overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]">
-        <ServiceTicker config={config} />
-      </section>
-      <button
-        type="button"
-        onClick={() => onNavigate("meet-juan")}
-        className="passenger-music-support-host group relative flex min-h-[104px] w-full items-center gap-4 overflow-hidden rounded-[26px] border border-[#E6CE20]/20 bg-gradient-to-r from-[#E6CE20]/10 via-white/[0.045] to-white/[0.02] p-4 text-left transition hover:border-[#E6CE20]/45 hover:bg-[#E6CE20]/[0.1]"
-      >
-        <span className="absolute -right-10 -top-14 h-36 w-36 rounded-full bg-[#E6CE20]/15 blur-3xl" />
-        <img
-          src={config.meetPhoto}
-          alt={config.ownerName}
-          loading="lazy"
-          decoding="async"
-          className="relative h-16 w-16 shrink-0 rounded-2xl border border-[#E6CE20]/35 object-cover shadow-[0_0_20px_rgba(230,206,32,0.12)]"
-        />
-        <span className="relative min-w-0 flex-1">
-          <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
-            {t.hostCardEyebrow}
-          </span>
-          <span className="mt-1 block text-lg font-extrabold">{config.ownerName}</span>
-          <span className="mt-1 block truncate text-sm text-white/60">{t.hostCardDescription}</span>
-        </span>
-        <span className="relative flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#E6CE20]">
-          {t.meetJuan}
-          <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </span>
       </button>
     </div>
   );
