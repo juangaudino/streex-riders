@@ -106,6 +106,165 @@
   }
 }
 
+/* Passenger Console finishing pass: preserve the established layouts while
+   making their visual hierarchy resilient to long live content. */
+.passenger-music-now-playing {
+  isolation: isolate;
+  overflow: hidden;
+  background-color: #12120f !important;
+  background-image:
+    radial-gradient(circle at 84% 16%, rgba(230, 206, 32, 0.24), transparent 29%),
+    radial-gradient(circle at 10% 100%, rgba(230, 140, 18, 0.13), transparent 38%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.055), transparent 48%),
+    linear-gradient(115deg, #171715 0%, #11110f 58%, #1f1d0f 100%) !important;
+}
+
+.passenger-music-now-playing::before {
+  position: absolute;
+  right: -1.5rem;
+  bottom: -0.75rem;
+  z-index: 0;
+  width: min(44%, 20rem);
+  height: 44%;
+  content: "";
+  opacity: 0.38;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 0.42rem,
+    rgba(230, 206, 32, 0.8) 0.42rem 0.64rem,
+    transparent 0.64rem 1.1rem
+  );
+  clip-path: polygon(
+    0 86%, 6% 42%, 12% 68%, 18% 16%, 24% 54%, 30% 28%, 36% 78%, 42% 9%,
+    48% 58%, 54% 25%, 60% 72%, 66% 36%, 72% 61%, 78% 14%, 84% 50%, 90% 30%,
+    96% 74%, 100% 46%, 100% 100%, 0 100%
+  );
+  animation: passenger-music-atmosphere 9s ease-in-out infinite alternate;
+}
+
+.passenger-music-now-playing::after {
+  position: absolute;
+  right: 2%;
+  top: -23%;
+  z-index: 0;
+  content: "X";
+  color: rgba(230, 206, 32, 0.055);
+  font-size: clamp(11rem, 22vw, 22rem);
+  font-weight: 900;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.passenger-music-now-playing > :not(.absolute) {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes passenger-music-atmosphere {
+  from { transform: translateY(8%) scaleY(0.82); opacity: 0.22; }
+  to { transform: translateY(-3%) scaleY(1.06); opacity: 0.46; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .passenger-music-now-playing::before { animation: none; }
+}
+
+.passenger-around-featured {
+  position: relative;
+}
+
+.passenger-around-live-button {
+  position: absolute !important;
+  top: 0.8rem;
+  right: 0.8rem;
+  z-index: 4;
+  margin: 0 !important;
+  padding: 0.42rem 0.62rem !important;
+  border: 1px solid rgba(230, 206, 32, 0.32);
+  border-radius: 999px;
+  background: rgba(11, 11, 11, 0.72);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.22);
+  font-size: 0.65rem;
+  line-height: 1;
+  backdrop-filter: blur(0.8rem);
+}
+
+@media (orientation: landscape) {
+  .passenger-console-shell[data-view="home"] .passenger-home-time {
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.76fr) !important;
+    width: 100% !important;
+    gap: clamp(0.85rem, 1.6vw, 1.5rem) !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div {
+    width: 100% !important;
+    justify-self: stretch !important;
+    text-align: center !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div > p:nth-child(2) {
+    font-size: clamp(3.35rem, 4.3vw, 5.1rem) !important;
+    white-space: nowrap !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > button {
+    width: min(100%, 17rem) !important;
+    justify-self: end !important;
+    margin-left: auto !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time + .grid > * {
+    text-align: center !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured {
+    min-height: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-section-eyebrow {
+    position: absolute;
+    top: 0.9rem;
+    left: 1rem;
+    z-index: 3;
+    margin: 0 !important;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid rgba(230, 206, 32, 0.2);
+    border-radius: 999px;
+    background: rgba(11, 11, 11, 0.58);
+    backdrop-filter: blur(0.7rem);
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-place-card--hero {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    border: 0 !important;
+    border-radius: inherit !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions {
+    grid-template-rows: 80px 64px 64px 74px 124px !important;
+    gap: 10px !important;
+    align-content: start !important;
+    overflow: hidden !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > *,
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > .col-span-2 {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > a.col-span-2 {
+    min-height: 124px !important;
+    max-height: 124px !important;
+  }
+}
+
 /* Passenger Console definitive responsive overrides — keep at EOF. */
 .passenger-console-shell[data-view="music"] .passenger-music-header,
 .passenger-console-shell[data-view="games"] .passenger-games-header,
