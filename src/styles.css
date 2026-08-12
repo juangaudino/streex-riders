@@ -908,7 +908,7 @@ input[type="time"] {
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-results {
-    max-height: min(28dvh, 360px);
+    max-height: min(24dvh, 300px);
   }
 }
 
