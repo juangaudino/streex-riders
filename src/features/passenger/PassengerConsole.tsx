@@ -2458,7 +2458,10 @@ function ContactView({
         <section className="passenger-contact-save flex items-center gap-5 rounded-[22px] border border-[#E6CE20]/25 bg-gradient-to-r from-[#E6CE20]/[0.08] via-white/[0.04] to-white/[0.02] p-4 sm:col-span-2">
           <span className="shrink-0 rounded-2xl bg-white p-2">
             <QRCodeSVG
-              value={contactVcardUrl}
+              /* Encode the vCard payload itself so phone cameras offer the
+               * native “Add contact” flow instead of treating the QR as a
+               * data: URL to open in a browser. */
+              value={contactVcard}
               size={136}
               bgColor="#FFFFFF"
               fgColor="#0B0B0B"
