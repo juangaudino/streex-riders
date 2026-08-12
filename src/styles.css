@@ -903,6 +903,10 @@ input[type="time"] {
 
 /* Keep long music searches inside their own scroll area, above the fixed console navigation. */
 @media (orientation: portrait) {
+  .passenger-console-shell[data-view="music"] > main {
+    overflow-y: hidden !important;
+  }
+
   .passenger-console-shell[data-view="music"] .passenger-music-results {
     max-height: min(28dvh, 360px);
   }
