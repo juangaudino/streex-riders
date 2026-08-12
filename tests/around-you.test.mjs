@@ -5,11 +5,13 @@ import {
 } from "../src/features/passenger/around-you/around-you-engine.ts";
 import {
   haversineDistanceMeters,
+  formatAroundYouDistance,
   isImplausiblePassengerJump,
   isPassengerPositionFresh,
   matchAroundYouPlaces,
   shouldAcceptPassengerPosition,
 } from "../src/features/passenger/around-you/around-you-utils.ts";
+import { AROUND_YOU_SEED_PLACES } from "../src/features/passenger/around-you/around-you-data.ts";
 
 const selectionOptions = {
   nearbyLimit: 5,
@@ -42,6 +44,29 @@ function match(testPlace, score, distanceMeters = 100, insideTriggerRadius = tru
 }
 
 describe("Around You geographic foundations", () => {
+  test("keeps passenger-facing distances localized and intentionally approximate", () => {
+    expect(formatAroundYouDistance(110, "en")).toBe("Nearby");
+    expect(formatAroundYouDistance(110, "es")).toBe("Muy cerca");
+    expect(formatAroundYouDistance(1_200, "en")).toBe("0.7 mi");
+  });
+
+  test("ships a bilingual, source-backed Utah catalog without disabled duplicate IDs", () => {
+    expect(AROUND_YOU_SEED_PLACES.length).toBeGreaterThanOrEqual(15);
+    expect(new Set(AROUND_YOU_SEED_PLACES.map(({ id }) => id)).size).toBe(
+      AROUND_YOU_SEED_PLACES.length,
+    );
+
+    for (const place of AROUND_YOU_SEED_PLACES) {
+      expect(place.enabled).toBe(true);
+      expect(place.title.en.length).toBeGreaterThan(0);
+      expect(place.title.es.length).toBeGreaterThan(0);
+      expect(place.description.en.length).toBeGreaterThan(0);
+      expect(place.description.es.length).toBeGreaterThan(0);
+      expect(place.sourceUrl).toMatch(/^https:\/\//);
+      expect(place.triggerRadiusMeters).toBeLessThanOrEqual(place.discoveryRadiusMeters);
+    }
+  });
+
   test("calculates Haversine distance within a known Salt Lake baseline", () => {
     const distance = haversineDistanceMeters(
       { latitude: 40.7608, longitude: -111.891 },

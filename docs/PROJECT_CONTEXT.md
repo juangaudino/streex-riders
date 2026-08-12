@@ -96,9 +96,11 @@ show passenger data.
   Passenger Console is mounted and the public feature flag is enabled, matches accepted positions
   against a bundled bilingual POI catalog, and exposes a stable featured place plus nearby places.
   Raw GPS coordinates are transient React/ref state only: they are never persisted, added to URLs,
-  logged intentionally, sent to analytics, or transmitted to the server. The initial Sol foundation
-  is intentionally disabled until location permission and GPS behavior are validated on the Galaxy
-  Tab A9+ in the vehicle. See `docs/AROUND_YOU_SOL_HANDOFF.md` before continuing the feature.
+  logged intentionally, sent to analytics, or transmitted to the server. The Luna product pass
+  adds bilingual presentation, a bundled verified Utah catalog, local assets and offline-safe
+  browsing without adding a map, provider, backend or analytics. It remains intentionally disabled
+  until location permission and GPS behavior are validated on the Galaxy Tab A9+ in the vehicle.
+  See `docs/AROUND_YOU_LUNA_HANDOFF.md` for the feature boundary and field-test requirements.
 - Android kiosk enforcement belongs to Android/MDM/launcher. The web app may later add PWA cache
   and recovery behavior, but must not claim to enforce kiosk mode.
 - Do not modify the Google Calendar integration for Passenger Console work.

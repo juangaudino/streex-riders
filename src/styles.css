@@ -61,6 +61,324 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Around You: client-only local guide. Coordinates never leave the browser. */
+.passenger-around-layout {
+  display: grid;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+}
+
+.passenger-around-back-row,
+.passenger-around-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.passenger-around-back-button,
+.passenger-around-live-button,
+.passenger-around-all-button {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: rgb(255 255 255 / 0.035);
+  color: rgb(255 255 255 / 0.72);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.55rem 0.8rem;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.passenger-around-back-button:hover,
+.passenger-around-live-button:hover,
+.passenger-around-all-button:hover {
+  border-color: rgb(230 206 32 / 0.55);
+  background: rgb(230 206 32 / 0.1);
+  color: white;
+}
+
+.passenger-around-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: rgb(255 255 255 / 0.5);
+  font-size: 0.7rem;
+  line-height: 1.2;
+  text-align: right;
+}
+
+.passenger-around-header > p,
+.passenger-around-section-eyebrow,
+.passenger-around-section-heading p {
+  margin: 0;
+  color: #e6ce20;
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.passenger-around-header h1 {
+  margin: 0.35rem 0 0;
+  font-size: clamp(2rem, 7vw, 3.25rem);
+  font-weight: 850;
+  letter-spacing: -0.055em;
+  line-height: 0.94;
+}
+
+.passenger-around-header > span,
+.passenger-around-section-heading span {
+  display: block;
+  margin-top: 0.55rem;
+  color: rgb(255 255 255 / 0.52);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.passenger-around-featured {
+  overflow: hidden;
+  border: 1px solid rgb(230 206 32 / 0.24);
+  border-radius: 1.5rem;
+  background: linear-gradient(
+    135deg,
+    rgb(230 206 32 / 0.11),
+    rgb(255 255 255 / 0.035) 45%,
+    rgb(0 0 0 / 0.35)
+  );
+  padding: 0.85rem;
+}
+
+.passenger-around-section-eyebrow {
+  padding: 0.15rem 0.25rem 0.7rem;
+}
+
+.passenger-around-place-card {
+  position: relative;
+  display: block;
+  isolation: isolate;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 1.15rem;
+  background: linear-gradient(135deg, #171717, #0c0c0c);
+  color: white;
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+button.passenger-around-place-card:hover,
+button.passenger-around-place-card:focus-visible {
+  border-color: rgb(230 206 32 / 0.62);
+  box-shadow: 0 12px 35px rgb(0 0 0 / 0.26);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.passenger-around-place-card.is-selected {
+  border-color: #e6ce20;
+}
+
+.passenger-around-place-card--hero {
+  min-height: 260px;
+}
+
+.passenger-around-place-card--nearby {
+  min-height: 132px;
+}
+
+.passenger-around-place-card--browse {
+  min-height: 148px;
+}
+
+.passenger-around-place-image,
+.passenger-around-home-card-image {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.86) contrast(1.05);
+  transition: transform 500ms ease;
+}
+
+button.passenger-around-place-card:hover .passenger-around-place-image,
+.passenger-around-home-card:hover .passenger-around-home-card-image {
+  transform: scale(1.04);
+}
+
+.passenger-around-place-overlay,
+.passenger-around-home-card-overlay {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(3 3 3 / 0.94) 0%, rgb(3 3 3 / 0.68) 58%, rgb(3 3 3 / 0.2) 100%),
+    linear-gradient(0deg, rgb(3 3 3 / 0.9), transparent 68%);
+}
+
+.passenger-around-place-card.has-fallback .passenger-around-place-overlay,
+.passenger-around-home-card:not(:has(.passenger-around-home-card-image))
+  .passenger-around-home-card-overlay {
+  background:
+    radial-gradient(circle at 88% 5%, rgb(230 206 32 / 0.2), transparent 42%),
+    linear-gradient(135deg, rgb(255 255 255 / 0.075), rgb(4 4 4 / 0.95));
+}
+
+.passenger-around-place-content {
+  display: flex;
+  min-height: inherit;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.passenger-around-fallback {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.8rem 0.35rem;
+}
+
+.passenger-around-fallback b,
+.passenger-around-fallback span > span {
+  display: block;
+}
+
+.passenger-around-fallback b {
+  font-size: 1.3rem;
+}
+
+.passenger-around-fallback span > span {
+  margin-top: 0.35rem;
+  color: rgb(255 255 255 / 0.58);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.passenger-around-live-button {
+  margin: 0.75rem 0.25rem 0.15rem;
+  color: #e6ce20;
+}
+
+.passenger-around-nearby,
+.passenger-around-browse {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.passenger-around-nearby > div:last-child {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.passenger-around-browse-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.passenger-around-all-button {
+  justify-self: center;
+  margin-top: 0.15rem;
+  color: #e6ce20;
+}
+
+.passenger-around-home-card {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 166px;
+  overflow: hidden;
+  border: 1px solid rgb(230 206 32 / 0.3);
+  border-radius: 1.5rem;
+  background: linear-gradient(135deg, rgb(230 206 32 / 0.11), rgb(255 255 255 / 0.04));
+  color: white;
+  text-align: left;
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.passenger-around-home-card:hover,
+.passenger-around-home-card:focus-visible {
+  border-color: rgb(230 206 32 / 0.7);
+  box-shadow: 0 12px 35px rgb(0 0 0 / 0.25);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.passenger-around-home-card-content {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.passenger-around-home-card--idle {
+  min-height: 150px;
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="around-you"] > main {
+    overflow-y: auto !important;
+  }
+
+  .passenger-around-layout {
+    grid-template-columns: minmax(0, 1.14fr) minmax(300px, 0.86fr);
+    grid-template-areas:
+      "back back"
+      "header header"
+      "featured nearby"
+      "browse browse";
+    align-items: start;
+    gap: 0.9rem 1rem;
+  }
+
+  .passenger-around-back-row {
+    grid-area: back;
+  }
+  .passenger-around-header {
+    grid-area: header;
+  }
+  .passenger-around-featured {
+    grid-area: featured;
+  }
+  .passenger-around-nearby {
+    grid-area: nearby;
+  }
+  .passenger-around-browse {
+    grid-area: browse;
+  }
+  .passenger-around-place-card--hero {
+    min-height: 250px;
+  }
+  .passenger-around-browse-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .passenger-around-place-card--browse {
+    min-height: 170px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .passenger-around-place-card,
+  .passenger-around-home-card,
+  .passenger-around-place-image,
+  .passenger-around-home-card-image {
+    transition: none !important;
+  }
+}
+
 /* Keep these last: they intentionally supersede the first landscape pass. */
 @media (orientation: landscape) and (min-width: 900px) {
   .passenger-console-shell[data-view="games"] > main > .passenger-trivia-layout,
@@ -4788,7 +5106,10 @@ button.passenger-idle-music {
     grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
     overflow: hidden !important;
   }
-  .passenger-console-shell[data-view="streex"] .passenger-vehicle-grid-section > div:last-child > div {
+  .passenger-console-shell[data-view="streex"]
+    .passenger-vehicle-grid-section
+    > div:last-child
+    > div {
     min-height: 0 !important;
     height: auto !important;
     aspect-ratio: auto !important;
@@ -4801,14 +5122,20 @@ button.passenger-idle-music {
   .passenger-console-shell[data-view="where-we-ride"] .passenger-subview-intro > button {
     align-self: start !important;
   }
-  .passenger-console-shell[data-view="where-we-ride"] .passenger-areas-content > section > .streex-divider {
+  .passenger-console-shell[data-view="where-we-ride"]
+    .passenger-areas-content
+    > section
+    > .streex-divider {
     display: none !important;
   }
   .passenger-console-shell[data-view="where-we-ride"] .passenger-areas-content > section > p,
   .passenger-console-shell[data-view="where-we-ride"] .passenger-areas-content > section > h2 {
     display: block !important;
   }
-  .passenger-console-shell[data-view="where-we-ride"] .passenger-areas-content > section > p:first-of-type {
+  .passenger-console-shell[data-view="where-we-ride"]
+    .passenger-areas-content
+    > section
+    > p:first-of-type {
     margin: 0 0 0.3rem !important;
     color: #e6ce20 !important;
     font-size: 0.68rem !important;
@@ -4828,11 +5155,16 @@ button.passenger-idle-music {
     font-size: 0.88rem !important;
     line-height: 1.4 !important;
   }
-  .passenger-console-shell[data-view="where-we-ride"] .passenger-destination-carousel-wrap .passenger-gallery-track {
+  .passenger-console-shell[data-view="where-we-ride"]
+    .passenger-destination-carousel-wrap
+    .passenger-gallery-track {
     animation: none !important;
     transform: none !important;
   }
-  .passenger-console-shell[data-view="where-we-ride"] .passenger-destination-carousel-wrap .passenger-gallery-track > [aria-hidden="true"] {
+  .passenger-console-shell[data-view="where-we-ride"]
+    .passenger-destination-carousel-wrap
+    .passenger-gallery-track
+    > [aria-hidden="true"] {
     display: none !important;
   }
 }

@@ -573,6 +573,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
             <AroundYouView
               language={language}
               onBack={() => setView("home")}
+              places={AROUND_YOU_SEED_PLACES}
               showDistance={consoleConfig.aroundYou.ui.showDistance}
               state={aroundYou}
             />

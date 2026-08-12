@@ -5,8 +5,11 @@ export type AroundYouPlaceCategory =
   | "culture"
   | "history"
   | "nature"
+  | "mountain"
   | "sports"
-  | "transportation";
+  | "transportation"
+  | "university"
+  | "viewpoint";
 
 export type AroundYouContextType = "landmark" | "region";
 
@@ -24,6 +27,10 @@ export type AroundYouPlace = {
   discoveryRadiusMeters: number;
   title: LocalizedText;
   description: LocalizedText;
+  funFact?: LocalizedText;
+  imageSrc?: string;
+  elevationFeet?: number;
+  tags?: string[];
   sourceUrl: string;
 };
 

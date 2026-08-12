@@ -21,11 +21,16 @@ export function haversineDistanceMeters(
   return 2 * EARTH_RADIUS_METERS * Math.asin(Math.sqrt(a));
 }
 
-export function formatAroundYouDistance(distanceMeters: number) {
-  if (distanceMeters < 160) return "Nearby";
+export function formatAroundYouDistance(distanceMeters: number, language: "en" | "es" = "en") {
+  if (distanceMeters < 160) return language === "es" ? "Muy cerca" : "Nearby";
   const miles = distanceMeters / 1_609.344;
   if (miles < 1) return `${miles.toFixed(1)} mi`;
   return `${Math.round(miles)} mi`;
+}
+
+export function formatAroundYouElevation(elevationFeet: number, language: "en" | "es") {
+  if (language === "es") return `${elevationFeet.toLocaleString("es-US")} ft`;
+  return `${elevationFeet.toLocaleString("en-US")} ft`;
 }
 
 export function calculateAroundYouScore(place: AroundYouPlace, distanceMeters: number) {
