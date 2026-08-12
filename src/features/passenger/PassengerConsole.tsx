@@ -694,7 +694,9 @@ function PassengerIdlePrompt({
 }) {
   const primary = copy[language];
   const idleFeature = useIdleFeatureRotation(
-    config.passengerConsole.aroundYou.ui.showIdleCard ? 90_000 : null,
+    config.passengerConsole.aroundYou.ui.showIdleCard
+      ? config.passengerConsole.idleReset.featureRotationSeconds * 1_000
+      : null,
   );
   const now = useClock();
   const time = now
@@ -2404,7 +2406,7 @@ function WhereWeRideView({
 }) {
   return (
     <div className="passenger-subview passenger-areas-layout flex flex-col gap-5">
-      <div className="passenger-subview-intro flex flex-col gap-5">
+      <div className="passenger-subview-intro passenger-subview-intro--where-we-ride flex flex-col gap-5">
         <PassengerBackButton onNavigate={onNavigate} t={t} />
         <ViewHeader
           eyebrow={t.streex}
@@ -3045,13 +3047,13 @@ function ConsoleNavigation({
 }) {
   const active =
     activeView === "meet-juan" ||
-          activeView === "services" ||
-          activeView === "contact" ||
-          activeView === "reviews" ||
-          activeView === "tip" ||
-          activeView === "where-we-ride"
-        ? "streex"
-        : activeView;
+    activeView === "services" ||
+    activeView === "contact" ||
+    activeView === "reviews" ||
+    activeView === "tip" ||
+    activeView === "where-we-ride"
+      ? "streex"
+      : activeView;
   const items = [
     { id: "home" as const, label: t.home, icon: <Play className="h-5 w-5 rotate-[270deg]" /> },
     { id: "music" as const, label: t.music, icon: <Music2 className="h-5 w-5" /> },

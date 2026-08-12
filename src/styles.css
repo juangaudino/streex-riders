@@ -106,6 +106,261 @@
   }
 }
 
+/* Passenger Console stable responsive contract — keep this last. */
+.passenger-around-home-card {
+  isolation: isolate;
+  background: #111;
+}
+
+.passenger-around-place-image,
+.passenger-around-home-card-image {
+  z-index: 0;
+}
+
+.passenger-around-place-overlay,
+.passenger-around-home-card-overlay {
+  z-index: 1;
+}
+
+.passenger-around-place-content,
+.passenger-around-home-card-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Around You featured idle state: a compact, unframed now-playing row. The
+   primary Music idle presentation deliberately remains untouched. */
+.passenger-idle-content--around-you .passenger-idle-around-featured {
+  height: min(42dvh, 29rem);
+  min-height: 0 !important;
+}
+
+.passenger-idle-content--around-you .passenger-around-home-card--idle-featured {
+  height: 100%;
+  min-height: 0 !important;
+}
+
+.passenger-idle-content--around-you .passenger-idle-music--compact {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) clamp(4.9rem, 11dvh, 7.1rem) !important;
+  min-height: clamp(5.7rem, 11dvh, 7.4rem) !important;
+  max-height: none !important;
+  align-items: center !important;
+  column-gap: clamp(0.8rem, 2.2vw, 1.7rem) !important;
+  padding: 0.2rem 0.35rem !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.passenger-idle-content--around-you .passenger-idle-music--compact .passenger-idle-artwork {
+  grid-column: 2;
+  grid-row: 1;
+  width: clamp(4.9rem, 11dvh, 7.1rem) !important;
+  height: clamp(4.9rem, 11dvh, 7.1rem) !important;
+  justify-self: end;
+  border-radius: 1.1rem !important;
+}
+
+.passenger-idle-content--around-you .passenger-idle-music--compact .passenger-idle-track-copy {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.passenger-idle-content--around-you
+  .passenger-idle-music--compact
+  .passenger-idle-track-copy
+  > span:nth-child(2) {
+  display: -webkit-box;
+  margin-top: 0.22rem !important;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: clamp(1.05rem, 2.5dvh, 1.55rem) !important;
+  line-height: 1.1 !important;
+}
+
+.passenger-idle-content--around-you
+  .passenger-idle-music--compact
+  .passenger-idle-track-copy
+  > span:nth-child(3) {
+  display: block;
+  margin-top: 0.2rem !important;
+  overflow: hidden;
+  color: rgb(255 255 255 / 0.62) !important;
+  font-size: clamp(0.76rem, 1.65dvh, 1rem) !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.passenger-idle-content--around-you .passenger-idle-meta > span:last-child {
+  font-size: clamp(0.95rem, 1.55vw, 1.22rem) !important;
+}
+
+@media (orientation: portrait) {
+  .passenger-console-shell[data-view="home"] > main {
+    overflow: hidden !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-layout {
+    gap: clamp(0.45rem, 1.05dvh, 0.8rem) !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-hero {
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-quick-access > div > * {
+    min-height: clamp(8.1rem, 16dvh, 10.4rem) !important;
+  }
+
+  .passenger-idle-content--around-you {
+    gap: clamp(0.55rem, 1.2dvh, 0.9rem) !important;
+  }
+
+  .passenger-idle-content--around-you .passenger-idle-around-featured {
+    height: min(39dvh, 27rem);
+  }
+
+  .passenger-idle-content--around-you .passenger-idle-meta > span:last-child {
+    font-size: clamp(0.92rem, 1.8dvh, 1.15rem) !important;
+  }
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  /* Landscape navigation is already self-explanatory; eliminate redundant
+     page headings and reserve the full canvas for the experience. */
+  .passenger-console-shell[data-view="music"] .passenger-music-header,
+  .passenger-console-shell[data-view="games"] .passenger-games-header,
+  .passenger-console-shell[data-view="around-you"] .passenger-around-back-row,
+  .passenger-console-shell[data-view="around-you"] .passenger-around-header {
+    display: none !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time {
+    grid-template-columns: minmax(0, 1fr) minmax(14.5rem, 0.78fr) !important;
+    align-items: end !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div > p:nth-child(2) {
+    white-space: nowrap !important;
+    font-size: clamp(3.45rem, 4.25vw, 5.1rem) !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-weather {
+    align-self: end !important;
+  }
+
+  /* Music gets the unused lower-left canvas. The search panel retains its
+     independent scrolling behavior while track metadata has room to breathe. */
+  .passenger-console-shell[data-view="music"] .passenger-music-layout {
+    display: grid !important;
+    grid-template-columns: minmax(25rem, 0.92fr) minmax(0, 1.08fr) !important;
+    grid-template-rows: minmax(19rem, 1fr) auto !important;
+    gap: clamp(0.8rem, 1.25vw, 1.25rem) !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playback {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    min-height: clamp(19rem, 44dvh, 28rem) !important;
+    height: 100% !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-actions {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search {
+    grid-column: 2 !important;
+    grid-row: 1 / 3 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > div {
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready p:nth-of-type(2) {
+    font-size: clamp(1.65rem, 2.35vw, 2.65rem) !important;
+    line-height: 1.08 !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-games-layout {
+    grid-template-rows: minmax(0, 1fr) auto !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-games-grid {
+    grid-row: 1 !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-games-coming-soon-grid {
+    grid-row: 2 !important;
+  }
+
+  /* Two-column local guide: a true featured place with compact nearby cards. */
+  .passenger-console-shell[data-view="around-you"] .passenger-around-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr) !important;
+    grid-template-areas:
+      "featured nearby"
+      "browse browse" !important;
+    align-items: start !important;
+    gap: clamp(0.75rem, 1.2vw, 1.15rem) !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured {
+    grid-area: featured !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-place-card--hero {
+    min-height: clamp(21rem, 47dvh, 31rem) !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-nearby {
+    grid-area: nearby !important;
+    min-width: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-nearby-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.7rem !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-place-card--nearby {
+    min-height: clamp(9.5rem, 20dvh, 13rem) !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-browse {
+    grid-area: browse !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-test-panel {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Where We Ride keeps the useful editorial header once, next to its back
+     affordance, instead of repeating a second section title. */
+  .passenger-console-shell[data-view="where-we-ride"] .passenger-subview-intro--where-we-ride {
+    grid-template-columns: auto !important;
+    min-height: auto !important;
+  }
+
+  .passenger-console-shell[data-view="where-we-ride"]
+    .passenger-subview-intro--where-we-ride
+    > header {
+    display: none !important;
+  }
+}
+
 /* Around You: client-only local guide. Coordinates never leave the browser. */
 .passenger-around-layout {
   display: grid;

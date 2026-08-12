@@ -13,7 +13,7 @@ export function AroundYouNearbyList({
   showDistance: boolean;
 }) {
   return (
-    <div className="grid gap-3">
+    <div className="passenger-around-nearby-grid grid gap-3">
       {matches.map((match) => (
         <AroundYouPlaceCard
           key={match.place.id}
