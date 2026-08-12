@@ -61,6 +61,51 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Passenger Console — base Around You owner-test refinements. */
+.passenger-around-home-card--idle-featured {
+  min-height: min(46dvh, 470px);
+}
+
+.passenger-idle-content--around-you .passenger-idle-music--compact {
+  min-height: 0;
+  max-height: 15dvh;
+  padding-block: 0.65rem;
+}
+
+.passenger-idle-content--around-you .passenger-idle-music--compact img {
+  width: clamp(3.25rem, 6dvh, 4.75rem);
+  height: clamp(3.25rem, 6dvh, 4.75rem);
+}
+
+.passenger-idle-content--around-you .passenger-idle-music--compact h2 {
+  font-size: clamp(1rem, 2.1dvh, 1.4rem);
+  line-height: 1.1;
+}
+
+@media (orientation: landscape) {
+  .passenger-console-shell[data-view="home"] .passenger-home-hero > .relative {
+    max-width: 84% !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time {
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.72fr) !important;
+    gap: clamp(0.65rem, 1.4vw, 1.35rem) !important;
+    align-items: end !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-weather {
+    min-width: 0 !important;
+  }
+
+  .passenger-idle-content--around-you .passenger-around-home-card--idle-featured {
+    min-height: min(55dvh, 31rem);
+  }
+
+  .passenger-idle-content--around-you .passenger-idle-music--compact {
+    max-height: 17dvh;
+  }
+}
+
 /* Around You: client-only local guide. Coordinates never leave the browser. */
 .passenger-around-layout {
   display: grid;
@@ -434,6 +479,148 @@ button.passenger-around-place-card:hover .passenger-around-place-image,
   .passenger-around-place-image,
   .passenger-around-home-card-image {
     transition: none !important;
+  }
+}
+
+/* Around You: the idle attract screen alternates the featured experience locally. */
+.passenger-around-home-card--idle-featured {
+  min-height: min(46dvh, 470px);
+}
+
+.passenger-idle-content--around-you .passenger-idle-around-featured,
+.passenger-idle-content--music .passenger-idle-around-secondary {
+  animation: passenger-idle-feature-enter 420ms ease both;
+}
+
+.passenger-idle-music--compact {
+  grid-template-columns: 88px minmax(0, 1fr);
+  max-width: min(100%, 760px);
+  gap: 1rem;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 22px;
+  background: rgb(255 255 255 / 0.035);
+}
+
+.passenger-idle-music--compact .passenger-idle-artwork {
+  width: 88px;
+  max-width: none;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.3);
+}
+
+.passenger-idle-music--compact .passenger-idle-track-copy > span:first-child {
+  font-size: 9px;
+}
+
+.passenger-idle-music--compact .passenger-idle-track-copy > span:nth-child(2) {
+  margin-top: 0.35rem;
+  font-size: clamp(1.15rem, 2.3vw, 1.65rem);
+}
+
+.passenger-idle-music--compact .passenger-idle-track-copy > span:nth-child(3) {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.passenger-idle-music--compact .passenger-idle-discovery {
+  display: none;
+}
+
+@keyframes passenger-idle-feature-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Final landscape safety pass: the clock and weather must share one stable row. */
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-home-hero > .relative {
+    max-width: 82% !important;
+  }
+
+  .passenger-home-time {
+    grid-template-columns: minmax(0, 1fr) minmax(185px, 0.8fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  .passenger-home-time > div > p:nth-child(2) {
+    font-size: clamp(3.45rem, 4.35vw, 5.2rem) !important;
+    line-height: 0.95;
+  }
+
+  .passenger-home-time > button {
+    width: 100%;
+    min-width: 0 !important;
+    padding: 0.85rem 0.95rem !important;
+  }
+
+  .passenger-home-time > button > span.mt-2 {
+    gap: 0.65rem;
+  }
+
+  .passenger-home-time > button > span.mt-2 > span:first-child {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .passenger-home-time > button > span.mt-2 > span:first-child svg {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  .passenger-idle-content--around-you {
+    gap: 0.9rem;
+  }
+
+  .passenger-idle-content--around-you .passenger-around-home-card--idle-featured {
+    min-height: min(43dvh, 440px);
+  }
+
+  .passenger-idle-content--around-you .passenger-idle-music--compact {
+    margin-top: -0.15rem;
+  }
+}
+
+@media (orientation: portrait) {
+  .passenger-idle-content--around-you {
+    gap: 1rem;
+  }
+
+  .passenger-idle-content--around-you .passenger-around-home-card--idle-featured {
+    min-height: min(40dvh, 430px);
+  }
+
+  .passenger-idle-music--compact {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    align-items: center;
+    text-align: left;
+  }
+
+  .passenger-idle-music--compact .passenger-idle-artwork {
+    width: 72px;
+  }
+
+  .passenger-idle-music--compact .passenger-idle-track-copy {
+    text-align: left;
+  }
+
+  .passenger-idle-music--compact .passenger-idle-track-copy > span:first-child {
+    justify-content: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .passenger-idle-content--around-you .passenger-idle-around-featured,
+  .passenger-idle-content--music .passenger-idle-around-secondary {
+    animation: none;
   }
 }
 
@@ -5252,5 +5439,46 @@ button.passenger-idle-music {
     .passenger-gallery-track
     > [aria-hidden="true"] {
     display: none !important;
+  }
+}
+
+/* Final Passenger Console overrides: must remain last in this stylesheet. */
+.passenger-idle-content--around-you .passenger-idle-music--compact {
+  min-height: 0;
+  max-height: 15dvh;
+  padding-block: 0.65rem;
+}
+
+.passenger-idle-content--around-you .passenger-idle-music--compact img {
+  width: clamp(3.25rem, 6dvh, 4.75rem);
+  height: clamp(3.25rem, 6dvh, 4.75rem);
+}
+
+.passenger-idle-content--around-you .passenger-idle-music--compact h2 {
+  font-size: clamp(1rem, 2.1dvh, 1.4rem);
+  line-height: 1.1;
+}
+
+@media (orientation: landscape) {
+  .passenger-console-shell[data-view="home"] .passenger-home-hero > .relative {
+    max-width: 84% !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time {
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.72fr) !important;
+    gap: clamp(0.65rem, 1.4vw, 1.35rem) !important;
+    align-items: end !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-weather {
+    min-width: 0 !important;
+  }
+
+  .passenger-idle-content--around-you .passenger-around-home-card--idle-featured {
+    min-height: min(55dvh, 31rem);
+  }
+
+  .passenger-idle-content--around-you .passenger-idle-music--compact {
+    max-height: 17dvh;
   }
 }

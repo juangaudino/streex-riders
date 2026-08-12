@@ -42,8 +42,9 @@ export const CONFIG = {
   passengerConsole: {
     enabled: true,
     idleReset: {
-      // Return to the attract screen after two minutes without passenger interaction.
-      inactivitySeconds: 120,
+      // Temporary owner-test cadence. Restore this to 300 seconds once in-vehicle
+      // validation is complete; it never stores passenger activity or location.
+      inactivitySeconds: 30,
       defaultLanguage: "en" as "en" | "es",
     },
     clock: {

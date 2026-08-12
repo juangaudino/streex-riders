@@ -86,7 +86,8 @@ show passenger data.
   Spotify artwork and track details, local time, dual-unit temperature and a compact host identity
   without altering the driver's connection or playback.
   Elapsed-time checks on visibility/focus recovery make the reset reliable after Android suspends
-  the browser. The operational interval is two minutes on the official tablet.
+  the browser. The temporary owner-test interval is 30 seconds; restore it to five minutes after
+  final in-vehicle validation.
 - Passenger weather uses the public National Weather Service API through a fixed server function.
   Salt Lake City coordinates and refresh cadence are CONFIG-driven; sanitized hourly forecasts
   are cached server-side and the last successful snapshot is retained locally for hotspot outages.
@@ -98,8 +99,9 @@ show passenger data.
   Raw GPS coordinates are transient React/ref state only: they are never persisted, added to URLs,
   logged intentionally, sent to analytics, or transmitted to the server. The Luna product pass
   adds bilingual presentation, a bundled verified Utah catalog, local assets and offline-safe
-  browsing without adding a map, provider, backend or analytics. It remains intentionally disabled
-  until location permission and GPS behavior are validated on the Galaxy Tab A9+ in the vehicle.
+  browsing without adding a map, provider, backend or analytics. It is enabled on the official
+  Galaxy Tab A9+ after browser GPS permission validation. The local catalog includes broad but
+  clearly labeled regions so a useful story can appear between individual landmarks.
   See `docs/AROUND_YOU_LUNA_HANDOFF.md` for the feature boundary and field-test requirements.
 - Android kiosk enforcement belongs to Android/MDM/launcher. The web app may later add PWA cache
   and recovery behavior, but must not claim to enforce kiosk mode.

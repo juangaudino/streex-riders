@@ -11,6 +11,7 @@ import {
   CloudRain,
   CloudSun,
   CreditCard,
+  Compass,
   Gamepad2,
   Globe2,
   HandCoins,
@@ -124,6 +125,7 @@ const copy = {
     home: "Home",
     music: "Music",
     games: "Games",
+    aroundYou: "Around You",
     streex: "Streex",
     privateRide: "Private ride",
     streexDifference: "The Streex difference",
@@ -307,6 +309,7 @@ const copy = {
     home: "Inicio",
     music: "Música",
     games: "Juegos",
+    aroundYou: "A tu alrededor",
     streex: "Streex",
     privateRide: "Viaje privado",
     streexDifference: "La diferencia Streex",
@@ -690,6 +693,9 @@ function PassengerIdlePrompt({
   weather: PassengerWeatherSnapshot | null;
 }) {
   const primary = copy[language];
+  const idleFeature = useIdleFeatureRotation(
+    config.passengerConsole.aroundYou.ui.showIdleCard ? 90_000 : null,
+  );
   const now = useClock();
   const time = now
     ? now.toLocaleTimeString("en-US", {
@@ -708,7 +714,9 @@ function PassengerIdlePrompt({
       className="fixed inset-0 z-[100] grid cursor-pointer place-items-center overflow-hidden bg-[#080808]/95 p-8 text-left text-white backdrop-blur-xl focus:outline-none focus:ring-4 focus:ring-inset focus:ring-[#E6CE20]/60"
     >
       <div className="absolute left-1/2 top-1/2 h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E6CE20]/10 blur-[130px]" />
-      <div className="passenger-idle-content relative flex w-full max-w-5xl flex-col items-center gap-8">
+      <div
+        className={`passenger-idle-content passenger-idle-content--${idleFeature} relative flex w-full max-w-5xl flex-col items-center gap-8`}
+      >
         <div className="passenger-idle-header flex w-full items-center justify-between gap-5">
           <img
             src={config.logoSrc}
@@ -727,24 +735,47 @@ function PassengerIdlePrompt({
           </span>
         </div>
 
-        <IdleSpotifyNowPlaying
-          enabled={
-            config.passengerConsole.music.mode === "provider" &&
-            config.passengerConsole.music.providerName === "Spotify"
-          }
-          onExploreMusic={onExploreMusic}
-          t={primary}
-        />
-
-        {config.passengerConsole.aroundYou.ui.showIdleCard && (
-          <div className="w-full max-w-4xl">
-            <AroundYouHomeCard
-              language={language}
-              onOpen={onExploreAroundYou}
-              state={aroundYou}
-              variant="idle"
+        {idleFeature === "music" ? (
+          <>
+            <IdleSpotifyNowPlaying
+              enabled={
+                config.passengerConsole.music.mode === "provider" &&
+                config.passengerConsole.music.providerName === "Spotify"
+              }
+              onExploreMusic={onExploreMusic}
+              t={primary}
             />
-          </div>
+            {config.passengerConsole.aroundYou.ui.showIdleCard && (
+              <div className="passenger-idle-around-secondary w-full max-w-4xl">
+                <AroundYouHomeCard
+                  language={language}
+                  onOpen={onExploreAroundYou}
+                  state={aroundYou}
+                  variant="idle"
+                />
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div className="passenger-idle-around-featured w-full max-w-4xl">
+              <AroundYouHomeCard
+                language={language}
+                onOpen={onExploreAroundYou}
+                state={aroundYou}
+                variant="idle-featured"
+              />
+            </div>
+            <IdleSpotifyNowPlaying
+              compact
+              enabled={
+                config.passengerConsole.music.mode === "provider" &&
+                config.passengerConsole.music.providerName === "Spotify"
+              }
+              onExploreMusic={onExploreMusic}
+              t={primary}
+            />
+          </>
         )}
 
         <div className="passenger-idle-ticker w-full" aria-hidden="true">
@@ -765,11 +796,28 @@ function PassengerIdlePrompt({
   );
 }
 
+function useIdleFeatureRotation(intervalMs: number | null) {
+  const [feature, setFeature] = useState<"music" | "around-you">("music");
+
+  useEffect(() => {
+    if (!intervalMs) return;
+    const timer = window.setInterval(() => {
+      setFeature((current) => (current === "music" ? "around-you" : "music"));
+    }, intervalMs);
+
+    return () => window.clearInterval(timer);
+  }, [intervalMs]);
+
+  return feature;
+}
+
 function IdleSpotifyNowPlaying({
+  compact = false,
   enabled,
   onExploreMusic,
   t,
 }: {
+  compact?: boolean;
   enabled: boolean;
   onExploreMusic: () => void;
   t: (typeof copy)[Language];
@@ -804,7 +852,7 @@ function IdleSpotifyNowPlaying({
   const isDiscoverable = !track;
   const className = `passenger-idle-music grid w-full max-w-4xl items-center gap-7${
     isDiscoverable ? " passenger-idle-music--discover" : ""
-  }`;
+  }${compact ? " passenger-idle-music--compact" : ""}`;
 
   const content = (
     <>
@@ -2996,9 +3044,7 @@ function ConsoleNavigation({
   t: (typeof copy)[Language];
 }) {
   const active =
-    activeView === "around-you"
-      ? "home"
-      : activeView === "meet-juan" ||
+    activeView === "meet-juan" ||
           activeView === "services" ||
           activeView === "contact" ||
           activeView === "reviews" ||
@@ -3010,6 +3056,11 @@ function ConsoleNavigation({
     { id: "home" as const, label: t.home, icon: <Play className="h-5 w-5 rotate-[270deg]" /> },
     { id: "music" as const, label: t.music, icon: <Music2 className="h-5 w-5" /> },
     { id: "games" as const, label: t.games, icon: <Gamepad2 className="h-5 w-5" /> },
+    {
+      id: "around-you" as const,
+      label: t.aroundYou,
+      icon: <Compass className="h-5 w-5" />,
+    },
     {
       id: "streex" as const,
       label: t.streex,

@@ -13,7 +13,7 @@ export function AroundYouHomeCard({
   language: AroundYouLanguage;
   onOpen: () => void;
   state: AroundYouEngineState;
-  variant?: "home" | "idle";
+  variant?: "home" | "idle" | "idle-featured";
 }) {
   const [imageFailed, setImageFailed] = useState(false);
   const t = aroundYouCopy[language];
@@ -27,7 +27,9 @@ export function AroundYouHomeCard({
       data-testid="around-you-home-card"
       type="button"
       onClick={onOpen}
-      className={`passenger-around-home-card group ${variant === "idle" ? "passenger-around-home-card--idle" : ""}`}
+      className={`passenger-around-home-card group ${
+        variant === "idle" ? "passenger-around-home-card--idle" : ""
+      } ${variant === "idle-featured" ? "passenger-around-home-card--idle-featured" : ""}`}
     >
       {hasImage && (
         <img

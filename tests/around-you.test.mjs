@@ -60,7 +60,7 @@ describe("Around You geographic foundations", () => {
   });
 
   test("ships a bilingual, source-backed Utah catalog without disabled duplicate IDs", () => {
-    expect(AROUND_YOU_SEED_PLACES.length).toBeGreaterThanOrEqual(15);
+    expect(AROUND_YOU_SEED_PLACES.length).toBeGreaterThanOrEqual(30);
     expect(new Set(AROUND_YOU_SEED_PLACES.map(({ id }) => id)).size).toBe(
       AROUND_YOU_SEED_PLACES.length,
     );
@@ -74,6 +74,20 @@ describe("Around You geographic foundations", () => {
       expect(place.sourceUrl).toMatch(/^https:\/\//);
       expect(place.triggerRadiusMeters).toBeLessThanOrEqual(place.discoveryRadiusMeters);
     }
+  });
+
+  test("covers the Salt Lake Valley with a clearly labeled local region", () => {
+    const matches = matchAroundYouPlaces(
+      {
+        latitude: 40.72,
+        longitude: -111.9,
+        accuracyMeters: 25,
+        timestamp: 1_000,
+      },
+      AROUND_YOU_SEED_PLACES,
+    );
+
+    expect(matches.some(({ place: item }) => item.id === "salt-lake-valley")).toBe(true);
   });
 
   test("calculates Haversine distance within a known Salt Lake baseline", () => {

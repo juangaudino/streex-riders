@@ -2,10 +2,10 @@ import type { AroundYouLanguage, PassengerLocationStatus } from "./around-you-ty
 
 export const aroundYouCopy = {
   en: {
-    eyebrow: "Your local guide",
+    eyebrow: "Near you now",
     title: "Around You",
-    homeDescription: "Discover the places passing by your window.",
-    open: "Explore",
+    homeDescription: "A local story is ready when you are.",
+    open: "Explore nearby",
     back: "Back to Home",
     featured: "Right around you",
     nearby: "Nearby",
@@ -31,7 +31,7 @@ export const aroundYouCopy = {
       viewpoint: "Viewpoint",
     },
     noMatch: "Keep moving — a local story will appear when one is nearby.",
-    fallbackTitle: "Explore Utah",
+    fallbackTitle: "Explore nearby",
     fallbackDescription: "Location context is unavailable, but local discovery is still here.",
     testModeEyebrow: "PRIVATE OWNER TOOL",
     testModeLabel: "Around You test location",
@@ -49,10 +49,10 @@ export const aroundYouCopy = {
     } satisfies Record<PassengerLocationStatus, string>,
   },
   es: {
-    eyebrow: "Tu guía local",
+    eyebrow: "Cerca de ti ahora",
     title: "A tu alrededor",
-    homeDescription: "Descubre los lugares que pasan por tu ventana.",
-    open: "Explorar",
+    homeDescription: "Una historia local está lista cuando tú lo estés.",
+    open: "Explorar cerca",
     back: "Volver a Inicio",
     featured: "Justo a tu alrededor",
     nearby: "Cerca de aquí",
@@ -78,7 +78,7 @@ export const aroundYouCopy = {
       viewpoint: "Mirador",
     },
     noMatch: "Sigue avanzando: aparecerá una historia local cuando haya una cerca.",
-    fallbackTitle: "Explora Utah",
+    fallbackTitle: "Explora cerca",
     fallbackDescription:
       "El contexto de ubicación no está disponible, pero aún puedes descubrir Utah.",
     testModeEyebrow: "HERRAMIENTA PRIVADA",
