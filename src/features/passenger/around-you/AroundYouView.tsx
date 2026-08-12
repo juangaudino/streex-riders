@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Compass, LocateFixed, Navigation, Radio } from "lucide-react";
+import { ArrowLeft, Compass, LocateFixed, MapPinned, Navigation, Radio } from "lucide-react";
 import { AroundYouNearbyList } from "./AroundYouNearbyList";
 import { AroundYouPlaceCard } from "./AroundYouPlaceCard";
 import { aroundYouCopy } from "./around-you-copy";
+import { getAroundYouTestPresets } from "./around-you-test-mode";
 import type {
   AroundYouEngineState,
   AroundYouLanguage,
@@ -20,12 +21,17 @@ export function AroundYouView({
   places,
   showDistance,
   state,
+  testMode,
 }: {
   language: AroundYouLanguage;
   onBack: () => void;
   places: AroundYouPlace[];
   showDistance: boolean;
   state: AroundYouEngineState;
+  testMode?: {
+    simulatedPlaceId: string | null;
+    onSelectPreset: (placeId: string | null) => void;
+  };
 }) {
   const t = aroundYouCopy[language];
   const [manualSelection, setManualSelection] = useState<AroundYouMatch | null>(null);
@@ -66,6 +72,37 @@ export function AroundYouView({
         <h1>{t.title}</h1>
         <span>{t.browseDescription}</span>
       </header>
+
+      {testMode && (
+        <section className="passenger-around-test-panel" aria-label={t.testModeLabel}>
+          <div>
+            <p>{t.testModeEyebrow}</p>
+            <b>{t.testModeLabel}</b>
+            <span>{t.testModeDescription}</span>
+          </div>
+          <div className="passenger-around-test-controls">
+            <button
+              type="button"
+              className={!testMode.simulatedPlaceId ? "is-active" : ""}
+              onClick={() => testMode.onSelectPreset(null)}
+            >
+              <LocateFixed className="h-4 w-4" />
+              {t.testUseLiveGps}
+            </button>
+            {getAroundYouTestPresets(places).map((place) => (
+              <button
+                key={place.id}
+                type="button"
+                className={testMode.simulatedPlaceId === place.id ? "is-active" : ""}
+                onClick={() => testMode.onSelectPreset(place.id)}
+              >
+                <MapPinned className="h-4 w-4" />
+                {place.title[language]}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section
         className="passenger-around-featured"

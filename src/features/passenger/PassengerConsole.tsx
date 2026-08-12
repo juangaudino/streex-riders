@@ -69,6 +69,10 @@ import { THIS_OR_THAT_TRAILER_VISUALS } from "./this-or-that-visuals";
 import { AroundYouHomeCard } from "./around-you/AroundYouHomeCard";
 import { AroundYouView } from "./around-you/AroundYouView";
 import { AROUND_YOU_SEED_PLACES } from "./around-you/around-you-data";
+import {
+  createAroundYouSimulatedPosition,
+  getAroundYouTestPresets,
+} from "./around-you/around-you-test-mode";
 import type { AroundYouLanguage } from "./around-you/around-you-types";
 import { useAroundYouEngine } from "./around-you/useAroundYouEngine";
 import { usePassengerLocation } from "./around-you/usePassengerLocation";
@@ -495,18 +499,39 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
   const [view, setView] = useState<View>("home");
   const [bookingOpen, setBookingOpen] = useState(false);
   const [sessionKey, setSessionKey] = useState(0);
+  const [aroundYouTestMode] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("around-you-test") === "1",
+  );
+  const [simulatedAroundYouPlaceId, setSimulatedAroundYouPlaceId] = useState<string | null>(null);
   const t = copy[language];
   const online = useOnlineStatus();
 
   const consoleConfig = config.passengerConsole;
+  const aroundYouEnabled = consoleConfig.aroundYou.enabled || aroundYouTestMode;
+  const simulatedAroundYouPlace = useMemo(
+    () =>
+      getAroundYouTestPresets(AROUND_YOU_SEED_PLACES).find(
+        ({ id }) => id === simulatedAroundYouPlaceId,
+      ) ?? null,
+    [simulatedAroundYouPlaceId],
+  );
   const weather = usePassengerWeather(online, consoleConfig.weather.refreshMinutes);
   const passengerLocation = usePassengerLocation({
-    enabled: consoleConfig.aroundYou.enabled,
+    enabled: aroundYouEnabled && !simulatedAroundYouPlace,
     options: consoleConfig.aroundYou.geolocation,
   });
+  const aroundYouLocation = simulatedAroundYouPlace
+    ? {
+        status: "ready" as const,
+        position: createAroundYouSimulatedPosition(simulatedAroundYouPlace),
+        lastGoodPositionAgeMs: 0,
+      }
+    : passengerLocation;
   const aroundYou = useAroundYouEngine({
-    enabled: consoleConfig.aroundYou.enabled,
-    location: passengerLocation,
+    enabled: aroundYouEnabled,
+    location: aroundYouLocation,
     options: consoleConfig.aroundYou.selection,
     places: AROUND_YOU_SEED_PLACES,
     sessionKey,
@@ -517,6 +542,10 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
     setLanguage(consoleConfig.idleReset.defaultLanguage);
     setSessionKey((current) => current + 1);
   }, [consoleConfig.idleReset.defaultLanguage]);
+  const setAroundYouTestPreset = useCallback((placeId: string | null) => {
+    setSimulatedAroundYouPlaceId(placeId);
+    setSessionKey((current) => current + 1);
+  }, []);
   const idleReset = usePassengerIdleReset({
     inactivitySeconds: consoleConfig.idleReset.inactivitySeconds,
     onReset: resetPassengerSession,
@@ -576,6 +605,14 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               places={AROUND_YOU_SEED_PLACES}
               showDistance={consoleConfig.aroundYou.ui.showDistance}
               state={aroundYou}
+              testMode={
+                aroundYouTestMode
+                  ? {
+                      simulatedPlaceId: simulatedAroundYouPlaceId,
+                      onSelectPreset: setAroundYouTestPreset,
+                    }
+                  : undefined
+              }
             />
           )}
           {view === "music" && <MusicView config={config} onNavigate={setView} t={t} />}

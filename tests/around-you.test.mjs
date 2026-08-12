@@ -12,6 +12,10 @@ import {
   shouldAcceptPassengerPosition,
 } from "../src/features/passenger/around-you/around-you-utils.ts";
 import { AROUND_YOU_SEED_PLACES } from "../src/features/passenger/around-you/around-you-data.ts";
+import {
+  AROUND_YOU_TEST_PRESET_IDS,
+  getAroundYouTestPresets,
+} from "../src/features/passenger/around-you/around-you-test-mode.ts";
 
 const selectionOptions = {
   nearbyLimit: 5,
@@ -44,6 +48,11 @@ function match(testPlace, score, distanceMeters = 100, insideTriggerRadius = tru
 }
 
 describe("Around You geographic foundations", () => {
+  test("keeps private simulation presets mapped to enabled catalog places", () => {
+    const presets = getAroundYouTestPresets(AROUND_YOU_SEED_PLACES);
+    expect(presets.map(({ id }) => id)).toEqual([...AROUND_YOU_TEST_PRESET_IDS]);
+  });
+
   test("keeps passenger-facing distances localized and intentionally approximate", () => {
     expect(formatAroundYouDistance(110, "en")).toBe("Nearby");
     expect(formatAroundYouDistance(110, "es")).toBe("Muy cerca");

@@ -253,6 +253,63 @@ button.passenger-around-place-card:hover .passenger-around-place-image,
   display: block;
 }
 
+.passenger-around-test-panel {
+  display: grid;
+  gap: 0.8rem;
+  border: 1px dashed rgba(230, 206, 32, 0.42);
+  border-radius: 1rem;
+  background: rgba(230, 206, 32, 0.06);
+  padding: 0.9rem;
+}
+
+.passenger-around-test-panel > div:first-child {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.passenger-around-test-panel p {
+  color: #e6ce20;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.passenger-around-test-panel b {
+  font-size: 0.9rem;
+}
+
+.passenger-around-test-panel span {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.passenger-around-test-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.passenger-around-test-controls button {
+  display: inline-flex;
+  min-height: 2.2rem;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.76);
+  padding: 0.45rem 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.passenger-around-test-controls button.is-active {
+  border-color: #e6ce20;
+  background: #e6ce20;
+  color: #090909;
+}
+
 .passenger-around-fallback b {
   font-size: 1.3rem;
 }
