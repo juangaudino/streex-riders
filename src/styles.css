@@ -257,6 +257,170 @@
   }
 }
 
+/* Passenger Games: timed local rounds and the third active catalog card. */
+.passenger-timed-game-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: -0.25rem;
+  color: rgb(255 255 255 / 0.55);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.passenger-timed-game-status > span:last-child,
+.passenger-timed-game-meter strong {
+  min-width: 2.15rem;
+  color: #e6ce20;
+  font-size: 1rem;
+  letter-spacing: 0;
+  text-align: right;
+}
+
+.passenger-timed-game-status > span:last-child.is-warning,
+.passenger-timed-game-meter.is-warning strong,
+.passenger-timed-game-bar--warning {
+  background-color: #fb6a4a;
+  color: #fb6a4a;
+}
+
+.passenger-timed-game-progress {
+  margin-top: -0.55rem;
+}
+
+.passenger-timed-game-meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  border: 1px solid rgb(230 206 32 / 0.28);
+  border-radius: 999px;
+  background: rgb(5 7 9 / 0.58);
+  padding: 0.42rem 0.68rem;
+  color: rgb(255 255 255 / 0.55);
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.passenger-game-card-higher-lower-split {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.passenger-game-card-higher-lower-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.passenger-game-card-higher-lower-panel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.passenger-game-card-higher-lower-panel::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.passenger-game-card-higher-lower-panel:first-child::after {
+  background: linear-gradient(135deg, rgb(5 7 9 / 0.25), rgb(5 7 9 / 0.75));
+}
+
+.passenger-game-card-higher-lower-panel:last-child::after {
+  background: linear-gradient(225deg, rgb(5 7 9 / 0.22), rgb(5 7 9 / 0.78));
+}
+
+.passenger-game-card-higher-lower-or {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 2.9rem;
+  height: 2.9rem;
+  place-items: center;
+  border: 1px solid rgb(230 206 32 / 0.7);
+  border-radius: 999px;
+  background: #090a0c;
+  box-shadow: 0 0 0 5px rgb(5 7 9 / 0.5);
+  color: #e6ce20;
+  font-size: 1.15rem;
+  font-weight: 900;
+  transform: translate(-50%, -50%);
+}
+
+.passenger-higher-lower-option {
+  display: flex;
+  min-height: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.13);
+  border-radius: 1.25rem;
+  background: rgb(7 8 10 / 0.6);
+  padding: clamp(1rem, 2vw, 1.45rem);
+  color: white;
+  font-size: clamp(1.1rem, 2.2vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: left;
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.passenger-higher-lower-option:not(:disabled):active {
+  border-color: rgb(230 206 32 / 0.8);
+  background: rgb(230 206 32 / 0.14);
+  transform: translateY(2px);
+}
+
+.passenger-higher-lower-option.is-correct {
+  border-color: rgb(230 206 32 / 0.75);
+  background: rgb(230 206 32 / 0.15);
+  color: #f6e553;
+}
+
+.passenger-higher-lower-option.is-wrong {
+  border-color: rgb(251 106 74 / 0.7);
+  background: rgb(251 106 74 / 0.12);
+}
+
+.passenger-higher-lower-option-label {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+  color: #e6ce20;
+  font-size: 0.75rem;
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="games"] .passenger-games-grid--three {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-games-grid--three > * {
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-games-coming-soon-grid {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+  }
+}
+
 /* Passenger Console — final responsive validation layer (2026-08-12).
    Deliberately at EOF: this is the single authority for the three landscape
    compositions below, after earlier exploratory responsive passes. */

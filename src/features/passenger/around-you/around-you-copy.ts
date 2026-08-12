@@ -35,7 +35,8 @@ export const aroundYouCopy = {
     fallbackDescription: "Location context is unavailable, but local discovery is still here.",
     testModeEyebrow: "PRIVATE OWNER TOOL",
     testModeLabel: "Around You test location",
-    testModeDescription: "Use the tablet GPS or simulate a Utah location. This panel is not shown to passengers.",
+    testModeDescription:
+      "Use the tablet GPS or simulate a Utah location. This panel is not shown to passengers.",
     testUseLiveGps: "Use live tablet GPS",
     status: {
       idle: "Local discovery is ready when enabled.",
@@ -83,7 +84,8 @@ export const aroundYouCopy = {
       "El contexto de ubicación no está disponible, pero aún puedes descubrir Utah.",
     testModeEyebrow: "HERRAMIENTA PRIVADA",
     testModeLabel: "Ubicación de prueba de A tu alrededor",
-    testModeDescription: "Usa el GPS de la tablet o simula una ubicación de Utah. Este panel no se muestra a pasajeros.",
+    testModeDescription:
+      "Usa el GPS de la tablet o simula una ubicación de Utah. Este panel no se muestra a pasajeros.",
     testUseLiveGps: "Usar GPS real de la tablet",
     status: {
       idle: "El descubrimiento local estará listo cuando se active.",

@@ -3,6 +3,7 @@ import type { AppConfig } from "@/config";
 import {
   ArrowLeft,
   ArrowLeftRight,
+  ArrowUpDown,
   CalendarPlus,
   ChevronRight,
   Cloud,
@@ -65,6 +66,7 @@ import {
 } from "./usePassengerState";
 import { UtahTrivia } from "./UtahTrivia";
 import { ThisOrThat } from "./ThisOrThat";
+import { UtahHigherOrLower } from "./UtahHigherOrLower";
 import { HoneycombMark } from "./game-marks";
 import { THIS_OR_THAT_TRAILER_VISUALS } from "./this-or-that-visuals";
 import { AroundYouHomeCard } from "./around-you/AroundYouHomeCard";
@@ -77,7 +79,8 @@ import {
 import type { AroundYouLanguage } from "./around-you/around-you-types";
 import { useAroundYouEngine } from "./around-you/useAroundYouEngine";
 import { usePassengerLocation } from "./around-you/usePassengerLocation";
-import horizonQuickActionCard from "@/features/runner/assets/quick-action/horizon_quick_action_card.webp";
+import utahTriviaAtlas from "@/assets/passenger-games/utah-trivia-atlas.jpg";
+import utahTriviaNationalParks from "@/assets/passenger-games/utah-trivia-national-parks.jpg";
 import utahTriviaSymbols from "@/assets/passenger-games/utah-trivia-symbols.jpg";
 import passengerRav4Front from "@/assets/streex-gallery/passenger-rav4-front.jpg";
 import passengerRav4Rear from "@/assets/streex-gallery/passenger-rav4-rear.jpg";
@@ -225,8 +228,9 @@ const copy = {
     choicePreview: "Pick a side",
     choiceFirst: "THIS",
     choiceSecond: "THAT",
-    horizonTabletSoon: "Coming soon to your tablet experience",
-    horizonPhone: "Play on your phone",
+    utahHigherOrLower: "Utah: Higher or Lower",
+    utahHigherOrLowerDescription: "Pick which Utah fact comes out on top.",
+    higherOrLowerPreview: "UTAH COMPARISONS",
     futureGameTitle: "Next up",
     futureGameDescription: "A new road-side game is in the works.",
     streexTitle: "Private rides. Elevated.",
@@ -412,8 +416,9 @@ const copy = {
     choicePreview: "Elige un lado",
     choiceFirst: "ESTO",
     choiceSecond: "AQUELLO",
-    horizonTabletSoon: "Próximamente en tu experiencia de tablet",
-    horizonPhone: "Juega en tu teléfono",
+    utahHigherOrLower: "Utah: Higher or Lower",
+    utahHigherOrLowerDescription: "Elige qué dato de Utah queda por encima.",
+    higherOrLowerPreview: "COMPARACIONES DE UTAH",
     futureGameTitle: "Próximamente",
     futureGameDescription: "Estamos preparando un nuevo juego para el camino.",
     streexTitle: "Viajes privados. Elevados.",
@@ -622,9 +627,9 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           {view === "games" && (
             <GamesView
               language={language}
-              phoneContinuation={consoleConfig.links.phoneContinuation}
               t={t}
               thisOrThatEnabled={consoleConfig.games.thisOrThatEnabled}
+              utahHigherOrLowerEnabled={consoleConfig.games.utahHigherOrLowerEnabled}
               utahTriviaEnabled={consoleConfig.games.utahTriviaEnabled}
             />
           )}
@@ -2094,18 +2099,18 @@ function SimulatedMusicView({
 
 function GamesView({
   language,
-  phoneContinuation,
   t,
   thisOrThatEnabled,
+  utahHigherOrLowerEnabled,
   utahTriviaEnabled,
 }: {
   language: Language;
-  phoneContinuation: string | null;
   t: (typeof copy)[Language];
   thisOrThatEnabled: boolean;
+  utahHigherOrLowerEnabled: boolean;
   utahTriviaEnabled: boolean;
 }) {
-  const [activeGame, setActiveGame] = useState<"trivia" | "choice" | null>(null);
+  const [activeGame, setActiveGame] = useState<"trivia" | "choice" | "higher-lower" | null>(null);
 
   if (activeGame === "trivia" && utahTriviaEnabled) {
     return <UtahTrivia language={language} onExit={() => setActiveGame(null)} />;
@@ -2115,12 +2120,16 @@ function GamesView({
     return <ThisOrThat language={language} onExit={() => setActiveGame(null)} />;
   }
 
+  if (activeGame === "higher-lower" && utahHigherOrLowerEnabled) {
+    return <UtahHigherOrLower language={language} onExit={() => setActiveGame(null)} />;
+  }
+
   return (
     <div className="passenger-games-layout flex flex-1 flex-col gap-5">
       <div className="passenger-games-header">
         <ViewHeader eyebrow={t.gamesEyebrow} title={t.gamesTitle} description={t.gamesSubtitle} />
       </div>
-      <div className="passenger-games-grid grid flex-1 grid-cols-2 gap-4">
+      <div className="passenger-games-grid passenger-games-grid--three grid flex-1 grid-cols-2 gap-4">
         <GameCard
           kind="trivia"
           title={t.utahTrivia}
@@ -2140,28 +2149,17 @@ function GamesView({
           onClick={thisOrThatEnabled ? () => setActiveGame("choice") : undefined}
           status={thisOrThatEnabled ? t.playNow : t.comingSoon}
         />
+        <GameCard
+          kind="higher-lower"
+          title={t.utahHigherOrLower}
+          description={t.utahHigherOrLowerDescription}
+          previewLabel={t.higherOrLowerPreview}
+          icon={<ArrowUpDown className="h-7 w-7" />}
+          onClick={utahHigherOrLowerEnabled ? () => setActiveGame("higher-lower") : undefined}
+          status={utahHigherOrLowerEnabled ? t.playNow : t.comingSoon}
+        />
       </div>
       <div className="passenger-games-coming-soon-grid grid gap-4">
-        <section className="passenger-games-horizon relative aspect-[1200/509] overflow-hidden rounded-[26px] border border-[#E6CE20]/35 bg-[#12120c] shadow-[0_16px_45px_rgba(0,0,0,0.28)]">
-          <img
-            src={horizonQuickActionCard}
-            alt="Streex Horizon. Play the challenge."
-            className="block h-full w-full object-cover"
-            loading="lazy"
-            decoding="async"
-          />
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/95 to-transparent px-5 pb-4 pt-12">
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E6CE20]">
-                {t.comingSoon}
-              </p>
-              <p className="mt-1 text-sm font-semibold leading-tight text-white">
-                {t.horizonTabletSoon}
-              </p>
-              <p className="mt-1 text-xs text-white/60">{t.horizonPhone}</p>
-            </div>
-          </div>
-        </section>
         <section className="passenger-games-future relative aspect-[1200/509] overflow-hidden rounded-[26px] border border-white/10 bg-gradient-to-br from-[#151515] via-[#0f1114] to-[#16211d] p-5 shadow-[0_16px_45px_rgba(0,0,0,0.22)]">
           <span className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-[#E6CE20]/12 blur-3xl" />
           <span className="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#E6CE20]/70 to-transparent" />
@@ -2199,7 +2197,7 @@ function GameCard({
 }: {
   description: string;
   icon: React.ReactNode;
-  kind: "trivia" | "choice";
+  kind: "trivia" | "choice" | "higher-lower";
   previewLabel: string;
   choiceLabels?: [string, string];
   onClick?: () => void;
@@ -2220,7 +2218,7 @@ function GameCard({
             <span className="passenger-game-card-art-shade passenger-game-card-art-shade--trivia" />
             <span className="passenger-game-card-trivia-stamp">UT</span>
           </>
-        ) : (
+        ) : kind === "choice" ? (
           <div className="passenger-game-card-choice-split">
             {THIS_OR_THAT_TRAILER_VISUALS.slice(0, 2).map((visual, index) => (
               <span key={visual.src} className="passenger-game-card-choice-panel">
@@ -2231,6 +2229,16 @@ function GameCard({
               </span>
             ))}
             <span className="passenger-game-card-or">OR</span>
+          </div>
+        ) : (
+          <div className="passenger-game-card-higher-lower-split">
+            <span className="passenger-game-card-higher-lower-panel">
+              <img src={utahTriviaAtlas} alt="" />
+            </span>
+            <span className="passenger-game-card-higher-lower-panel">
+              <img src={utahTriviaNationalParks} alt="" />
+            </span>
+            <span className="passenger-game-card-higher-lower-or">↑↓</span>
           </div>
         )}
       </div>

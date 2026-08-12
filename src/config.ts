@@ -78,6 +78,7 @@ export const CONFIG = {
     games: {
       utahTriviaEnabled: true,
       thisOrThatEnabled: true,
+      utahHigherOrLowerEnabled: true,
     },
     aroundYou: {
       // The dedicated tablet now has a validated browser location permission. Coordinates

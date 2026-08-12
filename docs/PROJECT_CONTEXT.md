@@ -66,11 +66,13 @@ show passenger data.
   driver pairing code. Playback controls use the active Spotify Connect device and expose only
   sanitized track metadata; no Spotify credentials, account details, device name, or tokens reach
   the browser. Driver setup is at `/spotify/setup` and its OAuth callback is `/spotify/callback`.
-- Utah Trivia and This or That are real bilingual, offline-capable Passenger games. Utah Trivia
-  draws 10-question rounds from a bundled local question bank, gives immediate explanations and a
-  final score. This or That presents 10 local preference choices and derives a playful ride vibe
-  from that round only. Neither game stores passenger data or uses a backend. Their public
-  activation switches live under `CONFIG.passengerConsole.games`.
+- Utah Trivia, This or That and Utah: Higher or Lower are bilingual, offline-capable Passenger
+  games. Utah Trivia and Higher or Lower each use 10-question local rounds, visible 10-second
+  timers, immediate explanations and final scores; timed-out questions advance automatically.
+  This or That deliberately remains untimed and derives a playful ride vibe from 10 local
+  preferences. The games store only a local recent-question cycle to reduce repetition; none use
+  passenger data or a backend. Their public activation switches live under
+  `CONFIG.passengerConsole.games`.
 - The STREEX actions reuse the real Rides experience: `BookingFormModal` for ride requests,
   `FeedbackForm` for passenger reviews, and shared public config for services. Contact details are
   informational on the shared tablet and never launch phone apps. Tips remain optional and use
