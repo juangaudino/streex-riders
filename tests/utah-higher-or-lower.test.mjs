@@ -3,6 +3,7 @@ import {
   createHigherOrLowerRound,
   UTAH_HIGHER_OR_LOWER_QUESTIONS,
 } from "../src/features/passenger/utah-higher-or-lower.ts";
+import { UTAH_HIGHER_OR_LOWER_VISUALS } from "../src/features/passenger/utah-higher-or-lower-visuals.ts";
 
 describe("Utah: Higher or Lower", () => {
   test("creates a ten-question round without duplicates", () => {
@@ -27,6 +28,15 @@ describe("Utah: Higher or Lower", () => {
       expect(question.right.es.length).toBeGreaterThan(0);
       expect(question.explanation.en.length).toBeGreaterThan(0);
       expect(question.sourceUrl.startsWith("https://")).toBe(true);
+    }
+  });
+
+  test("gives every local comparison a pair of local visual scenes", () => {
+    for (const question of UTAH_HIGHER_OR_LOWER_QUESTIONS) {
+      const visuals = UTAH_HIGHER_OR_LOWER_VISUALS[question.id];
+      expect(visuals).toBeDefined();
+      expect(visuals.left.src).toContain("/assets/");
+      expect(visuals.right.src).toContain("/assets/");
     }
   });
 });

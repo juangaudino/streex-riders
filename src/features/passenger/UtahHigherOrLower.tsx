@@ -8,8 +8,11 @@ import {
 } from "./utah-higher-or-lower";
 import { TIMED_GAME_QUESTION_DURATION_MS } from "./timed-game";
 import { useTimedRound } from "./useTimedRound";
+import {
+  preloadHigherOrLowerVisuals,
+  UTAH_HIGHER_OR_LOWER_VISUALS,
+} from "./utah-higher-or-lower-visuals";
 import utahTriviaAtlas from "@/assets/passenger-games/utah-trivia-atlas.jpg";
-import utahTriviaNationalParks from "@/assets/passenger-games/utah-trivia-national-parks.jpg";
 
 const ROUND_SIZE = 10;
 const RECENT_QUESTION_IDS_KEY = "streex-passenger-higher-or-lower-recent";
@@ -24,6 +27,7 @@ const copy = {
     timer: "10 seconds each",
     offline: "Works offline",
     question: "Round",
+    pickASide: "Pick the Utah side that comes out on top.",
     timeLeft: "Time left",
     timeUp: "Time's up",
     correct: "Correct",
@@ -51,6 +55,7 @@ const copy = {
     timer: "10 segundos cada una",
     offline: "Funciona sin conexión",
     question: "Ronda",
+    pickASide: "Elige el lado de Utah que llega más alto.",
     timeLeft: "Tiempo restante",
     timeUp: "Se acabó el tiempo",
     correct: "Correcto",
@@ -148,6 +153,7 @@ export function UtahHigherOrLower({
       available = UTAH_HIGHER_OR_LOWER_QUESTIONS;
     }
     const nextRound = createHigherOrLowerRound(available, ROUND_SIZE);
+    preloadHigherOrLowerVisuals(nextRound.slice(0, 2).map((item) => item.id));
     saveRecentIds([...recentIds, ...nextRound.map((item) => item.id)]);
     setRound(nextRound);
     setQuestionIndex(0);
@@ -156,6 +162,13 @@ export function UtahHigherOrLower({
     setScore(0);
     setPhase("playing");
   };
+
+  useEffect(() => {
+    if (phase !== "playing") return;
+    preloadHigherOrLowerVisuals(
+      round.slice(questionIndex, questionIndex + 2).map((item) => item.id),
+    );
+  }, [phase, questionIndex, round]);
 
   const choose = (side: "left" | "right") => {
     if (!question || answered) return;
@@ -221,6 +234,7 @@ export function UtahHigherOrLower({
   const selectedCorrect = selectedSide === question.correctSide;
   const progress = ((questionIndex + (answered ? 1 : 0)) / ROUND_SIZE) * 100;
   const correctLabel = question[question.correctSide][language];
+  const visuals = UTAH_HIGHER_OR_LOWER_VISUALS[question.id];
   return (
     <div className="passenger-higher-lower-layout flex min-h-full flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
@@ -240,14 +254,9 @@ export function UtahHigherOrLower({
         />
       </div>
       <section className="passenger-higher-lower-board relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-[30px] border border-white/10 p-6">
-        <img
-          src={utahTriviaNationalParks}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover opacity-25"
-        />
-        <span className="absolute inset-0 bg-[linear-gradient(135deg,rgba(8,9,11,0.96),rgba(8,9,11,0.72),rgba(8,9,11,0.92))]" />
-        <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+        <span className="passenger-choice-board-line passenger-choice-board-line--one" />
+        <span className="passenger-choice-board-line passenger-choice-board-line--two" />
+        <div className="passenger-higher-lower-board-content relative z-10 min-h-0 flex-1">
           <div className="flex items-center justify-between gap-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
               {question.category[language]}
@@ -263,13 +272,17 @@ export function UtahHigherOrLower({
               style={{ width: `${timer.progress * 100}%` }}
             />
           </div>
-          <h1 className="mt-5 max-w-3xl text-[clamp(2rem,4vw,3.2rem)] font-black leading-[1.05] tracking-tight">
+          <h1 className="passenger-higher-lower-prompt mt-5 max-w-3xl text-[clamp(2rem,4vw,3.2rem)] font-black leading-[1.05] tracking-tight">
             {question.prompt[language]}
           </h1>
-          <div className="passenger-higher-lower-options mt-6 grid min-h-0 flex-1 grid-cols-2 gap-4">
+          <div className="passenger-higher-lower-options mt-6 grid min-h-0 grid-cols-2 gap-5">
+            <span className="passenger-higher-lower-or" aria-hidden="true">
+              {language === "en" ? "OR" : "O"}
+            </span>
             {(["left", "right"] as const).map((side) => {
               const isCorrect = answered && side === question.correctSide;
               const isWrong = selectedSide === side && !isCorrect;
+              const visual = visuals?.[side];
               return (
                 <button
                   key={side}
@@ -278,46 +291,75 @@ export function UtahHigherOrLower({
                   disabled={answered}
                   className={`passenger-higher-lower-option passenger-higher-lower-option--${side} ${isCorrect ? "is-correct" : ""} ${isWrong ? "is-wrong" : ""}`}
                 >
-                  <span className="passenger-higher-lower-option-label">
-                    {side === "left" ? "A" : "B"}
+                  {visual && (
+                    <img
+                      src={visual.src}
+                      alt=""
+                      aria-hidden="true"
+                      className="passenger-higher-lower-option-art"
+                      style={{ objectPosition: visual.objectPosition }}
+                      decoding="async"
+                      loading="eager"
+                    />
+                  )}
+                  <span className="passenger-higher-lower-option-scrim" aria-hidden="true" />
+                  <span className="passenger-higher-lower-option-flare" aria-hidden="true" />
+                  <span className="passenger-higher-lower-option-kicker">
+                    <span className="passenger-higher-lower-option-label">
+                      {side === "left" ? "A" : "B"}
+                    </span>
+                    <span>{side === "left" ? "THIS" : "THAT"}</span>
                   </span>
-                  <span>{question[side][language]}</span>
-                  {isCorrect && <Check className="h-6 w-6" />}
-                  {isWrong && <X className="h-6 w-6" />}
+                  <span className="passenger-higher-lower-option-copy">
+                    {question[side][language]}
+                  </span>
+                  <span className="passenger-higher-lower-option-footer">
+                    {isCorrect ? (
+                      <Check className="h-5 w-5" />
+                    ) : isWrong ? (
+                      <X className="h-5 w-5" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5" />
+                    )}
+                  </span>
                 </button>
               );
             })}
           </div>
-          {answered && (
-            <div
-              className={`passenger-trivia-feedback mt-5 ${selectedCorrect ? "is-correct" : "is-wrong"}`}
-              role="status"
-            >
-              <div className="min-w-0">
-                <p className="font-bold">
-                  {timedOut ? t.timeUp : selectedCorrect ? t.correct : t.incorrect}
-                </p>
-                <p className="mt-1 text-sm leading-relaxed text-white/65">
-                  {!selectedCorrect && (
-                    <>
-                      {t.answerWas} <strong className="text-white">{correctLabel}.</strong>{" "}
-                    </>
-                  )}
-                  {question.explanation[language]}
-                </p>
+          <div className="passenger-higher-lower-feedback-slot">
+            {answered ? (
+              <div
+                className={`passenger-trivia-feedback ${selectedCorrect ? "is-correct" : "is-wrong"}`}
+                role="status"
+              >
+                <div className="min-w-0">
+                  <p className="font-bold">
+                    {timedOut ? t.timeUp : selectedCorrect ? t.correct : t.incorrect}
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-white/65">
+                    {!selectedCorrect && (
+                      <>
+                        {t.answerWas} <strong className="text-white">{correctLabel}.</strong>{" "}
+                      </>
+                    )}
+                    {question.explanation[language]}
+                  </p>
+                </div>
+                {!timedOut && (
+                  <button
+                    type="button"
+                    onClick={advance}
+                    className="passenger-trivia-primary shrink-0"
+                  >
+                    {questionIndex === round.length - 1 ? t.results : t.next}
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                )}
               </div>
-              {!timedOut && (
-                <button
-                  type="button"
-                  onClick={advance}
-                  className="passenger-trivia-primary shrink-0"
-                >
-                  {questionIndex === round.length - 1 ? t.results : t.next}
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-          )}
+            ) : (
+              <p className="passenger-higher-lower-feedback-placeholder">{t.pickASide}</p>
+            )}
+          </div>
         </div>
       </section>
     </div>
