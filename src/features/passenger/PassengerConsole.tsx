@@ -197,10 +197,6 @@ const copy = {
     vibeTopUs: "Top 50 U.S.",
     vibeTopGlobal: "Top 50 Global",
     vibeToday: "Today's Top Hits",
-    jamTitle: "Spotify Jam",
-    jamDescription:
-      "Want to add your own music? Ask your driver to host a Jam, then scan the QR shown in Spotify with your phone.",
-    jamStatus: "Available when hosted by your driver",
     search: "Search songs, artists, moods…",
     results: "Results",
     gamesTitle: "Games",
@@ -262,6 +258,9 @@ const copy = {
     contactTitle: "Contact Streex",
     contactSubtitle: "Contact details to use from your own phone.",
     contactNote: "This tablet does not place calls or send messages.",
+    contactSaveTitle: "Save Juan's contact",
+    contactSaveDescription: "Scan this separate QR to add Juan directly to your phone.",
+    contactSaveDownload: "Download contact card",
     phoneAndText: "Call or text",
     whatsapp: "WhatsApp",
     email: "Email",
@@ -384,10 +383,6 @@ const copy = {
     vibeTopUs: "Top 50 EE. UU.",
     vibeTopGlobal: "Top 50 Global",
     vibeToday: "Éxitos de hoy",
-    jamTitle: "Spotify Jam",
-    jamDescription:
-      "¿Quieres agregar tu propia música? Pide a tu conductor que inicie una Jam y escanea el QR que aparece en Spotify desde tu teléfono.",
-    jamStatus: "Disponible cuando la inicie tu conductor",
     search: "Buscar canciones, artistas o moods…",
     results: "Resultados",
     gamesTitle: "Juegos",
@@ -450,6 +445,10 @@ const copy = {
     contactTitle: "Contactar a Streex",
     contactSubtitle: "Datos de contacto para usar desde su propio teléfono.",
     contactNote: "Esta tablet no realiza llamadas ni envía mensajes.",
+    contactSaveTitle: "Guardar contacto de Juan",
+    contactSaveDescription:
+      "Escanee este QR independiente para agregar a Juan directamente a su teléfono.",
+    contactSaveDownload: "Descargar tarjeta de contacto",
     phoneAndText: "Llamar o enviar mensaje",
     whatsapp: "WhatsApp",
     email: "Email",
@@ -1391,6 +1390,7 @@ function MusicView({
   if (music.mode === "provider" && music.providerName === "Spotify") {
     return (
       <PersonalSpotifyMusicView
+        config={config}
         onNavigate={onNavigate}
         catalogMarket={music.catalogMarket}
         searchEnabled={music.searchEnabled}
@@ -1511,12 +1511,14 @@ function PersonalSpotifyHomeCard({
 }
 
 function PersonalSpotifyMusicView({
+  config,
   catalogMarket,
   onNavigate,
   searchEnabled,
   searchResultLimit,
   t,
 }: {
+  config: AppConfig;
   catalogMarket: string;
   onNavigate: (view: View) => void;
   searchEnabled: boolean;
@@ -1856,20 +1858,7 @@ function PersonalSpotifyMusicView({
           )}
         </section>
       )}
-      <aside className="passenger-music-jam rounded-[24px] border border-[#E6CE20]/25 bg-[#E6CE20]/[0.06] p-5">
-        <div className="flex items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#E6CE20]/15 text-[#E6CE20]">
-            <Music2 className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="font-bold">{t.jamTitle}</p>
-            <p className="mt-1 text-sm leading-relaxed text-white/65">{t.jamDescription}</p>
-            <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#E6CE20]">
-              {t.jamStatus}
-            </p>
-          </div>
-        </div>
-      </aside>
+      <PassengerMusicSupport config={config} onNavigate={onNavigate} t={t} />
     </div>
   );
 }
@@ -1935,22 +1924,6 @@ function SimulatedMusicView({
           </button>
         </div>
       </section>
-      {config.passengerConsole.music.jamNoticeEnabled && (
-        <aside className="rounded-[24px] border border-[#E6CE20]/25 bg-[#E6CE20]/[0.06] p-5">
-          <div className="flex items-start gap-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#E6CE20]/15 text-[#E6CE20]">
-              <Music2 className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="font-bold">{t.jamTitle}</p>
-              <p className="mt-1 text-sm leading-relaxed text-white/65">{t.jamDescription}</p>
-              <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#E6CE20]">
-                {t.jamStatus}
-              </p>
-            </div>
-          </div>
-        </aside>
-      )}
       <label className="relative block">
         <span className="sr-only">{t.search}</span>
         <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/45" />
@@ -1991,12 +1964,56 @@ function SimulatedMusicView({
           })}
         </div>
       </section>
+      <PassengerMusicSupport config={config} onNavigate={onNavigate} t={t} />
       <button
         type="button"
         onClick={() => onNavigate("home")}
         className="w-fit text-sm text-white/55 underline underline-offset-4"
       >
         {t.home}
+      </button>
+    </div>
+  );
+}
+
+function PassengerMusicSupport({
+  config,
+  onNavigate,
+  t,
+}: {
+  config: AppConfig;
+  onNavigate: (view: View) => void;
+  t: (typeof copy)[Language];
+}) {
+  return (
+    <div className="passenger-music-support">
+      <section className="passenger-music-support-ticker overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.025]">
+        <ServiceTicker config={config} />
+      </section>
+      <button
+        type="button"
+        onClick={() => onNavigate("meet-juan")}
+        className="passenger-music-support-host group relative flex min-h-[88px] items-center gap-3 overflow-hidden rounded-[22px] border border-[#E6CE20]/20 bg-gradient-to-r from-[#E6CE20]/10 via-white/[0.045] to-white/[0.02] p-3 text-left transition hover:border-[#E6CE20]/45 hover:bg-[#E6CE20]/[0.1]"
+      >
+        <span className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-[#E6CE20]/15 blur-3xl" />
+        <img
+          src={config.meetPhoto}
+          alt={config.ownerName}
+          loading="lazy"
+          decoding="async"
+          className="relative h-12 w-12 shrink-0 rounded-xl border border-[#E6CE20]/35 object-cover"
+        />
+        <span className="relative min-w-0 flex-1">
+          <span className="block text-[9px] font-semibold uppercase tracking-[0.16em] text-[#E6CE20]">
+            {t.hostCardEyebrow}
+          </span>
+          <span className="mt-0.5 block font-extrabold">{config.ownerName}</span>
+          <span className="block truncate text-xs text-white/60">{t.hostCardDescription}</span>
+        </span>
+        <span className="relative flex shrink-0 items-center gap-1 text-xs font-semibold text-[#E6CE20]">
+          {t.meetJuan}
+          <ChevronRight className="h-4 w-4" />
+        </span>
       </button>
     </div>
   );
@@ -2260,7 +2277,7 @@ function PassengerVehicleGrid({ title }: { title: string }) {
         {vehicles.map((vehicle) => (
           <div
             key={vehicle.image}
-            className="relative aspect-[0.9] min-h-[168px] overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.04]"
+            className={`passenger-vehicle-tile relative aspect-[0.9] min-h-[168px] overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.04] ${vehicle.image === passengerRav4Snow ? "passenger-vehicle-tile--snow" : ""}`}
           >
             <img
               src={vehicle.image}
@@ -2373,6 +2390,24 @@ function ServicesView({
   );
 }
 
+function buildPassengerContactVcard(config: AppConfig) {
+  const escape = (value: string) =>
+    value.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/;/g, "\\;").replace(/,/g, "\\,");
+  const website = config.website.trim();
+  return [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    `FN:${escape(config.ownerName)}`,
+    `ORG:${escape(config.brandName)}`,
+    config.phone ? `TEL;TYPE=CELL:${escape(config.phone)}` : "",
+    config.email ? `EMAIL;TYPE=INTERNET:${escape(config.email)}` : "",
+    website ? `URL:${escape(website)}` : "",
+    "END:VCARD",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 function ContactView({
   config,
   onNavigate,
@@ -2382,6 +2417,8 @@ function ContactView({
   onNavigate: (view: View) => void;
   t: (typeof copy)[Language];
 }) {
+  const contactVcard = buildPassengerContactVcard(config);
+  const contactVcardUrl = `data:text/vcard;charset=utf-8,${encodeURIComponent(contactVcard)}`;
   const details = [
     { icon: <Phone />, label: t.phoneAndText, detail: config.phoneDisplay },
     { icon: <MessageCircle />, label: t.whatsapp, detail: config.phoneDisplay },
@@ -2418,6 +2455,30 @@ function ContactView({
         <p className="rounded-[18px] border border-[#E6CE20]/20 bg-[#E6CE20]/[0.06] px-4 py-3 text-sm text-white/55 sm:col-span-2">
           {t.contactNote}
         </p>
+        <section className="passenger-contact-save flex items-center gap-5 rounded-[22px] border border-[#E6CE20]/25 bg-gradient-to-r from-[#E6CE20]/[0.08] via-white/[0.04] to-white/[0.02] p-4 sm:col-span-2">
+          <span className="shrink-0 rounded-2xl bg-white p-2">
+            <QRCodeSVG
+              value={contactVcardUrl}
+              size={136}
+              bgColor="#FFFFFF"
+              fgColor="#0B0B0B"
+              level="M"
+            />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-bold">{t.contactSaveTitle}</span>
+            <span className="mt-1 block text-sm leading-relaxed text-white/60">
+              {t.contactSaveDescription}
+            </span>
+            <a
+              href={contactVcardUrl}
+              download="Juan-Streex-Rides.vcf"
+              className="mt-3 inline-flex text-sm font-semibold text-[#E6CE20] underline underline-offset-4"
+            >
+              {t.contactSaveDownload}
+            </a>
+          </span>
+        </section>
       </div>
     </div>
   );

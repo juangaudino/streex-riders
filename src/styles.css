@@ -190,6 +190,93 @@
   }
 }
 
+/* Final Passenger Console fit pass. Portrait remains the primary canvas; the
+   landscape rules below only compose the added Music support rail. */
+@media (orientation: portrait) {
+  .passenger-console-shell[data-view="games"] > main:has(> .passenger-games-layout) {
+    overflow-y: hidden !important;
+    padding-bottom: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="games"] > main > .passenger-games-layout {
+    height: 100% !important;
+    min-height: 0 !important;
+    gap: 12px !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-games-grid {
+    min-height: 0 !important;
+    gap: 12px !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-game-card {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-games-coming-soon-grid {
+    gap: 12px !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-games-horizon,
+  .passenger-console-shell[data-view="games"] .passenger-games-future {
+    min-height: 112px !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-vehicle-tile--snow {
+    display: none !important;
+  }
+
+  .passenger-contact-save {
+    min-height: 0 !important;
+  }
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-music-layout {
+    grid-template-rows: auto minmax(170px, 1fr) auto auto minmax(104px, auto) !important;
+  }
+
+  .passenger-music-error {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+  }
+
+  .passenger-music-support {
+    display: grid !important;
+    grid-column: 1 !important;
+    grid-row: 5 !important;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    gap: 10px;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .passenger-music-support-ticker,
+  .passenger-music-support-host {
+    min-width: 0;
+    min-height: 0 !important;
+    height: 100%;
+  }
+
+  .passenger-music-support-ticker > div {
+    padding-block: 8px !important;
+  }
+
+  .passenger-music-support-host {
+    padding: 10px !important;
+  }
+
+  .passenger-contact-actions {
+    grid-template-rows: repeat(2, minmax(96px, 1fr)) auto minmax(136px, auto) !important;
+  }
+
+  .passenger-contact-save {
+    min-height: 0 !important;
+    padding: 10px !important;
+  }
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(0.145 0 0);

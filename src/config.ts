@@ -72,8 +72,6 @@ export const CONFIG = {
       searchResultLimit: 8,
       // Public catalog market used only for server-side Spotify song search.
       catalogMarket: "US",
-      // Informational only: Spotify generates any live Jam QR from the host's app.
-      jamNoticeEnabled: true,
     },
     games: {
       utahTriviaEnabled: true,
