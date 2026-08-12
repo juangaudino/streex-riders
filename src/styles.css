@@ -847,7 +847,8 @@ input[type="time"] {
 
 /* Passenger Console: dedicated 16:10 tablet landscape composition. */
 .passenger-idle-music {
-  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  column-gap: clamp(2rem, 4vw, 4.5rem);
 }
 
 .passenger-idle-artwork {
@@ -857,6 +858,18 @@ input[type="time"] {
   box-shadow:
     0 24px 70px rgb(0 0 0 / 0.38),
     0 0 42px rgb(230 206 32 / 0.1);
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-idle-music {
+    align-items: center;
+    column-gap: clamp(2.5rem, 5vw, 5.5rem);
+  }
+
+  .passenger-idle-track-copy {
+    min-width: 0;
+    padding-right: clamp(0.25rem, 2vw, 2rem);
+  }
 }
 
 .passenger-idle-ticker {
@@ -4670,25 +4683,26 @@ button.passenger-idle-music {
 @media (orientation: landscape) and (min-width: 900px) {
   /* Final live fixes for the current Passenger Console request. */
   .passenger-console-shell[data-view="music"] .passenger-music-layout {
-    grid-template-rows: auto minmax(160px, 1fr) auto 0 minmax(104px, auto) !important;
+    grid-template-rows: auto minmax(140px, 1fr) auto 0 196px !important;
     grid-auto-rows: 0 !important;
   }
   .passenger-console-shell[data-view="music"] .passenger-music-support {
     display: grid !important;
     grid-column: 1 !important;
     grid-row: 5 !important;
-    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr) !important;
-    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 78px minmax(108px, 1fr) !important;
+    gap: 12px !important;
     min-width: 0 !important;
-    min-height: 104px !important;
-    height: 104px !important;
+    min-height: 196px !important;
+    height: 196px !important;
     overflow: hidden !important;
   }
   .passenger-console-shell[data-view="music"] .passenger-music-support-ticker,
   .passenger-console-shell[data-view="music"] .passenger-music-support-host {
     min-width: 0 !important;
     min-height: 0 !important;
-    height: 104px !important;
+    height: auto !important;
     overflow: hidden !important;
   }
   .passenger-console-shell[data-view="music"] .passenger-music-search {

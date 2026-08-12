@@ -1993,26 +1993,26 @@ function PassengerMusicSupport({
       <button
         type="button"
         onClick={() => onNavigate("meet-juan")}
-        className="passenger-music-support-host group relative flex min-h-[88px] items-center gap-3 overflow-hidden rounded-[22px] border border-[#E6CE20]/20 bg-gradient-to-r from-[#E6CE20]/10 via-white/[0.045] to-white/[0.02] p-3 text-left transition hover:border-[#E6CE20]/45 hover:bg-[#E6CE20]/[0.1]"
+        className="passenger-music-support-host group relative flex min-h-[104px] w-full items-center gap-4 overflow-hidden rounded-[26px] border border-[#E6CE20]/20 bg-gradient-to-r from-[#E6CE20]/10 via-white/[0.045] to-white/[0.02] p-4 text-left transition hover:border-[#E6CE20]/45 hover:bg-[#E6CE20]/[0.1]"
       >
-        <span className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-[#E6CE20]/15 blur-3xl" />
+        <span className="absolute -right-10 -top-14 h-36 w-36 rounded-full bg-[#E6CE20]/15 blur-3xl" />
         <img
           src={config.meetPhoto}
           alt={config.ownerName}
           loading="lazy"
           decoding="async"
-          className="relative h-12 w-12 shrink-0 rounded-xl border border-[#E6CE20]/35 object-cover"
+          className="relative h-16 w-16 shrink-0 rounded-2xl border border-[#E6CE20]/35 object-cover shadow-[0_0_20px_rgba(230,206,32,0.12)]"
         />
         <span className="relative min-w-0 flex-1">
-          <span className="block text-[9px] font-semibold uppercase tracking-[0.16em] text-[#E6CE20]">
+          <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
             {t.hostCardEyebrow}
           </span>
-          <span className="mt-0.5 block font-extrabold">{config.ownerName}</span>
-          <span className="block truncate text-xs text-white/60">{t.hostCardDescription}</span>
+          <span className="mt-1 block text-lg font-extrabold">{config.ownerName}</span>
+          <span className="mt-1 block truncate text-sm text-white/60">{t.hostCardDescription}</span>
         </span>
-        <span className="relative flex shrink-0 items-center gap-1 text-xs font-semibold text-[#E6CE20]">
+        <span className="relative flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#E6CE20]">
           {t.meetJuan}
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </span>
       </button>
     </div>
