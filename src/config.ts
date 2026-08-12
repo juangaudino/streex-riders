@@ -78,9 +78,9 @@ export const CONFIG = {
       thisOrThatEnabled: true,
     },
     aroundYou: {
-      // Keep the watcher off until the dedicated tablet has been provisioned and its
-      // browser location permission has been validated in the vehicle.
-      enabled: false,
+      // The dedicated tablet now has a validated browser location permission. Coordinates
+      // stay in memory on that device only; Around You never persists or transmits them.
+      enabled: true,
       geolocation: {
         enableHighAccuracy: true,
         timeoutMs: 15_000,
