@@ -1130,7 +1130,7 @@ function HomeView({
               </span>
             </button>
           </div>
-          <div className="mt-4 grid grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-3">
+          <div className="passenger-home-secondary-clocks mt-4 grid grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-3">
             <SecondaryClock label={t.newYork} time={eastTime} />
             <SecondaryClock label={t.dallas} time={centralTime} />
             <SecondaryClock label={t.losAngeles} time={pacificTime} />

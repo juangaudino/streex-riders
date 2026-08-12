@@ -106,6 +106,312 @@
   }
 }
 
+/* Passenger Console — final responsive validation layer (2026-08-12).
+   This section is intentionally the last stylesheet rule. */
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="home"] .passenger-home-hero > .relative {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) clamp(13.5rem, 19vw, 16rem) !important;
+    align-items: end !important;
+    gap: clamp(1.25rem, 2.2vw, 2.5rem) !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div {
+    grid-column: 1 !important;
+    justify-self: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    text-align: center !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div > p:nth-child(2) {
+    font-size: clamp(3.35rem, 4vw, 4.65rem) !important;
+    white-space: nowrap !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > button {
+    position: relative !important;
+    inset: auto !important;
+    grid-column: 2 !important;
+    justify-self: end !important;
+    align-self: end !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 16rem !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-secondary-clocks,
+  .passenger-console-shell[data-view="home"] .passenger-home-secondary-clocks > div {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured {
+    position: relative !important;
+    isolation: isolate !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-section-eyebrow {
+    position: absolute !important;
+    z-index: 4 !important;
+    top: 1rem !important;
+    left: 1rem !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 0.7) !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-place-card--hero,
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-fallback {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex: 1 1 100% !important;
+    border: 0 !important;
+    border-radius: inherit !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-place-card--hero .passenger-around-place-content {
+    width: 100% !important;
+    height: 100% !important;
+    padding: 3.7rem 1.35rem 1.35rem !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-live-button {
+    position: absolute !important;
+    z-index: 5 !important;
+    top: auto !important;
+    right: 1rem !important;
+    bottom: 1rem !important;
+    left: auto !important;
+    display: inline-flex !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0.45rem 0.7rem !important;
+    border: 1px solid rgb(230 206 32 / 0.38) !important;
+    border-radius: 999px !important;
+    background: rgb(8 8 8 / 0.72) !important;
+    font-size: 0.67rem !important;
+    line-height: 1 !important;
+    backdrop-filter: blur(10px) !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-overview {
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions {
+    height: 100% !important;
+    min-height: 0 !important;
+    grid-template-rows: 1.1fr repeat(2, minmax(0, 0.88fr)) minmax(0, 0.98fr) minmax(0, 1.64fr) !important;
+    gap: clamp(0.55rem, 0.75vw, 0.8rem) !important;
+    align-content: stretch !important;
+    overflow: hidden !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > *,
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > .col-span-2,
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > a.col-span-2 {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+}
+
+@media (orientation: portrait) {
+  .passenger-console-shell[data-view="around-you"] .passenger-around-live-button {
+    position: absolute !important;
+    z-index: 5 !important;
+    top: auto !important;
+    right: 0.8rem !important;
+    bottom: 0.8rem !important;
+    left: auto !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0.45rem 0.7rem !important;
+    border: 1px solid rgb(230 206 32 / 0.38) !important;
+    border-radius: 999px !important;
+    background: rgb(8 8 8 / 0.72) !important;
+    font-size: 0.67rem !important;
+    line-height: 1 !important;
+    backdrop-filter: blur(10px) !important;
+  }
+}
+
+/* Passenger Console — final responsive validation layer (2026-08-12).
+   Deliberately at EOF: this is the single authority for the three landscape
+   compositions below, after earlier exploratory responsive passes. */
+@media (orientation: landscape) and (min-width: 900px) {
+  /* Home: reserve a real right-hand column for weather, never overlap time. */
+  .passenger-console-shell[data-view="home"] .passenger-home-hero > .relative {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) clamp(13.5rem, 19vw, 16rem) !important;
+    align-items: end !important;
+    gap: clamp(1.25rem, 2.2vw, 2.5rem) !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div {
+    grid-column: 1 !important;
+    justify-self: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    text-align: center !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div > p:nth-child(2) {
+    font-size: clamp(3.35rem, 4vw, 4.65rem) !important;
+    white-space: nowrap !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > button {
+    position: relative !important;
+    inset: auto !important;
+    grid-column: 2 !important;
+    justify-self: end !important;
+    align-self: end !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 16rem !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-secondary-clocks,
+  .passenger-console-shell[data-view="home"] .passenger-home-secondary-clocks > div {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  /* Around You: the featured image is the complete canvas; no side panels. */
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured {
+    position: relative !important;
+    isolation: isolate !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-section-eyebrow {
+    position: absolute !important;
+    z-index: 4 !important;
+    top: 1rem !important;
+    left: 1rem !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 0.7) !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-place-card--hero,
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-fallback {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex: 1 1 100% !important;
+    border: 0 !important;
+    border-radius: inherit !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-place-card--hero .passenger-around-place-content {
+    width: 100% !important;
+    height: 100% !important;
+    padding: 3.7rem 1.35rem 1.35rem !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-live-button {
+    position: absolute !important;
+    z-index: 5 !important;
+    top: auto !important;
+    right: 1rem !important;
+    bottom: 1rem !important;
+    left: auto !important;
+    display: inline-flex !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0.45rem 0.7rem !important;
+    border: 1px solid rgb(230 206 32 / 0.38) !important;
+    border-radius: 999px !important;
+    background: rgb(8 8 8 / 0.72) !important;
+    font-size: 0.67rem !important;
+    line-height: 1 !important;
+    backdrop-filter: blur(10px) !important;
+  }
+
+  /* STREEX: actions and vehicle gallery deliberately share the column height. */
+  .passenger-console-shell[data-view="streex"] .passenger-streex-overview {
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions {
+    height: 100% !important;
+    min-height: 0 !important;
+    grid-template-rows: 1.1fr repeat(2, minmax(0, 0.88fr)) minmax(0, 0.98fr) minmax(0, 1.64fr) !important;
+    gap: clamp(0.55rem, 0.75vw, 0.8rem) !important;
+    align-content: stretch !important;
+    overflow: hidden !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > *,
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > .col-span-2,
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > a.col-span-2 {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+}
+
+@media (orientation: portrait) {
+  .passenger-console-shell[data-view="around-you"] .passenger-around-live-button {
+    position: absolute !important;
+    z-index: 5 !important;
+    top: auto !important;
+    right: 0.8rem !important;
+    bottom: 0.8rem !important;
+    left: auto !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0.45rem 0.7rem !important;
+    border: 1px solid rgb(230 206 32 / 0.38) !important;
+    border-radius: 999px !important;
+    background: rgb(8 8 8 / 0.72) !important;
+    font-size: 0.67rem !important;
+    line-height: 1 !important;
+    backdrop-filter: blur(10px) !important;
+  }
+}
+
 /* Passenger Console finishing pass: preserve the established layouts while
    making their visual hierarchy resilient to long live content. */
 .passenger-music-now-playing {
@@ -6639,5 +6945,193 @@ button.passenger-idle-music {
 
   .passenger-idle-content--around-you .passenger-idle-music--compact {
     max-height: 17dvh;
+  }
+}
+
+/* Passenger Console — final responsive validation layer (2026-08-12).
+   This section is intentionally the last stylesheet rule. */
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="home"] .passenger-home-hero > .relative { width: 100% !important; max-width: none !important; }
+  .passenger-console-shell[data-view="home"] .passenger-home-time { display: grid !important; grid-template-columns: minmax(0, 1fr) clamp(13.5rem, 19vw, 16rem) !important; align-items: end !important; gap: clamp(1.25rem, 2.2vw, 2.5rem) !important; }
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div { grid-column: 1 !important; justify-self: center !important; width: 100% !important; min-width: 0 !important; text-align: center !important; }
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div > p:nth-child(2) { font-size: clamp(3.35rem, 4vw, 4.65rem) !important; white-space: nowrap !important; }
+  .passenger-console-shell[data-view="home"] .passenger-home-time > button { position: relative !important; inset: auto !important; grid-column: 2 !important; justify-self: end !important; align-self: end !important; width: 100% !important; min-width: 0 !important; max-width: 16rem !important; margin: 0 !important; transform: none !important; }
+  .passenger-console-shell[data-view="home"] .passenger-home-secondary-clocks, .passenger-console-shell[data-view="home"] .passenger-home-secondary-clocks > div { width: 100% !important; text-align: center !important; }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured { position: relative !important; isolation: isolate !important; padding: 0 !important; overflow: hidden !important; }
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-section-eyebrow { position: absolute !important; z-index: 4 !important; top: 1rem !important; left: 1rem !important; width: auto !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: transparent !important; border: 0 !important; border-radius: 0 !important; text-shadow: 0 1px 8px rgb(0 0 0 / 0.7) !important; }
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-place-card--hero, .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-fallback { width: 100% !important; height: 100% !important; min-height: 0 !important; flex: 1 1 100% !important; border: 0 !important; border-radius: inherit !important; }
+  .passenger-console-shell[data-view="around-you"] .passenger-around-place-card--hero .passenger-around-place-content { width: 100% !important; height: 100% !important; padding: 3.7rem 1.35rem 1.35rem !important; }
+  .passenger-console-shell[data-view="around-you"] .passenger-around-live-button { position: absolute !important; z-index: 5 !important; top: auto !important; right: 1rem !important; bottom: 1rem !important; left: auto !important; display: inline-flex !important; width: auto !important; height: auto !important; min-height: 0 !important; margin: 0 !important; padding: 0.45rem 0.7rem !important; border: 1px solid rgb(230 206 32 / 0.38) !important; border-radius: 999px !important; background: rgb(8 8 8 / 0.72) !important; font-size: 0.67rem !important; line-height: 1 !important; backdrop-filter: blur(10px) !important; }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-overview { grid-template-rows: auto minmax(0, 1fr) !important; height: 100% !important; min-height: 0 !important; }
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions { height: 100% !important; min-height: 0 !important; grid-template-rows: 1.1fr repeat(2, minmax(0, 0.88fr)) minmax(0, 0.98fr) minmax(0, 1.64fr) !important; gap: clamp(0.55rem, 0.75vw, 0.8rem) !important; align-content: stretch !important; overflow: hidden !important; }
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > *, .passenger-console-shell[data-view="streex"] .passenger-streex-actions > .col-span-2, .passenger-console-shell[data-view="streex"] .passenger-streex-actions > a.col-span-2 { height: 100% !important; min-height: 0 !important; max-height: none !important; }
+}
+
+@media (orientation: portrait) {
+  .passenger-console-shell[data-view="around-you"] .passenger-around-live-button { position: absolute !important; z-index: 5 !important; top: auto !important; right: 0.8rem !important; bottom: 0.8rem !important; left: auto !important; width: auto !important; height: auto !important; margin: 0 !important; padding: 0.45rem 0.7rem !important; border: 1px solid rgb(230 206 32 / 0.38) !important; border-radius: 999px !important; background: rgb(8 8 8 / 0.72) !important; font-size: 0.67rem !important; line-height: 1 !important; backdrop-filter: blur(10px) !important; }
+}
+
+/* Passenger Console — landscape stabilization (2026-08-12).
+   This is intentionally the final responsive authority for the three areas
+   below. It removes earlier experimental sizing rather than adding another
+   alternate composition. */
+@media (orientation: landscape) and (min-width: 900px) {
+  /* Home: time and weather occupy distinct columns, preventing overlap. */
+  .passenger-console-shell[data-view="home"] .passenger-home-time {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) clamp(12.25rem, 16vw, 15.5rem) !important;
+    align-items: end !important;
+    gap: clamp(1rem, 1.6vw, 1.65rem) !important;
+    width: 100% !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div {
+    grid-column: 1 !important;
+    justify-self: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    text-align: center !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > button {
+    position: relative !important;
+    inset: auto !important;
+    grid-column: 2 !important;
+    justify-self: end !important;
+    align-self: end !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 15.5rem !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-secondary-clocks,
+  .passenger-console-shell[data-view="home"] .passenger-home-secondary-clocks > div {
+    justify-items: center !important;
+    text-align: center !important;
+  }
+
+  /* Around You: the photograph is one uninterrupted canvas. */
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured {
+    position: relative !important;
+    display: block !important;
+    isolation: isolate !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-section-eyebrow {
+    display: none !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-place-card--hero,
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured > .passenger-around-fallback {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: inherit !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-place-card--hero .passenger-around-place-content {
+    width: 100% !important;
+    height: 100% !important;
+    padding: 1.35rem !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-live-button {
+    position: absolute !important;
+    top: auto !important;
+    right: 1rem !important;
+    bottom: 1rem !important;
+    left: auto !important;
+    z-index: 8 !important;
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    align-self: auto !important;
+    place-self: auto !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0.45rem 0.72rem !important;
+    border: 1px solid rgb(230 206 32 / 0.38) !important;
+    border-radius: 999px !important;
+    background: rgb(8 8 8 / 0.74) !important;
+    font-size: 0.67rem !important;
+    line-height: 1 !important;
+  }
+
+  /* STREEX: a full-height actions column paired with the RAV4 gallery. */
+  .passenger-console-shell[data-view="streex"] .passenger-streex-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    gap: clamp(0.9rem, 1.2vw, 1.35rem) !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-overview {
+    display: grid !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    gap: clamp(0.75rem, 1vw, 1rem) !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-header {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: 1.1fr repeat(2, minmax(0, 0.9fr)) minmax(0, 0.98fr) minmax(0, 1.45fr) !important;
+    gap: clamp(0.5rem, 0.72vw, 0.75rem) !important;
+    align-content: stretch !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > *,
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > .col-span-2,
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > a.col-span-2 {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-experience {
+    display: block !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+}
+
+@media (orientation: portrait) {
+  .passenger-console-shell[data-view="around-you"] .passenger-around-live-button {
+    top: auto !important;
+    right: 0.75rem !important;
+    bottom: 0.75rem !important;
+    left: auto !important;
   }
 }
