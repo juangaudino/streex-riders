@@ -143,55 +143,57 @@ export function AroundYouView({
         )}
       </section>
 
-      {nearbyMatches.length > 0 && (
-        <section className="passenger-around-nearby">
+      <div className="passenger-around-secondary">
+        {nearbyMatches.length > 0 && (
+          <section className="passenger-around-nearby">
+            <div className="passenger-around-section-heading">
+              <div>
+                <p>{t.nearby}</p>
+                <span>{t.localStory}</span>
+              </div>
+              <Navigation className="h-5 w-5 text-[#E6CE20]" />
+            </div>
+            <AroundYouNearbyList
+              language={language}
+              matches={nearbyMatches}
+              onSelect={setManualSelection}
+              showDistance={showDistance}
+            />
+          </section>
+        )}
+
+        <section className="passenger-around-browse" aria-label={t.browse}>
           <div className="passenger-around-section-heading">
             <div>
-              <p>{t.nearby}</p>
-              <span>{t.localStory}</span>
+              <p>{t.browse}</p>
+              <span>{t.browseDescription}</span>
             </div>
-            <Navigation className="h-5 w-5 text-[#E6CE20]" />
+            <Compass className="h-5 w-5 text-[#E6CE20]" />
           </div>
-          <AroundYouNearbyList
-            language={language}
-            matches={nearbyMatches}
-            onSelect={setManualSelection}
-            showDistance={showDistance}
-          />
+          <div className="passenger-around-browse-grid">
+            {visibleBrowseMatches.map((match) => (
+              <AroundYouPlaceCard
+                key={match.place.id}
+                language={language}
+                match={match}
+                onSelect={() => setManualSelection(match)}
+                selected={manualSelection?.place.id === match.place.id}
+                showDistance={false}
+                variant="browse"
+              />
+            ))}
+          </div>
+          {browseMatches.length > browseLimit && (
+            <button
+              type="button"
+              className="passenger-around-all-button"
+              onClick={() => setShowAllPlaces((value) => !value)}
+            >
+              {showAllPlaces ? t.nearby : t.allPlaces}
+            </button>
+          )}
         </section>
-      )}
-
-      <section className="passenger-around-browse" aria-label={t.browse}>
-        <div className="passenger-around-section-heading">
-          <div>
-            <p>{t.browse}</p>
-            <span>{t.browseDescription}</span>
-          </div>
-          <Compass className="h-5 w-5 text-[#E6CE20]" />
-        </div>
-        <div className="passenger-around-browse-grid">
-          {visibleBrowseMatches.map((match) => (
-            <AroundYouPlaceCard
-              key={match.place.id}
-              language={language}
-              match={match}
-              onSelect={() => setManualSelection(match)}
-              selected={manualSelection?.place.id === match.place.id}
-              showDistance={false}
-              variant="browse"
-            />
-          ))}
-        </div>
-        {browseMatches.length > browseLimit && (
-          <button
-            type="button"
-            className="passenger-around-all-button"
-            onClick={() => setShowAllPlaces((value) => !value)}
-          >
-            {showAllPlaces ? t.nearby : t.allPlaces}
-          </button>
-        )}
-      </section>
+      </div>
     </div>
   );
 }

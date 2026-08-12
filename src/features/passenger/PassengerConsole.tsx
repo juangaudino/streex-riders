@@ -1849,7 +1849,7 @@ function PersonalSpotifyMusicView({
           <p className="mt-4">{t.spotifyRefresh}</p>
         </section>
       )}
-      <div className="passenger-music-actions flex items-center justify-between gap-3">
+      <div className="passenger-music-actions flex items-center justify-start gap-3">
         <button
           type="button"
           disabled={busy}
@@ -1857,13 +1857,6 @@ function PersonalSpotifyMusicView({
           className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white/75 disabled:opacity-45"
         >
           {t.spotifyRefresh}
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("home")}
-          className="text-sm text-white/55 underline underline-offset-4"
-        >
-          {t.home}
         </button>
       </div>
       {error && <p className="passenger-music-error text-sm text-red-300">{error}</p>}
