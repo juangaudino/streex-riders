@@ -284,7 +284,7 @@
 
 @media (orientation: landscape) and (min-width: 900px) {
   .passenger-console-shell[data-view="games"] .passenger-higher-lower-board-content {
-    grid-template-rows: auto auto auto minmax(0, 1fr) 7rem !important;
+    grid-template-rows: auto auto 8.5rem minmax(0, 1fr) 7rem !important;
   }
 
   .passenger-console-shell[data-view="games"] .passenger-higher-lower-option {
@@ -406,7 +406,18 @@
   display: grid;
   min-height: 0;
   flex: 1 1 auto;
-  grid-template-rows: auto auto auto minmax(0, 1fr) 7rem;
+  grid-template-rows: auto auto 9rem minmax(0, 1fr) 7rem;
+}
+
+.passenger-higher-lower-prompt-slot {
+  display: flex;
+  min-height: 0;
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+.passenger-higher-lower-prompt {
+  font-size: clamp(2rem, 4vw, 3.2rem);
 }
 
 .passenger-higher-lower-options {

@@ -272,9 +272,11 @@ export function UtahHigherOrLower({
               style={{ width: `${timer.progress * 100}%` }}
             />
           </div>
-          <h1 className="passenger-higher-lower-prompt mt-5 max-w-3xl text-[clamp(2rem,4vw,3.2rem)] font-black leading-[1.05] tracking-tight">
-            {question.prompt[language]}
-          </h1>
+          <div className="passenger-higher-lower-prompt-slot mt-5">
+            <h1 className="passenger-higher-lower-prompt max-w-3xl font-black leading-[1.05] tracking-tight">
+              {question.prompt[language]}
+            </h1>
+          </div>
           <div className="passenger-higher-lower-options mt-6 grid min-h-0 grid-cols-2 gap-5">
             <span className="passenger-higher-lower-or" aria-hidden="true">
               {language === "en" ? "OR" : "O"}
