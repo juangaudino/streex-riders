@@ -4666,3 +4666,112 @@ button.passenger-idle-music {
     min-height: 126px !important;
   }
 }
+
+@media (orientation: landscape) and (min-width: 900px) {
+  /* Final live fixes for the current Passenger Console request. */
+  .passenger-console-shell[data-view="music"] .passenger-music-layout {
+    grid-template-rows: auto minmax(160px, 1fr) auto 0 minmax(104px, auto) !important;
+    grid-auto-rows: 0 !important;
+  }
+  .passenger-console-shell[data-view="music"] .passenger-music-support {
+    display: grid !important;
+    grid-column: 1 !important;
+    grid-row: 5 !important;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr) !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+    min-height: 104px !important;
+    height: 104px !important;
+    overflow: hidden !important;
+  }
+  .passenger-console-shell[data-view="music"] .passenger-music-support-ticker,
+  .passenger-console-shell[data-view="music"] .passenger-music-support-host {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 104px !important;
+    overflow: hidden !important;
+  }
+  .passenger-console-shell[data-view="music"] .passenger-music-search {
+    grid-column: 2 !important;
+    grid-row: 1 / 6 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .passenger-console-shell[data-view="games"] > main > .passenger-trivia-layout,
+  .passenger-console-shell[data-view="games"] > main > .passenger-choice-layout {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] > main {
+    overflow: hidden !important;
+  }
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions {
+    grid-template-rows: 68px 54px 54px 60px minmax(96px, 1fr) !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+  }
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > *,
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > .col-span-2 {
+    min-height: 0 !important;
+  }
+  .passenger-console-shell[data-view="streex"] .passenger-vehicle-grid-section {
+    overflow: hidden !important;
+  }
+  .passenger-console-shell[data-view="streex"] .passenger-vehicle-grid-section > div:last-child {
+    min-height: 0 !important;
+    height: auto !important;
+    flex: 1 1 auto !important;
+    margin-top: 8px !important;
+    grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+    overflow: hidden !important;
+  }
+  .passenger-console-shell[data-view="streex"] .passenger-vehicle-grid-section > div:last-child > div {
+    min-height: 0 !important;
+    height: auto !important;
+    aspect-ratio: auto !important;
+  }
+
+  .passenger-console-shell[data-view="where-we-ride"] .passenger-subview-intro {
+    grid-template-columns: minmax(220px, 0.42fr) minmax(0, 1fr) !important;
+    align-items: start !important;
+  }
+  .passenger-console-shell[data-view="where-we-ride"] .passenger-subview-intro > button {
+    align-self: start !important;
+  }
+  .passenger-console-shell[data-view="where-we-ride"] .passenger-areas-content > section > .streex-divider {
+    display: none !important;
+  }
+  .passenger-console-shell[data-view="where-we-ride"] .passenger-areas-content > section > p,
+  .passenger-console-shell[data-view="where-we-ride"] .passenger-areas-content > section > h2 {
+    display: block !important;
+  }
+  .passenger-console-shell[data-view="where-we-ride"] .passenger-areas-content > section > p:first-of-type {
+    margin: 0 0 0.3rem !important;
+    color: #e6ce20 !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.18em !important;
+    text-transform: uppercase !important;
+  }
+  .passenger-console-shell[data-view="where-we-ride"] .passenger-areas-content > section > h2 {
+    margin: 0 !important;
+    font-size: clamp(1.6rem, 2.5vw, 2.5rem) !important;
+    line-height: 1.05 !important;
+  }
+  .passenger-console-shell[data-view="where-we-ride"] .passenger-areas-content > section > h2 + p {
+    display: block !important;
+    margin-top: 0.45rem !important;
+    max-width: 56ch !important;
+    font-size: 0.88rem !important;
+    line-height: 1.4 !important;
+  }
+  .passenger-console-shell[data-view="where-we-ride"] .passenger-destination-carousel-wrap .passenger-gallery-track {
+    animation: none !important;
+    transform: none !important;
+  }
+  .passenger-console-shell[data-view="where-we-ride"] .passenger-destination-carousel-wrap .passenger-gallery-track > [aria-hidden="true"] {
+    display: none !important;
+  }
+}
