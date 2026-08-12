@@ -37,6 +37,8 @@ const copy = {
     results: "See results",
     finishedEyebrow: "ROUND COMPLETE",
     finishedTitle: "You sized up Utah.",
+    roundReview: "Your comparison trail",
+    correctReads: "correct reads",
     score: "Your score",
     perfect: "Perfect. You know Utah from the peaks to the valleys.",
     strong: "Strong round. Your Utah instincts are sharp.",
@@ -65,6 +67,8 @@ const copy = {
     results: "Ver resultados",
     finishedEyebrow: "RONDA COMPLETADA",
     finishedTitle: "Ya conoces las medidas de Utah.",
+    roundReview: "Tu recorrido de comparaciones",
+    correctReads: "aciertos",
     score: "Tu puntaje",
     perfect: "Perfecto. Conoces Utah desde las cumbres hasta los valles.",
     strong: "Gran ronda. Tus instintos sobre Utah están afilados.",
@@ -76,6 +80,11 @@ const copy = {
 } as const;
 
 type Phase = "intro" | "playing" | "finished";
+type HigherLowerAnswer = {
+  questionId: string;
+  side: "left" | "right" | null;
+  correct: boolean;
+};
 
 function readRecentIds() {
   if (typeof window === "undefined") return [];
@@ -110,6 +119,7 @@ export function UtahHigherOrLower({
   const [selectedSide, setSelectedSide] = useState<"left" | "right" | null>(null);
   const [timedOut, setTimedOut] = useState(false);
   const [score, setScore] = useState(0);
+  const [answerLog, setAnswerLog] = useState<HigherLowerAnswer[]>([]);
 
   const question = round[questionIndex];
   const answered = selectedSide !== null || timedOut;
@@ -131,6 +141,13 @@ export function UtahHigherOrLower({
 
   useEffect(() => {
     if (!timedOut) return;
+    if (question) {
+      setAnswerLog((current) =>
+        current.some((answer) => answer.questionId === question.id)
+          ? current
+          : [...current, { questionId: question.id, side: null, correct: false }],
+      );
+    }
     const timeoutId = window.setTimeout(() => {
       if (questionIndex >= round.length - 1) {
         setPhase("finished");
@@ -142,7 +159,7 @@ export function UtahHigherOrLower({
       setTimedOut(false);
     }, 1_200);
     return () => window.clearTimeout(timeoutId);
-  }, [questionIndex, round.length, timedOut]);
+  }, [question, questionIndex, round.length, timedOut]);
 
   const startRound = () => {
     const knownIds = new Set(UTAH_HIGHER_OR_LOWER_QUESTIONS.map((item) => item.id));
@@ -160,6 +177,7 @@ export function UtahHigherOrLower({
     setSelectedSide(null);
     setTimedOut(false);
     setScore(0);
+    setAnswerLog([]);
     setPhase("playing");
   };
 
@@ -173,7 +191,13 @@ export function UtahHigherOrLower({
   const choose = (side: "left" | "right") => {
     if (!question || answered) return;
     setSelectedSide(side);
-    if (side === question.correctSide) setScore((current) => current + 1);
+    const correct = side === question.correctSide;
+    setAnswerLog((current) =>
+      current.some((answer) => answer.questionId === question.id)
+        ? current
+        : [...current, { questionId: question.id, side, correct }],
+    );
+    if (correct) setScore((current) => current + 1);
   };
 
   if (phase === "intro") {
@@ -183,6 +207,33 @@ export function UtahHigherOrLower({
   if (phase === "finished") {
     const message =
       score === ROUND_SIZE ? t.perfect : score >= 8 ? t.strong : score >= 5 ? t.good : t.learning;
+    const loggedFrames = answerLog.slice(0, 5).flatMap((answer) => {
+      const resultQuestion = round.find((item) => item.id === answer.questionId);
+      if (!resultQuestion) return [];
+      const side = answer.side ?? resultQuestion.correctSide;
+      const visual = UTAH_HIGHER_OR_LOWER_VISUALS[resultQuestion.id]?.[side];
+      return [
+        {
+          id: `${resultQuestion.id}-${side}`,
+          src: visual?.src ?? utahTriviaAtlas,
+          label: resultQuestion[side][language],
+          correct: answer.correct,
+        },
+      ];
+    });
+    const resultFrames = loggedFrames.length
+      ? loggedFrames
+      : round.slice(0, 5).map((resultQuestion) => {
+          const visual = UTAH_HIGHER_OR_LOWER_VISUALS[resultQuestion.id]?.[
+            resultQuestion.correctSide
+          ];
+          return {
+            id: resultQuestion.id,
+            src: visual?.src ?? utahTriviaAtlas,
+            label: resultQuestion[resultQuestion.correctSide][language],
+            correct: true,
+          };
+        });
     return (
       <div className="passenger-higher-lower-layout flex min-h-full flex-col gap-5">
         <button type="button" onClick={onExit} className="passenger-trivia-back">
@@ -197,24 +248,48 @@ export function UtahHigherOrLower({
             className="absolute inset-0 h-full w-full object-cover opacity-50"
           />
           <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,9,0.96),rgba(5,7,9,0.83),rgba(5,7,9,0.34))]" />
-          <div className="relative z-10 flex w-full items-center gap-8">
-            <div className="passenger-higher-lower-score">
-              <Trophy className="h-8 w-8" />
-              <strong>
+          <div className="passenger-higher-lower-results-content relative z-10 grid w-full items-center gap-8">
+            <div className="passenger-higher-lower-result-stage">
+              <span className="passenger-higher-lower-result-icon">
+                <Trophy className="h-9 w-9" />
+              </span>
+              <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#E6CE20]">
+                {t.finishedEyebrow}
+              </p>
+              <strong className="passenger-higher-lower-result-score">
                 {score}
                 <small>/{ROUND_SIZE}</small>
               </strong>
-              <span>{t.score}</span>
+              <span className="text-sm font-semibold uppercase tracking-[0.16em] text-white/60">
+                {t.score}
+              </span>
             </div>
-            <div className="max-w-xl">
+            <div className="passenger-higher-lower-result-copy">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#E6CE20]">
-                {t.finishedEyebrow}
+                {t.roundReview}
               </p>
               <h1 className="mt-3 text-4xl font-black leading-[1.04] tracking-tight">
                 {t.finishedTitle}
               </h1>
-              <p className="mt-4 text-base leading-relaxed text-white/70">{message}</p>
-              <div className="mt-7 flex flex-wrap gap-3">
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/70">{message}</p>
+              <div className="passenger-higher-lower-result-rail" aria-label={t.roundReview}>
+                {resultFrames.map((frame) => (
+                  <span
+                    key={frame.id}
+                    className={`passenger-higher-lower-result-frame ${frame.correct ? "is-correct" : "is-wrong"}`}
+                    title={frame.label}
+                  >
+                    <img src={frame.src} alt="" aria-hidden="true" />
+                    <span className="passenger-higher-lower-result-frame-status">
+                      {frame.correct ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
+                    </span>
+                  </span>
+                ))}
+              </div>
+              <p className="passenger-higher-lower-result-statline">
+                {score}/{ROUND_SIZE} {t.correctReads}
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
                 <button type="button" onClick={startRound} className="passenger-trivia-primary">
                   <RotateCcw className="h-5 w-5" />
                   {t.again}

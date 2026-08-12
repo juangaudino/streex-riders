@@ -7692,3 +7692,297 @@ button.passenger-idle-music {
     left: auto !important;
   }
 }
+
+/*
+ * Higher or Lower geometry pass
+ *
+ * Keep every gameplay state on the same grid. In particular, the answer
+ * feedback owns a reserved row instead of changing the height of the two
+ * comparison cards when it appears.
+ */
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-board-content {
+  grid-template-rows: auto auto minmax(7rem, 7rem) minmax(12rem, 1fr) minmax(8rem, 8rem) !important;
+  gap: 0 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-board-content > :nth-child(2) {
+  margin-top: 0.5rem !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-prompt-slot {
+  width: 100% !important;
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  padding: 0 0.25rem !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-prompt-slot > h1 {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-options {
+  width: 100% !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  margin-top: 0 !important;
+  align-items: stretch !important;
+  gap: clamp(1rem, 2vw, 1.75rem) !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-option {
+  display: grid !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  align-items: stretch !important;
+  justify-content: initial !important;
+  gap: 0 !important;
+  padding: clamp(1rem, 1.8vw, 1.65rem) !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-option-kicker {
+  display: grid !important;
+  width: 100% !important;
+  min-height: 2.35rem !important;
+  grid-template-columns: 2.35rem minmax(0, 1fr) !important;
+  align-items: center !important;
+  justify-content: initial !important;
+  column-gap: 0.75rem !important;
+  line-height: 1 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-option-kicker > span:last-child {
+  min-width: 0 !important;
+  text-align: left !important;
+  line-height: 1 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-option-label {
+  display: grid !important;
+  width: 2.35rem !important;
+  height: 2.35rem !important;
+  margin: 0 !important;
+  place-items: center !important;
+  justify-self: start !important;
+  line-height: 1 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-option-copy {
+  display: flex !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  font-size: clamp(1.4rem, 2.4vw, 2.25rem) !important;
+  line-height: 1.08 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-option-footer {
+  width: 100% !important;
+  min-height: 1.5rem !important;
+  margin: 0 !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot {
+  display: flex !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+  align-items: stretch !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback {
+  display: grid !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+  grid-template-columns: minmax(0, 1fr) minmax(11.5rem, 12.5rem) !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  overflow: hidden !important;
+  padding: 0.9rem 1rem !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback > div:first-child {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback > div:first-child p {
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback > div:first-child p:last-child {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback .passenger-trivia-primary {
+  width: 100% !important;
+  min-width: 11.5rem !important;
+  min-height: 3rem !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  padding-inline: 0.75rem !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-results-content {
+  grid-template-columns: minmax(10rem, 0.55fr) minmax(0, 1.45fr) !important;
+  min-height: 100% !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-stage {
+  display: flex !important;
+  min-width: 0 !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-icon {
+  display: grid !important;
+  width: 5.75rem !important;
+  height: 5.75rem !important;
+  place-items: center !important;
+  border: 1px solid rgb(230 206 32 / 0.55) !important;
+  border-radius: 1.5rem !important;
+  background: rgb(230 206 32 / 0.12) !important;
+  color: #e6ce20 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-score {
+  display: block !important;
+  margin-top: 1.1rem !important;
+  font-size: clamp(4rem, 8vw, 7rem) !important;
+  line-height: 0.9 !important;
+  letter-spacing: -0.06em !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-score small {
+  margin-left: 0.2em !important;
+  font-size: 0.35em !important;
+  letter-spacing: -0.02em !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-copy {
+  min-width: 0 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-rail {
+  display: grid !important;
+  width: 100% !important;
+  max-width: 42rem !important;
+  margin-top: 1.25rem !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 0.55rem !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-frame {
+  position: relative !important;
+  display: block !important;
+  min-width: 0 !important;
+  height: 4.4rem !important;
+  overflow: hidden !important;
+  border: 1px solid rgb(255 255 255 / 0.14) !important;
+  border-radius: 1rem !important;
+  background: #151515 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-frame::after {
+  position: absolute !important;
+  inset: 0 !important;
+  content: "" !important;
+  background: linear-gradient(180deg, transparent 20%, rgb(0 0 0 / 0.72)) !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-frame img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  opacity: 0.72 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-frame-status {
+  position: absolute !important;
+  right: 0.45rem !important;
+  bottom: 0.45rem !important;
+  z-index: 1 !important;
+  display: grid !important;
+  width: 1.55rem !important;
+  height: 1.55rem !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-frame.is-correct {
+  border-color: rgb(230 206 32 / 0.75) !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-frame.is-correct .passenger-higher-lower-result-frame-status {
+  background: #e6ce20 !important;
+  color: #111 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-frame.is-wrong {
+  border-color: rgb(244 133 108 / 0.75) !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-frame.is-wrong .passenger-higher-lower-result-frame-status {
+  background: #f4856c !important;
+  color: #111 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-statline {
+  margin-top: 0.65rem !important;
+  color: rgb(230 206 32 / 0.86) !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+}
+
+@media (orientation: landscape) {
+  .passenger-console-shell[data-view="games"] .passenger-higher-lower-board-content {
+    grid-template-rows: auto auto minmax(7rem, 7rem) minmax(13rem, 1fr) minmax(8rem, 8rem) !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-higher-lower-option-copy {
+    font-size: clamp(1.55rem, 2.2vw, 2.4rem) !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback {
+    grid-template-columns: minmax(0, 1fr) minmax(14rem, 15rem) !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback .passenger-trivia-primary {
+    min-width: 14rem !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .passenger-console-shell[data-view="games"] .passenger-higher-lower-results-content {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  .passenger-console-shell[data-view="games"] .passenger-higher-lower-result-stage {
+    align-items: center !important;
+    text-align: center !important;
+  }
+}
