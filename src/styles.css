@@ -5036,9 +5036,16 @@ button.passenger-idle-music {
   }
   .passenger-console-shell[data-view="around-you"] .passenger-around-layout {
     display: flex !important;
+    width: 100% !important;
     min-height: auto !important;
+    height: auto !important;
     flex-direction: column !important;
     gap: 0.9rem !important;
+  }
+  .passenger-console-shell[data-view="around-you"] .passenger-around-layout > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    grid-area: auto !important;
   }
   .passenger-console-shell[data-view="around-you"] .passenger-around-featured {
     min-height: 0 !important;
