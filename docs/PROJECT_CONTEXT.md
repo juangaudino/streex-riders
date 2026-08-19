@@ -150,6 +150,16 @@ Expected public behavior:
 Supabase Storage contains the public `tenant-assets` image bucket. Writes are isolated by tenant;
 existing static assets remain valid fallbacks.
 
+### Email
+
+Resend handles transactional sending and inbound receiving for `rides.getstreex.com`. The inbound
+address `juan@rides.getstreex.com` is received by Resend and forwarded to the configured
+`INBOUND_FORWARD_TO` address through the signed webhook at `/api/resend/inbound`. The production
+environment must contain `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `INBOUND_FORWARD_TO`, and a
+verified-domain sender in `INBOUND_FORWARD_FROM`. The webhook validates Resend/Svix signatures,
+retrieves the received message, forwards its content, and preserves the original sender as
+`Reply-To`; it does not expose inbound email data to the browser.
+
 ## Technical Stack
 
 - React 19
