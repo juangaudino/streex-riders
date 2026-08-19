@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SlcAirportPrivateRidesRouteImport } from './routes/slc-airport-private-rides'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RunnerLabRouteImport } from './routes/runner-lab'
+import { Route as RequestARideRouteImport } from './routes/request-a-ride'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PassengerRouteImport } from './routes/passenger'
 import { Route as ParkCityPrivateTransportationRouteImport } from './routes/park-city-private-transportation'
@@ -41,6 +42,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const RunnerLabRoute = RunnerLabRouteImport.update({
   id: '/runner-lab',
   path: '/runner-lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestARideRoute = RequestARideRouteImport.update({
+  id: '/request-a-ride',
+  path: '/request-a-ride',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/park-city-private-transportation': typeof ParkCityPrivateTransportationRoute
   '/passenger': typeof PassengerRoute
   '/privacy': typeof PrivacyRoute
+  '/request-a-ride': typeof RequestARideRoute
   '/runner-lab': typeof RunnerLabRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slc-airport-private-rides': typeof SlcAirportPrivateRidesRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/park-city-private-transportation': typeof ParkCityPrivateTransportationRoute
   '/passenger': typeof PassengerRoute
   '/privacy': typeof PrivacyRoute
+  '/request-a-ride': typeof RequestARideRoute
   '/runner-lab': typeof RunnerLabRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slc-airport-private-rides': typeof SlcAirportPrivateRidesRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/park-city-private-transportation': typeof ParkCityPrivateTransportationRoute
   '/passenger': typeof PassengerRoute
   '/privacy': typeof PrivacyRoute
+  '/request-a-ride': typeof RequestARideRoute
   '/runner-lab': typeof RunnerLabRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slc-airport-private-rides': typeof SlcAirportPrivateRidesRoute
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/park-city-private-transportation'
     | '/passenger'
     | '/privacy'
+    | '/request-a-ride'
     | '/runner-lab'
     | '/sitemap.xml'
     | '/slc-airport-private-rides'
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/park-city-private-transportation'
     | '/passenger'
     | '/privacy'
+    | '/request-a-ride'
     | '/runner-lab'
     | '/sitemap.xml'
     | '/slc-airport-private-rides'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/park-city-private-transportation'
     | '/passenger'
     | '/privacy'
+    | '/request-a-ride'
     | '/runner-lab'
     | '/sitemap.xml'
     | '/slc-airport-private-rides'
@@ -252,6 +264,7 @@ export interface RootRouteChildren {
   ParkCityPrivateTransportationRoute: typeof ParkCityPrivateTransportationRoute
   PassengerRoute: typeof PassengerRoute
   PrivacyRoute: typeof PrivacyRoute
+  RequestARideRoute: typeof RequestARideRoute
   RunnerLabRoute: typeof RunnerLabRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SlcAirportPrivateRidesRoute: typeof SlcAirportPrivateRidesRoute
@@ -284,6 +297,13 @@ declare module '@tanstack/react-router' {
       path: '/runner-lab'
       fullPath: '/runner-lab'
       preLoaderRoute: typeof RunnerLabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/request-a-ride': {
+      id: '/request-a-ride'
+      path: '/request-a-ride'
+      fullPath: '/request-a-ride'
+      preLoaderRoute: typeof RequestARideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -414,6 +434,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParkCityPrivateTransportationRoute: ParkCityPrivateTransportationRoute,
   PassengerRoute: PassengerRoute,
   PrivacyRoute: PrivacyRoute,
+  RequestARideRoute: RequestARideRoute,
   RunnerLabRoute: RunnerLabRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SlcAirportPrivateRidesRoute: SlcAirportPrivateRidesRoute,

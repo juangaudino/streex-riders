@@ -24,6 +24,7 @@ Important temporary secret:
 ## Main Routes
 
 - `/`: passenger landing experience
+- `/request-a-ride`: direct, no-index booking entry point for business profiles, ads and QR codes
 - `/slc-airport-private-rides`: SLC Airport service page
 - `/park-city-private-transportation`: Park City service page
 - `/las-vegas-private-rides`: Las Vegas long-distance service page
