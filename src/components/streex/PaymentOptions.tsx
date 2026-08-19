@@ -41,7 +41,10 @@ function getPayments(config: AppConfig): Payment[] {
     },
     {
       label: "Apple Pay",
-      href: `tel:${config.applePayPhone}`,
+      // Stripe presents Apple Pay, Google Pay, and card when each option is available on the
+      // passenger's device. This matches the in-vehicle Passenger Console checkout flow.
+      href: config.passengerConsole.links.stripeTip || `tel:${config.applePayPhone}`,
+      external: Boolean(config.passengerConsole.links.stripeTip),
       icon: <ApplePayIcon />,
     },
   ];
