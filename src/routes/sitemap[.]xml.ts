@@ -23,6 +23,24 @@ export const Route = createFileRoute("/sitemap.xml")({
           .order("slug");
         const entries: SitemapEntry[] = [
           { path: "/", lastmod: "2026-06-23", changefreq: "weekly", priority: "1.0" },
+          {
+            path: "/slc-airport-private-rides",
+            lastmod: "2026-08-19",
+            changefreq: "monthly",
+            priority: "0.9",
+          },
+          {
+            path: "/park-city-private-transportation",
+            lastmod: "2026-08-19",
+            changefreq: "monthly",
+            priority: "0.9",
+          },
+          {
+            path: "/las-vegas-private-rides",
+            lastmod: "2026-08-19",
+            changefreq: "monthly",
+            priority: "0.8",
+          },
           { path: "/privacy", lastmod: "2026-06-30", changefreq: "yearly", priority: "0.2" },
           ...(tenantResult.data ?? []).map((tenant) => ({
             path: `/${tenant.slug}`,

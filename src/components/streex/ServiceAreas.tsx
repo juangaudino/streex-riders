@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { MapPin, Mountain, Navigation } from "lucide-react";
 import { Reveal } from "./Reveal";
 import type { AppConfig } from "@/config";
@@ -78,6 +79,18 @@ export function ServiceAreas({
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs">
+        <Link to="/slc-airport-private-rides" className="text-[#E6CE20] hover:text-[#f4df4d]">
+          SLC Airport rides
+        </Link>
+        <Link to="/park-city-private-transportation" className="text-[#E6CE20] hover:text-[#f4df4d]">
+          Park City transportation
+        </Link>
+        <Link to="/las-vegas-private-rides" className="text-[#E6CE20] hover:text-[#f4df4d]">
+          Las Vegas long-distance rides
+        </Link>
       </div>
     </Reveal>
   );

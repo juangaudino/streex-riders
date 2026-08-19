@@ -24,6 +24,9 @@ Important temporary secret:
 ## Main Routes
 
 - `/`: passenger landing experience
+- `/slc-airport-private-rides`: SLC Airport service page
+- `/park-city-private-transportation`: Park City service page
+- `/las-vegas-private-rides`: Las Vegas long-distance service page
 - `/{driver-slug}`: active driver landing page, such as `/driver2`
 - `/admin`: internal control center
 - `/admin/bookings`: Admin bookings view

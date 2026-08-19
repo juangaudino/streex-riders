@@ -9,10 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SlcAirportPrivateRidesRouteImport } from './routes/slc-airport-private-rides'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RunnerLabRouteImport } from './routes/runner-lab'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PassengerRouteImport } from './routes/passenger'
+import { Route as ParkCityPrivateTransportationRouteImport } from './routes/park-city-private-transportation'
+import { Route as LasVegasPrivateRidesRouteImport } from './routes/las-vegas-private-rides'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as TenantSlugRouteImport } from './routes/$tenantSlug'
 import { Route as IndexRouteImport } from './routes/index'
@@ -25,6 +28,11 @@ import { Route as AdminReviewsRouteImport } from './routes/admin.reviews'
 import { Route as AdminBookingsRouteImport } from './routes/admin.bookings'
 import { Route as ApiResendInboundRouteImport } from './routes/api.resend.inbound'
 
+const SlcAirportPrivateRidesRoute = SlcAirportPrivateRidesRouteImport.update({
+  id: '/slc-airport-private-rides',
+  path: '/slc-airport-private-rides',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -43,6 +51,17 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PassengerRoute = PassengerRouteImport.update({
   id: '/passenger',
   path: '/passenger',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParkCityPrivateTransportationRoute =
+  ParkCityPrivateTransportationRouteImport.update({
+    id: '/park-city-private-transportation',
+    path: '/park-city-private-transportation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LasVegasPrivateRidesRoute = LasVegasPrivateRidesRouteImport.update({
+  id: '/las-vegas-private-rides',
+  path: '/las-vegas-private-rides',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -105,10 +124,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$tenantSlug': typeof TenantSlugRoute
   '/admin': typeof AdminRouteWithChildren
+  '/las-vegas-private-rides': typeof LasVegasPrivateRidesRoute
+  '/park-city-private-transportation': typeof ParkCityPrivateTransportationRoute
   '/passenger': typeof PassengerRoute
   '/privacy': typeof PrivacyRoute
   '/runner-lab': typeof RunnerLabRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/slc-airport-private-rides': typeof SlcAirportPrivateRidesRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/booking/accept': typeof BookingAcceptRoute
@@ -122,10 +144,13 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$tenantSlug': typeof TenantSlugRoute
   '/admin': typeof AdminRouteWithChildren
+  '/las-vegas-private-rides': typeof LasVegasPrivateRidesRoute
+  '/park-city-private-transportation': typeof ParkCityPrivateTransportationRoute
   '/passenger': typeof PassengerRoute
   '/privacy': typeof PrivacyRoute
   '/runner-lab': typeof RunnerLabRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/slc-airport-private-rides': typeof SlcAirportPrivateRidesRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/booking/accept': typeof BookingAcceptRoute
@@ -140,10 +165,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$tenantSlug': typeof TenantSlugRoute
   '/admin': typeof AdminRouteWithChildren
+  '/las-vegas-private-rides': typeof LasVegasPrivateRidesRoute
+  '/park-city-private-transportation': typeof ParkCityPrivateTransportationRoute
   '/passenger': typeof PassengerRoute
   '/privacy': typeof PrivacyRoute
   '/runner-lab': typeof RunnerLabRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/slc-airport-private-rides': typeof SlcAirportPrivateRidesRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/booking/accept': typeof BookingAcceptRoute
@@ -159,10 +187,13 @@ export interface FileRouteTypes {
     | '/'
     | '/$tenantSlug'
     | '/admin'
+    | '/las-vegas-private-rides'
+    | '/park-city-private-transportation'
     | '/passenger'
     | '/privacy'
     | '/runner-lab'
     | '/sitemap.xml'
+    | '/slc-airport-private-rides'
     | '/admin/bookings'
     | '/admin/reviews'
     | '/booking/accept'
@@ -176,10 +207,13 @@ export interface FileRouteTypes {
     | '/'
     | '/$tenantSlug'
     | '/admin'
+    | '/las-vegas-private-rides'
+    | '/park-city-private-transportation'
     | '/passenger'
     | '/privacy'
     | '/runner-lab'
     | '/sitemap.xml'
+    | '/slc-airport-private-rides'
     | '/admin/bookings'
     | '/admin/reviews'
     | '/booking/accept'
@@ -193,10 +227,13 @@ export interface FileRouteTypes {
     | '/'
     | '/$tenantSlug'
     | '/admin'
+    | '/las-vegas-private-rides'
+    | '/park-city-private-transportation'
     | '/passenger'
     | '/privacy'
     | '/runner-lab'
     | '/sitemap.xml'
+    | '/slc-airport-private-rides'
     | '/admin/bookings'
     | '/admin/reviews'
     | '/booking/accept'
@@ -211,10 +248,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   TenantSlugRoute: typeof TenantSlugRoute
   AdminRoute: typeof AdminRouteWithChildren
+  LasVegasPrivateRidesRoute: typeof LasVegasPrivateRidesRoute
+  ParkCityPrivateTransportationRoute: typeof ParkCityPrivateTransportationRoute
   PassengerRoute: typeof PassengerRoute
   PrivacyRoute: typeof PrivacyRoute
   RunnerLabRoute: typeof RunnerLabRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SlcAirportPrivateRidesRoute: typeof SlcAirportPrivateRidesRoute
   BookingAcceptRoute: typeof BookingAcceptRoute
   BookingDeclineRoute: typeof BookingDeclineRoute
   GoogleCalendarCallbackRoute: typeof GoogleCalendarCallbackRoute
@@ -225,6 +265,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/slc-airport-private-rides': {
+      id: '/slc-airport-private-rides'
+      path: '/slc-airport-private-rides'
+      fullPath: '/slc-airport-private-rides'
+      preLoaderRoute: typeof SlcAirportPrivateRidesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -251,6 +298,20 @@ declare module '@tanstack/react-router' {
       path: '/passenger'
       fullPath: '/passenger'
       preLoaderRoute: typeof PassengerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/park-city-private-transportation': {
+      id: '/park-city-private-transportation'
+      path: '/park-city-private-transportation'
+      fullPath: '/park-city-private-transportation'
+      preLoaderRoute: typeof ParkCityPrivateTransportationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/las-vegas-private-rides': {
+      id: '/las-vegas-private-rides'
+      path: '/las-vegas-private-rides'
+      fullPath: '/las-vegas-private-rides'
+      preLoaderRoute: typeof LasVegasPrivateRidesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -349,10 +410,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   TenantSlugRoute: TenantSlugRoute,
   AdminRoute: AdminRouteWithChildren,
+  LasVegasPrivateRidesRoute: LasVegasPrivateRidesRoute,
+  ParkCityPrivateTransportationRoute: ParkCityPrivateTransportationRoute,
   PassengerRoute: PassengerRoute,
   PrivacyRoute: PrivacyRoute,
   RunnerLabRoute: RunnerLabRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SlcAirportPrivateRidesRoute: SlcAirportPrivateRidesRoute,
   BookingAcceptRoute: BookingAcceptRoute,
   BookingDeclineRoute: BookingDeclineRoute,
   GoogleCalendarCallbackRoute: GoogleCalendarCallbackRoute,
