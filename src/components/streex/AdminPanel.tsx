@@ -28,7 +28,6 @@ import {
   updateAdminRunnerScore,
   updateAdminRunnerScoreStatus,
   updateAdminTickerTheme,
-  verifyAdminKey,
 } from "@/lib/admin.functions";
 import { getAdminTickerTheme } from "@/lib/ticker-theme.functions";
 import { getAdminSiteConfig, updateAdminSiteConfig } from "@/lib/site-config.functions";
@@ -42,7 +41,6 @@ import { GoogleCalendarConnectionCard } from "./admin/GoogleCalendarConnectionCa
 import { supabase } from "@/integrations/supabase/client";
 import { uploadTenantAsset, type TenantAssetKind } from "@/lib/tenant-assets";
 import {
-  bootstrapSuperAdmin,
   changeTenantOwner,
   createDriverTenant,
   getAdminSession,
@@ -50,8 +48,6 @@ import {
   sendTenantAccessLink,
   updateTenantStatus,
 } from "@/lib/tenant.functions";
-
-const SESSION_KEY = "streex_admin_key";
 
 type AdminTab =
   | "bookings"
@@ -140,7 +136,6 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
   const [adminSession, setAdminSession] = useState<AdminSessionState | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [emergencyKey, setEmergencyKey] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
   const [newPassword, setNewPassword] = useState("");
@@ -151,18 +146,17 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
   useEffect(() => {
     let cancelled = false;
     async function restore() {
-      const stored = sessionStorage.getItem(SESSION_KEY) || "";
       const { data } = await supabase.auth.getSession();
-      if (!data.session && !stored) return;
+      if (!data.session) return;
       try {
-        const result = await getAdminSession({ data: { adminKey: stored } });
+        const result = await getAdminSession({ data: { adminKey: "" } });
         if (cancelled) return;
         const selected = localStorage.getItem("streex_admin_tenant") || result.activeTenantId;
         localStorage.setItem("streex_admin_tenant", selected);
-        setAdminKey(stored);
+        setAdminKey("");
         setAdminSession({ ...result, activeTenantId: selected } as AdminSessionState);
       } catch {
-        sessionStorage.removeItem(SESSION_KEY);
+        await supabase.auth.signOut();
       }
     }
     restore();
@@ -184,23 +178,6 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
       setAdminSession(result as AdminSessionState);
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : "Access denied.");
-    } finally {
-      setChecking(false);
-    }
-  };
-
-  const submitEmergency = async () => {
-    setChecking(true);
-    setError(null);
-    try {
-      await verifyAdminKey({ data: { adminKey: emergencyKey } });
-      sessionStorage.setItem(SESSION_KEY, emergencyKey);
-      localStorage.setItem("streex_admin_tenant", "streex");
-      const result = await getAdminSession({ data: { adminKey: emergencyKey } });
-      setAdminKey(emergencyKey);
-      setAdminSession(result as AdminSessionState);
-    } catch {
-      setError("Emergency access denied.");
     } finally {
       setChecking(false);
     }
@@ -266,22 +243,6 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
             >
               Set or reset password
             </button>
-            <div className="my-2 h-px bg-white/10" />
-            <input
-              type="password"
-              value={emergencyKey}
-              onChange={(event) => setEmergencyKey(event.target.value)}
-              placeholder="Emergency access key"
-              className="w-full rounded-xl bg-white/[0.03] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-white/30"
-            />
-            <button
-              type="button"
-              onClick={submitEmergency}
-              disabled={checking || !emergencyKey}
-              className="text-xs rounded-xl border border-white/15 py-2.5 text-white/60 hover:text-white disabled:opacity-40"
-            >
-              Emergency access
-            </button>
             {error && <p className="text-center text-xs text-red-400/90 mt-1">{error}</p>}
           </form>
         </div>
@@ -324,7 +285,6 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
             <button
               type="button"
               onClick={() => {
-                sessionStorage.removeItem(SESSION_KEY);
                 localStorage.removeItem("streex_admin_tenant");
                 supabase.auth.signOut();
                 setAdminKey("");
@@ -468,8 +428,6 @@ function AdminDrivers({
     ownerPhone: "",
     slug: "",
   });
-  const [bootstrap, setBootstrap] = useState({ email: "juangaudino@gmail.com", fullName: "Juan" });
-  const [bootstrapComplete, setBootstrapComplete] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -497,56 +455,6 @@ function AdminDrivers({
 
   return (
     <section className="space-y-6">
-      {session.emergencyAccess && !bootstrapComplete && (
-        <div className="rounded-2xl border border-amber-400/30 bg-amber-400/[0.06] p-5">
-          <h2 className="font-semibold">Create the platform Super Admin</h2>
-          <p className="mt-1 text-xs text-white/50">
-            This account manages every workspace. It does not become the owner of Juan&apos;s driver
-            workspace.
-          </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <input
-              value={bootstrap.fullName}
-              onChange={(e) => setBootstrap((v) => ({ ...v, fullName: e.target.value }))}
-              placeholder="Full name"
-              className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm"
-            />
-            <input
-              value={bootstrap.email}
-              onChange={(e) => setBootstrap((v) => ({ ...v, email: e.target.value }))}
-              placeholder="Email"
-              type="email"
-              className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm"
-            />
-          </div>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={async () => {
-              setBusy(true);
-              try {
-                const result = await bootstrapSuperAdmin({ data: { ...bootstrap, adminKey } });
-                setMessage(
-                  result.invited
-                    ? "Super Admin invitation sent. Sign out and open the email before continuing."
-                    : "Existing account promoted to Super Admin. Sign out and use that account.",
-                );
-                setBootstrapComplete(true);
-              } catch (bootstrapError) {
-                setMessage(
-                  bootstrapError instanceof Error ? bootstrapError.message : "Bootstrap failed.",
-                );
-              } finally {
-                setBusy(false);
-              }
-            }}
-            className="mt-4 rounded-xl bg-[#E6CE20] px-4 py-2.5 text-sm font-semibold text-black disabled:opacity-50"
-          >
-            Create Super Admin account
-          </button>
-        </div>
-      )}
-
       <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
         <h2 className="text-lg font-semibold">Drivers and workspaces</h2>
         <div className="mt-4 space-y-3">

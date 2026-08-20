@@ -104,8 +104,8 @@ Current Admin areas:
 - Site configuration
 - Availability and driver calendar
 
-Privileged actions use Supabase Auth and tenant membership checks. `ADMIN_ACCESS_KEY` is retained
-temporarily as emergency migration access, not as the normal login.
+Privileged actions use Supabase Auth and tenant membership checks. There is no production bypass
+key; every Admin request must carry an authenticated Supabase session.
 
 The Drivers tab is exclusive to platform Super Admins and provisions invitation-only workspaces.
 The platform Super Admin and primary driver owner are separate accounts; both enter through
@@ -191,11 +191,6 @@ Common groups:
 - Google Calendar OAuth credentials and token-encryption key
 - Email/Resend settings
 - `SITE_URL`
-- `ADMIN_ACCESS_KEY`
-
-`ADMIN_ACCESS_KEY` is private emergency access during the Auth migration. It must never be exposed to
-the browser environment and should be removed after the Super Admin login and recovery flow are
-verified.
 
 ### Analytics
 
@@ -289,7 +284,7 @@ See `docs/GOOGLE_CALENDAR_ROADMAP.md`.
 
 - Continue regression testing for overlap protection and manual blocked slots.
 - Keep checking Lovable/Supabase type drift when availability tables change.
-- Eventually replace `ADMIN_ACCESS_KEY` with Supabase Auth and explicit roles such as `creator` and `driver`.
+- Keep Supabase Auth sessions and tenant membership checks as the only Admin authorization path.
 
 ### STREEX Horizon
 

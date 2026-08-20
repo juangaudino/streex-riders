@@ -51,13 +51,6 @@ const RunnerScoreUpdateSchema = AdminSchema.extend({
   score: z.number().int().min(0).max(999999),
 });
 
-export const verifyAdminKey = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => AdminSchema.parse(input))
-  .handler(async ({ data }) => {
-    const access = await assertAdminAccess(data.adminKey);
-    return { ok: true, tenantId: access.tenantId, isSuperAdmin: access.isSuperAdmin };
-  });
-
 export const listAdminBookings = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => AdminSchema.parse(input))
   .handler(async ({ data }) => {

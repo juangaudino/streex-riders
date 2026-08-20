@@ -48,21 +48,22 @@ Apply `supabase/migrations/20260715035104_multi_tenant_super_admin.sql` with a S
 has Owner/Administrator database privileges. This migration is additive and backfills current
 global records to the `streex` tenant.
 
+The initial bootstrap and recovery sequence below has been completed in production. Current Admin
+authorization is Supabase Auth only; the temporary emergency key has been removed.
+
 After applying it:
 
 1. In Supabase Auth URL Configuration, keep `https://rides.getstreex.com` as Site URL.
 2. Add `https://rides.getstreex.com/admin` to allowed redirect URLs.
 3. Configure `TENANT_PREVIEW_SECRET` with at least 32 random characters (it may initially reuse the existing Calendar token-encryption secret).
-4. Deploy the application while retaining `ADMIN_ACCESS_KEY` temporarily.
-5. Enter Admin with the emergency key, open Drivers and create the platform Super Admin using
-   `juangaudino@gmail.com`.
-6. Accept that invitation, set a password and sign in as Super Admin.
-7. In Drivers, use **Assign driver owner** on the primary STREEX workspace and assign
+4. Deploy the application.
+5. Enter Admin as the platform Super Admin using `juangaudino@gmail.com`.
+6. In Drivers, use **Assign driver owner** on the primary STREEX workspace and assign
    `streex.rides@gmail.com`. Existing Auth users are reused; otherwise the system sends an invitation.
-8. Accept or reset access for `streex.rides@gmail.com`, then verify it sees only `streex`.
-9. Create a test tenant and validate booking, email, availability, assets and Google Calendar
+7. Accept or reset access for `streex.rides@gmail.com`, then verify it sees only `streex`.
+8. Create a test tenant and validate booking, email, availability, assets and Google Calendar
    isolation.
-10. Remove `ADMIN_ACCESS_KEY` only after recovery and both account logins are verified in production.
+9. Verify both account logins in production and keep the emergency bypass disabled.
 
 The `tenant-assets` public bucket accepts only images under `{tenant-id}/brand`,
 `{tenant-id}/profile` and `{tenant-id}/gallery`. Upload/update/delete policies require membership in

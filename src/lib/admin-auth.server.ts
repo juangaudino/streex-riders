@@ -29,7 +29,7 @@ async function readAuthenticatedUser() {
   return data.user;
 }
 
-export async function assertAdminAccess(adminKey?: string | null): Promise<AdminAccess> {
+export async function assertAdminAccess(_adminKey?: string | null): Promise<AdminAccess> {
   const user = await readAuthenticatedUser();
   const requestedTenantId = getRequestedTenantId();
 
@@ -85,19 +85,7 @@ export async function assertAdminAccess(adminKey?: string | null): Promise<Admin
     };
   }
 
-  const expected = process.env.ADMIN_ACCESS_KEY;
-  if (expected && adminKey && adminKey === expected) {
-    return {
-      userId: null,
-      email: null,
-      tenantId: requestedTenantId || DEFAULT_TENANT_ID,
-      isSuperAdmin: true,
-      emergencyAccess: true,
-    };
-  }
-
-  if (!expected) throw new Error("ADMIN_ACCESS_KEY is not configured in the server environment.");
-  throw new Error("Access denied.");
+  throw new Error("Authentication required.");
 }
 
 export async function requireSuperAdmin(adminKey?: string | null) {

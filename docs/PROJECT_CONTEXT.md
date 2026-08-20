@@ -17,9 +17,7 @@ Core brand colors:
 - Database changes are represented in `supabase/migrations/` and require a privileged Supabase account to apply.
 - Sensitive values belong in Lovable secrets or local `.env`, never in Git.
 
-Important temporary secret:
-
-- `ADMIN_ACCESS_KEY`: emergency migration access only. Normal Admin access uses Supabase Auth plus database roles.
+Admin access uses Supabase Auth plus database roles. Production has no emergency Admin bypass key.
 
 ## Main Routes
 
@@ -220,7 +218,7 @@ retrieves the received message, forwards its content, and preserves the original
 8. Purchase Fully Kiosk PLUS and verify the permanent license on the Galaxy Tab A9+.
 9. Run a small live Stripe tip and confirm the charge and payout path end to end.
 10. Optionally test importing the saved Fully settings backup when a spare device or reinstall is
-   available; do not risk the only configured tablet solely for this drill.
+    available; do not risk the only configured tablet solely for this drill.
 
 ## Environment Notes
 
