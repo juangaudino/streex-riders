@@ -21,6 +21,9 @@ supabase/.temp/
 .env.*
 !.env.example
 
+# Passenger Around You originals may contain EXIF/GPS metadata; keep them local.
+assets-source/passenger/around-you/user-originals/
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

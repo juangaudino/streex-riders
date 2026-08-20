@@ -13,7 +13,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 42,
     triggerRadiusMeters: 28_000,
     discoveryRadiusMeters: 38_000,
-    imageSrc: "/images/passenger/around-you/salt-lake-valley.webp",
+    imageSrc: "/images/passenger/around-you/user/salt-lake-valley-juan.webp",
     title: { en: "Salt Lake Valley", es: "Valle de Salt Lake" },
     description: {
       en: "A wide urban valley framed by the Wasatch Mountains to the east and the Great Salt Lake to the west.",
@@ -36,7 +36,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 41,
     triggerRadiusMeters: 30_000,
     discoveryRadiusMeters: 42_000,
-    imageSrc: "/images/passenger/around-you/wasatch-back.webp",
+    imageSrc: "/images/passenger/around-you/user/wasatch-back-juan.webp",
     title: { en: "The Wasatch Back", es: "El Wasatch Back" },
     description: {
       en: "The mountain side of northern Utah, where the road climbs toward Park City, reservoirs and alpine trails.",
@@ -55,7 +55,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 56,
     triggerRadiusMeters: 4_500,
     discoveryRadiusMeters: 9_000,
-    imageSrc: "/images/passenger/around-you/downtown-slc.jpg",
+    imageSrc: "/images/passenger/around-you/user/downtown-salt-lake-city-juan.webp",
     title: { en: "Downtown Salt Lake City", es: "Centro de Salt Lake City" },
     description: {
       en: "Utah's capital city sits between the Wasatch Mountains and the Great Salt Lake.",
@@ -78,6 +78,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 96,
     triggerRadiusMeters: 1_500,
     discoveryRadiusMeters: 5_500,
+    imageSrc: "/images/passenger/around-you/user/utah-state-capitol-juan.webp",
     title: { en: "Utah State Capitol", es: "Capitolio del Estado de Utah" },
     description: {
       en: "The Capitol overlooks Salt Lake City from the north end of State Street.",
@@ -100,6 +101,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 94,
     triggerRadiusMeters: 1_700,
     discoveryRadiusMeters: 5_000,
+    imageSrc: "/images/passenger/around-you/user/temple-square-juan.webp",
     title: { en: "Temple Square", es: "Temple Square" },
     description: {
       en: "A landmark at the center of Salt Lake City's historic downtown.",
@@ -122,6 +124,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 82,
     triggerRadiusMeters: 2_500,
     discoveryRadiusMeters: 6_500,
+    imageSrc: "/images/passenger/around-you/user/city-creek-canyon-juan.webp",
     title: { en: "City Creek Canyon", es: "Cañón City Creek" },
     description: {
       en: "A protected watershed and nature preserve right beside the capital city.",
@@ -162,6 +165,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 84,
     triggerRadiusMeters: 2_400,
     discoveryRadiusMeters: 6_000,
+    imageSrc: "/images/passenger/around-you/user/liberty-park-juan.webp",
     title: { en: "University of Utah", es: "Universidad de Utah" },
     description: {
       en: "A major research university set against the foothills above Salt Lake City.",
@@ -237,7 +241,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 92,
     triggerRadiusMeters: 7_500,
     discoveryRadiusMeters: 18_000,
-    imageSrc: "/images/passenger/around-you/great-salt-lake.jpg",
+    imageSrc: "/images/passenger/around-you/user/great-salt-lake-juan.webp",
     title: { en: "Great Salt Lake", es: "Gran Lago Salado" },
     description: {
       en: "A terminal lake with no outlet, where water evaporates and minerals remain.",
@@ -275,6 +279,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 84,
     triggerRadiusMeters: 2_200,
     discoveryRadiusMeters: 7_000,
+    imageSrc: "/images/passenger/around-you/user/lagoon-amusement-park-juan.webp",
     title: { en: "Lagoon", es: "Lagoon" },
     description: {
       en: "A longtime Utah amusement park located in Farmington.",
@@ -311,6 +316,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 91,
     triggerRadiusMeters: 8_000,
     discoveryRadiusMeters: 20_000,
+    imageSrc: "/images/passenger/around-you/user/antelope-island-juan.webp",
     title: { en: "Antelope Island", es: "Isla Antelope" },
     description: {
       en: "A Great Salt Lake island known for wide-open views and wildlife.",
@@ -329,7 +335,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 68,
     triggerRadiusMeters: 6_000,
     discoveryRadiusMeters: 12_000,
-    imageSrc: "/images/passenger/around-you/park-city.jpg",
+    imageSrc: "/images/passenger/around-you/user/park-city-juan.webp",
     elevationFeet: 7_000,
     title: { en: "Park City", es: "Park City" },
     description: {
@@ -349,6 +355,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 88,
     triggerRadiusMeters: 1_700,
     discoveryRadiusMeters: 5_000,
+    imageSrc: "/images/passenger/around-you/user/historic-main-street-juan.webp",
     elevationFeet: 7_000,
     title: { en: "Historic Main Street", es: "Historic Main Street" },
     description: {
@@ -368,7 +375,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 95,
     triggerRadiusMeters: 2_500,
     discoveryRadiusMeters: 9_000,
-    imageSrc: "/images/passenger/around-you/utah-olympic-park.jpg",
+    imageSrc: "/images/passenger/around-you/user/utah-olympic-park-juan.webp",
     elevationFeet: 6_800,
     title: { en: "Utah Olympic Park", es: "Parque Olímpico de Utah" },
     description: {
@@ -393,6 +400,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     triggerRadiusMeters: 3_500,
     discoveryRadiusMeters: 8_000,
     elevationFeet: 6_400,
+    imageSrc: "/images/passenger/around-you/user/kimball-junction-juan.webp",
     title: { en: "Kimball Junction", es: "Kimball Junction" },
     description: {
       en: "A Park City gateway with easy access to the Olympic Park and mountain communities.",
@@ -413,6 +421,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     triggerRadiusMeters: 3_000,
     discoveryRadiusMeters: 8_500,
     elevationFeet: 7_200,
+    imageSrc: "/images/passenger/around-you/user/deer-valley-juan.webp",
     title: { en: "Deer Valley", es: "Deer Valley" },
     description: {
       en: "One of Park City's renowned mountain resort areas, set above historic town.",
@@ -507,7 +516,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 69,
     triggerRadiusMeters: 1_800,
     discoveryRadiusMeters: 4_800,
-    imageSrc: "/images/passenger/around-you/downtown-slc.jpg",
+    imageSrc: "/images/passenger/around-you/user/the-gateway-juan.webp",
     title: { en: "The Gateway", es: "The Gateway" },
     description: {
       en: "A downtown district near the old rail yards with dining, entertainment and open gathering space.",
@@ -545,7 +554,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 74,
     triggerRadiusMeters: 2_400,
     discoveryRadiusMeters: 6_000,
-    imageSrc: "/images/passenger/around-you/wasatch-back.webp",
+    imageSrc: "/images/passenger/around-you/user/swaner-preserve-juan.webp",
     title: { en: "Swaner Preserve", es: "Reserva Swaner" },
     description: {
       en: "A protected wetland and nature preserve at Park City's Kimball Junction gateway.",
@@ -602,8 +611,8 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 81,
     triggerRadiusMeters: 4_500,
     discoveryRadiusMeters: 12_000,
+    imageSrc: "/images/passenger/around-you/user/guardsman-pass-juan.webp",
     elevationFeet: 9_700,
-    imageSrc: "/images/passenger/around-you/wasatch-back.webp",
     title: { en: "Guardsman Pass", es: "Paso Guardsman" },
     description: {
       en: "A high mountain pass with sweeping Wasatch views between the Park City area and Big Cottonwood Canyon.",

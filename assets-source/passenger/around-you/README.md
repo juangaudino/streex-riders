@@ -12,6 +12,26 @@ listed in `around-you-image-inventory.xlsx` (or its CSV companion). Originals
 are intentionally kept out of `public/`; after review, they will be cropped and
 optimized to WebP under `public/images/passenger/around-you/`.
 
+## P1.3 user-photo review
+
+Juan supplied 44 STREEX-owned original photos in `user-originals/`. Every
+original was inspected for dimensions, orientation, EXIF, and GPS metadata.
+The original files remain local and are ignored by Git because they contain
+private capture metadata. The review is recorded in
+`user-photo-review.csv` using only a coarse distance bucket; it never stores
+raw coordinates.
+
+Eighteen photos were selected as the first P1.3 hero set and optimized to
+1600×900 WebP (quality 82) under
+`public/images/passenger/around-you/user/`. The public copies are metadata-free
+and are the only files referenced by the Passenger catalog. The other 26
+photos remain available locally for a later catalog pass.
+
+The selected assets use one hero image per place, not a collage. The inventory
+records the source filename, selected place, rights confirmation, and final
+public path. For new photos, keep originals in `user-originals/`, then review
+and strip EXIF/GPS before adding any public copy.
+
 ## Reading the inventory
 
 - `image_status` is explicit: `Own local asset`, `Original staged — rights recorded`,
@@ -53,3 +73,7 @@ optimize them to WebP before any Passenger catalog path is changed.
 Do not remove the attribution/license fields when moving an image into the
 public app bundle. For CC BY/CC BY-SA assets, preserve attribution and the
 share-alike obligation in the app's content/credits record before release.
+
+The P1.3 user-owned originals supersede the staged Commons image for a place
+when a selected public path is present. Commons attribution remains in the
+inventory for any staged source that is still retained or used as a fallback.
