@@ -56,6 +56,7 @@ import {
   playPersonalSpotifyTrack,
   searchPersonalSpotifyTracks,
 } from "@/lib/spotify.functions";
+import { listPublicReviews } from "@/lib/review.functions";
 import type { PassengerWeatherCondition, PassengerWeatherSnapshot } from "@/lib/weather";
 import {
   useClock,
@@ -103,6 +104,15 @@ type View =
   | "where-we-ride";
 
 type PassengerGame = "trivia" | "choice" | "higher-lower";
+
+type PassengerReview = {
+  name: string;
+  location: string | null;
+  stars: number;
+  text: string;
+};
+
+const PASSENGER_REVIEW_ROTATION_MS = 30_000;
 
 const PASSENGER_GAMES: readonly PassengerGame[] = ["trivia", "choice", "higher-lower"];
 
@@ -261,13 +271,8 @@ const copy = {
     meetJuan: "Meet Juan",
     guestNotesEyebrow: "Streex guest notes",
     guestNotesTitle: "A few words from the road",
-    guestNotesPreview: "Sample layout — live reviews will appear here later.",
-    guestNoteOne: "“Thoughtful, smooth, and exactly what I needed after a long flight.”",
-    guestNoteOneBy: "Airport guest",
-    guestNoteTwo: "“The small details made the ride feel genuinely personal.”",
-    guestNoteTwoBy: "Park City guest",
-    guestNoteThree: "“Comfortable, easy, and wonderfully professional.”",
-    guestNoteThreeBy: "Salt Lake City guest",
+    noApprovedReviews: "No approved reviews available yet.",
+    reviewAuthorFallback: "Streex passenger",
     unavailable: "Coming soon",
     meetIntro: "Hi, I’m Juan.",
     gratitude:
@@ -451,14 +456,8 @@ const copy = {
     meetJuan: "Conoce a Juan",
     guestNotesEyebrow: "Notas de huéspedes Streex",
     guestNotesTitle: "Algunas palabras del camino",
-    guestNotesPreview: "Diseño de ejemplo — las reseñas en vivo aparecerán aquí más adelante.",
-    guestNoteOne:
-      "“Considerado, fluido y exactamente lo que necesitaba después de un vuelo largo.”",
-    guestNoteOneBy: "Huésped de aeropuerto",
-    guestNoteTwo: "“Los pequeños detalles hicieron que el viaje se sintiera realmente personal.”",
-    guestNoteTwoBy: "Huésped de Park City",
-    guestNoteThree: "“Cómodo, sencillo y maravillosamente profesional.”",
-    guestNoteThreeBy: "Huésped de Salt Lake City",
+    noApprovedReviews: "Todavía no hay reseñas aprobadas disponibles.",
+    reviewAuthorFallback: "Pasajero Streex",
     unavailable: "Próximamente",
     meetIntro: "Hola, soy Juan.",
     gratitude:
@@ -530,6 +529,49 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
   const [simulatedAroundYouPlaceId, setSimulatedAroundYouPlaceId] = useState<string | null>(null);
   const t = copy[language];
   const online = useOnlineStatus();
+  const [approvedReviews, setApprovedReviews] = useState<PassengerReview[]>([]);
+  const [reviewOffset, setReviewOffset] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    void listPublicReviews({ data: {} })
+      .then(({ reviews }) => {
+        if (cancelled) return;
+        setApprovedReviews(
+          reviews.map((review) => ({
+            name: review.name?.trim() || copy.en.reviewAuthorFallback,
+            location: review.location,
+            stars: review.rating,
+            text: review.message,
+          })),
+        );
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          console.error("[PassengerConsole] approved reviews read error", error);
+          setApprovedReviews([]);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    setReviewOffset(0);
+    if (approvedReviews.length <= 3) return;
+    const rotation = window.setInterval(() => {
+      setReviewOffset((current) => (current + 3) % approvedReviews.length);
+    }, PASSENGER_REVIEW_ROTATION_MS);
+    return () => window.clearInterval(rotation);
+  }, [approvedReviews.length]);
+
+  const visibleReviews = useMemo(() => {
+    if (approvedReviews.length <= 3) return approvedReviews;
+    return Array.from({ length: 3 }, (_, index) => {
+      return approvedReviews[(reviewOffset + index) % approvedReviews.length];
+    });
+  }, [approvedReviews, reviewOffset]);
 
   const consoleConfig = config.passengerConsole;
   const aroundYouEnabled = consoleConfig.aroundYou.enabled || aroundYouTestMode;
@@ -679,11 +721,24 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
             />
           )}
           {view === "meet-juan" && (
-            <MeetJuanView config={config} language={language} onNavigate={navigateTo} t={t} />
+            <MeetJuanView
+              config={config}
+              language={language}
+              onNavigate={navigateTo}
+              reviews={visibleReviews}
+              t={t}
+            />
           )}
           {view === "services" && <ServicesView config={config} onNavigate={navigateTo} t={t} />}
           {view === "contact" && <ContactView config={config} onNavigate={navigateTo} t={t} />}
-          {view === "reviews" && <ReviewsView language={language} onNavigate={navigateTo} t={t} />}
+          {view === "reviews" && (
+            <ReviewsView
+              language={language}
+              onNavigate={navigateTo}
+              reviews={visibleReviews}
+              t={t}
+            />
+          )}
           {view === "tip" && <TipView config={config} onNavigate={navigateTo} t={t} />}
           {view === "where-we-ride" && (
             <WhereWeRideView config={config} onNavigate={navigateTo} t={t} />
@@ -2596,6 +2651,7 @@ function WhereWeRideView({
       <div className="passenger-areas-content min-h-0">
         <ServiceAreas
           config={config}
+          showLinks={false}
           copy={{
             eyebrow: t.whereWeRide,
             title: t.whereWeRideTitle,
@@ -2748,10 +2804,12 @@ function ContactView({
 function ReviewsView({
   language,
   onNavigate,
+  reviews,
   t,
 }: {
   language: Language;
   onNavigate: (view: View) => void;
+  reviews: PassengerReview[];
   t: (typeof copy)[Language];
 }) {
   return (
@@ -2765,11 +2823,55 @@ function ReviewsView({
           description={t.reviewSubtitle}
         />
       </div>
-      <div className="passenger-review-content min-h-0">
-        <FeedbackForm compact language={language} />
+      <div className="passenger-review-content passenger-review-split grid min-h-0 gap-5 xl:grid-cols-2">
+        <div className="min-w-0">
+          <FeedbackForm compact language={language} />
+        </div>
+        <PassengerReviewRail reviews={reviews} t={t} />
       </div>
     </div>
   );
+}
+
+function PassengerReviewRail({
+  reviews,
+  t,
+}: {
+  reviews: PassengerReview[];
+  t: (typeof copy)[Language];
+}) {
+  return (
+    <section className="min-w-0 overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
+            {t.guestNotesEyebrow}
+          </p>
+          <h2 className="mt-2 text-xl font-extrabold tracking-tight">{t.guestNotesTitle}</h2>
+        </div>
+        {reviews.length > 0 && (
+          <span className="text-[10px] uppercase tracking-[0.14em] text-white/35">
+            {reviews.length} {languageLabel(t)}
+          </span>
+        )}
+      </div>
+      {reviews.length > 0 ? (
+        <div className="mt-5 grid min-h-0 gap-3 overflow-y-auto pr-1">
+          {reviews.map((review) => (
+            <PassengerReviewCard key={`${review.name}-${review.text}`} review={review} />
+          ))}
+        </div>
+      ) : (
+        <p className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5 text-sm leading-relaxed text-white/55">
+          {t.noApprovedReviews}
+        </p>
+      )}
+    </section>
+  );
+}
+
+function languageLabel(t: (typeof copy)[Language]) {
+  return t === copy.es ? "reseñas" : "reviews";
 }
 
 function TipView({
@@ -3061,11 +3163,13 @@ function MeetJuanView({
   config,
   language,
   onNavigate,
+  reviews,
   t,
 }: {
   config: AppConfig;
   language: Language;
   onNavigate: (view: View) => void;
+  reviews: PassengerReview[];
   t: (typeof copy)[Language];
 }) {
   const meetBody = language === "es" ? config.meetBodyEs : config.meetBody;
@@ -3123,45 +3227,57 @@ function MeetJuanView({
         </div>
       </section>
       <div className="passenger-meet-notes min-h-0">
-        <GuestNotesMosaic t={t} />
+        <GuestNotesMosaic reviews={reviews} t={t} />
       </div>
     </div>
   );
 }
 
-function GuestNotesMosaic({ t }: { t: (typeof copy)[Language] }) {
+function GuestNotesMosaic({
+  reviews,
+  t,
+}: {
+  reviews: PassengerReview[];
+  t: (typeof copy)[Language];
+}) {
   return (
     <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <div>
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
             {t.guestNotesEyebrow}
           </p>
           <h2 className="mt-2 text-xl font-extrabold tracking-tight">{t.guestNotesTitle}</h2>
         </div>
-        <p className="max-w-[210px] text-right text-[10px] leading-relaxed text-white/40">
-          {t.guestNotesPreview}
+      </div>
+      {reviews.length > 0 ? (
+        <div className="mt-5 grid min-h-0 grid-cols-3 gap-3">
+          {reviews.slice(0, 3).map((review, index) => (
+            <PassengerReviewCard
+              key={`${review.name}-${review.text}`}
+              className={index === 1 ? "row-span-2" : "col-span-2"}
+              featured={index === 1}
+              review={review}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4 text-sm leading-relaxed text-white/55">
+          {t.noApprovedReviews}
         </p>
-      </div>
-      <div className="mt-5 grid grid-cols-3 gap-3">
-        <GuestNote className="col-span-2" quote={t.guestNoteOne} by={t.guestNoteOneBy} />
-        <GuestNote className="row-span-2" quote={t.guestNoteTwo} by={t.guestNoteTwoBy} featured />
-        <GuestNote className="col-span-2" quote={t.guestNoteThree} by={t.guestNoteThreeBy} />
-      </div>
+      )}
     </section>
   );
 }
 
-function GuestNote({
-  by,
+function PassengerReviewCard({
   className,
   featured = false,
-  quote,
+  review,
 }: {
-  by: string;
-  className: string;
+  className?: string;
   featured?: boolean;
-  quote: string;
+  review: PassengerReview;
 }) {
   return (
     <article
@@ -3169,12 +3285,27 @@ function GuestNote({
         featured
           ? "border-[#E6CE20]/30 bg-gradient-to-br from-[#E6CE20]/18 to-[#E6CE20]/[0.03]"
           : "border-white/10 bg-black/20"
-      } ${className}`}
+      } ${className ?? ""}`}
     >
-      <p className="text-sm font-medium leading-relaxed text-white/85">{quote}</p>
-      <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.15em] text-[#E6CE20]">
-        {by}
-      </p>
+      <div>
+        <div className="mb-3 flex gap-1" aria-label={`${review.stars} out of 5 stars`}>
+          {Array.from({ length: Math.min(5, Math.max(0, review.stars)) }).map((_, index) => (
+            <Star
+              key={index}
+              className="h-3.5 w-3.5 text-[#E6CE20]"
+              fill="#E6CE20"
+              strokeWidth={0}
+            />
+          ))}
+        </div>
+        <p className="text-sm font-medium leading-relaxed text-white/85">“{review.text}”</p>
+      </div>
+      <div className="mt-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#E6CE20]">
+          {review.name}
+        </p>
+        {review.location && <p className="mt-1 text-xs text-white/45">{review.location}</p>}
+      </div>
     </article>
   );
 }

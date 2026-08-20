@@ -43,9 +43,11 @@ const DEFAULT_COPY: ServiceAreasCopy = {
 export function ServiceAreas({
   config,
   copy = DEFAULT_COPY,
+  showLinks = true,
 }: {
   config: AppConfig;
   copy?: ServiceAreasCopy;
+  showLinks?: boolean;
 }) {
   const groups = config.areas.length
     ? [
@@ -81,17 +83,22 @@ export function ServiceAreas({
         ))}
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs">
-        <Link to="/slc-airport-private-rides" className="text-[#E6CE20] hover:text-[#f4df4d]">
-          SLC Airport rides
-        </Link>
-        <Link to="/park-city-private-transportation" className="text-[#E6CE20] hover:text-[#f4df4d]">
-          Park City transportation
-        </Link>
-        <Link to="/las-vegas-private-rides" className="text-[#E6CE20] hover:text-[#f4df4d]">
-          Las Vegas long-distance rides
-        </Link>
-      </div>
+      {showLinks && (
+        <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs">
+          <Link to="/slc-airport-private-rides" className="text-[#E6CE20] hover:text-[#f4df4d]">
+            SLC Airport rides
+          </Link>
+          <Link
+            to="/park-city-private-transportation"
+            className="text-[#E6CE20] hover:text-[#f4df4d]"
+          >
+            Park City transportation
+          </Link>
+          <Link to="/las-vegas-private-rides" className="text-[#E6CE20] hover:text-[#f4df4d]">
+            Las Vegas long-distance rides
+          </Link>
+        </div>
+      )}
     </Reveal>
   );
 }

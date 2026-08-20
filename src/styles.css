@@ -5527,6 +5527,11 @@ input[type="time"] {
     align-self: center !important;
   }
 
+  .passenger-review-split {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+  }
+
   .passenger-review-content > * {
     max-height: 520px;
   }
