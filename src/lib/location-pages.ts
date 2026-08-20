@@ -1,5 +1,8 @@
 export type LocationPageContent = {
-  slug: "slc-airport-private-rides" | "park-city-private-transportation" | "las-vegas-private-rides";
+  slug:
+    | "slc-airport-private-rides"
+    | "park-city-private-transportation"
+    | "las-vegas-private-rides";
   title: string;
   description: string;
   serviceName: string;

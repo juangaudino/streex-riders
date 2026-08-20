@@ -44,12 +44,16 @@ export function LocationServicePage({
             <p className="mt-5 text-[11px] font-semibold uppercase streex-tracking text-[#E6CE20]">
               {page.eyebrow}
             </p>
-            <h1 className="mt-3 text-4xl font-bold leading-tight tracking-tight">{page.serviceName}</h1>
+            <h1 className="mt-3 text-4xl font-bold leading-tight tracking-tight">
+              {page.serviceName}
+            </h1>
             <p className="mt-5 text-[16px] leading-relaxed text-white/75">{page.intro}</p>
           </section>
 
           <section className="streex-glass mt-8 p-5" aria-label="Route served">
-            <p className="text-[10px] font-semibold uppercase streex-tracking text-white/45">Route</p>
+            <p className="text-[10px] font-semibold uppercase streex-tracking text-white/45">
+              Route
+            </p>
             <p className="mt-2 text-sm font-semibold leading-relaxed text-white">{page.route}</p>
           </section>
 
@@ -106,7 +110,9 @@ export function LocationServicePage({
           </section>
 
           <section className="mt-14 border-t border-white/10 pt-9">
-            <p className="text-[11px] font-semibold uppercase streex-tracking text-[#E6CE20]">FAQs</p>
+            <p className="text-[11px] font-semibold uppercase streex-tracking text-[#E6CE20]">
+              FAQs
+            </p>
             <div className="mt-5 space-y-6">
               {page.questions.map(({ question, answer }) => (
                 <div key={question}>
@@ -120,7 +126,10 @@ export function LocationServicePage({
           <footer className="mt-16 border-t border-white/10 pt-8 text-center">
             <p className="text-[11px] uppercase streex-tracking text-white/55">{config.tagline}</p>
             <p className="mt-3 text-xs text-white/35">© 2026 {config.brandName}</p>
-            <Link to="/privacy" className="mt-3 inline-block text-xs text-white/45 hover:text-white/70">
+            <Link
+              to="/privacy"
+              className="mt-3 inline-block text-xs text-white/45 hover:text-white/70"
+            >
               Privacy Policy
             </Link>
           </footer>
