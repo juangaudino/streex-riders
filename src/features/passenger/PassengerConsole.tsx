@@ -802,11 +802,17 @@ function PassengerIdlePrompt({
   // treatment is temporarily unpublished while its compact music companion
   // layout is refined on the tablet.
   const includeAroundYouIdlePrimary = false;
+  // Keep the game-led idle treatment implemented but unpublished until its
+  // music companion layout is ready for the tablet. Re-enable this flag when
+  // that visual pass is complete.
+  const includeGameIdlePrimary = false;
   const idleFeature = useIdleFeatureRotation(
-    config.passengerConsole.aroundYou.ui.showIdleCard
+    (includeAroundYouIdlePrimary || includeGameIdlePrimary) &&
+      config.passengerConsole.aroundYou.ui.showIdleCard
       ? config.passengerConsole.idleReset.featureRotationSeconds * 1_000
       : null,
     includeAroundYouIdlePrimary,
+    includeGameIdlePrimary,
   );
   const now = useClock();
   const time = now
@@ -921,20 +927,26 @@ function PassengerIdlePrompt({
   );
 }
 
-function useIdleFeatureRotation(intervalMs: number | null, includeAroundYou = true) {
+function useIdleFeatureRotation(
+  intervalMs: number | null,
+  includeAroundYou = true,
+  includeGame = true,
+) {
   const [feature, setFeature] = useState<"music" | "around-you" | "game">("music");
 
   useEffect(() => {
     if (!intervalMs) return;
     const timer = window.setInterval(() => {
       setFeature((current) => {
+        if (!includeAroundYou && !includeGame) return "music";
         if (!includeAroundYou) return current === "music" ? "game" : "music";
+        if (!includeGame) return current === "music" ? "around-you" : "music";
         return current === "music" ? "around-you" : current === "around-you" ? "game" : "music";
       });
     }, intervalMs);
 
     return () => window.clearInterval(timer);
-  }, [includeAroundYou, intervalMs]);
+  }, [includeAroundYou, includeGame, intervalMs]);
 
   return feature;
 }
