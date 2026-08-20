@@ -269,7 +269,8 @@ bun run optimize:images
 ### Google Calendar integration
 
 Status: production OAuth, read-only availability blocking, and confirmed-ride event synchronization
-are implemented. An end-to-end production test is required after deploying Phase 2.
+are implemented and verified end-to-end in production, including confirmation, cancellation, and
+passenger notification flows.
 
 Planned phases:
 

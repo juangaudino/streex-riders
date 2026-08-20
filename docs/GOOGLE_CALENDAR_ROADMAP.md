@@ -1,8 +1,8 @@
 # Google Calendar Roadmap
 
 Status: production OAuth, free/busy blocking, and confirmed-ride event synchronization are
-implemented. Production behavior still needs an end-to-end confirmation/cancellation test after
-deployment.
+implemented and verified end-to-end in production, including confirmation, cancellation, and
+customer notification behavior.
 
 ## Product rules already agreed
 
@@ -40,6 +40,7 @@ availability fails closed while a connected Google Calendar cannot be checked.
 - [x] Delete the Google event when STREEX cancels the ride.
 - [x] Store a private STREEX booking identifier in Google event extended properties.
 - [x] Surface per-booking sync health and a manual retry action in Admin.
+- [x] Verify production confirmation, cancellation, Calendar deletion, and passenger email flows.
 - [ ] Add scheduled reconciliation for partial failures in Phase 3.
 
 Event format: private, opaque event titled `STREEX Ride — Passenger Name`, with pickup as the Google
