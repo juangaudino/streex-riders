@@ -1,7 +1,7 @@
 # Around You — Luna Completion Report
 
-Status: product/content implementation complete; the feature gate remains disabled pending an
-in-vehicle tablet validation.
+Status: product/content implementation complete; the feature gate is enabled for the validated
+tablet build, while route-specific GPS tuning still requires in-vehicle validation.
 
 ## Completed product layer
 
@@ -38,6 +38,17 @@ in-vehicle tablet validation.
 - `bun test tests/around-you.test.mjs`: passed (catalog integrity, localized distance, Haversine,
   quality filtering, ranking, dwell, hysteresis, retention, cooldown and session reset).
 - `bun run check`: passed (TypeScript and production build).
+
+## Roadmap after current validation
+
+1. Expand the catalog to 100 verified places across the STREEX corridor. The inventory must make
+   image-present versus image-missing status explicit and track requested filename, source/author,
+   license and bilingual copy for every place.
+2. Defer the current keyboard search. The next Around You discovery phase is a category-first local
+   browser for restaurants, hotels, cafés, supermarkets, parks, attractions, museums and bookstores,
+   ordered with transient GPS context and usable offline; it must not scrape live businesses.
+3. Develop new Passenger games only after that browser is stable. Streex Horizon remains a
+   non-interactive tablet teaser with a QR handoff to the phone experience.
 
 ## Still intentionally not claimed as complete
 

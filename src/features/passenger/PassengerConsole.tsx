@@ -86,6 +86,7 @@ import passengerRav4Front from "@/assets/streex-gallery/passenger-rav4-front.jpg
 import passengerRav4Rear from "@/assets/streex-gallery/passenger-rav4-rear.jpg";
 import passengerRav4Snow from "@/assets/streex-gallery/passenger-rav4-snow.jpg";
 import passengerRav4Side from "@/assets/streex-gallery/rav4.jpg";
+import horizonQuickActionCard from "@/features/runner/assets/quick-action/horizon_quick_action_card.webp";
 
 type Language = AroundYouLanguage;
 type View =
@@ -235,8 +236,10 @@ const copy = {
     utahHigherOrLower: "Utah: Higher or Lower",
     utahHigherOrLowerDescription: "Pick which Utah fact comes out on top.",
     higherOrLowerPreview: "UTAH COMPARISONS",
-    futureGameTitle: "Next up",
-    futureGameDescription: "A new road-side game is in the works.",
+    horizonTitle: "Streex Horizon",
+    horizonTabletDescription: "Coming soon to your tablet experience.",
+    horizonPhoneTitle: "Play Streex Horizon on your phone",
+    horizonPhoneDescription: "Scan to continue on your phone.",
     streexTitle: "Private rides. Elevated.",
     streexSubtitle: "Designed around you.",
     streexExperienceTitle: "The Streex Experience",
@@ -423,8 +426,10 @@ const copy = {
     utahHigherOrLower: "Utah: Higher or Lower",
     utahHigherOrLowerDescription: "Elige qué dato de Utah queda por encima.",
     higherOrLowerPreview: "COMPARACIONES DE UTAH",
-    futureGameTitle: "Próximamente",
-    futureGameDescription: "Estamos preparando un nuevo juego para el camino.",
+    horizonTitle: "Streex Horizon",
+    horizonTabletDescription: "Próximamente en tu experiencia de tablet.",
+    horizonPhoneTitle: "Juega Streex Horizon en tu teléfono",
+    horizonPhoneDescription: "Escanea para continuar en tu teléfono.",
     streexTitle: "Viajes privados. Elevados.",
     streexSubtitle: "Diseñado para ti.",
     streexExperienceTitle: "La experiencia Streex",
@@ -661,6 +666,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               utahTriviaEnabled={consoleConfig.games.utahTriviaEnabled}
               requestedGame={requestedGame}
               onRequestedGameConsumed={consumeRequestedGame}
+              phoneContinuation={consoleConfig.links.phoneContinuation}
             />
           )}
           {view === "streex" && (
@@ -2243,6 +2249,7 @@ function GamesView({
   requestedGame,
   utahHigherOrLowerEnabled,
   utahTriviaEnabled,
+  phoneContinuation,
 }: {
   language: Language;
   t: (typeof copy)[Language];
@@ -2251,6 +2258,7 @@ function GamesView({
   requestedGame: PassengerGame | null;
   utahHigherOrLowerEnabled: boolean;
   utahTriviaEnabled: boolean;
+  phoneContinuation: string | null;
 }) {
   const [activeGame, setActiveGame] = useState<PassengerGame | null>(null);
 
@@ -2308,25 +2316,46 @@ function GamesView({
         />
       </div>
       <div className="passenger-games-coming-soon-grid grid gap-4">
-        <section className="passenger-games-future relative aspect-[1200/509] overflow-hidden rounded-[26px] border border-white/10 bg-gradient-to-br from-[#151515] via-[#0f1114] to-[#16211d] p-5 shadow-[0_16px_45px_rgba(0,0,0,0.22)]">
-          <span className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-[#E6CE20]/12 blur-3xl" />
-          <span className="absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#E6CE20]/70 to-transparent" />
-          <div className="relative flex h-full flex-col justify-between">
-            <span className="grid h-11 w-11 place-items-center rounded-xl border border-[#E6CE20]/25 bg-[#E6CE20]/10 text-[#E6CE20]">
-              <Gamepad2 className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E6CE20]">
-                {t.comingSoon}
-              </p>
-              <p className="mt-2 text-xl font-black tracking-tight text-white">
-                {t.futureGameTitle}
-              </p>
-              <p className="mt-1 max-w-sm text-sm leading-relaxed text-white/55">
-                {t.futureGameDescription}
-              </p>
-            </div>
+        <section className="passenger-games-horizon relative aspect-[1200/509] overflow-hidden rounded-[26px] border border-[#E6CE20]/30 shadow-[0_16px_45px_rgba(0,0,0,0.22)]">
+          <img
+            src={horizonQuickActionCard}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <span className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/10" />
+          <div className="relative flex h-full flex-col justify-end p-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E6CE20]">
+              {t.comingSoon}
+            </p>
+            <p className="mt-2 text-xl font-black tracking-tight text-white">{t.horizonTitle}</p>
+            <p className="mt-1 max-w-sm text-sm leading-relaxed text-white/70">
+              {t.horizonTabletDescription}
+            </p>
           </div>
+        </section>
+        <section
+          data-testid="streex-horizon-phone-card"
+          className="flex aspect-[1200/509] items-center gap-4 overflow-hidden rounded-[26px] border border-white/10 bg-[#151515] p-5 shadow-[0_16px_45px_rgba(0,0,0,0.22)]"
+        >
+          <span className="shrink-0 rounded-xl bg-white p-2">
+            <QRCodeSVG
+              value={phoneContinuation ?? "https://rides.getstreex.com"}
+              size={112}
+              bgColor="#FFFFFF"
+              fgColor="#0B0B0B"
+              level="M"
+            />
+          </span>
+          <span className="min-w-0">
+            <span className="flex items-center gap-2 text-sm font-bold text-white">
+              <QrCode className="h-4 w-4 shrink-0 text-[#E6CE20]" />
+              {t.horizonPhoneTitle}
+            </span>
+            <span className="mt-1 block text-sm leading-relaxed text-white/55">
+              {t.horizonPhoneDescription}
+            </span>
+          </span>
         </section>
       </div>
     </div>

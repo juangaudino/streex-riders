@@ -92,8 +92,8 @@ show passenger data.
   Spotify artwork and track details, local time, dual-unit temperature and a compact host identity
   without altering the driver's connection or playback.
   Elapsed-time checks on visibility/focus recovery make the reset reliable after Android suspends
-  the browser. The temporary owner-test interval is 30 seconds; restore it to five minutes after
-  final in-vehicle validation.
+  the browser. Beta uses three minutes of inactivity before idle and 45 seconds between attract
+  rotations; the shorter 30/30 cadence is reserved for owner debugging.
 - Passenger weather uses the public National Weather Service API through a fixed server function.
   Salt Lake City coordinates and refresh cadence are CONFIG-driven; sanitized hourly forecasts
   are cached server-side and the last successful snapshot is retained locally for hotspot outages.
@@ -200,15 +200,23 @@ retrieves the received message, forwards its content, and preserves the original
 
 ## Passenger Roadmap Order
 
-1. Present Apple Pay, Google Pay and cards as payment methods within one Stripe-hosted Passenger
+1. Complete the current Passenger beta stabilization: validate the approved idle cadence, game
+   auto-advance and tablet layouts without disturbing Music, Streex, booking or payments.
+2. Expand the Around You inventory to 100 verified places across the STREEX corridor, with explicit
+   image-present/missing status, requested filename, source/author/license and bilingual copy.
+3. Build the category-first Around You browser/search as a later local/offline phase. It should
+   offer curated categories such as restaurants, hotels, cafés, supermarkets, parks, attractions,
+   museums and bookstores, ordered with transient GPS context; never scrape live businesses.
+4. Develop additional Passenger games after the Around You browser is stable. Streex Horizon is
+   currently a non-interactive tablet teaser with a phone QR, not a tablet game route.
+5. Present Apple Pay, Google Pay and cards as payment methods within one Stripe-hosted Passenger
    checkout; do not duplicate that link as separate payment choices.
-2. Apply the next visual improvements supplied and approved by the user.
-3. Complete Passenger hardening in this order: restrict `/passenger` to the paired tablet, replace
+6. Complete Passenger hardening in this order: restrict `/passenger` to the paired tablet, replace
    sample Meet Juan reviews with approved live reviews, run a full in-vehicle field test, and add
    Passenger UI end-to-end regression coverage.
-4. Purchase Fully Kiosk PLUS and verify the permanent license on the Galaxy Tab A9+.
-5. Run a small live Stripe tip and confirm the charge and payout path end to end.
-6. Optionally test importing the saved Fully settings backup when a spare device or reinstall is
+7. Purchase Fully Kiosk PLUS and verify the permanent license on the Galaxy Tab A9+.
+8. Run a small live Stripe tip and confirm the charge and payout path end to end.
+9. Optionally test importing the saved Fully settings backup when a spare device or reinstall is
    available; do not risk the only configured tablet solely for this drill.
 
 ## Environment Notes

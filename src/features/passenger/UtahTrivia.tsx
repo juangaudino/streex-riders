@@ -163,7 +163,7 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
 
   useEffect(() => {
     if (!answered) return;
-    const timeoutId = window.setTimeout(advanceRound, 3_000);
+    const timeoutId = window.setTimeout(advanceRound, 5_000);
     return () => window.clearTimeout(timeoutId);
   }, [advanceRound, answered, question?.id]);
 

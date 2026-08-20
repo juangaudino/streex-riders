@@ -42,10 +42,10 @@ export const CONFIG = {
   passengerConsole: {
     enabled: true,
     idleReset: {
-      // Temporary owner-test cadence. Restore these to 180 and 90 seconds once
-      // in-vehicle validation is complete; it never stores passenger activity or location.
-      inactivitySeconds: 30,
-      featureRotationSeconds: 30,
+      // Beta cadence: enter idle after three minutes and rotate the attract feature every 45 seconds.
+      // The shorter 30/30 owner-test cadence should only be restored while debugging.
+      inactivitySeconds: 180,
+      featureRotationSeconds: 45,
       defaultLanguage: "en" as "en" | "es",
     },
     clock: {
