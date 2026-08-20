@@ -270,6 +270,21 @@ export function buildPassengerRejected(b: Booking, brand: TenantEmailBrand = DEF
   };
 }
 
+export function buildPassengerCancelled(b: Booking, brand: TenantEmailBrand = DEFAULT_BRAND) {
+  return {
+    subject: "Your Ride Has Been Cancelled — Streex Rides",
+    html: wrap(
+      `
+      <h1 style="font-size:22px;font-weight:700;margin:0 0 16px;color:#ffffff;">Hi ${esc(b.name)},</h1>
+      ${p(`Unfortunately, your ride scheduled for ${esc(b.date)} at ${esc(b.time)} has been cancelled.`)}
+      ${p("Please contact us if you would like to discuss another time or make a new request.")}
+      ${p(`${esc(brand.ownerName)} &mdash; ${esc(brand.brandName)}<br/>${esc(brand.phone)}<br/>${esc(brand.email)}`)}
+    `,
+      brand,
+    ),
+  };
+}
+
 export function buildAdminDeclined(b: Booking, brand: TenantEmailBrand = DEFAULT_BRAND) {
   return {
     subject: `Booking Declined — ${b.name}`,

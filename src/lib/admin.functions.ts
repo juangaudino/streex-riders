@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { assertAdminAccess, requireSuperAdmin } from "./admin-auth.server";
 import {
   buildAdminNewRequest,
+  buildPassengerCancelled,
   buildPassengerRejected,
   buildPassengerQuote,
   getTenantEmailBrand,
@@ -119,12 +120,16 @@ export const updateAdminBookingStatus = createServerFn({ method: "POST" })
     }
 
     const calendarSync = await syncBookingWithGoogleCalendar(booking, access.tenantId);
-    if (data.status === "declined") {
+    if (data.status === "declined" || data.status === "cancelled") {
       try {
         const brand = await getTenantEmailBrand(access.tenantId);
-        await sendEmail({ to: booking.email, ...buildPassengerRejected(booking, brand) });
+        const message =
+          data.status === "cancelled"
+            ? buildPassengerCancelled(booking, brand)
+            : buildPassengerRejected(booking, brand);
+        await sendEmail({ to: booking.email, ...message });
       } catch (emailError) {
-        console.error("[updateAdminBookingStatus] rejection email failed", emailError);
+        console.error("[updateAdminBookingStatus] status email failed", emailError);
       }
     }
     return { ok: true, calendarSync };
