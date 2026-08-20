@@ -44,10 +44,12 @@ export function ServiceAreas({
   config,
   copy = DEFAULT_COPY,
   showLinks = true,
+  equalHeight = false,
 }: {
   config: AppConfig;
   copy?: ServiceAreasCopy;
   showLinks?: boolean;
+  equalHeight?: boolean;
 }) {
   const groups = config.areas.length
     ? [
@@ -71,7 +73,12 @@ export function ServiceAreas({
 
       <div className="mt-6 space-y-3">
         {groups.map(({ icon: Icon, title, areas }) => (
-          <div key={title} className="streex-glass px-5 py-4 flex items-start gap-4">
+          <div
+            key={title}
+            className={`streex-glass flex items-start gap-4 px-5 py-4 ${
+              equalHeight ? "passenger-service-area-card" : ""
+            }`}
+          >
             <div className="mt-0.5 h-9 w-9 shrink-0 rounded-full border border-[#E6CE20]/25 bg-[#E6CE20]/10 flex items-center justify-center">
               <Icon className="h-4 w-4 text-[#E6CE20]" aria-hidden="true" />
             </div>

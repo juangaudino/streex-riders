@@ -8337,3 +8337,97 @@ button.passenger-idle-music {
     border-radius: 999px !important;
   }
 }
+
+/* Passenger final containment overrides. Keep the review rail and service-area
+   cards inside their approved tablet geometry even after the broader cascade. */
+.passenger-review-card {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.passenger-review-card > div:first-child,
+.passenger-review-card > div:first-child > p {
+  min-width: 0 !important;
+}
+
+.passenger-review-content,
+.passenger-review-rail,
+.passenger-review-rail-list {
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+
+.passenger-meet-notes .passenger-review-card > div:first-child > p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow-wrap: anywhere;
+}
+
+.passenger-review-rail {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.passenger-review-rail-list {
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.passenger-console-shell[data-view="where-we-ride"]
+  .passenger-areas-content
+  > section
+  > div.mt-6 {
+  align-items: stretch !important;
+}
+
+.passenger-console-shell[data-view="where-we-ride"]
+  .passenger-areas-content
+  > section
+  > div.mt-6
+  > .passenger-service-area-card {
+  height: 100% !important;
+  min-height: 94px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="reviews"] .passenger-review-content {
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: none !important;
+    align-self: stretch !important;
+  }
+
+  .passenger-console-shell[data-view="reviews"] .passenger-review-content > * {
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: none !important;
+  }
+
+  .passenger-console-shell[data-view="reviews"] .passenger-review-rail-list {
+    flex: 1 1 auto !important;
+  }
+}
+
+@media (orientation: portrait) {
+  .passenger-console-shell[data-view="reviews"] .passenger-review-rail {
+    min-height: 0 !important;
+    max-height: min(44dvh, 30rem) !important;
+  }
+
+  .passenger-console-shell[data-view="reviews"] .passenger-review-rail-list {
+    flex: 1 1 auto !important;
+    max-height: none !important;
+  }
+}

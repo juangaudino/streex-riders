@@ -2651,6 +2651,7 @@ function WhereWeRideView({
       <div className="passenger-areas-content min-h-0">
         <ServiceAreas
           config={config}
+          equalHeight
           showLinks={false}
           copy={{
             eyebrow: t.whereWeRide,
@@ -2841,7 +2842,7 @@ function PassengerReviewRail({
   t: (typeof copy)[Language];
 }) {
   return (
-    <section className="min-w-0 overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
+    <section className="passenger-review-rail min-w-0 overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
       <div className="flex items-end justify-between gap-3">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
@@ -2856,7 +2857,7 @@ function PassengerReviewRail({
         )}
       </div>
       {reviews.length > 0 ? (
-        <div className="mt-5 grid min-h-0 gap-3 overflow-y-auto pr-1">
+        <div className="passenger-review-rail-list mt-5 grid min-h-0 gap-3 overflow-y-auto pr-1">
           {reviews.map((review) => (
             <PassengerReviewCard key={`${review.name}-${review.text}`} review={review} />
           ))}
@@ -3281,7 +3282,7 @@ function PassengerReviewCard({
 }) {
   return (
     <article
-      className={`flex min-h-[118px] flex-col justify-between rounded-[22px] border p-4 ${
+      className={`passenger-review-card flex min-h-[118px] min-w-0 flex-col justify-between rounded-[22px] border p-4 ${
         featured
           ? "border-[#E6CE20]/30 bg-gradient-to-br from-[#E6CE20]/18 to-[#E6CE20]/[0.03]"
           : "border-white/10 bg-black/20"
@@ -3298,7 +3299,9 @@ function PassengerReviewCard({
             />
           ))}
         </div>
-        <p className="text-sm font-medium leading-relaxed text-white/85">“{review.text}”</p>
+        <p className="min-w-0 break-words text-sm font-medium leading-relaxed text-white/85 [overflow-wrap:anywhere]">
+          “{review.text}”
+        </p>
       </div>
       <div className="mt-4">
         <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#E6CE20]">
