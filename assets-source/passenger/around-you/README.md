@@ -14,9 +14,14 @@ optimized to WebP under `public/images/passenger/around-you/`.
 
 ## Reading the inventory
 
-- `image_status` is explicit: `Own local asset`, `Shared fallback`, or
-  `Missing original`.
-- `image_needed` is `Yes` whenever a dedicated original is still required.
+- `image_status` is explicit: `Own local asset`, `Original staged — rights recorded`,
+  `Shared fallback`, or `Missing original`.
+- `Original staged — rights recorded` means a real source image has been
+  downloaded into this intake folder and its Commons file page, author, and
+  license are recorded in the same row. It is not public in the app yet.
+- `image_needed` is `Yes` whenever a dedicated original is still required;
+  staged originals are marked `No` while they wait for the optimization and
+  activation pass.
 - `app_catalog_status` distinguishes places active in the app from future
   candidates.
 - `copy_status` tracks whether English and Spanish editorial copy is ready.
@@ -36,3 +41,15 @@ Prefer a landscape photo with the landmark clearly visible and no unlicensed
 logos, text overlays, or identifiable people as the main subject. Keep the
 original filename exactly as requested so the later optimization pass can be
 automated safely.
+
+## P1.2 assisted sourcing
+
+The first assisted sourcing pass staged one verified landscape JPEG for each
+active place that previously had `Missing original` (15 files). All 15 came
+from Wikimedia Commons and retain a per-file source page, author, and license
+in the inventory. The files are working originals only; P1.3 will crop and
+optimize them to WebP before any Passenger catalog path is changed.
+
+Do not remove the attribution/license fields when moving an image into the
+public app bundle. For CC BY/CC BY-SA assets, preserve attribution and the
+share-alike obligation in the app's content/credits record before release.
