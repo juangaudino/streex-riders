@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Building2,
   Compass,
@@ -26,6 +26,18 @@ const CATEGORY_ICON: Record<AroundYouPlaceCategory, typeof MapPin> = {
   viewpoint: Compass,
 };
 
+const CATEGORY_FALLBACK_IMAGE: Record<AroundYouPlaceCategory, string> = {
+  city: "/images/passenger/around-you/downtown-slc.jpg",
+  culture: "/images/passenger/around-you/downtown-slc.jpg",
+  history: "/images/passenger/around-you/downtown-slc.jpg",
+  nature: "/images/passenger/around-you/great-salt-lake.jpg",
+  mountain: "/images/passenger/around-you/wasatch-back.webp",
+  sports: "/images/passenger/around-you/park-city.jpg",
+  transportation: "/images/passenger/around-you/salt-lake-valley.webp",
+  university: "/images/passenger/around-you/salt-lake-valley.webp",
+  viewpoint: "/images/passenger/around-you/salt-lake-valley.webp",
+};
+
 export function AroundYouPlaceCard({
   language,
   match,
@@ -44,9 +56,16 @@ export function AroundYouPlaceCard({
   const [imageFailed, setImageFailed] = useState(false);
   const t = aroundYouCopy[language];
   const Icon = CATEGORY_ICON[match.place.category];
-  const hasImage = Boolean(match.place.imageSrc && !imageFailed);
+  const imageSrc = imageFailed
+    ? CATEGORY_FALLBACK_IMAGE[match.place.category]
+    : (match.place.imageSrc ?? CATEGORY_FALLBACK_IMAGE[match.place.category]);
+  const hasImage = Boolean(imageSrc);
   const isHero = variant === "hero";
   const distance = formatAroundYouDistance(match.distanceMeters, language);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [match.place.id]);
 
   const content = (
     <>
@@ -55,8 +74,14 @@ export function AroundYouPlaceCard({
           alt=""
           aria-hidden="true"
           className="passenger-around-place-image"
-          src={match.place.imageSrc}
-          onError={() => setImageFailed(true)}
+          src={imageSrc}
+          onError={(event) => {
+            if (match.place.imageSrc && !imageFailed) {
+              setImageFailed(true);
+            } else {
+              event.currentTarget.style.display = "none";
+            }
+          }}
         />
       )}
       <span className="passenger-around-place-overlay" aria-hidden="true" />
@@ -87,7 +112,8 @@ export function AroundYouPlaceCard({
                 : "mt-1 line-clamp-2 block text-xs leading-relaxed text-white/65"
             }
           >
-            {match.place.description[language]}
+            {(isHero ? match.place.expandedDescription : undefined)?.[language] ??
+              match.place.description[language]}
           </span>
         </span>
         {isHero && (match.place.funFact || match.place.elevationFeet) && (

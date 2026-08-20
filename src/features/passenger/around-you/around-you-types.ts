@@ -27,6 +27,10 @@ export type AroundYouPlace = {
   discoveryRadiusMeters: number;
   title: LocalizedText;
   description: LocalizedText;
+  /** Longer, editorial copy reserved for the featured local-story panel. */
+  expandedDescription?: LocalizedText;
+  /** Stable local corridor label, for browsing and local search only. */
+  zone?: LocalizedText;
   funFact?: LocalizedText;
   imageSrc?: string;
   elevationFeet?: number;

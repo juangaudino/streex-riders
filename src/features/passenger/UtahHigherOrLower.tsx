@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, ArrowUpDown, Check, ChevronRight, RotateCcw, Trophy, X } from "lucide-react";
 import type { TriviaLanguage } from "./utah-trivia";
 import {
@@ -34,6 +34,7 @@ const copy = {
     incorrect: "Not quite",
     answerWas: "The answer is",
     next: "Next comparison",
+    continuing: "Next comparison starts automatically",
     results: "See results",
     finishedEyebrow: "ROUND COMPLETE",
     finishedTitle: "You sized up Utah.",
@@ -64,6 +65,7 @@ const copy = {
     incorrect: "Casi",
     answerWas: "La respuesta es",
     next: "Siguiente comparación",
+    continuing: "La siguiente comparación empieza automáticamente",
     results: "Ver resultados",
     finishedEyebrow: "RONDA COMPLETADA",
     finishedTitle: "Ya conoces las medidas de Utah.",
@@ -123,7 +125,7 @@ export function UtahHigherOrLower({
 
   const question = round[questionIndex];
   const answered = selectedSide !== null || timedOut;
-  const advance = () => {
+  const advanceRound = useCallback(() => {
     if (questionIndex >= round.length - 1) {
       setPhase("finished");
       return;
@@ -131,7 +133,7 @@ export function UtahHigherOrLower({
     setQuestionIndex((current) => current + 1);
     setSelectedSide(null);
     setTimedOut(false);
-  };
+  }, [questionIndex, round.length]);
 
   const timer = useTimedRound({
     active: phase === "playing" && Boolean(question) && !answered,
@@ -140,7 +142,7 @@ export function UtahHigherOrLower({
   });
 
   useEffect(() => {
-    if (!timedOut) return;
+    if (!timedOut || !question) return;
     if (question) {
       setAnswerLog((current) =>
         current.some((answer) => answer.questionId === question.id)
@@ -148,18 +150,13 @@ export function UtahHigherOrLower({
           : [...current, { questionId: question.id, side: null, correct: false }],
       );
     }
-    const timeoutId = window.setTimeout(() => {
-      if (questionIndex >= round.length - 1) {
-        setPhase("finished");
-        return;
-      }
+  }, [question, timedOut]);
 
-      setQuestionIndex((current) => current + 1);
-      setSelectedSide(null);
-      setTimedOut(false);
-    }, 1_200);
+  useEffect(() => {
+    if (!answered) return;
+    const timeoutId = window.setTimeout(advanceRound, 3_000);
     return () => window.clearTimeout(timeoutId);
-  }, [question, questionIndex, round.length, timedOut]);
+  }, [advanceRound, answered, question?.id]);
 
   const startRound = () => {
     const knownIds = new Set(UTAH_HIGHER_OR_LOWER_QUESTIONS.map((item) => item.id));
@@ -224,9 +221,8 @@ export function UtahHigherOrLower({
     const resultFrames = loggedFrames.length
       ? loggedFrames
       : round.slice(0, 5).map((resultQuestion) => {
-          const visual = UTAH_HIGHER_OR_LOWER_VISUALS[resultQuestion.id]?.[
-            resultQuestion.correctSide
-          ];
+          const visual =
+            UTAH_HIGHER_OR_LOWER_VISUALS[resultQuestion.id]?.[resultQuestion.correctSide];
           return {
             id: resultQuestion.id,
             src: visual?.src ?? utahTriviaAtlas,
@@ -336,16 +332,22 @@ export function UtahHigherOrLower({
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#E6CE20]">
               {question.category[language]}
             </p>
-            <span className={`passenger-timed-game-meter ${timer.isWarning ? "is-warning" : ""}`}>
-              <span>{t.timeLeft}</span>
-              <strong>{Math.ceil(timer.remainingMs / 1000)}</strong>
-            </span>
+            {!answered && (
+              <span className={`passenger-timed-game-meter ${timer.isWarning ? "is-warning" : ""}`}>
+                <span>{t.timeLeft}</span>
+                <strong>{Math.ceil(timer.remainingMs / 1000)}</strong>
+              </span>
+            )}
           </div>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-            <div
-              className={`h-full rounded-full bg-[#E6CE20] transition-[width] duration-100 ${timer.isWarning ? "passenger-timed-game-bar--warning" : ""}`}
-              style={{ width: `${timer.progress * 100}%` }}
-            />
+          <div className="passenger-higher-lower-timer-slot" aria-hidden={answered}>
+            {!answered && (
+              <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className={`h-full rounded-full bg-[#E6CE20] transition-[width] duration-100 ${timer.isWarning ? "passenger-timed-game-bar--warning" : ""}`}
+                  style={{ width: `${timer.progress * 100}%` }}
+                />
+              </div>
+            )}
           </div>
           <div className="passenger-higher-lower-prompt-slot mt-5">
             <h1 className="passenger-higher-lower-prompt max-w-3xl font-black leading-[1.05] tracking-tight">
@@ -422,16 +424,7 @@ export function UtahHigherOrLower({
                     {question.explanation[language]}
                   </p>
                 </div>
-                {!timedOut && (
-                  <button
-                    type="button"
-                    onClick={advance}
-                    className="passenger-trivia-primary shrink-0"
-                  >
-                    {questionIndex === round.length - 1 ? t.results : t.next}
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                )}
+                <span className="shrink-0 text-xs font-semibold text-white/45">{t.continuing}</span>
               </div>
             ) : (
               <p className="passenger-higher-lower-feedback-placeholder">{t.pickASide}</p>

@@ -7757,7 +7757,9 @@ button.passenger-idle-music {
   line-height: 1 !important;
 }
 
-.passenger-console-shell[data-view="games"] .passenger-higher-lower-option-kicker > span:last-child {
+.passenger-console-shell[data-view="games"]
+  .passenger-higher-lower-option-kicker
+  > span:last-child {
   min-width: 0 !important;
   text-align: left !important;
   line-height: 1 !important;
@@ -7804,7 +7806,9 @@ button.passenger-idle-music {
   padding: 0 !important;
 }
 
-.passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback {
+.passenger-console-shell[data-view="games"]
+  .passenger-higher-lower-feedback-slot
+  > .passenger-trivia-feedback {
   display: grid !important;
   width: 100% !important;
   height: 100% !important;
@@ -7817,24 +7821,38 @@ button.passenger-idle-music {
   padding: 0.9rem 1rem !important;
 }
 
-.passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback > div:first-child {
+.passenger-console-shell[data-view="games"]
+  .passenger-higher-lower-feedback-slot
+  > .passenger-trivia-feedback
+  > div:first-child {
   min-width: 0 !important;
   overflow: hidden !important;
 }
 
-.passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback > div:first-child p {
+.passenger-console-shell[data-view="games"]
+  .passenger-higher-lower-feedback-slot
+  > .passenger-trivia-feedback
+  > div:first-child
+  p {
   margin: 0 !important;
   overflow: hidden !important;
 }
 
-.passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback > div:first-child p:last-child {
+.passenger-console-shell[data-view="games"]
+  .passenger-higher-lower-feedback-slot
+  > .passenger-trivia-feedback
+  > div:first-child
+  p:last-child {
   display: -webkit-box !important;
   overflow: hidden !important;
   -webkit-box-orient: vertical !important;
   -webkit-line-clamp: 2 !important;
 }
 
-.passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback .passenger-trivia-primary {
+.passenger-console-shell[data-view="games"]
+  .passenger-higher-lower-feedback-slot
+  > .passenger-trivia-feedback
+  .passenger-trivia-primary {
   width: 100% !important;
   min-width: 11.5rem !important;
   min-height: 3rem !important;
@@ -7934,7 +7952,9 @@ button.passenger-idle-music {
   border-color: rgb(230 206 32 / 0.75) !important;
 }
 
-.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-frame.is-correct .passenger-higher-lower-result-frame-status {
+.passenger-console-shell[data-view="games"]
+  .passenger-higher-lower-result-frame.is-correct
+  .passenger-higher-lower-result-frame-status {
   background: #e6ce20 !important;
   color: #111 !important;
 }
@@ -7943,7 +7963,9 @@ button.passenger-idle-music {
   border-color: rgb(244 133 108 / 0.75) !important;
 }
 
-.passenger-console-shell[data-view="games"] .passenger-higher-lower-result-frame.is-wrong .passenger-higher-lower-result-frame-status {
+.passenger-console-shell[data-view="games"]
+  .passenger-higher-lower-result-frame.is-wrong
+  .passenger-higher-lower-result-frame-status {
   background: #f4856c !important;
   color: #111 !important;
 }
@@ -7966,11 +7988,16 @@ button.passenger-idle-music {
     font-size: clamp(1.55rem, 2.2vw, 2.4rem) !important;
   }
 
-  .passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback {
+  .passenger-console-shell[data-view="games"]
+    .passenger-higher-lower-feedback-slot
+    > .passenger-trivia-feedback {
     grid-template-columns: minmax(0, 1fr) minmax(14rem, 15rem) !important;
   }
 
-  .passenger-console-shell[data-view="games"] .passenger-higher-lower-feedback-slot > .passenger-trivia-feedback .passenger-trivia-primary {
+  .passenger-console-shell[data-view="games"]
+    .passenger-higher-lower-feedback-slot
+    > .passenger-trivia-feedback
+    .passenger-trivia-primary {
     min-width: 14rem !important;
   }
 }
@@ -7984,5 +8011,324 @@ button.passenger-idle-music {
   .passenger-console-shell[data-view="games"] .passenger-higher-lower-result-stage {
     align-items: center !important;
     text-align: center !important;
+  }
+}
+
+/*
+ * Passenger Console — final tablet stability authority
+ *
+ * This intentionally sits after legacy responsive rules. It reserves every
+ * transient gameplay row and scopes the horizontal composition by view so a
+ * later component cannot accidentally change another Passenger surface.
+ */
+.passenger-timed-game-status-slot {
+  display: flex;
+  min-height: 1.5rem;
+  align-items: center;
+}
+
+.passenger-timed-game-progress-slot {
+  min-height: 0.25rem;
+}
+
+.passenger-timed-game-status > span:last-child.is-warning,
+.passenger-timed-game-meter.is-warning strong {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #fb6a4a !important;
+  text-shadow: 0 0 12px rgb(251 106 74 / 0.42);
+}
+
+.passenger-timed-game-bar--warning {
+  background: #fb6a4a !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-board-content {
+  grid-template-rows: auto minmax(1.5rem, 1.5rem) minmax(7rem, 7rem) minmax(12rem, 1fr) minmax(
+      8rem,
+      8rem
+    ) !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-timer-slot {
+  display: flex !important;
+  min-height: 1.5rem !important;
+  margin: 0 !important;
+  align-items: center !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-timer-slot > div {
+  width: 100%;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-board-content > :nth-child(2) {
+  margin-top: 0 !important;
+}
+
+.passenger-console-shell[data-view="games"] .passenger-trivia-layout,
+.passenger-console-shell[data-view="games"] .passenger-choice-layout,
+.passenger-console-shell[data-view="games"] .passenger-higher-lower-layout {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="games"] .passenger-higher-lower-board-content {
+    grid-template-rows: auto minmax(1.5rem, 1.5rem) minmax(6.5rem, 7rem) minmax(13rem, 1fr) minmax(
+        8rem,
+        8rem
+      ) !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time {
+    display: grid !important;
+    width: 100% !important;
+    grid-template-columns: minmax(0, 1fr) minmax(12.5rem, 15.25rem) !important;
+    align-items: end !important;
+    gap: clamp(1.25rem, 2.5vw, 2.75rem) !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div {
+    min-width: 0 !important;
+    text-align: center !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > div > p:nth-child(2) {
+    white-space: nowrap !important;
+    font-size: clamp(3.25rem, 4vw, 4.85rem) !important;
+    line-height: 0.92 !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time > button {
+    position: relative !important;
+    inset: auto !important;
+    grid-column: 2 !important;
+    justify-self: end !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time + .grid {
+    display: grid !important;
+    width: 100% !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    text-align: center !important;
+  }
+
+  .passenger-console-shell[data-view="home"] .passenger-home-time + .grid > * {
+    min-width: 0 !important;
+    text-align: center !important;
+  }
+
+  .passenger-idle-content--around-you .passenger-idle-music--compact,
+  .passenger-idle-content--game .passenger-idle-music--compact {
+    display: grid !important;
+    width: min(100%, 70rem) !important;
+    max-width: none !important;
+    min-height: clamp(8.5rem, 18dvh, 10.75rem) !important;
+    height: clamp(8.5rem, 18dvh, 10.75rem) !important;
+    grid-template-columns: clamp(5.5rem, 10dvh, 7.25rem) minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: clamp(1rem, 2vw, 1.75rem) !important;
+  }
+
+  .passenger-idle-content--around-you .passenger-idle-music--compact .passenger-idle-artwork,
+  .passenger-idle-content--game .passenger-idle-music--compact .passenger-idle-artwork {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    object-fit: cover !important;
+  }
+
+  .passenger-idle-content--around-you .passenger-idle-music--compact .passenger-idle-track-copy,
+  .passenger-idle-content--game .passenger-idle-music--compact .passenger-idle-track-copy {
+    min-width: 0 !important;
+  }
+
+  .passenger-idle-content--around-you .passenger-idle-music--compact h2,
+  .passenger-idle-content--game .passenger-idle-music--compact h2 {
+    display: -webkit-box !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-layout {
+    display: grid !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    grid-template-columns: minmax(0, 1.12fr) minmax(24rem, 0.88fr) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    gap: clamp(1rem, 1.8vw, 1.5rem) !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured {
+    position: relative !important;
+    display: block !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    border: 1px solid rgb(230 206 32 / 0.45) !important;
+    border-radius: 1.8rem !important;
+    background: #101010 !important;
+    isolation: isolate !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured::before,
+  .passenger-console-shell[data-view="around-you"] .passenger-around-featured::after,
+  .passenger-console-shell[data-view="around-you"]
+    .passenger-around-featured
+    .passenger-around-place-card::before,
+  .passenger-console-shell[data-view="around-you"]
+    .passenger-around-featured
+    .passenger-around-place-card::after,
+  .passenger-console-shell[data-view="around-you"]
+    .passenger-around-featured
+    .passenger-around-place-content::before,
+  .passenger-console-shell[data-view="around-you"]
+    .passenger-around-featured
+    .passenger-around-place-content::after {
+    content: none !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"]
+    .passenger-around-featured
+    > .passenger-around-section-eyebrow {
+    position: absolute !important;
+    z-index: 3 !important;
+    top: 1.25rem !important;
+    left: 1.25rem !important;
+    margin: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"]
+    .passenger-around-featured
+    .passenger-around-place-card,
+  .passenger-console-shell[data-view="around-you"]
+    .passenger-around-featured
+    .passenger-around-place-card--hero {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"]
+    .passenger-around-featured
+    .passenger-around-place-image,
+  .passenger-console-shell[data-view="around-you"]
+    .passenger-around-featured
+    .passenger-around-place-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"]
+    .passenger-around-featured
+    .passenger-around-place-image {
+    object-fit: cover !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"]
+    .passenger-around-featured
+    .passenger-around-place-content {
+    position: absolute !important;
+    z-index: 2 !important;
+    inset: 0 !important;
+    display: flex !important;
+    width: auto !important;
+    max-width: none !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    padding: 4.75rem clamp(1.4rem, 2vw, 2.25rem) 1.55rem !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-live-button {
+    position: absolute !important;
+    z-index: 4 !important;
+    right: 1rem !important;
+    bottom: 1rem !important;
+    left: auto !important;
+    top: auto !important;
+    width: auto !important;
+    max-width: 12.5rem !important;
+    min-height: 2.4rem !important;
+    padding: 0.55rem 0.75rem !important;
+    border-radius: 999px !important;
+  }
+
+  .passenger-console-shell[data-view="around-you"] .passenger-around-secondary {
+    display: flex !important;
+    min-height: 0 !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    padding-right: 0.25rem !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-layout {
+    display: grid !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr) !important;
+    gap: clamp(1rem, 1.8vw, 1.5rem) !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-overview,
+  .passenger-console-shell[data-view="streex"] .passenger-streex-experience {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-overview {
+    display: grid !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions {
+    display: grid !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows:
+      minmax(4.8rem, 0.95fr) minmax(4.1rem, 0.8fr) minmax(4.1rem, 0.8fr) minmax(4.8rem, 0.95fr)
+      minmax(7.5rem, 1.5fr) !important;
+    align-content: stretch !important;
+    gap: 0.7rem !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > *,
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > .col-span-2,
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > a.col-span-2 {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  .passenger-console-shell[data-view="streex"] .passenger-streex-actions > a.col-span-2 {
+    grid-column: 1 / -1 !important;
+    grid-row: 5 !important;
+  }
+}
+
+@media (orientation: portrait) {
+  .passenger-console-shell[data-view="around-you"] .passenger-around-live-button {
+    top: auto !important;
+    right: 0.75rem !important;
+    bottom: 0.75rem !important;
+    left: auto !important;
+    width: auto !important;
+    max-width: 11.5rem !important;
+    min-height: 2.25rem !important;
+    padding: 0.45rem 0.65rem !important;
+    border-radius: 999px !important;
   }
 }

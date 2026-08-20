@@ -2,7 +2,7 @@ import type { AroundYouPlace } from "./around-you-types";
 
 // Curated local catalog. Coordinates and facts are verified against the linked public/official
 // sources before inclusion. Priority follows the documented 0–100 landmark scale in specs.md.
-export const AROUND_YOU_SEED_PLACES: AroundYouPlace[] = [
+const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
   {
     id: "salt-lake-valley",
     enabled: true,
@@ -632,3 +632,163 @@ export const AROUND_YOU_SEED_PLACES: AroundYouPlace[] = [
     tags: ["park-city", "culture", "main-street"],
   },
 ];
+
+const AROUND_YOU_EDITORIAL_CONTENT: Partial<
+  Record<string, Pick<AroundYouPlace, "expandedDescription" | "zone">>
+> = {
+  "salt-lake-valley": {
+    zone: { en: "Salt Lake Valley", es: "Valle de Salt Lake" },
+    expandedDescription: {
+      en: "Salt Lake Valley is the broad urban basin between the Wasatch Mountains and the Great Salt Lake. It is the everyday gateway to downtown, the airport, canyon roads and the ski country beyond.",
+      es: "El Valle de Salt Lake es la amplia cuenca urbana entre las montañas Wasatch y el Gran Lago Salado. Es la puerta cotidiana al centro, al aeropuerto, a las rutas de cañón y al país de esquí más allá.",
+    },
+  },
+  "wasatch-back": {
+    zone: { en: "Wasatch Back", es: "Wasatch Back" },
+    expandedDescription: {
+      en: "The Wasatch Back begins where the road rises beyond the Salt Lake Valley toward Park City, reservoirs and forested mountain passes. The landscape changes quickly from city blocks to high-elevation views.",
+      es: "El Wasatch Back comienza donde la ruta asciende más allá del Valle de Salt Lake hacia Park City, embalses y pasos montañosos boscosos. El paisaje cambia rápidamente de calles urbanas a vistas de gran altura.",
+    },
+  },
+  "downtown-salt-lake-city": {
+    zone: { en: "Downtown Salt Lake City", es: "Centro de Salt Lake City" },
+    expandedDescription: {
+      en: "Downtown Salt Lake City is Utah's civic and cultural center, laid out on a famously wide street grid beneath the Wasatch foothills. Restaurants, museums, performance venues and Temple Square are all close together here.",
+      es: "El centro de Salt Lake City es el corazón cívico y cultural de Utah, trazado sobre una famosa cuadrícula de calles anchas bajo las estribaciones Wasatch. Restaurantes, museos, teatros y Temple Square están muy cerca aquí.",
+    },
+  },
+  "utah-state-capitol": {
+    zone: { en: "Capitol Hill", es: "Capitol Hill" },
+    expandedDescription: {
+      en: "The Utah State Capitol crowns Capitol Hill at the north end of State Street. Its grounds look across downtown toward the Wasatch range, making this one of the city's clearest orientation points.",
+      es: "El Capitolio del Estado de Utah corona Capitol Hill al norte de State Street. Sus jardines miran sobre el centro hacia la cordillera Wasatch, por lo que es uno de los mejores puntos de orientación de la ciudad.",
+    },
+  },
+  "temple-square": {
+    zone: { en: "Downtown Salt Lake City", es: "Centro de Salt Lake City" },
+    expandedDescription: {
+      en: "Temple Square sits at the historic center of downtown Salt Lake City. The surrounding blocks bring together landscaped public spaces, architecture, music and some of the city's most recognizable landmarks.",
+      es: "Temple Square está en el centro histórico de Salt Lake City. Las manzanas a su alrededor reúnen espacios públicos ajardinados, arquitectura, música y algunos de los lugares más reconocibles de la ciudad.",
+    },
+  },
+  "city-creek-canyon": {
+    zone: { en: "North Downtown", es: "Norte del centro" },
+    expandedDescription: {
+      en: "City Creek Canyon begins just behind the Capitol and carries a stream, trail access and canyon scenery directly into the city. It is a quick reminder of how close Salt Lake City is to nature.",
+      es: "City Creek Canyon comienza detrás del Capitolio y lleva un arroyo, acceso a senderos y paisaje de cañón directamente a la ciudad. Es un recordatorio rápido de lo cerca que Salt Lake City está de la naturaleza.",
+    },
+  },
+  "liberty-park": {
+    zone: { en: "Central Salt Lake City", es: "Centro de Salt Lake City" },
+    expandedDescription: {
+      en: "Liberty Park is one of Salt Lake City's classic green spaces, with mature trees, open lawns and the Tracy Aviary nearby. It is a relaxed local stop between downtown and the Sugar House area.",
+      es: "Liberty Park es uno de los parques clásicos de Salt Lake City, con árboles maduros, grandes praderas y el Tracy Aviary cerca. Es una parada local tranquila entre el centro y el área de Sugar House.",
+    },
+  },
+  "university-of-utah": {
+    zone: { en: "University District", es: "Distrito universitario" },
+    expandedDescription: {
+      en: "The University of Utah spreads along the foothills east of downtown. Its campus, medical center and museums sit on a rise with broad views over the Salt Lake Valley.",
+      es: "La University of Utah se extiende por las estribaciones al este del centro. Su campus, centro médico y museos están sobre una elevación con amplias vistas del Valle de Salt Lake.",
+    },
+  },
+  "red-butte-garden": {
+    zone: { en: "University District", es: "Distrito universitario" },
+    expandedDescription: {
+      en: "Red Butte Garden pairs botanical collections with trails at the base of the Wasatch foothills. It is a quiet transition point between the University district and the mountain landscape.",
+      es: "Red Butte Garden combina colecciones botánicas con senderos al pie de las estribaciones Wasatch. Es un punto de transición tranquilo entre el distrito universitario y el paisaje montañoso.",
+    },
+  },
+  "this-is-the-place": {
+    zone: { en: "Foothills", es: "Estribaciones" },
+    expandedDescription: {
+      en: "This Is The Place Heritage Park interprets Utah pioneer history near the mouth of Emigration Canyon. The site connects a historic overlook with access to the foothill roads east of the city.",
+      es: "This Is The Place Heritage Park interpreta la historia pionera de Utah cerca de la boca de Emigration Canyon. El sitio conecta un mirador histórico con las rutas de las estribaciones al este de la ciudad.",
+    },
+  },
+  "salt-lake-city-airport": {
+    zone: {
+      en: "Salt Lake City International Airport",
+      es: "Aeropuerto Internacional de Salt Lake City",
+    },
+    expandedDescription: {
+      en: "Salt Lake City International Airport is Utah's main air gateway and one of the closest large airports to a downtown core. From here, the mountains, city and Great Salt Lake are all within a short drive.",
+      es: "El Aeropuerto Internacional de Salt Lake City es la principal puerta aérea de Utah y uno de los grandes aeropuertos más cercanos a un centro urbano. Desde aquí, las montañas, la ciudad y el Gran Lago Salado están a poca distancia.",
+    },
+  },
+  "great-salt-lake": {
+    zone: { en: "Great Salt Lake", es: "Gran Lago Salado" },
+    expandedDescription: {
+      en: "The Great Salt Lake shapes the western edge of the valley and gives the region its name. Its scale, salt flats, islands and changing light make it one of Utah's most distinctive landscapes.",
+      es: "El Gran Lago Salado forma el borde occidental del valle y le da nombre a la región. Su escala, salares, islas y luz cambiante lo convierten en uno de los paisajes más distintivos de Utah.",
+    },
+  },
+  "parleys-canyon": {
+    zone: { en: "Parley's Canyon", es: "Parley's Canyon" },
+    expandedDescription: {
+      en: "Parley's Canyon is the eastbound route that links Salt Lake City with the Wasatch Back and Park City. The road climbs quickly through a narrow canyon toward mountain weather and higher elevations.",
+      es: "Parley's Canyon es la ruta hacia el este que une Salt Lake City con el Wasatch Back y Park City. La carretera asciende rápidamente por un cañón estrecho hacia clima de montaña y elevaciones mayores.",
+    },
+  },
+  "lagoon-amusement-park": {
+    zone: { en: "Farmington", es: "Farmington" },
+    expandedDescription: {
+      en: "Lagoon is a long-running northern Utah amusement park in Farmington, north of Salt Lake City. Its coaster skyline is a familiar sight along the I-15 corridor.",
+      es: "Lagoon es un parque de atracciones histórico del norte de Utah en Farmington, al norte de Salt Lake City. Su silueta de montañas rusas es una vista conocida a lo largo del corredor de la I-15.",
+    },
+  },
+  ogden: {
+    zone: { en: "Ogden", es: "Ogden" },
+    expandedDescription: {
+      en: "Ogden is a northern Utah city with a historic downtown and quick access to the Wasatch mountains. It is a natural base for rail history, dining and year-round outdoor recreation.",
+      es: "Ogden es una ciudad del norte de Utah con un centro histórico y acceso rápido a las montañas Wasatch. Es una base natural para historia ferroviaria, gastronomía y recreación al aire libre durante todo el año.",
+    },
+  },
+  "antelope-island": {
+    zone: { en: "Great Salt Lake", es: "Gran Lago Salado" },
+    expandedDescription: {
+      en: "Antelope Island State Park rises from the Great Salt Lake with open range, shoreline views and a feeling of distance from the city. It is one of the region's most memorable nature escapes.",
+      es: "Antelope Island State Park se eleva desde el Gran Lago Salado con campo abierto, vistas de la orilla y una sensación de distancia de la ciudad. Es una de las escapadas naturales más memorables de la región.",
+    },
+  },
+  "park-city": {
+    zone: { en: "Park City", es: "Park City" },
+    expandedDescription: {
+      en: "Park City is a former mining town turned year-round mountain destination. Historic streets, ski terrain, festivals and trail access all come together just beyond the Wasatch crest.",
+      es: "Park City es un antiguo pueblo minero convertido en destino de montaña durante todo el año. Calles históricas, terreno de esquí, festivales y acceso a senderos se unen justo después de la cresta Wasatch.",
+    },
+  },
+  "historic-main-street": {
+    zone: { en: "Park City Main Street", es: "Main Street de Park City" },
+    expandedDescription: {
+      en: "Historic Main Street is Park City's walkable core, shaped by its silver-mining past and lined with independent restaurants, galleries and the Egyptian Theatre.",
+      es: "Historic Main Street es el corazón caminable de Park City, marcado por su pasado de minería de plata y lleno de restaurantes independientes, galerías y el Egyptian Theatre.",
+    },
+  },
+  "utah-olympic-park": {
+    zone: { en: "Kimball Junction", es: "Kimball Junction" },
+    expandedDescription: {
+      en: "Utah Olympic Park preserves a working legacy of the 2002 Winter Games. Its ski jumps, sliding tracks and mountain setting make it an unmistakable landmark on the approach to Park City.",
+      es: "Utah Olympic Park conserva un legado activo de los Juegos Olímpicos de Invierno de 2002. Sus saltos de esquí, pistas de deslizamiento y entorno montañoso lo hacen inconfundible al acercarse a Park City.",
+    },
+  },
+  "kimball-junction": {
+    zone: { en: "Kimball Junction", es: "Kimball Junction" },
+    expandedDescription: {
+      en: "Kimball Junction is the practical gateway to Park City, where the highway, shopping, dining and Olympic Park access meet before the road continues into the mountains.",
+      es: "Kimball Junction es la puerta práctica a Park City, donde la autopista, las compras, la gastronomía y el acceso al Olympic Park se encuentran antes de que la ruta continúe hacia las montañas.",
+    },
+  },
+  "deer-valley": {
+    zone: { en: "Deer Valley", es: "Deer Valley" },
+    expandedDescription: {
+      en: "Deer Valley sits above Park City as a polished mountain resort area known for winter skiing and summer trails. The route there climbs into a quieter, more alpine side of town.",
+      es: "Deer Valley se encuentra sobre Park City como una refinada zona de resort de montaña conocida por el esquí de invierno y los senderos de verano. La ruta asciende hacia un lado más tranquilo y alpino de la ciudad.",
+    },
+  },
+};
+
+export const AROUND_YOU_SEED_PLACES: AroundYouPlace[] = AROUND_YOU_BASE_PLACES.map((place) => ({
+  ...place,
+  ...AROUND_YOU_EDITORIAL_CONTENT[place.id],
+}));

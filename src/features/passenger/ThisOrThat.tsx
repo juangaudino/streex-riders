@@ -171,7 +171,7 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
         setChoiceIndex((current) => current + 1);
         setSelectedIndex(null);
       }
-    }, 760);
+    }, 3_000);
 
     return () => window.clearTimeout(timer);
   }, [choiceIndex, phase, round.length, selectedIndex]);

@@ -101,6 +101,10 @@ type View =
   | "tip"
   | "where-we-ride";
 
+type PassengerGame = "trivia" | "choice" | "higher-lower";
+
+const PASSENGER_GAMES: readonly PassengerGame[] = ["trivia", "choice", "higher-lower"];
+
 type PassengerConsoleProps = {
   config: AppConfig;
 };
@@ -505,6 +509,12 @@ const copy = {
 export function PassengerConsole({ config }: PassengerConsoleProps) {
   const [language, setLanguage] = useState<Language>("en");
   const [view, setView] = useState<View>("home");
+  const [requestedGame, setRequestedGame] = useState<PassengerGame | null>(null);
+  const [quickGameIndex, setQuickGameIndex] = useState(0);
+
+  const consumeRequestedGame = useCallback(() => {
+    setRequestedGame(null);
+  }, []);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [sessionKey, setSessionKey] = useState(0);
   const [aroundYouTestMode] = useState(
@@ -544,9 +554,25 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
     places: AROUND_YOU_SEED_PLACES,
     sessionKey,
   });
+  const navigateTo = useCallback(
+    (nextView: View) => {
+      if (nextView === "home" && view !== "home") {
+        setQuickGameIndex((current) => current + 1);
+      }
+      setView(nextView);
+    },
+    [view],
+  );
+  const openGame = useCallback((game: PassengerGame) => {
+    setRequestedGame(game);
+    setView("games");
+  }, []);
+  const quickGame = PASSENGER_GAMES[quickGameIndex % PASSENGER_GAMES.length];
   const resetPassengerSession = useCallback(() => {
     setBookingOpen(false);
     setView("home");
+    setRequestedGame(null);
+    setQuickGameIndex((current) => current + 1);
     setLanguage(consoleConfig.idleReset.defaultLanguage);
     setSessionKey((current) => current + 1);
   }, [consoleConfig.idleReset.defaultLanguage]);
@@ -598,7 +624,9 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               config={config}
               aroundYou={aroundYou}
               language={language}
-              onNavigate={setView}
+              onNavigate={navigateTo}
+              onOpenGame={openGame}
+              quickGame={quickGame}
               fallbackTemperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
               weather={weather.snapshot}
               weatherCity={consoleConfig.weather.city}
@@ -609,7 +637,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           {view === "around-you" && (
             <AroundYouView
               language={language}
-              onBack={() => setView("home")}
+              onBack={() => navigateTo("home")}
               places={AROUND_YOU_SEED_PLACES}
               showDistance={consoleConfig.aroundYou.ui.showDistance}
               state={aroundYou}
@@ -623,7 +651,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               }
             />
           )}
-          {view === "music" && <MusicView config={config} onNavigate={setView} t={t} />}
+          {view === "music" && <MusicView config={config} onNavigate={navigateTo} t={t} />}
           {view === "games" && (
             <GamesView
               language={language}
@@ -631,29 +659,31 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               thisOrThatEnabled={consoleConfig.games.thisOrThatEnabled}
               utahHigherOrLowerEnabled={consoleConfig.games.utahHigherOrLowerEnabled}
               utahTriviaEnabled={consoleConfig.games.utahTriviaEnabled}
+              requestedGame={requestedGame}
+              onRequestedGameConsumed={consumeRequestedGame}
             />
           )}
           {view === "streex" && (
             <StreexView
               config={config}
               onBookRide={() => setBookingOpen(true)}
-              onNavigate={setView}
+              onNavigate={navigateTo}
               phoneContinuation={consoleConfig.links.phoneContinuation}
               t={t}
             />
           )}
           {view === "meet-juan" && (
-            <MeetJuanView config={config} language={language} onNavigate={setView} t={t} />
+            <MeetJuanView config={config} language={language} onNavigate={navigateTo} t={t} />
           )}
-          {view === "services" && <ServicesView config={config} onNavigate={setView} t={t} />}
-          {view === "contact" && <ContactView config={config} onNavigate={setView} t={t} />}
-          {view === "reviews" && <ReviewsView language={language} onNavigate={setView} t={t} />}
-          {view === "tip" && <TipView config={config} onNavigate={setView} t={t} />}
+          {view === "services" && <ServicesView config={config} onNavigate={navigateTo} t={t} />}
+          {view === "contact" && <ContactView config={config} onNavigate={navigateTo} t={t} />}
+          {view === "reviews" && <ReviewsView language={language} onNavigate={navigateTo} t={t} />}
+          {view === "tip" && <TipView config={config} onNavigate={navigateTo} t={t} />}
           {view === "where-we-ride" && (
-            <WhereWeRideView config={config} onNavigate={setView} t={t} />
+            <WhereWeRideView config={config} onNavigate={navigateTo} t={t} />
           )}
         </main>
-        <ConsoleNavigation activeView={view} onNavigate={setView} t={t} />
+        <ConsoleNavigation activeView={view} onNavigate={navigateTo} t={t} />
       </div>
       <BookingFormModal language={language} open={bookingOpen} onOpenChange={setBookingOpen} />
       {idleReset.promptOpen && (
@@ -664,11 +694,16 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           aroundYou={aroundYou}
           onExploreAroundYou={() => {
             idleReset.resume();
-            setView("around-you");
+            navigateTo("around-you");
           }}
           onExploreMusic={() => {
             idleReset.resume();
-            setView("music");
+            navigateTo("music");
+          }}
+          featuredGame={quickGame}
+          onExploreGame={() => {
+            idleReset.resume();
+            openGame(quickGame);
           }}
           onResume={idleReset.resume}
           weather={weather.snapshot}
@@ -684,8 +719,10 @@ function PassengerIdlePrompt({
   fallbackTemperatureFahrenheit,
   language,
   onExploreAroundYou,
+  onExploreGame,
   onExploreMusic,
   onResume,
+  featuredGame,
   weather,
 }: {
   aroundYou: import("./around-you/around-you-types").AroundYouEngineState;
@@ -693,8 +730,10 @@ function PassengerIdlePrompt({
   fallbackTemperatureFahrenheit: number;
   language: Language;
   onExploreAroundYou: () => void;
+  onExploreGame: () => void;
   onExploreMusic: () => void;
   onResume: () => void;
+  featuredGame: PassengerGame;
   weather: PassengerWeatherSnapshot | null;
 }) {
   const primary = copy[language];
@@ -763,7 +802,7 @@ function PassengerIdlePrompt({
               </div>
             )}
           </>
-        ) : (
+        ) : idleFeature === "around-you" ? (
           <>
             <div className="passenger-idle-around-featured w-full max-w-4xl">
               <AroundYouHomeCard
@@ -773,6 +812,19 @@ function PassengerIdlePrompt({
                 variant="idle-featured"
               />
             </div>
+            <IdleSpotifyNowPlaying
+              compact
+              enabled={
+                config.passengerConsole.music.mode === "provider" &&
+                config.passengerConsole.music.providerName === "Spotify"
+              }
+              onExploreMusic={onExploreMusic}
+              t={primary}
+            />
+          </>
+        ) : (
+          <>
+            <IdleGameInvitation game={featuredGame} onExploreGame={onExploreGame} t={primary} />
             <IdleSpotifyNowPlaying
               compact
               enabled={
@@ -804,18 +856,99 @@ function PassengerIdlePrompt({
 }
 
 function useIdleFeatureRotation(intervalMs: number | null) {
-  const [feature, setFeature] = useState<"music" | "around-you">("music");
+  const [feature, setFeature] = useState<"music" | "around-you" | "game">("music");
 
   useEffect(() => {
     if (!intervalMs) return;
     const timer = window.setInterval(() => {
-      setFeature((current) => (current === "music" ? "around-you" : "music"));
+      setFeature((current) =>
+        current === "music" ? "around-you" : current === "around-you" ? "game" : "music",
+      );
     }, intervalMs);
 
     return () => window.clearInterval(timer);
   }, [intervalMs]);
 
   return feature;
+}
+
+function getPassengerGamePresentation(
+  game: PassengerGame,
+  t: (typeof copy)[Language],
+): {
+  artwork: string;
+  description: string;
+  icon: React.ReactNode;
+  title: string;
+} {
+  if (game === "choice") {
+    return {
+      artwork: THIS_OR_THAT_TRAILER_VISUALS[0]?.src ?? utahTriviaAtlas,
+      description: t.thisOrThatDescription,
+      icon: <ArrowLeftRight className="h-6 w-6" />,
+      title: t.thisOrThat,
+    };
+  }
+
+  if (game === "higher-lower") {
+    return {
+      artwork: utahTriviaAtlas,
+      description: t.utahHigherOrLowerDescription,
+      icon: <ArrowUpDown className="h-6 w-6" />,
+      title: t.utahHigherOrLower,
+    };
+  }
+
+  return {
+    artwork: utahTriviaSymbols,
+    description: t.utahTriviaDescription,
+    icon: <HoneycombMark />,
+    title: t.utahTrivia,
+  };
+}
+
+function IdleGameInvitation({
+  game,
+  onExploreGame,
+  t,
+}: {
+  game: PassengerGame;
+  onExploreGame: () => void;
+  t: (typeof copy)[Language];
+}) {
+  const featured = getPassengerGamePresentation(game, t);
+
+  return (
+    <button
+      type="button"
+      onClick={(event) => {
+        event.stopPropagation();
+        onExploreGame();
+      }}
+      className="passenger-idle-game-invitation group relative grid w-full max-w-4xl overflow-hidden rounded-[32px] border border-[#E6CE20]/35 bg-[#14130c] text-left shadow-[0_24px_70px_rgba(0,0,0,0.38)]"
+    >
+      <img
+        src={featured.artwork}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover opacity-60 transition duration-500 group-hover:scale-[1.025]"
+      />
+      <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,8,8,.97)_0%,rgba(8,8,8,.7)_46%,rgba(8,8,8,.16)_100%)]" />
+      <span className="relative grid min-h-[290px] max-w-xl content-end gap-3 p-8 sm:min-h-[340px] sm:p-10">
+        <span className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-[#E6CE20]">
+          {featured.icon}
+          {t.games}
+        </span>
+        <span className="text-4xl font-black tracking-tight sm:text-5xl">{featured.title}</span>
+        <span className="max-w-lg text-base leading-relaxed text-white/75 sm:text-lg">
+          {featured.description}
+        </span>
+        <span className="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-[#E6CE20] px-6 py-3 text-sm font-black uppercase tracking-[0.13em] text-black">
+          {t.playNow}
+          <ChevronRight className="h-4 w-4" />
+        </span>
+      </span>
+    </button>
+  );
 }
 
 function IdleSpotifyNowPlaying({
@@ -1005,6 +1138,8 @@ function HomeView({
   config,
   language,
   onNavigate,
+  onOpenGame,
+  quickGame,
   fallbackTemperatureFahrenheit,
   weather,
   weatherCity,
@@ -1015,6 +1150,8 @@ function HomeView({
   config: AppConfig;
   language: Language;
   onNavigate: (view: View) => void;
+  onOpenGame: (game: PassengerGame) => void;
+  quickGame: PassengerGame;
   fallbackTemperatureFahrenheit: number;
   weather: PassengerWeatherSnapshot | null;
   weatherCity: string;
@@ -1067,6 +1204,7 @@ function HomeView({
     language === "es"
       ? `${Math.round(((temperatureFahrenheit - 32) * 5) / 9)}°C`
       : `${Math.round(temperatureFahrenheit)}°F`;
+  const quickGamePresentation = getPassengerGamePresentation(quickGame, t);
 
   return (
     <div className="passenger-home-layout flex flex-1 flex-col gap-5">
@@ -1199,11 +1337,11 @@ function HomeView({
           <QuickAccessCard
             accent
             badge={t.playNow}
-            icon={<Gamepad2 />}
-            label={t.utahTrivia}
-            description={t.utahTriviaDescription}
-            onClick={() => onNavigate("games")}
-            artwork={utahTriviaSymbols}
+            icon={quickGamePresentation.icon}
+            label={quickGamePresentation.title}
+            description={quickGamePresentation.description}
+            onClick={() => onOpenGame(quickGame)}
+            artwork={quickGamePresentation.artwork}
           />
           {config.passengerConsole.aroundYou.ui.showHomeCard && (
             <AroundYouHomeCard
@@ -2101,16 +2239,26 @@ function GamesView({
   language,
   t,
   thisOrThatEnabled,
+  onRequestedGameConsumed,
+  requestedGame,
   utahHigherOrLowerEnabled,
   utahTriviaEnabled,
 }: {
   language: Language;
   t: (typeof copy)[Language];
   thisOrThatEnabled: boolean;
+  onRequestedGameConsumed: () => void;
+  requestedGame: PassengerGame | null;
   utahHigherOrLowerEnabled: boolean;
   utahTriviaEnabled: boolean;
 }) {
-  const [activeGame, setActiveGame] = useState<"trivia" | "choice" | "higher-lower" | null>(null);
+  const [activeGame, setActiveGame] = useState<PassengerGame | null>(null);
+
+  useEffect(() => {
+    if (!requestedGame) return;
+    setActiveGame(requestedGame);
+    onRequestedGameConsumed();
+  }, [onRequestedGameConsumed, requestedGame]);
 
   if (activeGame === "trivia" && utahTriviaEnabled) {
     return <UtahTrivia language={language} onExit={() => setActiveGame(null)} />;

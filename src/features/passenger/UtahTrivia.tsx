@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, Check, ChevronRight, Flag, RotateCcw, Sparkles, Trophy, X } from "lucide-react";
 import {
   createTriviaRound,
@@ -29,6 +29,7 @@ const triviaCopy = {
     timeUp: "Time's up",
     question: "Question",
     next: "Next question",
+    continuing: "Next question starts automatically",
     results: "See results",
     correct: "Correct",
     incorrect: "Not quite",
@@ -56,6 +57,7 @@ const triviaCopy = {
     timeUp: "Se acabó el tiempo",
     question: "Pregunta",
     next: "Siguiente pregunta",
+    continuing: "La siguiente pregunta empieza automáticamente",
     results: "Ver resultados",
     correct: "Correcto",
     incorrect: "Casi",
@@ -149,22 +151,21 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
     onExpire: () => setTimedOut(true),
   });
 
+  const advanceRound = useCallback(() => {
+    if (questionIndex >= round.length - 1) {
+      setPhase("finished");
+      return;
+    }
+    setQuestionIndex((current) => current + 1);
+    setSelectedIndex(null);
+    setTimedOut(false);
+  }, [questionIndex, round.length]);
+
   useEffect(() => {
-    if (!timedOut) return;
-
-    const timeoutId = window.setTimeout(() => {
-      if (questionIndex >= round.length - 1) {
-        setPhase("finished");
-        return;
-      }
-
-      setQuestionIndex((current) => current + 1);
-      setSelectedIndex(null);
-      setTimedOut(false);
-    }, 1_200);
-
+    if (!answered) return;
+    const timeoutId = window.setTimeout(advanceRound, 3_000);
     return () => window.clearTimeout(timeoutId);
-  }, [questionIndex, round.length, timedOut]);
+  }, [advanceRound, answered, question?.id]);
 
   const startRound = () => {
     const knownQuestionIds = new Set(UTAH_TRIVIA_QUESTIONS.map((question) => question.id));
@@ -319,16 +320,6 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
     if (index === question.correctIndex) setScore((current) => current + 1);
   };
 
-  const advance = () => {
-    if (questionIndex === round.length - 1) {
-      setPhase("finished");
-      return;
-    }
-    setQuestionIndex((current) => current + 1);
-    setSelectedIndex(null);
-    setTimedOut(false);
-  };
-
   return (
     <div className="passenger-trivia-layout flex min-h-full flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
@@ -341,11 +332,15 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
           {t.question} {questionIndex + 1}/{ROUND_SIZE}
         </span>
       </div>
-      <div className="passenger-timed-game-status" aria-live="polite">
-        <span>{t.timeLeft}</span>
-        <span className={timer.isWarning ? "is-warning" : ""}>
-          {Math.ceil(timer.remainingMs / 1000)}
-        </span>
+      <div className="passenger-timed-game-status-slot" aria-live="polite">
+        {!answered && (
+          <div className="passenger-timed-game-status">
+            <span>{t.timeLeft}</span>
+            <span className={timer.isWarning ? "is-warning" : ""}>
+              {Math.ceil(timer.remainingMs / 1000)}
+            </span>
+          </div>
+        )}
       </div>
       <div className="passenger-trivia-progress h-1.5 overflow-hidden rounded-full bg-white/10">
         <div
@@ -353,13 +348,17 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
           style={{ width: `${progress}%` }}
         />
       </div>
-      <div className="passenger-timed-game-progress h-1 overflow-hidden rounded-full bg-white/10">
-        <div
-          className={`h-full rounded-full bg-[#E6CE20] transition-[width] duration-100 ${
-            timer.isWarning ? "passenger-timed-game-bar--warning" : ""
-          }`}
-          style={{ width: `${timer.progress * 100}%` }}
-        />
+      <div className="passenger-timed-game-progress-slot" aria-hidden={answered}>
+        {!answered && (
+          <div className="passenger-timed-game-progress h-1 overflow-hidden rounded-full bg-white/10">
+            <div
+              className={`h-full rounded-full bg-[#E6CE20] transition-[width] duration-100 ${
+                timer.isWarning ? "passenger-timed-game-bar--warning" : ""
+              }`}
+              style={{ width: `${timer.progress * 100}%` }}
+            />
+          </div>
+        )}
       </div>
       <section className="passenger-trivia-question passenger-trivia-question--route relative flex min-h-0 flex-1 overflow-hidden rounded-[30px] border border-white/10 p-6">
         <img
@@ -418,39 +417,36 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
               );
             })}
           </div>
-          {answered && (
-            <div
-              className={`passenger-trivia-feedback mt-5 ${selectedCorrect ? "is-correct" : "is-wrong"}`}
-              role="status"
-            >
-              <div className="min-w-0">
-                <p className="font-bold">
-                  {timedOut ? t.timeUp : selectedCorrect ? t.correct : t.incorrect}
-                </p>
-                <p className="mt-1 text-sm leading-relaxed text-white/65">
-                  {!selectedCorrect && (
-                    <>
-                      {t.answerWas}{" "}
-                      <strong className="text-white">
-                        {question.options[question.correctIndex][language]}.
-                      </strong>{" "}
-                    </>
-                  )}
-                  {question.explanation[language]}
-                </p>
+          <div className="passenger-trivia-feedback-slot mt-5" aria-live="polite">
+            {answered ? (
+              <div
+                className={`passenger-trivia-feedback ${selectedCorrect ? "is-correct" : "is-wrong"}`}
+                role="status"
+              >
+                <div className="min-w-0">
+                  <p className="font-bold">
+                    {timedOut ? t.timeUp : selectedCorrect ? t.correct : t.incorrect}
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-white/65">
+                    {!selectedCorrect && (
+                      <>
+                        {t.answerWas}{" "}
+                        <strong className="text-white">
+                          {question.options[question.correctIndex][language]}.
+                        </strong>{" "}
+                      </>
+                    )}
+                    {question.explanation[language]}
+                  </p>
+                </div>
+                <span className="shrink-0 text-xs font-semibold text-white/45">{t.continuing}</span>
               </div>
-              {!timedOut && (
-                <button
-                  type="button"
-                  onClick={advance}
-                  className="passenger-trivia-primary shrink-0"
-                >
-                  {questionIndex === round.length - 1 ? t.results : t.next}
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-          )}
+            ) : (
+              <span className="block text-sm text-transparent" aria-hidden="true">
+                .
+              </span>
+            )}
+          </div>
         </div>
       </section>
     </div>

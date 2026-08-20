@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Compass, LocateFixed, MapPinned, Navigation, Radio } from "lucide-react";
+import {
+  ArrowLeft,
+  Compass,
+  LocateFixed,
+  MapPinned,
+  Navigation,
+  Radio,
+  Search,
+} from "lucide-react";
 import { AroundYouNearbyList } from "./AroundYouNearbyList";
 import { AroundYouPlaceCard } from "./AroundYouPlaceCard";
 import { aroundYouCopy } from "./around-you-copy";
@@ -36,14 +44,42 @@ export function AroundYouView({
   const t = aroundYouCopy[language];
   const [manualSelection, setManualSelection] = useState<AroundYouMatch | null>(null);
   const [showAllPlaces, setShowAllPlaces] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const browseMatches = useMemo(
     () => places.filter(({ enabled }) => enabled).map(asBrowseMatch),
     [places],
   );
-  const displayed = manualSelection ?? state.featured;
+  const filteredBrowseMatches = useMemo(() => {
+    const query = searchQuery.trim().toLocaleLowerCase();
+    if (!query) return browseMatches;
+
+    return browseMatches.filter(({ place }) => {
+      const searchable = [
+        place.title.en,
+        place.title.es,
+        place.description.en,
+        place.description.es,
+        place.expandedDescription?.en,
+        place.expandedDescription?.es,
+        place.zone?.en,
+        place.zone?.es,
+        t.categories[place.category],
+        ...(place.tags ?? []),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase();
+      return searchable.includes(query);
+    });
+  }, [browseMatches, searchQuery, t.categories]);
+  const displayed =
+    manualSelection ?? state.featured ?? filteredBrowseMatches[0] ?? browseMatches[0] ?? null;
   const browseLimit = state.hasUsablePosition ? 6 : 8;
-  const visibleBrowseMatches = showAllPlaces ? browseMatches : browseMatches.slice(0, browseLimit);
-  const nearbyMatches = state.nearby.filter(({ place }) => place.id !== state.featured?.place.id);
+  const visibleBrowseMatches =
+    searchQuery || showAllPlaces
+      ? filteredBrowseMatches
+      : filteredBrowseMatches.slice(0, browseLimit);
+  const nearbyMatches = state.nearby.filter(({ place }) => place.id !== displayed?.place.id);
 
   useEffect(() => {
     if (
@@ -144,6 +180,19 @@ export function AroundYouView({
       </section>
 
       <div className="passenger-around-secondary">
+        <section className="passenger-around-search" aria-label={t.searchPlaces}>
+          <Search className="h-4 w-4 text-[#E6CE20]" />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(event) => {
+              setSearchQuery(event.target.value);
+              setShowAllPlaces(true);
+            }}
+            placeholder={t.searchPlaces}
+            aria-label={t.searchPlaces}
+          />
+        </section>
         {nearbyMatches.length > 0 && (
           <section className="passenger-around-nearby">
             <div className="passenger-around-section-heading">
@@ -165,8 +214,8 @@ export function AroundYouView({
         <section className="passenger-around-browse" aria-label={t.browse}>
           <div className="passenger-around-section-heading">
             <div>
-              <p>{t.browse}</p>
-              <span>{t.browseDescription}</span>
+              <p>{searchQuery ? t.searchResults : t.browse}</p>
+              <span>{searchQuery ? t.browseDescription : t.browseDescription}</span>
             </div>
             <Compass className="h-5 w-5 text-[#E6CE20]" />
           </div>
@@ -183,7 +232,10 @@ export function AroundYouView({
               />
             ))}
           </div>
-          {browseMatches.length > browseLimit && (
+          {visibleBrowseMatches.length === 0 && (
+            <p className="passenger-around-no-search-results">{t.noSearchResults}</p>
+          )}
+          {!searchQuery && browseMatches.length > browseLimit && (
             <button
               type="button"
               className="passenger-around-all-button"
