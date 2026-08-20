@@ -282,7 +282,8 @@ See `docs/GOOGLE_CALENDAR_ROADMAP.md`.
 
 ### Admin and scheduling hardening
 
-- Continue regression testing for overlap protection and manual blocked slots.
+- Overlap protection and manual blocked slots have been verified in production; preserve those
+  regression checks when scheduling code changes.
 - Keep checking Lovable/Supabase type drift when availability tables change.
 - Keep Supabase Auth sessions and tenant membership checks as the only Admin authorization path.
 

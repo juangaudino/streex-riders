@@ -12,7 +12,7 @@
 - Preserve the existing TanStack Start, React, Vite, TypeScript, and Lovable architecture.
 - Prefer existing components, helpers, server functions, and styling patterns.
 - Keep changes scoped and reversible. Do not redesign the landing page unless explicitly requested.
-- Admin operations must remain server-side and protected by Supabase Auth plus database-backed tenant memberships. `ADMIN_ACCESS_KEY` is temporary emergency access only.
+- Admin operations must remain server-side and protected by Supabase Auth plus database-backed tenant memberships. Production has no emergency Admin bypass key.
 - Never authorize from `user_metadata` or from a tenant id supplied by the browser without membership verification.
 - Keep all driver-owned data and Storage paths isolated by tenant. STREEX Horizon remains global.
 - Public database access must stay limited by RLS. Use server functions with the service role for privileged reads and writes.
