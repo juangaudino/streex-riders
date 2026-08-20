@@ -798,10 +798,15 @@ function PassengerIdlePrompt({
   weather: PassengerWeatherSnapshot | null;
 }) {
   const primary = copy[language];
+  // Around You remains implemented for later iteration, but its large idle
+  // treatment is temporarily unpublished while its compact music companion
+  // layout is refined on the tablet.
+  const includeAroundYouIdlePrimary = false;
   const idleFeature = useIdleFeatureRotation(
     config.passengerConsole.aroundYou.ui.showIdleCard
       ? config.passengerConsole.idleReset.featureRotationSeconds * 1_000
       : null,
+    includeAroundYouIdlePrimary,
   );
   const now = useClock();
   const time = now
@@ -916,19 +921,20 @@ function PassengerIdlePrompt({
   );
 }
 
-function useIdleFeatureRotation(intervalMs: number | null) {
+function useIdleFeatureRotation(intervalMs: number | null, includeAroundYou = true) {
   const [feature, setFeature] = useState<"music" | "around-you" | "game">("music");
 
   useEffect(() => {
     if (!intervalMs) return;
     const timer = window.setInterval(() => {
-      setFeature((current) =>
-        current === "music" ? "around-you" : current === "around-you" ? "game" : "music",
-      );
+      setFeature((current) => {
+        if (!includeAroundYou) return current === "music" ? "game" : "music";
+        return current === "music" ? "around-you" : current === "around-you" ? "game" : "music";
+      });
     }, intervalMs);
 
     return () => window.clearInterval(timer);
-  }, [intervalMs]);
+  }, [includeAroundYou, intervalMs]);
 
   return feature;
 }
@@ -3242,7 +3248,7 @@ function GuestNotesMosaic({
   t: (typeof copy)[Language];
 }) {
   return (
-    <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
+    <section className="passenger-meet-notes-panel rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
       <div>
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E6CE20]">
@@ -3252,7 +3258,7 @@ function GuestNotesMosaic({
         </div>
       </div>
       {reviews.length > 0 ? (
-        <div className="mt-5 grid min-h-0 grid-cols-3 gap-3">
+        <div className="passenger-meet-notes-grid mt-5 grid min-h-0 grid-cols-3 gap-3">
           {reviews.slice(0, 3).map((review, index) => (
             <PassengerReviewCard
               key={`${review.name}-${review.text}`}
@@ -3299,7 +3305,7 @@ function PassengerReviewCard({
             />
           ))}
         </div>
-        <p className="min-w-0 break-words text-sm font-medium leading-relaxed text-white/85 [overflow-wrap:anywhere]">
+        <p className="passenger-review-card-copy min-w-0 break-words text-sm font-medium leading-relaxed text-white/85 [overflow-wrap:anywhere]">
           “{review.text}”
         </p>
       </div>

@@ -207,16 +207,19 @@ retrieves the received message, forwards its content, and preserves the original
 3. Build the category-first Around You browser/search as a later local/offline phase. It should
    offer curated categories such as restaurants, hotels, cafés, supermarkets, parks, attractions,
    museums and bookstores, ordered with transient GPS context; never scrape live businesses.
-4. Develop additional Passenger games after the Around You browser is stable. Streex Horizon is
+4. Evaluate a voluntary, privacy-safe Passenger feedback pulse before implementation. It should
+   avoid tablet keyboards, raw GPS, and third-party tracking; prefer a QR/mobile follow-up and
+   keep the experience optional and non-invasive.
+5. Develop additional Passenger games after the Around You browser is stable. Streex Horizon is
    currently a non-interactive tablet teaser with a phone QR, not a tablet game route.
-5. Present Apple Pay, Google Pay and cards as payment methods within one Stripe-hosted Passenger
+6. Present Apple Pay, Google Pay and cards as payment methods within one Stripe-hosted Passenger
    checkout; do not duplicate that link as separate payment choices.
-6. Complete Passenger hardening in this order: restrict `/passenger` to the paired tablet, replace
+7. Complete Passenger hardening in this order: restrict `/passenger` to the paired tablet, replace
    sample Meet Juan reviews with approved live reviews, run a full in-vehicle field test, and add
    Passenger UI end-to-end regression coverage.
-7. Purchase Fully Kiosk PLUS and verify the permanent license on the Galaxy Tab A9+.
-8. Run a small live Stripe tip and confirm the charge and payout path end to end.
-9. Optionally test importing the saved Fully settings backup when a spare device or reinstall is
+8. Purchase Fully Kiosk PLUS and verify the permanent license on the Galaxy Tab A9+.
+9. Run a small live Stripe tip and confirm the charge and payout path end to end.
+10. Optionally test importing the saved Fully settings backup when a spare device or reinstall is
    available; do not risk the only configured tablet solely for this drill.
 
 ## Environment Notes

@@ -8431,3 +8431,73 @@ button.passenger-idle-music {
     max-height: none !important;
   }
 }
+
+/* Final containment authority for the current Passenger review and
+   Around You interactions. Keep these rules last in the cascade. */
+.passenger-meet-notes-panel,
+.passenger-meet-notes-grid,
+.passenger-meet-notes-grid .passenger-review-card {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.passenger-meet-notes-panel {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.passenger-meet-notes-grid {
+  grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-rows: minmax(0, 1fr) !important;
+  width: 100% !important;
+  flex: 1 1 auto !important;
+  align-content: stretch !important;
+}
+
+.passenger-meet-notes-grid .passenger-review-card > div:first-child {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.passenger-meet-notes-grid .passenger-review-card-copy {
+  display: -webkit-box !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3 !important;
+}
+
+.passenger-console-shell[data-view="around-you"]
+  .passenger-around-place-card--hero
+  .passenger-around-place-content {
+  padding-bottom: clamp(4.8rem, 13dvh, 6.5rem) !important;
+}
+
+.passenger-console-shell[data-view="around-you"] .passenger-around-featured {
+  position: relative !important;
+}
+
+.passenger-console-shell[data-view="around-you"]
+  .passenger-around-featured
+  > .passenger-around-live-button {
+  position: absolute !important;
+  height: auto !important;
+  min-height: 0 !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: 0.42rem 0.65rem !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.passenger-console-shell[data-view="around-you"] .passenger-around-live-button {
+  right: clamp(0.75rem, 1.5vw, 1rem) !important;
+  bottom: clamp(0.75rem, 2dvh, 1rem) !important;
+  max-width: min(70%, 15rem) !important;
+  white-space: nowrap !important;
+}
