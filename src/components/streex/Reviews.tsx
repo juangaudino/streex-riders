@@ -71,7 +71,13 @@ export function Reviews() {
       setActiveIndex(nextIndex);
       const track = trackRef.current;
       if (!track) return;
-      track.scrollTo({ left: nextIndex * track.clientWidth, behavior });
+      const target = track.children[nextIndex] as HTMLElement | undefined;
+      const left = target
+        ? track.scrollLeft +
+          target.getBoundingClientRect().left -
+          track.getBoundingClientRect().left
+        : nextIndex * track.clientWidth;
+      track.scrollTo({ left, behavior });
     },
     [visibleReviews.length],
   );
@@ -141,17 +147,24 @@ export function Reviews() {
       >
         <div
           ref={trackRef}
-          className={`flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [&::-webkit-scrollbar]:hidden ${
+          className={`flex w-full min-w-0 snap-x snap-mandatory overflow-x-auto overscroll-x-contain [&::-webkit-scrollbar]:hidden ${
             prefersReducedMotion ? "" : "scroll-smooth"
           }`}
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           onScroll={() => {
             const track = trackRef.current;
             if (!track || track.clientWidth === 0) return;
-            const nextIndex = Math.max(
-              0,
-              Math.min(visibleReviews.length - 1, Math.round(track.scrollLeft / track.clientWidth)),
-            );
+            const nextIndex = Array.from(track.children).reduce((closestIndex, child, index) => {
+              const trackLeft = track.getBoundingClientRect().left;
+              const closestDistance = Math.abs(
+                (track.children[closestIndex] as HTMLElement).getBoundingClientRect().left -
+                  trackLeft,
+              );
+              const childDistance = Math.abs(
+                (child as HTMLElement).getBoundingClientRect().left - trackLeft,
+              );
+              return childDistance < closestDistance ? index : closestIndex;
+            }, 0);
             setActiveIndex(nextIndex);
           }}
           aria-label="Passenger reviews"
@@ -159,7 +172,8 @@ export function Reviews() {
           {visibleReviews.map((r, idx) => (
             <article
               key={`${r.name}-${idx}`}
-              className="min-w-full shrink-0 snap-center streex-glass p-5 relative overflow-hidden"
+              className="w-full min-w-0 shrink-0 snap-start streex-glass p-5 relative overflow-hidden"
+              style={{ flex: "0 0 100%" }}
               aria-roledescription="review"
               aria-label={`${idx + 1} of ${visibleReviews.length}`}
             >
@@ -175,7 +189,10 @@ export function Reviews() {
                   <Star key={i} className="h-4 w-4 text-[#E6CE20]" fill="#E6CE20" strokeWidth={0} />
                 ))}
               </div>
-              <p className="text-[14px] leading-relaxed text-white/85" style={{ fontWeight: 400 }}>
+              <p
+                className="max-w-full whitespace-normal break-words text-[14px] leading-relaxed text-white/85"
+                style={{ fontWeight: 400, overflowWrap: "anywhere" }}
+              >
                 {r.text}
               </p>
               <div className="mt-4">
