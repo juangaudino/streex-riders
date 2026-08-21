@@ -220,6 +220,48 @@ retrieves the received message, forwards its content, and preserves the original
 10. Optionally test importing the saved Fully settings backup when a spare device or reinstall is
     available; do not risk the only configured tablet solely for this drill.
 
+## Approved Passenger Experience Backlog
+
+The following product directions were reviewed and approved as part of the Passenger Console
+roadmap. They are intentionally separated from the launch-stability work above and should be
+implemented incrementally without replacing the current Passenger architecture.
+
+1. **Streex Driver MC (driver control panel)** — the next strategic feature after launch
+   stabilization. It will be a private, authenticated phone-side control surface in this same
+   repository, never exposed to passengers. It should provide fast on/off modes (Kids, Quiet,
+   Guest and Test), content toggles (Games, Around You, payments, contact, Jam and language),
+   session actions (Home, reset, idle and refresh music), and tablet telemetry (battery, charging,
+   temperature, Wi-Fi, GPS and Spotify status). Browser code must not receive raw coordinates or
+   secrets. Brightness, battery and kiosk controls require a supported Fully Kiosk Remote Admin
+   or device bridge; they cannot be assumed to be controllable from ordinary PWA JavaScript.
+2. **Category-first Around You discovery** — continue the approved local/offline browser direction
+   with curated categories (restaurants, hotels, cafés, supermarkets, parks, attractions, museums
+   and bookstores), transient GPS ordering and no live business scraping.
+3. **Smart attract-screen refinement** — keep the current approved Music-led idle experience and
+   only reintroduce additional Around You or game protagonists after their horizontal and vertical
+   layouts are stable.
+4. **Around You content depth** — expand the verified catalog and use richer bilingual editorial
+   detail in the featured panel while keeping concise secondary cards and local image fallbacks.
+5. **Contextual Quick Access** — preserve the current session-stable rotation and direct-to-game
+   behavior; future changes should be tested as guardrails, not as a new navigation model.
+6. **Accessibility and premium readability** — larger type options, high contrast, reduced motion,
+   stable 48–56px touch targets, color-independent states and tablet QA in both orientations.
+7. **Richer Now Playing** — optional visual polish around artwork, metadata and playback context;
+   the existing Spotify controls remain the source of truth.
+8. **Remember STREEX / end-of-ride handoff** — do not infer passenger departure from GPS. Use the
+   driver/session reset signal and the existing idle flow to surface QR, contact, review and tip
+   continuation naturally and optionally.
+9. **Offline resilience** — retain local games, Around You catalog and assets; communicate stale or
+   unavailable weather, GPS, Spotify and realtime state clearly without blocking the experience.
+10. **Passenger feedback pulse** — deferred for a later decision. If approved, prefer an optional
+    QR/mobile follow-up or anonymous reason codes over a tablet keyboard, raw GPS or third-party
+    tracking.
+
+The language-model guidance agreed for this backlog is pragmatic: Terra Medium for bounded visual
+polish and copy/layout work, Terra High for architecture, security, device-control boundaries,
+accessibility and the Driver MC, and image generation only when a real asset gap cannot be solved
+with verified local photography or appropriately licensed sources.
+
 ## Environment Notes
 
 See `.env.example` for supported variable names. The code accepts Lovable-style and common Supabase-style environment variable aliases where appropriate.
