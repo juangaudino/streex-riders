@@ -27,6 +27,12 @@ Eighteen photos were selected as the first P1.3 hero set and optimized to
 and are the only files referenced by the Passenger catalog. The other 26
 photos remain available locally for a later catalog pass.
 
+The raw intake files have been renamed semantically in place under
+`user-originals/` so they are easier to review without exposing their camera
+filenames. The complete old-to-new mapping is in
+`user-original-renames.csv`; this mapping is also the safe reference for any
+future rotation set.
+
 The selected assets use one hero image per place, not a collage. The inventory
 records the source filename, selected place, rights confirmation, and final
 public path. For new photos, keep originals in `user-originals/`, then review
@@ -34,8 +40,8 @@ and strip EXIF/GPS before adding any public copy.
 
 ## Reading the inventory
 
-- `image_status` is explicit: `Own local asset`, `Original staged — rights recorded`,
-  `Shared fallback`, or `Missing original`.
+- `image_status` is explicit: `Own local asset`, `Curated Commons asset`,
+  `Original staged — rights recorded`, `Shared fallback`, or `Missing original`.
 - `Original staged — rights recorded` means a real source image has been
   downloaded into this intake folder and its Commons file page, author, and
   license are recorded in the same row. It is not public in the app yet.
@@ -77,3 +83,8 @@ share-alike obligation in the app's content/credits record before release.
 The P1.3 user-owned originals supersede the staged Commons image for a place
 when a selected public path is present. Commons attribution remains in the
 inventory for any staged source that is still retained or used as a fallback.
+
+For the current image cleanup, seven active places were refreshed: Capitol,
+Temple Square, University of Utah, Red Butte Garden, SLC Airport, Lagoon, and
+Kimball Junction. The inventory marks each final public path and provenance;
+the catalog continues to use one hero image per place.

@@ -165,7 +165,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 84,
     triggerRadiusMeters: 2_400,
     discoveryRadiusMeters: 6_000,
-    imageSrc: "/images/passenger/around-you/user/liberty-park-juan.webp",
+    imageSrc: "/images/passenger/around-you/curated/university-of-utah-campus.webp",
     title: { en: "University of Utah", es: "Universidad de Utah" },
     description: {
       en: "A major research university set against the foothills above Salt Lake City.",
@@ -184,6 +184,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 80,
     triggerRadiusMeters: 2_000,
     discoveryRadiusMeters: 6_000,
+    imageSrc: "/images/passenger/around-you/curated/red-butte-garden.webp",
     title: { en: "Red Butte Garden", es: "Jardín Red Butte" },
     description: {
       en: "A botanical garden and arboretum in the foothills above the city.",
@@ -220,6 +221,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 88,
     triggerRadiusMeters: 3_500,
     discoveryRadiusMeters: 10_000,
+    imageSrc: "/images/passenger/around-you/curated/salt-lake-city-airport-terminal.webp",
     title: {
       en: "Salt Lake City International Airport",
       es: "Aeropuerto Internacional de Salt Lake City",
@@ -279,7 +281,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 84,
     triggerRadiusMeters: 2_200,
     discoveryRadiusMeters: 7_000,
-    imageSrc: "/images/passenger/around-you/user/lagoon-amusement-park-juan.webp",
+    imageSrc: "/images/passenger/around-you/curated/lagoon-exterior.webp",
     title: { en: "Lagoon", es: "Lagoon" },
     description: {
       en: "A longtime Utah amusement park located in Farmington.",
@@ -400,7 +402,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     triggerRadiusMeters: 3_500,
     discoveryRadiusMeters: 8_000,
     elevationFeet: 6_400,
-    imageSrc: "/images/passenger/around-you/user/kimball-junction-juan.webp",
+    imageSrc: "/images/passenger/around-you/curated/kimball-junction-sunset.webp",
     title: { en: "Kimball Junction", es: "Kimball Junction" },
     description: {
       en: "A Park City gateway with easy access to the Olympic Park and mountain communities.",
