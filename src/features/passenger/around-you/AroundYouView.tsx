@@ -1,12 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  ArrowLeft,
-  Compass,
-  LocateFixed,
-  MapPinned,
-  Navigation,
-  Radio,
-} from "lucide-react";
+import { ArrowLeft, Compass, LocateFixed, MapPinned, Navigation, Radio } from "lucide-react";
 import { AroundYouNearbyList } from "./AroundYouNearbyList";
 import { AroundYouPlaceCard } from "./AroundYouPlaceCard";
 import { aroundYouCopy } from "./around-you-copy";

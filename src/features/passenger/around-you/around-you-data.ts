@@ -13,7 +13,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 42,
     triggerRadiusMeters: 28_000,
     discoveryRadiusMeters: 38_000,
-    imageSrc: "/images/passenger/around-you/user/salt-lake-valley-juan.webp",
+    imageSrc: "/images/passenger/around-you/salt-lake-valley.webp",
     title: { en: "Salt Lake Valley", es: "Valle de Salt Lake" },
     description: {
       en: "A wide urban valley framed by the Wasatch Mountains to the east and the Great Salt Lake to the west.",
@@ -101,7 +101,8 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 94,
     triggerRadiusMeters: 1_700,
     discoveryRadiusMeters: 5_000,
-    imageSrc: "/images/passenger/around-you/user/temple-square-spires-juan.webp",
+    // Dedicated Temple Square image: Wikimedia Commons, CC BY 2.0.
+    imageSrc: "/images/passenger/around-you/temple-square.webp",
     title: { en: "Temple Square", es: "Temple Square" },
     description: {
       en: "A landmark at the center of Salt Lake City's historic downtown.",
@@ -124,7 +125,8 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 82,
     triggerRadiusMeters: 2_500,
     discoveryRadiusMeters: 6_500,
-    imageSrc: "/images/passenger/around-you/user/city-creek-canyon-juan.webp",
+    // The previous user photo was a Park City road, not City Creek Canyon.
+    imageSrc: "/images/passenger/around-you/salt-lake-valley.webp",
     title: { en: "City Creek Canyon", es: "Cañón City Creek" },
     description: {
       en: "A protected watershed and nature preserve right beside the capital city.",
@@ -337,7 +339,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 68,
     triggerRadiusMeters: 6_000,
     discoveryRadiusMeters: 12_000,
-    imageSrc: "/images/passenger/around-you/user/park-city-juan.webp",
+    imageSrc: "/images/passenger/around-you/park-city.jpg",
     elevationFeet: 7_000,
     title: { en: "Park City", es: "Park City" },
     description: {
@@ -357,7 +359,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 88,
     triggerRadiusMeters: 1_700,
     discoveryRadiusMeters: 5_000,
-    imageSrc: "/images/passenger/around-you/user/historic-main-street-juan.webp",
+    imageSrc: "/images/passenger/around-you/historic-main-street.webp",
     elevationFeet: 7_000,
     title: { en: "Historic Main Street", es: "Historic Main Street" },
     description: {
@@ -518,7 +520,9 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 69,
     triggerRadiusMeters: 1_800,
     discoveryRadiusMeters: 4_800,
-    imageSrc: "/images/passenger/around-you/user/the-gateway-juan.webp",
+    // The previous user photo was the Delta Center. Use a verified downtown fallback
+    // until a dedicated Gateway image is available.
+    imageSrc: "/images/passenger/around-you/downtown-slc.jpg",
     title: { en: "The Gateway", es: "The Gateway" },
     description: {
       en: "A downtown district near the old rail yards with dining, entertainment and open gathering space.",
@@ -556,7 +560,8 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 74,
     triggerRadiusMeters: 2_400,
     discoveryRadiusMeters: 6_000,
-    imageSrc: "/images/passenger/around-you/user/swaner-preserve-juan.webp",
+    // The supplied wetland photos are Deer Valley, not Swaner Preserve.
+    imageSrc: "/images/passenger/around-you/wasatch-back.webp",
     title: { en: "Swaner Preserve", es: "Reserva Swaner" },
     description: {
       en: "A protected wetland and nature preserve at Park City's Kimball Junction gateway.",
