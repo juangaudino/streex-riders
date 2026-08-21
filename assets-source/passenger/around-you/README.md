@@ -21,22 +21,41 @@ private capture metadata. The review is recorded in
 `user-photo-review.csv` using only a coarse distance bucket; it never stores
 raw coordinates.
 
-Eighteen photos were selected as the first P1.3 hero set and optimized to
-1600×900 WebP (quality 82) under
+Fifteen photos are currently selected as the first P1.3 hero set and optimized to
+1800×1100 WebP (quality 84) under
 `public/images/passenger/around-you/user/`. The public copies are metadata-free
-and are the only files referenced by the Passenger catalog. The other 26
+and are the only files referenced by the Passenger catalog. The other 29
 photos remain available locally for a later catalog pass.
 
 The raw intake files have been renamed semantically in place under
 `user-originals/` so they are easier to review without exposing their camera
 filenames. The complete old-to-new mapping is in
 `user-original-renames.csv`; this mapping is also the safe reference for any
-future rotation set.
+future rotation set. The sibling `user-photos/` folder is a review-friendly
+copy of those 44 renamed originals, so the selected candidates can be opened
+without navigating the archive. `user-originals/` remains the immutable local
+archive; neither folder is published to the browser.
 
 The selected assets use one hero image per place, not a collage. The inventory
 records the source filename, selected place, rights confirmation, and final
 public path. For new photos, keep originals in `user-originals/`, then review
 and strip EXIF/GPS before adding any public copy.
+
+During the current image cleanup, seven active places were refreshed: Utah
+State Capitol, Temple Square, University of Utah, Red Butte Garden, Salt Lake
+City International Airport, Lagoon, and Kimball Junction. The intake JPGs at
+the folder root mirror the source slots so they remain easy to review. The
+final selections use an illuminated Capitol dome and gardens, daylight Temple
+Square spires, University Presidents Circle with Wasatch context, a real Red
+Butte Garden Orangerie interior, a bright SLC Concourse B interior, a
+recognizable Lagoon entrance/sign, and a scenic Kimball Junction mountain
+gateway. Commons sources and license metadata are recorded in the CSV; CC
+BY/CC BY-SA assets require attribution and any applicable share-alike
+compliance before production release. The old bus, aerial, generic campus,
+garden-entry, and other superseded samples are no longer referenced by the
+app, although the user originals remain available for future rotation review.
+When a public derivative is superseded, the old WebP is removed while the
+original remains in `user-originals/` for future catalog review.
 
 ## Reading the inventory
 
@@ -83,8 +102,4 @@ share-alike obligation in the app's content/credits record before release.
 The P1.3 user-owned originals supersede the staged Commons image for a place
 when a selected public path is present. Commons attribution remains in the
 inventory for any staged source that is still retained or used as a fallback.
-
-For the current image cleanup, seven active places were refreshed: Capitol,
-Temple Square, University of Utah, Red Butte Garden, SLC Airport, Lagoon, and
-Kimball Junction. The inventory marks each final public path and provenance;
-the catalog continues to use one hero image per place.
+The catalog continues to use one hero image per place.

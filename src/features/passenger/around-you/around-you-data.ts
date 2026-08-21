@@ -78,7 +78,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 96,
     triggerRadiusMeters: 1_500,
     discoveryRadiusMeters: 5_500,
-    imageSrc: "/images/passenger/around-you/user/utah-state-capitol-juan.webp",
+    imageSrc: "/images/passenger/around-you/user/utah-state-capitol-night-gardens-juan.webp",
     title: { en: "Utah State Capitol", es: "Capitolio del Estado de Utah" },
     description: {
       en: "The Capitol overlooks Salt Lake City from the north end of State Street.",
@@ -101,7 +101,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 94,
     triggerRadiusMeters: 1_700,
     discoveryRadiusMeters: 5_000,
-    imageSrc: "/images/passenger/around-you/user/temple-square-juan.webp",
+    imageSrc: "/images/passenger/around-you/user/temple-square-spires-juan.webp",
     title: { en: "Temple Square", es: "Temple Square" },
     description: {
       en: "A landmark at the center of Salt Lake City's historic downtown.",
@@ -165,7 +165,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 84,
     triggerRadiusMeters: 2_400,
     discoveryRadiusMeters: 6_000,
-    imageSrc: "/images/passenger/around-you/curated/university-of-utah-campus.webp",
+    imageSrc: "/images/passenger/around-you/curated/university-of-utah-presidents-circle.webp",
     title: { en: "University of Utah", es: "Universidad de Utah" },
     description: {
       en: "A major research university set against the foothills above Salt Lake City.",
@@ -184,7 +184,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 80,
     triggerRadiusMeters: 2_000,
     discoveryRadiusMeters: 6_000,
-    imageSrc: "/images/passenger/around-you/curated/red-butte-garden.webp",
+    imageSrc: "/images/passenger/around-you/curated/red-butte-garden-orangerie.webp",
     title: { en: "Red Butte Garden", es: "Jardín Red Butte" },
     description: {
       en: "A botanical garden and arboretum in the foothills above the city.",
@@ -221,7 +221,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 88,
     triggerRadiusMeters: 3_500,
     discoveryRadiusMeters: 10_000,
-    imageSrc: "/images/passenger/around-you/curated/salt-lake-city-airport-terminal.webp",
+    imageSrc: "/images/passenger/around-you/curated/salt-lake-city-airport-concourse-b.webp",
     title: {
       en: "Salt Lake City International Airport",
       es: "Aeropuerto Internacional de Salt Lake City",
@@ -281,7 +281,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     priority: 84,
     triggerRadiusMeters: 2_200,
     discoveryRadiusMeters: 7_000,
-    imageSrc: "/images/passenger/around-you/curated/lagoon-exterior.webp",
+    imageSrc: "/images/passenger/around-you/curated/lagoon-entrance.webp",
     title: { en: "Lagoon", es: "Lagoon" },
     description: {
       en: "A longtime Utah amusement park located in Farmington.",
@@ -402,7 +402,7 @@ const AROUND_YOU_BASE_PLACES: AroundYouPlace[] = [
     triggerRadiusMeters: 3_500,
     discoveryRadiusMeters: 8_000,
     elevationFeet: 6_400,
-    imageSrc: "/images/passenger/around-you/curated/kimball-junction-sunset.webp",
+    imageSrc: "/images/passenger/around-you/curated/kimball-junction-scenic.webp",
     title: { en: "Kimball Junction", es: "Kimball Junction" },
     description: {
       en: "A Park City gateway with easy access to the Olympic Park and mountain communities.",
