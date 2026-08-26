@@ -818,7 +818,7 @@ function PassengerIdlePrompt({
   weather: PassengerWeatherSnapshot | null;
 }) {
   const primary = copy[language];
-  const idleSecondaryFeature = useIdleSecondaryRotation(
+  const idleSecondaryRotation = useIdleSecondaryRotation(
     config.passengerConsole.idleReset.featureRotationSeconds * 1_000,
   );
   const now = useClock();
@@ -869,7 +869,8 @@ function PassengerIdlePrompt({
         <IdleSecondaryRail
           config={config}
           fallbackTemperatureFahrenheit={fallbackTemperatureFahrenheit}
-          feature={idleSecondaryFeature}
+          feature={idleSecondaryRotation.feature}
+          game={idleSecondaryRotation.game}
           language={language}
           onExploreGame={onExploreGame}
           onExploreStreex={onExploreStreex}
@@ -899,39 +900,50 @@ function PassengerIdlePrompt({
 }
 
 type IdleSecondaryFeature =
-  | "weather-now"
   | "weather-hourly"
   | "weather-daily"
-  | "game-trivia"
-  | "game-choice"
-  | "game-higher-lower"
+  | "game"
   | "booking"
   | "streex";
 
 const IDLE_SECONDARY_FEATURES: readonly IdleSecondaryFeature[] = [
-  "weather-now",
   "weather-hourly",
   "weather-daily",
-  "game-trivia",
-  "game-choice",
-  "game-higher-lower",
+  "game",
   "booking",
   "streex",
 ];
 
+function nextIdleGame(current: PassengerGame) {
+  const choices = PASSENGER_GAMES.filter((game) => game !== current);
+  return choices[Math.floor(Math.random() * choices.length)] ?? "trivia";
+}
+
 function useIdleSecondaryRotation(intervalMs: number) {
-  const [featureIndex, setFeatureIndex] = useState(0);
+  const [rotation, setRotation] = useState({ featureIndex: 0, game: "trivia" as PassengerGame });
 
   useEffect(() => {
-    setFeatureIndex(0);
+    setRotation({ featureIndex: 0, game: "trivia" });
     const timer = window.setInterval(() => {
-      setFeatureIndex((current) => (current + 1) % IDLE_SECONDARY_FEATURES.length);
+      setRotation((current) => {
+        const featureIndex = (current.featureIndex + 1) % IDLE_SECONDARY_FEATURES.length;
+        return {
+          featureIndex,
+          game:
+            IDLE_SECONDARY_FEATURES[featureIndex] === "game"
+              ? nextIdleGame(current.game)
+              : current.game,
+        };
+      });
     }, intervalMs);
 
     return () => window.clearInterval(timer);
   }, [intervalMs]);
 
-  return IDLE_SECONDARY_FEATURES[featureIndex] ?? "weather-now";
+  return {
+    feature: IDLE_SECONDARY_FEATURES[rotation.featureIndex] ?? "weather-hourly",
+    game: rotation.game,
+  };
 }
 
 function getPassengerGamePresentation(
@@ -973,6 +985,7 @@ function IdleSecondaryRail({
   config,
   fallbackTemperatureFahrenheit,
   feature,
+  game,
   language,
   onExploreGame,
   onExploreStreex,
@@ -981,6 +994,7 @@ function IdleSecondaryRail({
   config: AppConfig;
   fallbackTemperatureFahrenheit: number;
   feature: IdleSecondaryFeature;
+  game: PassengerGame;
   language: Language;
   onExploreGame: () => void;
   onExploreStreex: () => void;
@@ -992,14 +1006,7 @@ function IdleSecondaryRail({
   const currentCondition = current?.condition ?? "unknown";
   const hourlyForecast = weather?.periods.slice(1, 5) ?? [];
   const dailyForecast = weather?.dailyPeriods?.slice(0, 4) ?? [];
-  const game =
-    feature === "game-choice"
-      ? "choice"
-      : feature === "game-higher-lower"
-        ? "higher-lower"
-        : "trivia";
-
-  if (feature.startsWith("game-")) {
+  if (feature === "game") {
     const featured = getPassengerGamePresentation(game, t);
 
     return (
@@ -1094,25 +1101,6 @@ function IdleSecondaryRail({
           </span>
         </span>
       </button>
-    );
-  }
-
-  if (feature === "weather-now") {
-    return (
-      <section className="passenger-idle-secondary passenger-idle-secondary--weather" aria-label={t.idleWeatherTitle}>
-        <div className="flex min-w-0 items-center gap-4 px-6 py-4 sm:px-8">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-[#E6CE20]">
-            <WeatherConditionIcon condition={currentCondition} className="h-6 w-6" />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#E6CE20]">{t.idleWeatherTitle}</span>
-            <span className="mt-1 flex items-baseline gap-2">
-              <strong className="text-3xl font-black tabular-nums tracking-tight">{Math.round(currentTemperature)}°F</strong>
-              <span className="truncate text-sm text-white/70">{weatherConditionLabel(currentCondition, t)}</span>
-            </span>
-          </span>
-        </div>
-      </section>
     );
   }
 

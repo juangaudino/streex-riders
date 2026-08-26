@@ -91,8 +91,10 @@ show passenger data.
   without altering the driver's connection or playback.
   Elapsed-time checks on visibility/focus recovery make the reset reliable after Android suspends
   the browser. RELOAD 1.0 Lite currently uses a 30-second inactivity cadence during launch
-  validation; its lower rail rotates every 30 seconds through current weather, the next four hours,
-  the next four days, each active game, the `rides.getstreex.com` QR and useful Streex calls.
+  validation; its lower rail rotates every 30 seconds through current weather plus the next four
+  hours, current weather plus the next four days, one rotating active game, the
+  `rides.getstreex.com` QR and useful Streex calls. The selected game changes only on the next
+  complete rail cycle, never as consecutive game panels.
   Beta switches to 3 minutes of inactivity and 90-second rotation. In Lite, Music is the only
   published idle hero; Around You remains intentionally unpublished as an idle variant until its
   compact companion layout is redesigned.
