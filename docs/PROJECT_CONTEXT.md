@@ -90,8 +90,14 @@ show passenger data.
   Spotify artwork and track details, local time, dual-unit temperature and a compact host identity
   without altering the driver's connection or playback.
   Elapsed-time checks on visibility/focus recovery make the reset reliable after Android suspends
-  the browser. Beta uses three minutes of inactivity before idle and 45 seconds between attract
-  rotations; the shorter 30/30 cadence is reserved for owner debugging.
+  the browser. RELOAD 1.0 Lite currently uses a 30-second inactivity cadence during launch
+  validation and retains a 30-second feature-rotation setting for the next attract-screen pass.
+  In Lite, Music is the only published idle hero; Around You and Games idle variants remain in
+  code but are intentionally unpublished until their compact companion layouts are redesigned.
+- Passenger is currently configured as `experienceMode: "lite"`: its primary navigation shows
+  Home, Music, Games and STREEX. Around You remains available from its Home card and all of its
+  privacy-preserving local engine code remains intact, but it is not a first-level navigation
+  destination. A future Driver MC will be able to select Lite or Complete remotely.
 - Passenger weather uses the public National Weather Service API through a fixed server function.
   Salt Lake City coordinates and refresh cadence are CONFIG-driven; sanitized hourly forecasts
   are cached server-side and the last successful snapshot is retained locally for hotspot outages.

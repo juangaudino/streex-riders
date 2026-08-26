@@ -574,6 +574,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
   }, [approvedReviews, reviewOffset]);
 
   const consoleConfig = config.passengerConsole;
+  const isLiteExperience = consoleConfig.experienceMode === "lite";
   const aroundYouEnabled = consoleConfig.aroundYou.enabled || aroundYouTestMode;
   const simulatedAroundYouPlace = useMemo(
     () =>
@@ -744,7 +745,12 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
             <WhereWeRideView config={config} onNavigate={navigateTo} t={t} />
           )}
         </main>
-        <ConsoleNavigation activeView={view} onNavigate={navigateTo} t={t} />
+        <ConsoleNavigation
+          activeView={view}
+          onNavigate={navigateTo}
+          showAroundYou={!isLiteExperience}
+          t={t}
+        />
       </div>
       <BookingFormModal language={language} open={bookingOpen} onOpenChange={setBookingOpen} />
       {idleReset.promptOpen && (
@@ -918,7 +924,11 @@ function PassengerIdlePrompt({
             <span className="block">{primary.idleAction}</span>
             <span className="mt-1 flex items-center justify-center gap-1.5 text-[10px] font-bold normal-case tracking-normal text-black/65">
               <Sparkles className="h-3 w-3" />
-              Music · Around You · Games · Streex
+              {config.passengerConsole.experienceMode === "lite"
+                ? language === "es"
+                  ? "Música · Juegos · Streex"
+                  : "Music · Games · Streex"
+                : "Music · Around You · Games · Streex"}
             </span>
           </span>
         </div>
@@ -3369,10 +3379,12 @@ function ViewHeader({
 function ConsoleNavigation({
   activeView,
   onNavigate,
+  showAroundYou,
   t,
 }: {
   activeView: View;
   onNavigate: (view: View) => void;
+  showAroundYou: boolean;
   t: (typeof copy)[Language];
 }) {
   const active =
@@ -3388,11 +3400,15 @@ function ConsoleNavigation({
     { id: "home" as const, label: t.home, icon: <Play className="h-5 w-5 rotate-[270deg]" /> },
     { id: "music" as const, label: t.music, icon: <Music2 className="h-5 w-5" /> },
     { id: "games" as const, label: t.games, icon: <Gamepad2 className="h-5 w-5" /> },
-    {
-      id: "around-you" as const,
-      label: t.aroundYou,
-      icon: <Compass className="h-5 w-5" />,
-    },
+    ...(showAroundYou
+      ? [
+          {
+            id: "around-you" as const,
+            label: t.aroundYou,
+            icon: <Compass className="h-5 w-5" />,
+          },
+        ]
+      : []),
     {
       id: "streex" as const,
       label: t.streex,

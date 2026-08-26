@@ -41,11 +41,15 @@ export const CONFIG = {
   // Keep credentials, device PINs, provider tokens and passenger data out of this object.
   passengerConsole: {
     enabled: true,
+    // RELOAD 1.0 Lite is the daily, acquisition-focused Passenger experience. It keeps
+    // local discovery available from Home while hiding it from the primary navigation.
+    // A future driver-controlled Complete mode can change this value remotely.
+    experienceMode: "lite" as "lite" | "complete",
     idleReset: {
-      // Beta cadence: enter idle after three minutes and rotate the attract feature every 45 seconds.
-      // The shorter 30/30 owner-test cadence should only be restored while debugging.
-      inactivitySeconds: 180,
-      featureRotationSeconds: 45,
+      // Launch validation cadence. Music remains the only published idle hero in Lite;
+      // featureRotationSeconds is retained for the upcoming secondary-rail rotation.
+      inactivitySeconds: 30,
+      featureRotationSeconds: 30,
       defaultLanguage: "en" as "en" | "es",
     },
     clock: {
@@ -106,7 +110,9 @@ export const CONFIG = {
         showHomeCard: true,
         showDistance: true,
         showAccuracyDebug: false,
-        showIdleCard: true,
+        // Compact Around You idle treatments are intentionally unpublished in Lite until
+        // their companion Music layout has a dedicated visual pass.
+        showIdleCard: false,
       },
     },
     links: {
