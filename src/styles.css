@@ -8501,3 +8501,119 @@ button.passenger-idle-music {
   max-width: min(70%, 15rem) !important;
   white-space: nowrap !important;
 }
+
+/* Reload Lite: Music stays the fixed idle hero. The smaller rail below it is
+   deliberately height-stable while weather, game and booking rotate. */
+.passenger-idle-secondary {
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-height: clamp(7.25rem, 15dvh, 8.75rem);
+  overflow: hidden;
+  border: 1px solid rgba(230, 206, 32, 0.32);
+  border-radius: 1.75rem;
+  background:
+    radial-gradient(circle at 88% 10%, rgba(230, 206, 32, 0.16), transparent 42%),
+    linear-gradient(108deg, rgba(23, 23, 20, 0.98), rgba(16, 16, 14, 0.94));
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.28);
+}
+
+.passenger-idle-secondary--weather {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
+}
+
+.passenger-idle-secondary--booking {
+  background:
+    radial-gradient(circle at 92% 50%, rgba(230, 206, 32, 0.18), transparent 34%),
+    linear-gradient(108deg, rgba(18, 18, 16, 0.98), rgba(34, 31, 12, 0.94));
+}
+
+.passenger-idle-booking-glow {
+  position: absolute;
+  right: -3rem;
+  top: -4rem;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 999px;
+  background: rgba(230, 206, 32, 0.1);
+  filter: blur(45px);
+}
+
+.passenger-idle-forecast {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem 1rem 0.75rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.passenger-idle-forecast-label {
+  display: none;
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-idle-content--music {
+    max-height: calc(100dvh - 3rem);
+  }
+
+  .passenger-idle-secondary {
+    min-height: clamp(6.75rem, 13dvh, 8rem);
+  }
+}
+
+@media (max-width: 720px) {
+  .passenger-idle-secondary--weather {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .passenger-idle-secondary--weather .passenger-idle-forecast {
+    display: none;
+  }
+}
+
+/* The portrait console has less vertical headroom. Keep the established
+   Music-led composition intact while making room for the rotating rail. */
+@media (orientation: portrait) {
+  .passenger-idle-content--music {
+    gap: clamp(0.7rem, 1.3dvh, 1rem) !important;
+  }
+
+  .passenger-idle-content--music .passenger-idle-header > img {
+    max-width: 150px;
+  }
+
+  .passenger-idle-content--music .passenger-idle-music {
+    gap: 0.7rem;
+  }
+
+  .passenger-idle-content--music .passenger-idle-artwork {
+    width: min(34vw, 210px);
+  }
+
+  .passenger-idle-content--music .passenger-idle-track-copy > span:nth-child(2) {
+    margin-top: 0.25rem;
+    font-size: clamp(1.45rem, 4.5vw, 1.9rem);
+  }
+
+  .passenger-idle-content--music .passenger-idle-track-copy > span:nth-child(3) {
+    margin-top: 0.2rem;
+    font-size: 0.88rem;
+  }
+
+  .passenger-idle-content--music .passenger-idle-discovery {
+    margin-top: 0.55rem;
+  }
+
+  .passenger-idle-content--music .passenger-idle-secondary {
+    min-height: clamp(6.5rem, 10.5dvh, 7.5rem);
+  }
+
+  .passenger-idle-content--music .passenger-idle-footer {
+    margin-top: 0.1rem;
+  }
+
+  .passenger-idle-content--music .passenger-idle-action {
+    padding-block: 0.85rem;
+  }
+}

@@ -268,6 +268,11 @@ const copy = {
     tip: "Leave a tip",
     continuePhone: "Continue on your phone",
     continuePhoneDescription: "Scan to continue your Streex experience on your phone.",
+    idleWeatherTitle: "Salt Lake City weather",
+    idleWeatherHours: "Next few hours",
+    idleGameEyebrow: "Take a quick break",
+    idleBookingEyebrow: "Keep Streex with you",
+    idleBookingDescription: "Scan to schedule your next private ride from your phone.",
     meetJuan: "Meet Juan",
     guestNotesEyebrow: "Streex guest notes",
     guestNotesTitle: "A few words from the road",
@@ -453,6 +458,11 @@ const copy = {
     tip: "Dejar propina",
     continuePhone: "Continuar en su teléfono",
     continuePhoneDescription: "Escanee para continuar su experiencia Streex en su teléfono.",
+    idleWeatherTitle: "Clima en Salt Lake City",
+    idleWeatherHours: "Próximas horas",
+    idleGameEyebrow: "Tómese un descanso",
+    idleBookingEyebrow: "Lleve Streex con usted",
+    idleBookingDescription: "Escanee para reservar su próximo viaje privado desde su teléfono.",
     meetJuan: "Conoce a Juan",
     guestNotesEyebrow: "Notas de huéspedes Streex",
     guestNotesTitle: "Algunas palabras del camino",
@@ -758,11 +768,6 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           config={config}
           fallbackTemperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
           language={language}
-          aroundYou={aroundYou}
-          onExploreAroundYou={() => {
-            idleReset.resume();
-            navigateTo("around-you");
-          }}
           onExploreMusic={() => {
             idleReset.resume();
             navigateTo("music");
@@ -781,22 +786,18 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
 }
 
 function PassengerIdlePrompt({
-  aroundYou,
   config,
   fallbackTemperatureFahrenheit,
   language,
-  onExploreAroundYou,
   onExploreGame,
   onExploreMusic,
   onResume,
   featuredGame,
   weather,
 }: {
-  aroundYou: import("./around-you/around-you-types").AroundYouEngineState;
   config: AppConfig;
   fallbackTemperatureFahrenheit: number;
   language: Language;
-  onExploreAroundYou: () => void;
   onExploreGame: () => void;
   onExploreMusic: () => void;
   onResume: () => void;
@@ -804,21 +805,8 @@ function PassengerIdlePrompt({
   weather: PassengerWeatherSnapshot | null;
 }) {
   const primary = copy[language];
-  // Around You remains implemented for later iteration, but its large idle
-  // treatment is temporarily unpublished while its compact music companion
-  // layout is refined on the tablet.
-  const includeAroundYouIdlePrimary = false;
-  // Keep the game-led idle treatment implemented but unpublished until its
-  // music companion layout is ready for the tablet. Re-enable this flag when
-  // that visual pass is complete.
-  const includeGameIdlePrimary = false;
-  const idleFeature = useIdleFeatureRotation(
-    (includeAroundYouIdlePrimary || includeGameIdlePrimary) &&
-      config.passengerConsole.aroundYou.ui.showIdleCard
-      ? config.passengerConsole.idleReset.featureRotationSeconds * 1_000
-      : null,
-    includeAroundYouIdlePrimary,
-    includeGameIdlePrimary,
+  const idleSecondaryFeature = useIdleSecondaryRotation(
+    config.passengerConsole.idleReset.featureRotationSeconds * 1_000,
   );
   const now = useClock();
   const time = now
@@ -838,9 +826,7 @@ function PassengerIdlePrompt({
       className="fixed inset-0 z-[100] grid cursor-pointer place-items-center overflow-hidden bg-[#080808]/95 p-8 text-left text-white backdrop-blur-xl focus:outline-none focus:ring-4 focus:ring-inset focus:ring-[#E6CE20]/60"
     >
       <div className="absolute left-1/2 top-1/2 h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E6CE20]/10 blur-[130px]" />
-      <div
-        className={`passenger-idle-content passenger-idle-content--${idleFeature} relative flex w-full max-w-5xl flex-col items-center gap-8`}
-      >
+      <div className="passenger-idle-content passenger-idle-content--music relative flex w-full max-w-5xl flex-col items-center gap-6">
         <div className="passenger-idle-header flex w-full items-center justify-between gap-5">
           <img
             src={config.logoSrc}
@@ -859,61 +845,23 @@ function PassengerIdlePrompt({
           </span>
         </div>
 
-        {idleFeature === "music" ? (
-          <>
-            <IdleSpotifyNowPlaying
-              enabled={
-                config.passengerConsole.music.mode === "provider" &&
-                config.passengerConsole.music.providerName === "Spotify"
-              }
-              onExploreMusic={onExploreMusic}
-              t={primary}
-            />
-            {config.passengerConsole.aroundYou.ui.showIdleCard && (
-              <div className="passenger-idle-around-secondary w-full max-w-4xl">
-                <AroundYouHomeCard
-                  language={language}
-                  onOpen={onExploreAroundYou}
-                  state={aroundYou}
-                  variant="idle"
-                />
-              </div>
-            )}
-          </>
-        ) : idleFeature === "around-you" ? (
-          <>
-            <div className="passenger-idle-around-featured w-full max-w-4xl">
-              <AroundYouHomeCard
-                language={language}
-                onOpen={onExploreAroundYou}
-                state={aroundYou}
-                variant="idle-featured"
-              />
-            </div>
-            <IdleSpotifyNowPlaying
-              compact
-              enabled={
-                config.passengerConsole.music.mode === "provider" &&
-                config.passengerConsole.music.providerName === "Spotify"
-              }
-              onExploreMusic={onExploreMusic}
-              t={primary}
-            />
-          </>
-        ) : (
-          <>
-            <IdleGameInvitation game={featuredGame} onExploreGame={onExploreGame} t={primary} />
-            <IdleSpotifyNowPlaying
-              compact
-              enabled={
-                config.passengerConsole.music.mode === "provider" &&
-                config.passengerConsole.music.providerName === "Spotify"
-              }
-              onExploreMusic={onExploreMusic}
-              t={primary}
-            />
-          </>
-        )}
+        <IdleSpotifyNowPlaying
+          enabled={
+            config.passengerConsole.music.mode === "provider" &&
+            config.passengerConsole.music.providerName === "Spotify"
+          }
+          onExploreMusic={onExploreMusic}
+          t={primary}
+        />
+        <IdleSecondaryRail
+          config={config}
+          fallbackTemperatureFahrenheit={fallbackTemperatureFahrenheit}
+          feature={idleSecondaryFeature}
+          game={featuredGame}
+          language={language}
+          onExploreGame={onExploreGame}
+          weather={weather}
+        />
 
         <div className="passenger-idle-ticker w-full" aria-hidden="true">
           <ServiceTicker config={config} />
@@ -937,26 +885,21 @@ function PassengerIdlePrompt({
   );
 }
 
-function useIdleFeatureRotation(
-  intervalMs: number | null,
-  includeAroundYou = true,
-  includeGame = true,
-) {
-  const [feature, setFeature] = useState<"music" | "around-you" | "game">("music");
+type IdleSecondaryFeature = "weather" | "game" | "booking";
+
+function useIdleSecondaryRotation(intervalMs: number) {
+  const [feature, setFeature] = useState<IdleSecondaryFeature>("weather");
 
   useEffect(() => {
-    if (!intervalMs) return;
+    setFeature("weather");
     const timer = window.setInterval(() => {
-      setFeature((current) => {
-        if (!includeAroundYou && !includeGame) return "music";
-        if (!includeAroundYou) return current === "music" ? "game" : "music";
-        if (!includeGame) return current === "music" ? "around-you" : "music";
-        return current === "music" ? "around-you" : current === "around-you" ? "game" : "music";
-      });
+      setFeature((current) =>
+        current === "weather" ? "game" : current === "game" ? "booking" : "weather",
+      );
     }, intervalMs);
 
     return () => window.clearInterval(timer);
-  }, [includeAroundYou, includeGame, intervalMs]);
+  }, [intervalMs]);
 
   return feature;
 }
@@ -996,48 +939,139 @@ function getPassengerGamePresentation(
   };
 }
 
-function IdleGameInvitation({
+function IdleSecondaryRail({
+  config,
+  fallbackTemperatureFahrenheit,
+  feature,
   game,
+  language,
   onExploreGame,
-  t,
+  weather,
 }: {
+  config: AppConfig;
+  fallbackTemperatureFahrenheit: number;
+  feature: IdleSecondaryFeature;
   game: PassengerGame;
+  language: Language;
   onExploreGame: () => void;
-  t: (typeof copy)[Language];
+  weather: PassengerWeatherSnapshot | null;
 }) {
-  const featured = getPassengerGamePresentation(game, t);
+  const t = copy[language];
+  const current = weather?.periods[0];
+  const currentTemperature = current?.temperatureFahrenheit ?? fallbackTemperatureFahrenheit;
+  const currentCondition = current?.condition ?? "unknown";
+  const forecast = weather?.periods.slice(1, 5) ?? [];
+
+  if (feature === "game") {
+    const featured = getPassengerGamePresentation(game, t);
+
+    return (
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          onExploreGame();
+        }}
+        className="passenger-idle-secondary passenger-idle-secondary--game group text-left"
+      >
+        <img
+          src={featured.artwork}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover opacity-55 transition duration-500 group-hover:scale-[1.025]"
+        />
+        <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,8,8,.96)_0%,rgba(8,8,8,.76)_48%,rgba(8,8,8,.22)_100%)]" />
+        <span className="relative flex h-full items-center justify-between gap-6 px-6 py-5 sm:px-8">
+          <span className="flex min-w-0 items-center gap-4">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#E6CE20]/45 bg-black/40 text-[#E6CE20]">
+              {featured.icon}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#E6CE20]">
+                {t.idleGameEyebrow}
+              </span>
+              <span className="mt-1 block truncate text-xl font-black tracking-tight sm:text-2xl">
+                {featured.title}
+              </span>
+              <span className="mt-1 hidden max-w-xl truncate text-sm text-white/70 sm:block">
+                {featured.description}
+              </span>
+            </span>
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#E6CE20] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-black">
+            {t.playNow}
+            <ChevronRight className="h-4 w-4" />
+          </span>
+        </span>
+      </button>
+    );
+  }
+
+  if (feature === "booking") {
+    const phoneContinuation = config.passengerConsole.links.phoneContinuation;
+
+    return (
+      <section className="passenger-idle-secondary passenger-idle-secondary--booking" aria-label={t.continuePhone}>
+        <div className="passenger-idle-booking-glow" aria-hidden="true" />
+        <div className="relative flex h-full items-center justify-between gap-5 px-6 py-4 sm:px-8">
+          <div className="min-w-0">
+            <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#E6CE20]">
+              <QrCode className="h-4 w-4" />
+              {t.idleBookingEyebrow}
+            </span>
+            <h2 className="mt-1 text-xl font-black tracking-tight sm:text-2xl">{t.continuePhone}</h2>
+            <p className="mt-1 max-w-xl text-sm text-white/70">{t.idleBookingDescription}</p>
+            <p className="mt-1 text-xs font-semibold text-[#E6CE20]">rides.getstreex.com</p>
+          </div>
+          <div className="shrink-0 rounded-xl bg-white p-1.5 shadow-xl">
+            <QRCodeSVG value={phoneContinuation} size={76} level="M" includeMargin={false} />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <button
-      type="button"
-      onClick={(event) => {
-        event.stopPropagation();
-        onExploreGame();
-      }}
-      className="passenger-idle-game-invitation group relative grid w-full max-w-4xl overflow-hidden rounded-[32px] border border-[#E6CE20]/35 bg-[#14130c] text-left shadow-[0_24px_70px_rgba(0,0,0,0.38)]"
-    >
-      <img
-        src={featured.artwork}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover opacity-60 transition duration-500 group-hover:scale-[1.025]"
-      />
-      <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,8,8,.97)_0%,rgba(8,8,8,.7)_46%,rgba(8,8,8,.16)_100%)]" />
-      <span className="relative grid min-h-[290px] max-w-xl content-end gap-3 p-8 sm:min-h-[340px] sm:p-10">
-        <span className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-[#E6CE20]">
-          {featured.icon}
-          {t.games}
+    <section className="passenger-idle-secondary passenger-idle-secondary--weather" aria-label={t.idleWeatherTitle}>
+      <div className="flex min-w-0 items-center gap-4 px-6 py-4 sm:px-8">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-[#E6CE20]">
+          <WeatherConditionIcon condition={currentCondition} className="h-6 w-6" />
         </span>
-        <span className="text-4xl font-black tracking-tight sm:text-5xl">{featured.title}</span>
-        <span className="max-w-lg text-base leading-relaxed text-white/75 sm:text-lg">
-          {featured.description}
+        <span className="min-w-0">
+          <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#E6CE20]">
+            {t.idleWeatherTitle}
+          </span>
+          <span className="mt-1 flex items-baseline gap-2">
+            <strong className="text-3xl font-black tabular-nums tracking-tight">
+              {Math.round(currentTemperature)}°F
+            </strong>
+            <span className="truncate text-sm text-white/70">
+              {weatherConditionLabel(currentCondition, t)}
+            </span>
+          </span>
         </span>
-        <span className="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-[#E6CE20] px-6 py-3 text-sm font-black uppercase tracking-[0.13em] text-black">
-          {t.playNow}
-          <ChevronRight className="h-4 w-4" />
-        </span>
-      </span>
-    </button>
+      </div>
+      <div className="passenger-idle-forecast">
+        <span className="passenger-idle-forecast-label">{t.idleWeatherHours}</span>
+        <div className="flex min-w-0 flex-1 items-center justify-around gap-2">
+          {forecast.map((period) => (
+            <span key={period.startTime} className="grid min-w-0 justify-items-center gap-1 text-center">
+              <span className="text-[10px] font-bold text-white/60">
+                {formatIdleWeatherHour(period.startTime, language)}
+              </span>
+              <WeatherConditionIcon condition={period.condition} className="h-4 w-4 text-[#E6CE20]" />
+              <span className="text-xs font-black tabular-nums">{Math.round(period.temperatureFahrenheit)}°</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
   );
+}
+
+function formatIdleWeatherHour(value: string, language: Language) {
+  return new Intl.DateTimeFormat(language === "es" ? "es-US" : "en-US", {
+    hour: "numeric",
+  }).format(new Date(value));
 }
 
 function IdleSpotifyNowPlaying({
