@@ -270,9 +270,14 @@ const copy = {
     continuePhoneDescription: "Scan to continue your Streex experience on your phone.",
     idleWeatherTitle: "Salt Lake City weather",
     idleWeatherHours: "Next few hours",
+    idleWeatherDays: "Next 4 days",
     idleGameEyebrow: "Take a quick break",
     idleBookingEyebrow: "Keep Streex with you",
     idleBookingDescription: "Scan to schedule your next private ride from your phone.",
+    idleStreexEyebrow: "Your ride, your way",
+    idleStreexTitle: "Explore Streex",
+    idleStreexDescription: "Plan a future ride, see services, leave a tip or share feedback.",
+    idleStreexAction: "Open Streex",
     meetJuan: "Meet Juan",
     guestNotesEyebrow: "Streex guest notes",
     guestNotesTitle: "A few words from the road",
@@ -460,9 +465,14 @@ const copy = {
     continuePhoneDescription: "Escanee para continuar su experiencia Streex en su teléfono.",
     idleWeatherTitle: "Clima en Salt Lake City",
     idleWeatherHours: "Próximas horas",
+    idleWeatherDays: "Próximos 4 días",
     idleGameEyebrow: "Tómese un descanso",
     idleBookingEyebrow: "Lleve Streex con usted",
     idleBookingDescription: "Escanee para reservar su próximo viaje privado desde su teléfono.",
+    idleStreexEyebrow: "Tu viaje, a tu manera",
+    idleStreexTitle: "Explora Streex",
+    idleStreexDescription: "Planea un viaje, conoce los servicios, deja propina o comparte tu opinión.",
+    idleStreexAction: "Abrir Streex",
     meetJuan: "Conoce a Juan",
     guestNotesEyebrow: "Notas de huéspedes Streex",
     guestNotesTitle: "Algunas palabras del camino",
@@ -772,10 +782,13 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
             idleReset.resume();
             navigateTo("music");
           }}
-          featuredGame={quickGame}
           onExploreGame={() => {
             idleReset.resume();
             openGame(quickGame);
+          }}
+          onExploreStreex={() => {
+            idleReset.resume();
+            navigateTo("streex");
           }}
           onResume={idleReset.resume}
           weather={weather.snapshot}
@@ -791,8 +804,8 @@ function PassengerIdlePrompt({
   language,
   onExploreGame,
   onExploreMusic,
+  onExploreStreex,
   onResume,
-  featuredGame,
   weather,
 }: {
   config: AppConfig;
@@ -800,8 +813,8 @@ function PassengerIdlePrompt({
   language: Language;
   onExploreGame: () => void;
   onExploreMusic: () => void;
+  onExploreStreex: () => void;
   onResume: () => void;
-  featuredGame: PassengerGame;
   weather: PassengerWeatherSnapshot | null;
 }) {
   const primary = copy[language];
@@ -857,9 +870,9 @@ function PassengerIdlePrompt({
           config={config}
           fallbackTemperatureFahrenheit={fallbackTemperatureFahrenheit}
           feature={idleSecondaryFeature}
-          game={featuredGame}
           language={language}
           onExploreGame={onExploreGame}
+          onExploreStreex={onExploreStreex}
           weather={weather}
         />
 
@@ -885,23 +898,40 @@ function PassengerIdlePrompt({
   );
 }
 
-type IdleSecondaryFeature = "weather" | "game" | "booking";
+type IdleSecondaryFeature =
+  | "weather-now"
+  | "weather-hourly"
+  | "weather-daily"
+  | "game-trivia"
+  | "game-choice"
+  | "game-higher-lower"
+  | "booking"
+  | "streex";
+
+const IDLE_SECONDARY_FEATURES: readonly IdleSecondaryFeature[] = [
+  "weather-now",
+  "weather-hourly",
+  "weather-daily",
+  "game-trivia",
+  "game-choice",
+  "game-higher-lower",
+  "booking",
+  "streex",
+];
 
 function useIdleSecondaryRotation(intervalMs: number) {
-  const [feature, setFeature] = useState<IdleSecondaryFeature>("weather");
+  const [featureIndex, setFeatureIndex] = useState(0);
 
   useEffect(() => {
-    setFeature("weather");
+    setFeatureIndex(0);
     const timer = window.setInterval(() => {
-      setFeature((current) =>
-        current === "weather" ? "game" : current === "game" ? "booking" : "weather",
-      );
+      setFeatureIndex((current) => (current + 1) % IDLE_SECONDARY_FEATURES.length);
     }, intervalMs);
 
     return () => window.clearInterval(timer);
   }, [intervalMs]);
 
-  return feature;
+  return IDLE_SECONDARY_FEATURES[featureIndex] ?? "weather-now";
 }
 
 function getPassengerGamePresentation(
@@ -943,26 +973,33 @@ function IdleSecondaryRail({
   config,
   fallbackTemperatureFahrenheit,
   feature,
-  game,
   language,
   onExploreGame,
+  onExploreStreex,
   weather,
 }: {
   config: AppConfig;
   fallbackTemperatureFahrenheit: number;
   feature: IdleSecondaryFeature;
-  game: PassengerGame;
   language: Language;
   onExploreGame: () => void;
+  onExploreStreex: () => void;
   weather: PassengerWeatherSnapshot | null;
 }) {
   const t = copy[language];
   const current = weather?.periods[0];
   const currentTemperature = current?.temperatureFahrenheit ?? fallbackTemperatureFahrenheit;
   const currentCondition = current?.condition ?? "unknown";
-  const forecast = weather?.periods.slice(1, 5) ?? [];
+  const hourlyForecast = weather?.periods.slice(1, 5) ?? [];
+  const dailyForecast = weather?.dailyPeriods?.slice(0, 4) ?? [];
+  const game =
+    feature === "game-choice"
+      ? "choice"
+      : feature === "game-higher-lower"
+        ? "higher-lower"
+        : "trivia";
 
-  if (feature === "game") {
+  if (feature.startsWith("game-")) {
     const featured = getPassengerGamePresentation(game, t);
 
     return (
@@ -1030,22 +1067,74 @@ function IdleSecondaryRail({
     );
   }
 
+  if (feature === "streex") {
+    return (
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          onExploreStreex();
+        }}
+        className="passenger-idle-secondary passenger-idle-secondary--streex group text-left"
+      >
+        <span className="relative flex h-full items-center justify-between gap-5 px-6 py-4 sm:px-8">
+          <span className="min-w-0">
+            <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#E6CE20]">
+              <Sparkles className="h-4 w-4" />
+              {t.idleStreexEyebrow}
+            </span>
+            <span className="mt-1 block text-xl font-black tracking-tight sm:text-2xl">
+              {t.idleStreexTitle}
+            </span>
+            <span className="mt-1 block max-w-xl text-sm text-white/70">{t.idleStreexDescription}</span>
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#E6CE20] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-black">
+            {t.idleStreexAction}
+            <ChevronRight className="h-4 w-4" />
+          </span>
+        </span>
+      </button>
+    );
+  }
+
+  if (feature === "weather-now") {
+    return (
+      <section className="passenger-idle-secondary passenger-idle-secondary--weather" aria-label={t.idleWeatherTitle}>
+        <div className="flex min-w-0 items-center gap-4 px-6 py-4 sm:px-8">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-[#E6CE20]">
+            <WeatherConditionIcon condition={currentCondition} className="h-6 w-6" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#E6CE20]">{t.idleWeatherTitle}</span>
+            <span className="mt-1 flex items-baseline gap-2">
+              <strong className="text-3xl font-black tabular-nums tracking-tight">{Math.round(currentTemperature)}°F</strong>
+              <span className="truncate text-sm text-white/70">{weatherConditionLabel(currentCondition, t)}</span>
+            </span>
+          </span>
+        </div>
+      </section>
+    );
+  }
+
+  const forecast = feature === "weather-daily" ? dailyForecast : hourlyForecast;
+  const forecastTitle = feature === "weather-daily" ? t.idleWeatherDays : t.idleWeatherHours;
+
   return (
-    <section className="passenger-idle-secondary passenger-idle-secondary--weather" aria-label={t.idleWeatherTitle}>
+    <section className="passenger-idle-secondary passenger-idle-secondary--weather passenger-idle-secondary--forecast" aria-label={forecastTitle}>
       <div className="flex min-w-0 items-center gap-4 px-6 py-4 sm:px-8">
         <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-[#E6CE20]">
           <WeatherConditionIcon condition={currentCondition} className="h-6 w-6" />
         </span>
         <span className="min-w-0">
           <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#E6CE20]">
-            {t.idleWeatherTitle}
+            {forecastTitle}
           </span>
           <span className="mt-1 flex items-baseline gap-2">
             <strong className="text-3xl font-black tabular-nums tracking-tight">
               {Math.round(currentTemperature)}°F
             </strong>
             <span className="truncate text-sm text-white/70">
-              {weatherConditionLabel(currentCondition, t)}
+              {feature === "weather-daily" ? t.idleWeatherTitle : weatherConditionLabel(currentCondition, t)}
             </span>
           </span>
         </span>
@@ -1056,7 +1145,9 @@ function IdleSecondaryRail({
           {forecast.map((period) => (
             <span key={period.startTime} className="grid min-w-0 justify-items-center gap-1 text-center">
               <span className="text-[10px] font-bold text-white/60">
-                {formatIdleWeatherHour(period.startTime, language)}
+                {feature === "weather-daily"
+                  ? formatIdleWeatherDay(period.startTime, language)
+                  : formatIdleWeatherHour(period.startTime, language)}
               </span>
               <WeatherConditionIcon condition={period.condition} className="h-4 w-4 text-[#E6CE20]" />
               <span className="text-xs font-black tabular-nums">{Math.round(period.temperatureFahrenheit)}°</span>
@@ -1071,6 +1162,12 @@ function IdleSecondaryRail({
 function formatIdleWeatherHour(value: string, language: Language) {
   return new Intl.DateTimeFormat(language === "es" ? "es-US" : "en-US", {
     hour: "numeric",
+  }).format(new Date(value));
+}
+
+function formatIdleWeatherDay(value: string, language: Language) {
+  return new Intl.DateTimeFormat(language === "es" ? "es-US" : "en-US", {
+    weekday: "short",
   }).format(new Date(value));
 }
 

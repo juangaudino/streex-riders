@@ -24,9 +24,11 @@ export type PassengerWeatherPeriod = {
 export type PassengerWeatherSnapshot = {
   updatedAt: string;
   periods: PassengerWeatherPeriod[];
+  dailyPeriods?: PassengerWeatherPeriod[];
 };
 
 type NwsPeriod = {
+  isDaytime?: unknown;
   startTime?: unknown;
   temperature?: unknown;
   temperatureUnit?: unknown;
@@ -64,7 +66,12 @@ function fahrenheit(temperature: number, unit: string) {
   return unit.toUpperCase() === "C" ? (temperature * 9) / 5 + 32 : temperature;
 }
 
-export function normalizeNwsHourlyForecast(payload: unknown): PassengerWeatherSnapshot {
+function normalizeNwsForecast(
+  payload: unknown,
+  maximumPeriods: number,
+  emptyMessage: string,
+  daytimeOnly = false,
+): PassengerWeatherSnapshot {
   const properties = (
     payload as {
       properties?: {
@@ -80,10 +87,11 @@ export function normalizeNwsHourlyForecast(payload: unknown): PassengerWeatherSn
   }
 
   const periods = properties.periods
-    .slice(0, 6)
+    .slice(0, maximumPeriods)
     .map((raw): PassengerWeatherPeriod | null => {
       const period = raw as NwsPeriod;
       if (
+        (daytimeOnly && period.isDaytime === false) ||
         typeof period.startTime !== "string" ||
         typeof period.temperature !== "number" ||
         !Number.isFinite(period.temperature) ||
@@ -111,7 +119,7 @@ export function normalizeNwsHourlyForecast(payload: unknown): PassengerWeatherSn
     })
     .filter((period): period is PassengerWeatherPeriod => period !== null);
 
-  if (!periods.length) throw new Error("The weather forecast has no usable hourly periods.");
+  if (!periods.length) throw new Error(emptyMessage);
 
   return {
     updatedAt:
@@ -120,4 +128,12 @@ export function normalizeNwsHourlyForecast(payload: unknown): PassengerWeatherSn
       ) ?? new Date().toISOString(),
     periods,
   };
+}
+
+export function normalizeNwsHourlyForecast(payload: unknown): PassengerWeatherSnapshot {
+  return normalizeNwsForecast(payload, 6, "The weather forecast has no usable hourly periods.");
+}
+
+export function normalizeNwsDailyForecast(payload: unknown): PassengerWeatherSnapshot {
+  return normalizeNwsForecast(payload, 8, "The weather forecast has no usable daily periods.", true);
 }

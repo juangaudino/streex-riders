@@ -30,8 +30,9 @@ tablet build, while route-specific GPS tuning still requires in-vehicle validati
   service-worker static cache behavior after first load.
 - No coordinates, permissions or chosen places are persisted, placed in URLs, sent to a server or
   emitted to analytics. Around You has no location network request.
-- Location is still controlled only by `CONFIG.passengerConsole.aroundYou.enabled`, currently
-  `false`. Browser GPS is not activated by the completed visual/browse experience.
+- Location remains controlled only by `CONFIG.passengerConsole.aroundYou.enabled`, currently
+  `true` for the paired tablet. Browser GPS stays transient and private; Around You is deliberately
+  hidden from Lite's primary navigation, not removed from the product.
 
 ## Validation completed in code
 

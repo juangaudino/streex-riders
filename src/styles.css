@@ -8503,7 +8503,7 @@ button.passenger-idle-music {
 }
 
 /* Reload Lite: Music stays the fixed idle hero. The smaller rail below it is
-   deliberately height-stable while weather, game and booking rotate. */
+   deliberately height-stable while weather, each active game, QR and Streex rotate. */
 .passenger-idle-secondary {
   position: relative;
   display: grid;
@@ -8526,6 +8526,12 @@ button.passenger-idle-music {
   background:
     radial-gradient(circle at 92% 50%, rgba(230, 206, 32, 0.18), transparent 34%),
     linear-gradient(108deg, rgba(18, 18, 16, 0.98), rgba(34, 31, 12, 0.94));
+}
+
+.passenger-idle-secondary--streex {
+  background:
+    radial-gradient(circle at 90% 50%, rgba(230, 206, 32, 0.2), transparent 38%),
+    linear-gradient(108deg, rgba(18, 18, 16, 0.98), rgba(39, 33, 10, 0.95));
 }
 
 .passenger-idle-booking-glow {
@@ -8568,7 +8574,10 @@ button.passenger-idle-music {
   }
 
   .passenger-idle-secondary--weather .passenger-idle-forecast {
-    display: none;
+    min-height: 4.25rem;
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 0;
   }
 }
 
