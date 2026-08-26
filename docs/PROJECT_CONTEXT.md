@@ -234,6 +234,15 @@ retrieves the received message, forwards its content, and preserves the original
 10. Optionally test importing the saved Fully settings backup when a spare device or reinstall is
     available; do not risk the only configured tablet solely for this drill.
 
+### Reload 1.0.4 test controls
+
+- Fully Kiosk Remote/Admin owns physical tablet controls. A validated remote brightness change is
+  reversible by clearing the Fully `Screen Brightness` value back to the system default.
+- Passenger's unlinked `?passenger-test=1` owner tool exposes only a logical-rest test button. It
+  resets to the Music-first idle screen, dims the web UI visually, and any touch returns to the
+  normal console. It never attempts to control physical brightness or send Fully credentials from
+  browser code.
+
 ## Approved Passenger Experience Backlog
 
 The following product directions were reviewed and approved as part of the Passenger Console

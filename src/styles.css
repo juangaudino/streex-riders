@@ -8672,3 +8672,25 @@ button.passenger-idle-music {
     radial-gradient(circle at 88% 12%, color-mix(in srgb, var(--passenger-accent) 22%, transparent), transparent 42%),
     linear-gradient(108deg, var(--passenger-surface-elevated), var(--passenger-surface));
 }
+
+/* Reload 1.0.4: logical rest is deliberately a visual state only. Fully Remote
+   owns the tablet's physical brightness; this keeps Music visible and restores
+   the normal console from any touch without exposing device credentials. */
+.passenger-idle-prompt--logical-rest {
+  background-color: rgba(0, 0, 0, 0.985) !important;
+}
+
+.passenger-idle-prompt--logical-rest .passenger-idle-content {
+  filter: brightness(0.52) saturate(0.78);
+}
+
+.passenger-test-controls {
+  touch-action: manipulation;
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-test-controls {
+    right: max(1.25rem, env(safe-area-inset-right));
+    bottom: max(1.25rem, env(safe-area-inset-bottom));
+  }
+}

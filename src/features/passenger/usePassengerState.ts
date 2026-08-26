@@ -15,8 +15,10 @@ export function usePassengerIdleReset({
   onReset: () => void;
 }) {
   const [promptOpen, setPromptOpen] = useState(false);
+  const [logicalRest, setLogicalRest] = useState(false);
   const onResetRef = useRef(onReset);
   const resumeRef = useRef<() => void>(() => undefined);
+  const enterRestRef = useRef<() => void>(() => undefined);
 
   useEffect(() => {
     onResetRef.current = onReset;
@@ -51,14 +53,16 @@ export function usePassengerIdleReset({
     const beginActivePhase = (remainingMs: number) => {
       clearTimers();
       promptVisible = false;
+      setLogicalRest(false);
       setPromptOpen(false);
       phaseTimer = window.setTimeout(evaluateElapsedTime, Math.max(0, remainingMs));
     };
 
-    const beginPromptPhase = () => {
+    const beginPromptPhase = ({ asLogicalRest = false }: { asLogicalRest?: boolean } = {}) => {
       if (promptVisible) return;
       clearTimers();
       promptVisible = true;
+      setLogicalRest(asLogicalRest);
       onResetRef.current();
       setPromptOpen(true);
     };
@@ -88,6 +92,9 @@ export function usePassengerIdleReset({
       persistActivity();
       beginActivePhase(inactivityMs);
     };
+    enterRestRef.current = () => {
+      beginPromptPhase({ asLogicalRest: true });
+    };
 
     window.addEventListener("pointerdown", registerActivity, { passive: true });
     window.addEventListener("touchstart", registerActivity, { passive: true });
@@ -110,12 +117,14 @@ export function usePassengerIdleReset({
       window.removeEventListener("pageshow", checkAfterWake);
       document.removeEventListener("visibilitychange", checkAfterWake);
       resumeRef.current = () => undefined;
+      enterRestRef.current = () => undefined;
     };
   }, [inactivitySeconds]);
 
   const resume = useCallback(() => resumeRef.current(), []);
+  const enterRest = useCallback(() => enterRestRef.current(), []);
 
-  return { promptOpen, resume };
+  return { promptOpen, logicalRest, resume, enterRest };
 }
 
 export function useClock() {

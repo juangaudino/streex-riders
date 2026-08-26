@@ -546,6 +546,11 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
       typeof window !== "undefined" &&
       new URLSearchParams(window.location.search).get("around-you-test") === "1",
   );
+  const [passengerTestMode] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("passenger-test") === "1",
+  );
   const [simulatedAroundYouPlaceId, setSimulatedAroundYouPlaceId] = useState<string | null>(null);
   const t = copy[language];
   const online = useOnlineStatus();
@@ -776,11 +781,15 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
         />
       </div>
       <BookingFormModal language={language} open={bookingOpen} onOpenChange={setBookingOpen} />
+      {passengerTestMode && !idleReset.promptOpen && (
+        <PassengerTestControls language={language} onEnterRest={idleReset.enterRest} />
+      )}
       {idleReset.promptOpen && (
         <PassengerIdlePrompt
           config={config}
           fallbackTemperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
           language={language}
+          logicalRest={idleReset.logicalRest}
           onExploreMusic={() => {
             idleReset.resume();
             navigateTo("music");
@@ -805,6 +814,7 @@ function PassengerIdlePrompt({
   config,
   fallbackTemperatureFahrenheit,
   language,
+  logicalRest,
   onExploreGame,
   onExploreMusic,
   onExploreStreex,
@@ -814,6 +824,7 @@ function PassengerIdlePrompt({
   config: AppConfig;
   fallbackTemperatureFahrenheit: number;
   language: Language;
+  logicalRest: boolean;
   onExploreGame: () => void;
   onExploreMusic: () => void;
   onExploreStreex: () => void;
@@ -839,7 +850,9 @@ function PassengerIdlePrompt({
   return (
     <div
       onClick={onResume}
-      className="fixed inset-0 z-[100] grid cursor-pointer place-items-center overflow-hidden bg-[#080808]/95 p-8 text-left text-white backdrop-blur-xl focus:outline-none focus:ring-4 focus:ring-inset focus:ring-[#E6CE20]/60"
+      className={`passenger-idle-prompt fixed inset-0 z-[100] grid cursor-pointer place-items-center overflow-hidden bg-[#080808]/95 p-8 text-left text-white backdrop-blur-xl focus:outline-none focus:ring-4 focus:ring-inset focus:ring-[#E6CE20]/60${
+        logicalRest ? " passenger-idle-prompt--logical-rest" : ""
+      }`}
     >
       <div className="absolute left-1/2 top-1/2 h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E6CE20]/10 blur-[130px]" />
       <div className="passenger-idle-content passenger-idle-content--music relative flex w-full max-w-5xl flex-col items-center gap-6">
@@ -899,6 +912,40 @@ function PassengerIdlePrompt({
         </div>
       </div>
     </div>
+  );
+}
+
+function PassengerTestControls({
+  language,
+  onEnterRest,
+}: {
+  language: Language;
+  onEnterRest: () => void;
+}) {
+  const isSpanish = language === "es";
+
+  return (
+    <aside
+      className="passenger-test-controls fixed bottom-5 right-5 z-[90] max-w-[280px] rounded-2xl border border-[#E6CE20]/45 bg-[#0B0B0B]/95 p-3 text-white shadow-2xl backdrop-blur"
+      aria-label={isSpanish ? "Controles privados de prueba" : "Private test controls"}
+    >
+      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#E6CE20]">
+        {isSpanish ? "Herramienta privada" : "Private tool"}
+      </p>
+      <p className="mt-1 text-xs leading-relaxed text-white/65">
+        {isSpanish
+          ? "Prueba el reposo lógico. El brillo físico se controla desde Fully Remote."
+          : "Test logical rest. Physical brightness stays controlled in Fully Remote."}
+      </p>
+      <button
+        type="button"
+        onClick={onEnterRest}
+        className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#E6CE20] px-4 py-3 text-sm font-black text-black transition hover:bg-[#f4d249] focus:outline-none focus:ring-4 focus:ring-[#E6CE20]/40"
+      >
+        <MoonStar className="h-4 w-4" />
+        {isSpanish ? "Probar reposo" : "Test rest mode"}
+      </button>
+    </aside>
   );
 }
 
