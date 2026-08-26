@@ -45,6 +45,9 @@ export const CONFIG = {
     // local discovery available from Home while hiding it from the primary navigation.
     // A future driver-controlled Complete mode can change this value remotely.
     experienceMode: "lite" as "lite" | "complete",
+    // Lite-only launch palette. Switch this single value to "original" to restore the
+    // existing Passenger color treatment; Complete deliberately remains Original for now.
+    liteTheme: "accent" as "original" | "accent",
     idleReset: {
       // Launch validation cadence. Music remains the only published idle hero in Lite;
       // featureRotationSeconds is retained for the upcoming secondary-rail rotation.

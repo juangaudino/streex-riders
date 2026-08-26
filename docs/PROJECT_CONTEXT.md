@@ -102,6 +102,10 @@ show passenger data.
   Home, Music, Games and STREEX. Around You remains available from its Home card and all of its
   privacy-preserving local engine code remains intact, but it is not a first-level navigation
   destination. A future Driver MC will be able to select Lite or Complete remotely.
+- Passenger Lite supports the color-only `Original` and `STREEX Accent` launch themes through
+  `CONFIG.passengerConsole.liteTheme`. Accent is the launch default; changing that one public
+  config value restores Original. The theme changes palette only, has no passenger-facing selector,
+  and is explicitly not applied to future Complete mode.
 - Passenger weather uses the public National Weather Service API through a fixed server function.
   Salt Lake City coordinates and refresh cadence are CONFIG-driven; sanitized hourly forecasts
   are cached server-side and the last successful snapshot is retained locally for hotspot outages.

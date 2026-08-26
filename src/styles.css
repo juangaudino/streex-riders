@@ -8626,3 +8626,49 @@ button.passenger-idle-music {
     padding-block: 0.85rem;
   }
 }
+/* Passenger Console themes are color-only. Structure, content and interaction stay shared.
+   Accent is intentionally scoped to Lite by PassengerConsole's data attribute. */
+.passenger-console-theme {
+  --passenger-page: #0b0b0b;
+  --passenger-surface: #171717;
+  --passenger-surface-elevated: #202020;
+  --passenger-accent: #e6ce20;
+  --passenger-accent-strong: #e6ce20;
+  --passenger-accent-ink: #0b0b0b;
+  background: var(--passenger-page);
+}
+
+.passenger-console-theme[data-passenger-theme="accent"] {
+  --passenger-page: #070707;
+  --passenger-surface: #17150c;
+  --passenger-surface-elevated: #24200d;
+  --passenger-accent: #f4d249;
+  --passenger-accent-strong: #ffd85a;
+  --passenger-accent-ink: #171104;
+}
+
+.passenger-console-theme[data-passenger-theme="accent"] [class~="bg-[#0B0B0B]"] {
+  background-color: var(--passenger-page) !important;
+}
+
+.passenger-console-theme[data-passenger-theme="accent"] [class~="bg-[#E6CE20]"] {
+  background-color: var(--passenger-accent-strong) !important;
+  color: var(--passenger-accent-ink) !important;
+}
+
+.passenger-console-theme[data-passenger-theme="accent"] [class~="text-[#E6CE20]"] {
+  color: var(--passenger-accent) !important;
+}
+
+.passenger-console-theme[data-passenger-theme="accent"] [class~="border-[#E6CE20]"] {
+  border-color: var(--passenger-accent) !important;
+}
+
+.passenger-console-theme[data-passenger-theme="accent"] .passenger-idle-secondary,
+.passenger-console-theme[data-passenger-theme="accent"] .passenger-idle-secondary--booking,
+.passenger-console-theme[data-passenger-theme="accent"] .passenger-idle-secondary--streex {
+  border-color: color-mix(in srgb, var(--passenger-accent) 48%, transparent);
+  background:
+    radial-gradient(circle at 88% 12%, color-mix(in srgb, var(--passenger-accent) 22%, transparent), transparent 42%),
+    linear-gradient(108deg, var(--passenger-surface-elevated), var(--passenger-surface));
+}

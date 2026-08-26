@@ -666,7 +666,10 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
   }, [language]);
 
   return (
-    <div className="h-dvh overflow-hidden bg-[#0B0B0B] text-white">
+    <div
+      className="passenger-console-theme h-dvh overflow-hidden bg-[#0B0B0B] text-white"
+      data-passenger-theme={isLiteExperience ? consoleConfig.liteTheme : "original"}
+    >
       <div
         className="passenger-console-shell mx-auto flex h-dvh w-full max-w-[740px] flex-col px-7 pb-4 pt-5"
         data-music-layout={
