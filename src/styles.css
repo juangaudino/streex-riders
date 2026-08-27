@@ -3451,7 +3451,11 @@ input[type="time"] {
   flex: 1 1 0;
   max-width: 8px;
   border-radius: 999px;
-  background: linear-gradient(to top, rgb(230 206 32 / 0.38), #e6ce20);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, rgb(var(--visualizer-color)) 44%, #0b0b0b),
+    rgb(var(--visualizer-color))
+  );
   opacity: 0.4;
   transform-origin: bottom;
 }
@@ -9111,41 +9115,41 @@ button.passenger-idle-music {
   }
 }
 
-/* Long Spotify metadata should reveal itself rather than be truncated in the
-   Music-first idle screen. The movement activates only after real overflow. */
-.passenger-idle-marquee {
+/* Track titles remain still and use the same fit-to-width rule in the Music
+   screen and Music-first idle card. */
+.passenger-track-title-fit {
   display: block;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
 }
 
-.passenger-idle-marquee-track {
-  display: flex;
-  width: max-content;
-  min-width: 100%;
-}
-
-.passenger-idle-marquee-item {
+.passenger-track-title-fit__visible {
   display: block;
-  flex: 0 0 auto;
+  width: 100%;
+  overflow: hidden;
+  font-size: var(--passenger-track-title-size, 2.2rem) !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.passenger-idle-marquee-track.is-active {
-  gap: 3rem;
-  animation: passenger-idle-marquee-scroll var(--passenger-marquee-duration, 24s) linear infinite;
+.passenger-track-title-fit__measure {
+  position: absolute;
+  visibility: hidden;
+  width: max-content;
+  max-width: none;
+  font-size: 2.2rem !important;
+  white-space: nowrap;
 }
 
-@keyframes passenger-idle-marquee-scroll {
-  0%,
-  7% {
-    transform: translateX(0);
-  }
+.passenger-music-playlist-card {
+  isolation: isolate;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--collection-accent) 38%, #111), #111);
+}
 
-  90%,
-  100% {
-    transform: translateX(calc(-50% - 1.5rem));
-  }
+.passenger-music-playlist-card__overlay {
+  z-index: 1;
+  background: linear-gradient(to bottom, transparent 40%, rgb(0 0 0 / 0.85) 100%);
 }
 
 @media (orientation: landscape) and (min-width: 900px) {
@@ -9158,6 +9162,7 @@ button.passenger-idle-music {
 
   .passenger-idle-content--music .passenger-idle-track-copy > .passenger-idle-track-title {
     display: block !important;
+    font-size: 2.2rem !important;
     min-height: 1.18em !important;
     max-height: none;
     overflow: hidden;
@@ -9167,6 +9172,11 @@ button.passenger-idle-music {
     -webkit-box-orient: initial;
     -webkit-line-clamp: unset;
     margin-top: 0.55rem !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-track-title {
+    min-height: 1.18em;
+    max-height: 1.18em;
   }
 
   .passenger-idle-content--music .passenger-idle-track-copy > .passenger-idle-track-subtitle {
@@ -9180,11 +9190,5 @@ button.passenger-idle-music {
 
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing::before {
     display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .passenger-idle-marquee-track.is-active {
-    animation: none;
   }
 }

@@ -57,6 +57,7 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   controlPersonalSpotifyPlayback,
   getPersonalSpotifyPlayback,
+  getPersonalSpotifyPlaylistArtwork,
   playPersonalSpotifyTrack,
   searchPersonalSpotifyTracks,
 } from "@/lib/spotify.functions";
@@ -1346,7 +1347,7 @@ function IdleSpotifyNowPlaying({
   const playback = status?.state === "ready" ? status.playback : null;
   const track = playback?.track ?? null;
   const isDiscoverable = !track;
-  const ambientColor = useArtworkAmbient(track?.artworkUrl ?? null);
+  const artworkPalette = useArtworkPalette(track?.artworkUrl ?? null);
   const className = `passenger-idle-music grid w-full max-w-4xl items-center gap-7${
     isDiscoverable ? " passenger-idle-music--discover" : ""
   }${compact ? " passenger-idle-music--compact" : ""}`;
@@ -1398,14 +1399,14 @@ function IdleSpotifyNowPlaying({
               ? t.idleMusicPrompt
               : t.idleMusicReady}
         </span>
-        <SpotifyMarquee className="passenger-idle-track-title mt-4 text-3xl font-black leading-tight tracking-tight sm:text-4xl">
+        <ResponsiveTrackTitle className="passenger-idle-track-title mt-4 text-3xl font-black leading-tight tracking-tight sm:text-4xl">
           {track?.title ?? t.idleChooseMusic}
-        </SpotifyMarquee>
-        <SpotifyMarquee className="passenger-idle-track-subtitle mt-3 text-lg text-white/55">
+        </ResponsiveTrackTitle>
+        <span className="passenger-idle-track-subtitle mt-3 text-lg text-white/55">
           {track
             ? `${track.artist}${track.album ? ` · ${track.album}` : ""}`
             : t.idleChooseMusicDescription}
-        </SpotifyMarquee>
+        </span>
         {isDiscoverable && (
           <span className="passenger-idle-discovery mt-5 flex flex-wrap items-center gap-3">
             <span className="passenger-idle-discovery-pills flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white/55">
@@ -1420,14 +1421,14 @@ function IdleSpotifyNowPlaying({
             </span>
           </span>
         )}
-        {track ? <MusicVisualizer active={Boolean(playback?.isPlaying)} compact /> : null}
+        {track ? <MusicVisualizer active={Boolean(playback?.isPlaying)} compact palette={artworkPalette} /> : null}
       </span>
     </>
   );
 
   if (!isDiscoverable)
     return (
-      <div className={className} style={ambientStyle(ambientColor)}>
+      <div className={className} style={ambientStyle(artworkPalette)}>
         {content}
       </div>
     );
@@ -1436,7 +1437,7 @@ function IdleSpotifyNowPlaying({
     <button
       type="button"
       className={className}
-      style={ambientStyle(ambientColor)}
+      style={ambientStyle(artworkPalette)}
       onClick={(event) => {
         event.stopPropagation();
         onExploreMusic();
@@ -2156,9 +2157,24 @@ function formatSpotifyDuration(durationMs: number | null) {
 }
 
 const MUSIC_DISCOVERY_COLLECTIONS = [
-  { accent: "#E6CE20", icon: Flag, labelKey: "vibeTopUs", query: "spotify top 50 usa" },
-  { accent: "#7ED957", icon: Globe2, labelKey: "vibeTopGlobal", query: "spotify top 50 global" },
-  { accent: "#FF6B6B", icon: TrendingUp, labelKey: "vibeToday", query: "today's top hits" },
+  {
+    accent: "#E6CE20",
+    labelKey: "vibeTopUs",
+    playlistId: "37i9dQZEVXbLRQDuF5jeBp",
+    query: "spotify top 50 usa",
+  },
+  {
+    accent: "#7ED957",
+    labelKey: "vibeTopGlobal",
+    playlistId: "37i9dQZEVXbMDoHDwVN2tF",
+    query: "spotify top 50 global",
+  },
+  {
+    accent: "#FF6B6B",
+    labelKey: "vibeToday",
+    playlistId: "37i9dQZF1DXcBWIGoYBM5M",
+    query: "today's top hits",
+  },
 ] as const;
 
 function ambientColorFallback(seed: string | null) {
@@ -2171,13 +2187,33 @@ function ambientColorFallback(seed: string | null) {
   return palette[Math.abs(hash) % palette.length] ?? "230 206 32";
 }
 
-function useArtworkAmbient(artworkUrl: string | null) {
-  const [ambientColor, setAmbientColor] = useState(() => ambientColorFallback(artworkUrl));
+type ArtworkPalette = {
+  primary: string;
+  secondary: string;
+  tertiary: string;
+};
+
+const STREEX_YELLOW = "230 206 32";
+const VISUALIZER_BLUE = "79 179 255";
+
+function colorSaturation(red: number, green: number, blue: number) {
+  const maximum = Math.max(red, green, blue) / 255;
+  const minimum = Math.min(red, green, blue) / 255;
+  return maximum === 0 ? 0 : (maximum - minimum) / maximum;
+}
+
+function paletteFallback(seed: string | null): ArtworkPalette {
+  const primary = ambientColorFallback(seed);
+  return { primary, secondary: STREEX_YELLOW, tertiary: VISUALIZER_BLUE };
+}
+
+function useArtworkPalette(artworkUrl: string | null) {
+  const [palette, setPalette] = useState<ArtworkPalette>(() => paletteFallback(artworkUrl));
 
   useEffect(() => {
-    const fallback = ambientColorFallback(artworkUrl);
+    const fallback = paletteFallback(artworkUrl);
     if (!artworkUrl) {
-      setAmbientColor(fallback);
+      setPalette(fallback);
       return;
     }
 
@@ -2193,31 +2229,63 @@ function useArtworkAmbient(artworkUrl: string | null) {
         if (!context) throw new Error("Canvas unavailable");
         context.drawImage(image, 0, 0, canvas.width, canvas.height);
         const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
-        let red = 0;
-        let green = 0;
-        let blue = 0;
-        let count = 0;
+        const colors = new Map<string, { red: number; green: number; blue: number; count: number }>();
         for (let index = 0; index < pixels.length; index += 4) {
           const alpha = pixels[index + 3] ?? 0;
           const pixelRed = pixels[index] ?? 0;
           const pixelGreen = pixels[index + 1] ?? 0;
           const pixelBlue = pixels[index + 2] ?? 0;
           if (alpha < 180 || pixelRed + pixelGreen + pixelBlue < 45) continue;
-          red += pixelRed;
-          green += pixelGreen;
-          blue += pixelBlue;
-          count += 1;
+          const red = Math.min(255, Math.round(pixelRed / 32) * 32);
+          const green = Math.min(255, Math.round(pixelGreen / 32) * 32);
+          const blue = Math.min(255, Math.round(pixelBlue / 32) * 32);
+          const key = `${red} ${green} ${blue}`;
+          const existing = colors.get(key);
+          colors.set(key, {
+            red,
+            green,
+            blue,
+            count: (existing?.count ?? 0) + 1,
+          });
         }
-        if (!count) throw new Error("No usable pixels");
+        const ranked = [...colors.values()].sort((left, right) => right.count - left.count);
+        if (!ranked.length) throw new Error("No usable pixels");
+        const distinct = ranked.reduce<typeof ranked>((picked, color) => {
+          const isDistinct = picked.every(
+            (candidate) =>
+              Math.abs(candidate.red - color.red) +
+                Math.abs(candidate.green - color.green) +
+                Math.abs(candidate.blue - color.blue) >
+              72,
+          );
+          if (isDistinct && picked.length < 3) picked.push(color);
+          return picked;
+        }, []);
+        const primary = distinct[0] ?? ranked[0];
+        const secondary = distinct[1] ?? primary;
+        const tertiary = distinct[2] ?? secondary;
+        if (!primary || !secondary || !tertiary) throw new Error("No usable palette");
+        const isMonochrome = [primary, secondary, tertiary].every(
+          (color) => colorSaturation(color.red, color.green, color.blue) < 0.2,
+        );
         if (active) {
-          setAmbientColor(`${Math.round(red / count)} ${Math.round(green / count)} ${Math.round(blue / count)}`);
+          const primaryValue = `${primary.red} ${primary.green} ${primary.blue}`;
+          setPalette(
+            isMonochrome
+              ? { primary: primaryValue, secondary: VISUALIZER_BLUE, tertiary: primaryValue }
+              : {
+                  primary: primaryValue,
+                  secondary: `${secondary.red} ${secondary.green} ${secondary.blue}`,
+                  tertiary: `${tertiary.red} ${tertiary.green} ${tertiary.blue}`,
+                },
+          );
         }
       } catch {
-        if (active) setAmbientColor(fallback);
+        if (active) setPalette(fallback);
       }
     };
     image.onerror = () => {
-      if (active) setAmbientColor(fallback);
+      if (active) setPalette(fallback);
     };
     image.src = artworkUrl;
 
@@ -2226,15 +2294,43 @@ function useArtworkAmbient(artworkUrl: string | null) {
     };
   }, [artworkUrl]);
 
-  return ambientColor;
+  return palette;
 }
 
-function ambientStyle(ambientColor: string) {
-  return { "--passenger-ambient-color": ambientColor } as React.CSSProperties;
+function ambientStyle(palette: ArtworkPalette) {
+  return {
+    "--passenger-ambient-color": palette.primary,
+    "--passenger-visualizer-primary": palette.primary,
+    "--passenger-visualizer-secondary": palette.secondary,
+    "--passenger-visualizer-tertiary": palette.tertiary,
+  } as React.CSSProperties;
 }
 
-function MusicVisualizer({ active, compact = false }: { active: boolean; compact?: boolean }) {
+function interpolatePaletteColor(palette: ArtworkPalette, position: number) {
+  const stops = [palette.primary, STREEX_YELLOW, palette.secondary, palette.tertiary].map((color) =>
+    color.split(" ").map(Number),
+  );
+  const scaledPosition = Math.max(0, Math.min(1, position)) * (stops.length - 1);
+  const leftIndex = Math.floor(scaledPosition);
+  const blend = scaledPosition - leftIndex;
+  const left = stops[leftIndex] ?? stops[0] ?? [230, 206, 32];
+  const right = stops[leftIndex + 1] ?? left;
+  return left
+    .map((channel, index) => Math.round(channel + ((right[index] ?? channel) - channel) * blend))
+    .join(" ");
+}
+
+function MusicVisualizer({
+  active,
+  compact = false,
+  palette,
+}: {
+  active: boolean;
+  compact?: boolean;
+  palette: ArtworkPalette;
+}) {
   const barHeights = [18, 34, 46, 28, 58, 39, 24, 51, 32, 64, 42, 27, 55, 35];
+  const barCount = compact ? 28 : 26;
   return (
     <span
       aria-hidden="true"
@@ -2242,14 +2338,17 @@ function MusicVisualizer({ active, compact = false }: { active: boolean; compact
         compact ? " passenger-music-visualizer--compact" : ""
       }`}
     >
-      {Array.from({ length: compact ? 28 : 26 }, (_, index) => {
+      {Array.from({ length: barCount }, (_, index) => {
         const baseHeight = barHeights[index % barHeights.length] ?? 32;
+        const stop = index / Math.max(1, barCount - 1);
+        const visualizerColor = interpolatePaletteColor(palette, stop);
         return (
           <span
             key={index}
             style={{
               "--visualizer-index": index,
               "--visualizer-height": `${compact ? Math.round(baseHeight * 1.55) : baseHeight}px`,
+              "--visualizer-color": visualizerColor,
             } as React.CSSProperties}
           />
         );
@@ -2258,7 +2357,7 @@ function MusicVisualizer({ active, compact = false }: { active: boolean; compact
   );
 }
 
-function SpotifyMarquee({
+function ResponsiveTrackTitle({
   children,
   className,
 }: {
@@ -2266,49 +2365,39 @@ function SpotifyMarquee({
   className?: string;
 }) {
   const viewportRef = useRef<HTMLSpanElement | null>(null);
-  const itemRef = useRef<HTMLSpanElement | null>(null);
-  const [overflows, setOverflows] = useState(false);
-  const [durationSeconds, setDurationSeconds] = useState(24);
+  const measureRef = useRef<HTMLSpanElement | null>(null);
+  const [fontSize, setFontSize] = useState(2.2);
+  const [truncated, setTruncated] = useState(false);
 
   useEffect(() => {
     const viewport = viewportRef.current;
-    const item = itemRef.current;
-    if (!viewport || !item) return;
+    const measureItem = measureRef.current;
+    if (!viewport || !measureItem) return;
 
     const measure = () => {
-      const hasOverflow = item.scrollWidth > viewport.clientWidth + 1;
-      setOverflows(hasOverflow);
-      if (hasOverflow) {
-        // Longer titles travel at the same calm, readable pace.
-        const travelDistance = item.scrollWidth + 48;
-        setDurationSeconds(Math.max(24, Math.min(46, Math.round(travelDistance / 26 + 8))));
-      }
+      const availableWidth = viewport.clientWidth;
+      const requiredWidth = measureItem.scrollWidth;
+      const nextFontSize = Math.max(1.5, Math.min(2.2, (2.2 * availableWidth) / requiredWidth));
+      setFontSize(nextFontSize);
+      setTruncated(requiredWidth * (nextFontSize / 2.2) > availableWidth + 1);
     };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(viewport);
-    observer.observe(item);
+    observer.observe(measureItem);
     return () => observer.disconnect();
   }, [children]);
 
   return (
-    <span ref={viewportRef} className={`passenger-idle-marquee ${className ?? ""}`}>
+    <span ref={viewportRef} className={`passenger-track-title-fit ${className ?? ""}`}>
       <span
-        className={`passenger-idle-marquee-track${overflows ? " is-active" : ""}`}
-        style={
-          overflows
-            ? ({ "--passenger-marquee-duration": `${durationSeconds}s` } as React.CSSProperties)
-            : undefined
-        }
+        className={`passenger-track-title-fit__visible${truncated ? " is-truncated" : ""}`}
+        style={{ "--passenger-track-title-size": `${fontSize}rem` } as React.CSSProperties}
       >
-        <span ref={itemRef} className="passenger-idle-marquee-item">
-          {children}
-        </span>
-        {overflows ? (
-          <span aria-hidden="true" className="passenger-idle-marquee-item">
-            {children}
-          </span>
-        ) : null}
+        {children}
+      </span>
+      <span ref={measureRef} aria-hidden="true" className="passenger-track-title-fit__measure">
+        {children}
       </span>
     </span>
   );
@@ -2438,6 +2527,7 @@ function PersonalSpotifyMusicView({
   const [results, setResults] = useState<SpotifySearchTrack[]>([]);
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
+  const [playlistArtwork, setPlaylistArtwork] = useState<Record<string, string | null>>({});
 
   const refresh = useCallback(
     async (silent = false) => {
@@ -2471,6 +2561,25 @@ function PersonalSpotifyMusicView({
       document.removeEventListener("visibilitychange", refreshOnVisible);
     };
   }, [refresh]);
+
+  useEffect(() => {
+    let active = true;
+    const loadPlaylistArtwork = async () => {
+      try {
+        const response = await getPersonalSpotifyPlaylistArtwork({ data: {} });
+        if (!active) return;
+        setPlaylistArtwork(
+          Object.fromEntries(response.playlists.map((playlist) => [playlist.id, playlist.artworkUrl])),
+        );
+      } catch {
+        // The cards retain their branded color fallback when Spotify is unavailable.
+      }
+    };
+    void loadPlaylistArtwork();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const trackKey = (playbackStatus: SpotifyPlaybackState | null) => {
     if (playbackStatus?.state !== "ready" || !playbackStatus.playback.track) return null;
@@ -2576,12 +2685,12 @@ function PersonalSpotifyMusicView({
         Math.max(0, (liveProgressMs / playback.track.durationMs) * 100),
       )
     : null;
-  const ambientColor = useArtworkAmbient(playback?.track?.artworkUrl ?? null);
+  const artworkPalette = useArtworkPalette(playback?.track?.artworkUrl ?? null);
 
   return (
     <div
       className="passenger-music-layout passenger-sound-lounge flex flex-col gap-5"
-      style={ambientStyle(ambientColor)}
+      style={ambientStyle(artworkPalette)}
     >
       <div className="passenger-music-header">
         <ViewHeader eyebrow={t.musicEyebrow} title={t.musicTitle} description={t.musicSubtitle} />
@@ -2612,9 +2721,9 @@ function PersonalSpotifyMusicView({
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}
             </p>
-            <p className="mt-2 line-clamp-2 text-2xl font-black leading-tight tracking-tight">
+            <ResponsiveTrackTitle className="passenger-music-track-title mt-2 block font-black leading-tight tracking-tight">
               {playback.track?.title ?? t.chooseMusic}
-            </p>
+            </ResponsiveTrackTitle>
             <p className="mt-1 line-clamp-2 text-sm leading-snug text-white/60">
               {playback.track
                 ? `${playback.track.artist}${playback.track.album ? ` · ${playback.track.album}` : ""}`
@@ -2670,7 +2779,7 @@ function PersonalSpotifyMusicView({
                 <SkipForward className="h-5 w-5" />
               </button>
             </div>
-            <MusicVisualizer active={Boolean(playback.isPlaying)} />
+            <MusicVisualizer active={Boolean(playback.isPlaying)} palette={artworkPalette} />
           </div>
         </section>
       ) : (
@@ -2739,31 +2848,32 @@ function PersonalSpotifyMusicView({
           {searchMessage && <p className="mt-3 text-sm text-white/55">{searchMessage}</p>}
           {!searchMessage && results.length === 0 && (
             <div className="passenger-music-collections mt-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
-                {t.exploreMusic}
-              </p>
               <div className="mt-3 grid gap-3">
                 {MUSIC_DISCOVERY_COLLECTIONS.map((collection) => {
-                  const Icon = collection.icon;
+                  const artworkUrl = playlistArtwork[collection.playlistId];
                   return (
                     <button
                       key={collection.query}
                       type="button"
                       disabled={searching}
                       onClick={() => searchVibe(collection.query)}
-                      className="passenger-music-collection group flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition disabled:opacity-45"
+                      className="passenger-music-collection passenger-music-playlist-card group relative flex min-h-[8rem] overflow-hidden rounded-2xl border p-4 text-left transition disabled:opacity-45"
                       style={{
                         "--collection-accent": collection.accent,
                       } as React.CSSProperties}
                     >
-                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl">
-                        <Icon className="h-5 w-5" />
+                      {artworkUrl ? (
+                        <img
+                          src={artworkUrl}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      ) : null}
+                      <span className="passenger-music-playlist-card__overlay absolute inset-0" />
+                      <span className="relative z-10 mt-auto min-w-0 pr-8 text-base font-black text-white">
+                        {t[collection.labelKey]}
                       </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-black">{t[collection.labelKey]}</span>
-                        <span className="mt-0.5 block text-xs text-white/50">{t.musicDiscoveryDescription}</span>
-                      </span>
-                      <ChevronRight className="h-5 w-5 shrink-0 text-white/35 transition group-hover:translate-x-0.5" />
+                      <ChevronRight className="absolute bottom-4 right-4 z-10 h-5 w-5 text-white/70 transition group-hover:translate-x-0.5" />
                     </button>
                   );
                 })}
