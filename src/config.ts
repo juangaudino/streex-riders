@@ -51,8 +51,8 @@ export const CONFIG = {
     idleReset: {
       // Lite beta cadence. Music remains the only published idle hero in Lite;
       // the secondary rail rotates independently beneath it.
-      inactivitySeconds: 180,
-      featureRotationSeconds: 90,
+      inactivitySeconds: 90,
+      featureRotationSeconds: 30,
       defaultLanguage: "en" as "en" | "es",
     },
     clock: {

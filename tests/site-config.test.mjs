@@ -5,8 +5,8 @@ import { mergeSiteConfig, SiteConfigOverrideSchema } from "../src/lib/site-confi
 describe("public site config", () => {
   test("ships Lite with the approved real-beta idle cadence", () => {
     expect(CONFIG.passengerConsole.experienceMode).toBe("lite");
-    expect(CONFIG.passengerConsole.idleReset.inactivitySeconds).toBe(180);
-    expect(CONFIG.passengerConsole.idleReset.featureRotationSeconds).toBe(90);
+    expect(CONFIG.passengerConsole.idleReset.inactivitySeconds).toBe(90);
+    expect(CONFIG.passengerConsole.idleReset.featureRotationSeconds).toBe(30);
   });
 
   test("merges saved section visibility and service changes", () => {

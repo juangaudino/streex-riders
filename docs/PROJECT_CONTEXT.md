@@ -90,8 +90,8 @@ show passenger data.
   Spotify artwork and track details, local time, dual-unit temperature and a compact host identity
   without altering the driver's connection or playback.
   Elapsed-time checks on visibility/focus recovery make the reset reliable after Android suspends
-  the browser. RELOAD 1.0 Lite beta uses a 3-minute inactivity cadence; its lower rail rotates
-  every 90 seconds through current weather plus the next four hours, current weather plus the
+  the browser. RELOAD 1.0 Lite beta uses a 90-second inactivity cadence; its lower rail rotates
+  every 30 seconds through current weather plus the next four hours, current weather plus the
   next four days, one rotating active game, the
   `rides.getstreex.com` QR and useful Streex calls. The selected game changes only on the next
   complete rail cycle, never as consecutive game panels.
