@@ -8945,9 +8945,11 @@ button.passenger-idle-music {
 
   .passenger-idle-content--music .passenger-idle-track-copy > span:nth-child(2) {
     display: -webkit-box;
-    min-height: 2.18em;
-    max-height: 2.18em;
+    min-height: 2.42em;
+    max-height: 2.42em;
     overflow: hidden;
+    padding-bottom: 0.08em;
+    line-height: 1.12 !important;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
@@ -8967,7 +8969,7 @@ button.passenger-idle-music {
   }
 
   .passenger-idle-content--music .passenger-music-visualizer--compact > span {
-    max-width: 9px;
+    max-width: none;
   }
 }
 
