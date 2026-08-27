@@ -1867,10 +1867,10 @@ function WeatherDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="relative flex h-[min(92dvh,44rem)] min-h-0 w-[calc(100%_-_2rem)] max-w-5xl flex-col gap-3 overflow-hidden rounded-[30px] border-white/10 bg-[#0B0B0B] p-5 text-white sm:p-6">
+      <DialogContent className="relative flex h-[min(40rem,calc(100dvh-3rem))] w-[min(calc(100vw-3rem),62rem)] max-w-none flex-col gap-3 overflow-hidden rounded-[30px] border-white/10 bg-[#0B0B0B] p-5 text-white sm:p-6">
         <WeatherAtmosphere variant={atmosphere} className="rounded-[30px]" />
         <DialogHeader className="relative z-10">
-          <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
           <DialogTitle className="text-left text-2xl font-extrabold">
             {t.weatherDetailTitle}
@@ -1879,13 +1879,13 @@ function WeatherDetailDialog({
             {t.weatherDetailDescription} {city}.
           </DialogDescription>
             </div>
-            <div className="flex max-w-full flex-wrap justify-end gap-1 rounded-full border border-white/10 bg-black/45 p-1 backdrop-blur">
+            <div className="flex shrink-0 gap-1 rounded-full border border-white/10 bg-black/45 p-1 backdrop-blur">
               {WEATHER_ATMOSPHERE_OPTIONS.map((option) => (
                 <button
                   key={option.id}
                   type="button"
                   onClick={() => setAtmosphereOverride(option.id)}
-                  className={`rounded-full px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.1em] transition ${
+                  className={`rounded-full px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.08em] transition ${
                     atmosphere === option.id
                       ? "bg-[#E6CE20] text-black"
                       : "text-white/60 hover:text-white"
@@ -1899,14 +1899,14 @@ function WeatherDetailDialog({
         </DialogHeader>
 
         {current ? (
-          <div className="relative z-10 flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain pr-1">
-            <div className="relative overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.06] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl">
-              <div className="relative grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(220px,0.7fr)] sm:items-center">
+          <div className="relative z-10 flex min-h-0 flex-1 flex-col gap-4">
+            <div className="relative overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.06] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+              <div className="relative grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(220px,0.7fr)] sm:items-center">
                 <div className="flex min-w-0 items-center gap-4">
-                  <span className="grid h-20 w-20 shrink-0 place-items-center rounded-[24px] border border-white/[0.08] bg-white/[0.07] text-white/90">
+                  <span className="grid h-[4.5rem] w-[4.5rem] shrink-0 place-items-center rounded-[22px] border border-white/[0.08] bg-white/[0.07] text-white/90">
                     <WeatherConditionIcon
                       condition={current.condition}
-                      className="h-10 w-10"
+                      className="h-9 w-9"
                       night={currentNight}
                     />
                   </span>
@@ -1914,18 +1914,18 @@ function WeatherDetailDialog({
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45">
                       {t.weatherNow} · {city}
                     </p>
-                    <p className="mt-1 text-5xl font-black leading-none tracking-tight sm:text-6xl">
+                    <p className="mt-1 text-5xl font-black leading-none tracking-tight">
                       {formatTemperature(current.temperatureFahrenheit)}
                     </p>
                     <p className="mt-1.5 truncate text-lg font-bold text-[#E6CE20]">
                       {weatherConditionLabel(current.condition, t)}
                     </p>
-                    <p className="mt-1 line-clamp-2 text-sm leading-snug text-white/55">
+                    <p className="mt-1 line-clamp-1 text-sm leading-snug text-white/55">
                       {current.shortForecast}
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-col gap-3 border-t border-white/10 pt-4 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
+                <div className="flex flex-col gap-3 border-t border-white/10 pt-3 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
                   <WeatherMetric
                     label={t.precipitation}
                     value={current.precipitationChance === null ? "—" : `${current.precipitationChance}%`}
@@ -1940,14 +1940,14 @@ function WeatherDetailDialog({
             </div>
 
             <div>
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
                 {t.nextHours}
               </p>
               <div className="grid grid-cols-4 divide-x divide-white/[0.07] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl">
                 {forecast.map((hour, index) => (
                   <div
                     key={`${hour.label}-${index}`}
-                    className={`flex flex-col items-center gap-2 px-3 py-3.5 text-center ${index === 0 ? "bg-white/[0.08]" : ""}`}
+                    className={`flex flex-col items-center gap-1.5 px-3 py-2.5 text-center ${index === 0 ? "bg-white/[0.08]" : ""}`}
                   >
                     <p className="text-xs font-semibold text-white/60">{hour.label}</p>
                     <WeatherConditionIcon
@@ -1955,8 +1955,8 @@ function WeatherDetailDialog({
                       className="h-6 w-6 text-white/90"
                       night={isNightAt(new Date(hour.period.startTime), timeZone)}
                     />
-                    <p className="text-2xl font-black leading-none">{hour.temperature}</p>
-                    <p className="line-clamp-2 text-[10px] leading-tight text-white/45">
+                    <p className="text-xl font-black leading-none">{hour.temperature}</p>
+                    <p className="line-clamp-1 text-[10px] leading-tight text-white/45">
                       {weatherConditionLabel(hour.period.condition, t)}
                     </p>
                   </div>
@@ -1966,14 +1966,14 @@ function WeatherDetailDialog({
 
             {dailyForecast.length > 0 ? (
               <div>
-                <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
                   {t.nextDays}
                 </p>
                 <div className="grid grid-cols-4 gap-2">
                   {dailyForecast.map((day, index) => (
                   <div
                     key={`${day.period.startTime}-${index}`}
-                    className={`flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl ${index === 0 ? "border-[#E6CE20]/30" : ""}`}
+                    className={`flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl ${index === 0 ? "border-[#E6CE20]/30" : ""}`}
                   >
                       <WeatherConditionIcon condition={day.period.condition} className="h-6 w-6 shrink-0 text-white/90" />
                       <div className="min-w-0 flex-1">
