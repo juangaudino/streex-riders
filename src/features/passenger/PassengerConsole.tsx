@@ -2717,26 +2717,15 @@ function PersonalSpotifyMusicView({
       ) : playback ? (
         <section className="passenger-music-playback passenger-music-now-playing passenger-music-now-playing-ready relative flex min-h-[286px] items-center gap-6 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.13] p-7 text-left">
           <span className="passenger-music-ambient-orb absolute -right-14 -top-20 h-56 w-56 rounded-full blur-3xl" />
-          <div className="passenger-music-art-stage relative grid shrink-0 place-items-center overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.1] via-black/15 to-[#E6CE20]/20 shadow-2xl">
-            {playback.track?.artworkUrl && (
-              <span
-                aria-hidden="true"
-                className="passenger-music-art-backdrop absolute inset-[-18%] bg-cover bg-center opacity-55 blur-2xl"
-                style={{ backgroundImage: `url(${playback.track.artworkUrl})` }}
-              />
-            )}
-            <div className="passenger-music-art-frame relative z-10 aspect-square w-full overflow-hidden rounded-[24px] border border-white/10 bg-black/20">
-              {playback.track?.artworkUrl ? (
-                <img
-                  src={playback.track.artworkUrl}
-                  alt=""
-                  className="passenger-music-now-playing-art h-full w-full object-contain"
-                />
-              ) : (
-                <div className="passenger-music-now-playing-art h-full w-full bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700" />
-              )}
-            </div>
-          </div>
+          {playback.track?.artworkUrl ? (
+            <img
+              src={playback.track.artworkUrl}
+              alt=""
+              className="passenger-music-now-playing-art relative h-52 w-52 shrink-0 rounded-[28px] object-cover shadow-2xl"
+            />
+          ) : (
+            <div className="passenger-music-now-playing-art relative h-52 w-52 shrink-0 rounded-[28px] bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700 shadow-2xl" />
+          )}
           <div className="passenger-music-now-playing-copy relative flex min-w-0 flex-1 flex-col justify-center self-stretch">
             <p className="passenger-music-now-playing-eyebrow text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}

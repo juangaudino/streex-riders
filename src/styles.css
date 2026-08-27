@@ -9251,33 +9251,17 @@ button.passenger-idle-music {
     padding: clamp(1rem, 1.6vw, 1.6rem) !important;
   }
 
-  .passenger-console-shell[data-view="music"] .passenger-music-art-stage {
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-art {
     grid-column: 1 !important;
     grid-row: 1 !important;
     align-self: stretch !important;
     width: 100% !important;
-    height: 100% !important;
+    height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
+    aspect-ratio: 1 / 1 !important;
     margin: 0 !important;
     border-radius: clamp(1.1rem, 1.7vw, 1.55rem) !important;
-  }
-
-  .passenger-console-shell[data-view="music"] .passenger-music-art-frame {
-    width: 100% !important;
-    max-height: 100% !important;
-    aspect-ratio: 1 / 1 !important;
-  }
-
-  .passenger-console-shell[data-view="music"] .passenger-music-art-stage .passenger-music-now-playing-art {
-    display: block !important;
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing-copy {
