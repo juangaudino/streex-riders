@@ -8964,8 +8964,8 @@ button.passenger-idle-music {
   .passenger-idle-content--music .passenger-music-visualizer--compact {
     width: 100% !important;
     max-width: none !important;
-    height: clamp(2.8rem, 5.5dvh, 4rem) !important;
-    margin-top: clamp(0.7rem, 1.6dvh, 1.1rem) !important;
+    height: clamp(5.4rem, 10dvh, 7.25rem) !important;
+    margin-top: clamp(0.75rem, 1.4dvh, 1rem) !important;
   }
 
   .passenger-idle-content--music .passenger-music-visualizer--compact > span {
@@ -9127,7 +9127,7 @@ button.passenger-idle-music {
 
 .passenger-idle-marquee-track.is-active {
   gap: 3rem;
-  animation: passenger-idle-marquee-scroll 13s linear infinite;
+  animation: passenger-idle-marquee-scroll var(--passenger-marquee-duration, 24s) linear infinite;
 }
 
 @keyframes passenger-idle-marquee-scroll {
@@ -9143,6 +9143,13 @@ button.passenger-idle-music {
 }
 
 @media (orientation: landscape) and (min-width: 900px) {
+  .passenger-idle-content--music .passenger-idle-track-copy {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
   .passenger-idle-content--music .passenger-idle-track-copy > .passenger-idle-track-title {
     display: block !important;
     min-height: 1.18em;
@@ -9153,6 +9160,7 @@ button.passenger-idle-music {
     white-space: nowrap !important;
     -webkit-box-orient: initial;
     -webkit-line-clamp: unset;
+    margin-top: 0.55rem !important;
   }
 
   .passenger-idle-content--music .passenger-idle-track-copy > .passenger-idle-track-subtitle {
@@ -9161,6 +9169,7 @@ button.passenger-idle-music {
     overflow: hidden;
     text-overflow: clip;
     white-space: nowrap !important;
+    margin-top: 0.35rem !important;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing::before {

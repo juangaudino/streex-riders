@@ -2242,15 +2242,18 @@ function MusicVisualizer({ active, compact = false }: { active: boolean; compact
         compact ? " passenger-music-visualizer--compact" : ""
       }`}
     >
-      {Array.from({ length: compact ? 28 : 26 }, (_, index) => (
-        <span
-          key={index}
-          style={{
-            "--visualizer-index": index,
-            "--visualizer-height": `${barHeights[index % barHeights.length] ?? 32}px`,
-          } as React.CSSProperties}
-        />
-      ))}
+      {Array.from({ length: compact ? 28 : 26 }, (_, index) => {
+        const baseHeight = barHeights[index % barHeights.length] ?? 32;
+        return (
+          <span
+            key={index}
+            style={{
+              "--visualizer-index": index,
+              "--visualizer-height": `${compact ? Math.round(baseHeight * 1.55) : baseHeight}px`,
+            } as React.CSSProperties}
+          />
+        );
+      })}
     </span>
   );
 }
@@ -2265,13 +2268,22 @@ function SpotifyMarquee({
   const viewportRef = useRef<HTMLSpanElement | null>(null);
   const itemRef = useRef<HTMLSpanElement | null>(null);
   const [overflows, setOverflows] = useState(false);
+  const [durationSeconds, setDurationSeconds] = useState(24);
 
   useEffect(() => {
     const viewport = viewportRef.current;
     const item = itemRef.current;
     if (!viewport || !item) return;
 
-    const measure = () => setOverflows(item.scrollWidth > viewport.clientWidth + 1);
+    const measure = () => {
+      const hasOverflow = item.scrollWidth > viewport.clientWidth + 1;
+      setOverflows(hasOverflow);
+      if (hasOverflow) {
+        // Longer titles travel at the same calm, readable pace.
+        const travelDistance = item.scrollWidth + 48;
+        setDurationSeconds(Math.max(24, Math.min(46, Math.round(travelDistance / 26 + 8))));
+      }
+    };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(viewport);
@@ -2281,7 +2293,14 @@ function SpotifyMarquee({
 
   return (
     <span ref={viewportRef} className={`passenger-idle-marquee ${className ?? ""}`}>
-      <span className={`passenger-idle-marquee-track${overflows ? " is-active" : ""}`}>
+      <span
+        className={`passenger-idle-marquee-track${overflows ? " is-active" : ""}`}
+        style={
+          overflows
+            ? ({ "--passenger-marquee-duration": `${durationSeconds}s` } as React.CSSProperties)
+            : undefined
+        }
+      >
         <span ref={itemRef} className="passenger-idle-marquee-item">
           {children}
         </span>
