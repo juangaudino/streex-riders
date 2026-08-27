@@ -109,10 +109,16 @@ show passenger data.
   `CONFIG.passengerConsole.liteTheme`. Accent is the launch default; changing that one public
   config value restores Original. The theme changes palette only, has no passenger-facing selector,
   and is explicitly not applied to future Complete mode.
+- The approved Passenger Music Reload visual pass is implemented: Music has the restored hierarchy,
+  artwork-led now playing, dynamic album glow, stage-light accents and the approved idle treatment.
+  Spotify remains the source of truth for playback and metadata.
 - Passenger weather uses the public National Weather Service API through a fixed server function.
   Salt Lake City coordinates and refresh cadence are CONFIG-driven; sanitized hourly forecasts
   are cached server-side and the last successful snapshot is retained locally for hotspot outages.
   English displays Fahrenheit and Spanish displays Celsius. No API credential is required.
+- The approved Passenger Climate Premium visual pass is implemented: the weather detail surface,
+  Home companion and idle weather rail share the atmospheric states and test override. Future work
+  is hardening and tuning, not a new first-pass weather redesign.
 - Passenger Around You is a client-only local context engine under
   `src/features/passenger/around-you/`. It takes a low-power browser location snapshot only while
   Home or Around You is visible (never in Music, Games, STREEX or idle), then at most every five
@@ -234,28 +240,29 @@ This is the canonical roadmap for the in-vehicle Passenger Console only. Rides l
 Admin and Google Calendar planning belong in `docs/RIDES_ROADMAP.md` and
 `docs/GOOGLE_CALENDAR_ROADMAP.md`.
 
-1. Complete the current Passenger beta stabilization: validate the approved idle cadence, game
-   auto-advance and landscape tablet layout without disturbing Music, Streex, booking or payments.
-2. Expand the Around You inventory to 100 verified places across the STREEX corridor, with explicit
-   image-present/missing status, requested filename, source/author/license and bilingual copy.
-3. Build the category-first Around You browser/search as a later local/offline phase. It should
-   offer curated categories such as restaurants, hotels, cafés, supermarkets, parks, attractions,
-   museums and bookstores, ordered with transient GPS context; never scrape live businesses.
-4. Evaluate a voluntary, privacy-safe Passenger feedback pulse before implementation. It should
-   avoid tablet keyboards, raw GPS, and third-party tracking; prefer a QR/mobile follow-up and
-   keep the experience optional and non-invasive.
-5. Develop additional Passenger games after the Around You browser is stable. Streex Horizon is
-   currently a non-interactive tablet teaser with a phone QR, not a tablet game route.
-6. Present Apple Pay, Google Pay and cards as payment methods within one Stripe-hosted Passenger
-   checkout; do not duplicate that link as separate payment choices.
-7. Complete Passenger hardening in this order: restrict `/passenger` to the paired tablet, replace
-   sample Meet Juan reviews with approved live reviews, run a full in-vehicle field test, and add
-   Passenger UI end-to-end regression coverage.
-8. Purchase Fully Kiosk PLUS and verify the permanent license on the Galaxy Tab A9+.
-9. Run a small live Stripe tip and confirm the charge and payout path end to end.
-10. Optionally test importing the saved Fully settings backup when a spare device or reinstall is
+1. Complete the current Passenger beta stabilization: validate the approved idle cadence, GPS/battery
+   behavior and landscape tablet layout without disturbing Music, Clima, Streex, booking or payments.
+2. Complete Point 1 / Fully Remote setup and verify the permanent Fully Kiosk configuration on the
+   Galaxy Tab A9+.
+3. Complete Reload 1.0.4 test controls, keeping physical brightness and kiosk actions in Fully Kiosk.
+4. Complete Point 0 internal Passenger analytics and start the approved beta measurement baseline.
+5. Complete Reload 1.0.5 by publishing Lite for daily use and validating it in real rides.
+6. Define and implement the reusable visual-theme layer (Original, Halloween, Night Out, Winter/
+   Park City and Holiday are candidate themes; activation and scope are not yet finalized).
+7. Build Streex Driver MC as the private operational/session control surface.
+8. Expand Around You to 100 verified places, then build the category-first local/offline browser.
+9. Develop additional Passenger games only after Around You is stable. Streex Horizon remains a
+   non-interactive tablet teaser with a phone QR.
+10. Evaluate a voluntary, privacy-safe Passenger feedback pulse before implementation. It should
+    avoid tablet keyboards, raw GPS, and third-party tracking.
+11. Present Apple Pay, Google Pay and cards as payment methods within one Stripe-hosted Passenger
+    checkout; do not duplicate that link as separate payment choices.
+12. Complete Passenger hardening: paired-tablet restriction, approved live reviews, in-vehicle
+    field test and Passenger UI end-to-end regression coverage.
+13. Run a small live Stripe tip and confirm the charge and payout path end to end.
+14. Optionally test importing the saved Fully settings backup when a spare device or reinstall is
     available; do not risk the only configured tablet solely for this drill.
-11. **Owner-directed Passenger/Rides imagery (deferred)** — the owner will generate or select the
+15. **Owner-directed Passenger/Rides imagery (deferred)** — the owner will generate or select the
     final artwork and decide which surface each image replaces. Once the assets are approved,
     perform the technical handoff: inspect composition and orientation, crop or request a
     landscape regeneration when needed, optimize to an appropriate WebP/AVIF size, upload through
@@ -302,7 +309,7 @@ implemented incrementally without replacing the current Passenger architecture.
    behavior; future changes should be tested as guardrails, not as a new navigation model.
 6. **Accessibility and premium readability** — larger type options, high contrast, reduced motion,
    stable 48–56px touch targets, color-independent states and tablet QA in both orientations.
-7. **Richer Now Playing** — optional visual polish around artwork, metadata and playback context;
+7. **Future Now Playing refinements** — optional improvements beyond the approved Music Reload pass;
    the existing Spotify controls remain the source of truth.
 8. **Remember STREEX / end-of-ride handoff** — do not infer passenger departure from GPS. Use the
    driver/session reset signal and the existing idle flow to surface QR, contact, review and tip

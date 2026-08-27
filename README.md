@@ -286,8 +286,9 @@ bun run optimize:images
 
 The canonical Passenger roadmap is intentionally maintained separately in
 `docs/PROJECT_CONTEXT.md#passenger-roadmap-order`. It covers Lite stabilization, the Music-first
-idle experience, Passenger analytics, Fully Kiosk readiness, Driver MC, Music, Climate, Around You
-and later passenger-specific work. Do not add Passenger requests to the Rides/Calendar roadmap.
+idle experience, Passenger analytics, Fully Kiosk readiness, themes, Driver MC, Around You and later
+passenger-specific work. Music Reload and Climate Premium are already part of the approved current
+baseline, not pending roadmap entries. Do not add Passenger requests to the Rides/Calendar roadmap.
 
 ### Google Calendar integration
 
