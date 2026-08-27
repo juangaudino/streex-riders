@@ -2242,7 +2242,7 @@ function MusicVisualizer({ active, compact = false }: { active: boolean; compact
         compact ? " passenger-music-visualizer--compact" : ""
       }`}
     >
-      {Array.from({ length: compact ? 14 : 26 }, (_, index) => (
+      {Array.from({ length: compact ? 28 : 26 }, (_, index) => (
         <span
           key={index}
           style={{
