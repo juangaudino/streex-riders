@@ -1859,7 +1859,9 @@ function WeatherDetailDialog({
                         {weatherConditionLabel(current.condition, t)}
                       </p>
                     </div>
-                    <p className="mt-1 truncate text-sm text-white/55">{current.shortForecast}</p>
+                    {language === "en" ? (
+                      <p className="mt-1 truncate text-sm text-white/55">{current.shortForecast}</p>
+                    ) : null}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
