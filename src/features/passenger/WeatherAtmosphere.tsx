@@ -22,7 +22,7 @@ const BACKGROUNDS: Record<AtmosphereVariant, string> = {
   smoke: "radial-gradient(ellipse at 38% 12%, #35291e 0%, #11100e 74%)",
   "partly-cloudy-night": "radial-gradient(ellipse at 75% 12%, #131b33 0%, #080c18 72%)",
   cloudy: "radial-gradient(ellipse at 48% 16%, #1e2730 0%, #0a0d10 74%)",
-  clear: "radial-gradient(ellipse at 82% 10%, #1a1200 0%, #0b0b0b 68%)",
+  clear: "radial-gradient(ellipse at 82% 6%, #765500 0%, #241b00 42%, #0b0b0b 78%)",
 };
 
 type Drop = { x: number; y: number; len: number; speed: number; alpha: number };
@@ -260,7 +260,7 @@ export function WeatherAtmosphere({
         const reach = Math.hypot(width, height) * 1.2;
         for (let index = 0; index < 14; index += 1) {
           ctx.rotate((Math.PI * 2) / 14);
-          ctx.fillStyle = `rgba(255, 214, 120, ${index % 2 ? 0.03 : 0.06})`;
+          ctx.fillStyle = `rgba(255, 214, 120, ${index % 2 ? 0.09 : 0.17})`;
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(reach, reach * 0.06);

@@ -606,6 +606,8 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
       typeof window !== "undefined" &&
       new URLSearchParams(window.location.search).get("passenger-test") === "1",
   );
+  const [weatherAtmosphereTestOverride, setWeatherAtmosphereTestOverride] =
+    useState<AtmosphereVariant | null>(null);
   const [simulatedAroundYouPlaceId, setSimulatedAroundYouPlaceId] = useState<string | null>(null);
   const t = copy[language];
   const online = useOnlineStatus();
@@ -799,6 +801,8 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               weather={weather.snapshot}
               weatherCity={consoleConfig.weather.city}
               weatherStatus={weather.status}
+              weatherAtmosphereOverride={weatherAtmosphereTestOverride}
+              onWeatherAtmosphereOverrideChange={setWeatherAtmosphereTestOverride}
               t={t}
             />
           )}
@@ -929,6 +933,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           }}
           onResume={idleReset.resume}
           weather={weather.snapshot}
+          weatherAtmosphereOverride={weatherAtmosphereTestOverride}
         />
       )}
     </div>
@@ -945,6 +950,7 @@ function PassengerIdlePrompt({
   onExploreStreex,
   onResume,
   weather,
+  weatherAtmosphereOverride,
 }: {
   config: AppConfig;
   fallbackTemperatureFahrenheit: number;
@@ -955,6 +961,7 @@ function PassengerIdlePrompt({
   onExploreStreex: () => void;
   onResume: () => void;
   weather: PassengerWeatherSnapshot | null;
+  weatherAtmosphereOverride: AtmosphereVariant | null;
 }) {
   const primary = copy[language];
   const idleSecondaryRotation = useIdleSecondaryRotation(
@@ -1016,6 +1023,7 @@ function PassengerIdlePrompt({
           onExploreGame={onExploreGame}
           onExploreStreex={onExploreStreex}
           weather={weather}
+          weatherAtmosphereOverride={weatherAtmosphereOverride}
         />
 
         <div className="passenger-idle-ticker w-full" aria-hidden="true">
@@ -1165,6 +1173,7 @@ function IdleSecondaryRail({
   onExploreGame,
   onExploreStreex,
   weather,
+  weatherAtmosphereOverride,
 }: {
   config: AppConfig;
   fallbackTemperatureFahrenheit: number;
@@ -1174,15 +1183,18 @@ function IdleSecondaryRail({
   onExploreGame: () => void;
   onExploreStreex: () => void;
   weather: PassengerWeatherSnapshot | null;
+  weatherAtmosphereOverride: AtmosphereVariant | null;
 }) {
   const t = copy[language];
   const current = weather?.periods[0];
   const currentTemperature = current?.temperatureFahrenheit ?? fallbackTemperatureFahrenheit;
   const currentCondition = current?.condition ?? "unknown";
-  const weatherAtmosphere = atmosphereForWeather(
-    currentCondition,
-    current ? isNightAt(new Date(current.startTime), config.passengerConsole.clock.localTimeZone) : false,
-  );
+  const weatherAtmosphere =
+    weatherAtmosphereOverride ??
+    atmosphereForWeather(
+      currentCondition,
+      current ? isNightAt(new Date(current.startTime), config.passengerConsole.clock.localTimeZone) : false,
+    );
   const hourlyForecast = weather?.periods.slice(1, 5) ?? [];
   const dailyForecast = weather?.dailyPeriods?.slice(0, 4) ?? [];
   if (feature === "game") {
@@ -1288,7 +1300,7 @@ function IdleSecondaryRail({
 
   return (
     <section className="passenger-idle-secondary passenger-idle-secondary--weather passenger-idle-secondary--forecast" aria-label={forecastTitle}>
-      <WeatherAtmosphere variant={weatherAtmosphere} className="opacity-90" />
+      <WeatherAtmosphere variant={weatherAtmosphere} />
       <div className="relative z-10 flex min-w-0 items-center gap-4 px-6 py-4 sm:px-8">
         <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-[#E6CE20]">
           <WeatherConditionIcon condition={currentCondition} className="h-6 w-6" />
@@ -1540,6 +1552,8 @@ function HomeView({
   weather,
   weatherCity,
   weatherStatus,
+  weatherAtmosphereOverride,
+  onWeatherAtmosphereOverrideChange,
   t,
 }: {
   aroundYou: import("./around-you/around-you-types").AroundYouEngineState;
@@ -1552,6 +1566,8 @@ function HomeView({
   weather: PassengerWeatherSnapshot | null;
   weatherCity: string;
   weatherStatus: PassengerWeatherStatus;
+  weatherAtmosphereOverride: AtmosphereVariant | null;
+  onWeatherAtmosphereOverrideChange: (value: AtmosphereVariant | null) => void;
   t: (typeof copy)[Language];
 }) {
   const now = useClock();
@@ -1601,10 +1617,12 @@ function HomeView({
       ? `${Math.round(((temperatureFahrenheit - 32) * 5) / 9)}°C`
       : `${Math.round(temperatureFahrenheit)}°F`;
   const homeCurrentWeather = weather?.periods[0];
-  const homeAtmosphere = atmosphereForWeather(
-    homeCurrentWeather?.condition ?? "clear",
-    isNightAt(now, clockConfig.localTimeZone),
-  );
+  const homeAtmosphere =
+    weatherAtmosphereOverride ??
+    atmosphereForWeather(
+      homeCurrentWeather?.condition ?? "clear",
+      isNightAt(now, clockConfig.localTimeZone),
+    );
   const quickGamePresentation = getPassengerGamePresentation(quickGame, t);
 
   return (
@@ -1647,7 +1665,7 @@ function HomeView({
               aria-label={`${t.weather}: ${weatherCity}. ${t.weatherHint}`}
               className="passenger-home-weather relative isolate min-w-[208px] overflow-hidden rounded-2xl border border-white/10 bg-black/25 px-5 py-4 text-left backdrop-blur transition hover:border-[#E6CE20]/40 hover:bg-black/35 focus:outline-none focus:ring-2 focus:ring-[#E6CE20]/60"
             >
-              <WeatherAtmosphere variant={homeAtmosphere} className="opacity-90" />
+              <WeatherAtmosphere variant={homeAtmosphere} />
               <p className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/65">
                 {t.weather}
               </p>
@@ -1692,6 +1710,8 @@ function HomeView({
         weather={weather}
         weatherStatus={weatherStatus}
         timeZone={clockConfig.localTimeZone}
+        atmosphereOverride={weatherAtmosphereOverride}
+        onAtmosphereOverrideChange={onWeatherAtmosphereOverrideChange}
         t={t}
       />
 
@@ -1816,6 +1836,8 @@ function WeatherDetailDialog({
   language,
   onOpenChange,
   open,
+  atmosphereOverride,
+  onAtmosphereOverrideChange,
   timeZone,
   t,
   weather,
@@ -1826,6 +1848,8 @@ function WeatherDetailDialog({
   language: Language;
   onOpenChange: (open: boolean) => void;
   open: boolean;
+  atmosphereOverride: AtmosphereVariant | null;
+  onAtmosphereOverrideChange: (value: AtmosphereVariant | null) => void;
   timeZone: string;
   t: (typeof copy)[Language];
   weather: PassengerWeatherSnapshot | null;
@@ -1866,7 +1890,6 @@ function WeatherDetailDialog({
   const current = weather?.periods[0];
   const currentNight = current ? isNightAt(new Date(current.startTime), timeZone) : false;
   const automaticAtmosphere = atmosphereForWeather(current?.condition ?? "clear", currentNight);
-  const [atmosphereOverride, setAtmosphereOverride] = useState<AtmosphereVariant | null>(null);
   const atmosphere = atmosphereOverride ?? automaticAtmosphere;
   const updatedAt = weather
     ? new Date(weather.updatedAt).toLocaleTimeString(locale, {
@@ -1895,7 +1918,7 @@ function WeatherDetailDialog({
                 <button
                   key={option.id}
                   type="button"
-                  onClick={() => setAtmosphereOverride(option.id)}
+                  onClick={() => onAtmosphereOverrideChange(option.id)}
                   className={`rounded-full px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.08em] transition ${
                     atmosphere === option.id
                       ? "bg-[#E6CE20] text-black"
