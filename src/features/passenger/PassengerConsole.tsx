@@ -1867,10 +1867,7 @@ function WeatherDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="relative flex h-[min(40rem,calc(100dvh-3rem))] w-[min(calc(100vw-3rem),62rem)] max-w-none flex-col gap-3 overflow-hidden rounded-[30px] border-white/10 bg-[#0B0B0B] p-5 text-white sm:p-6"
-        style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}
-      >
+      <DialogContent className="relative flex max-h-[92vh] w-[calc(100%_-_2rem)] max-w-5xl flex-col gap-3 overflow-hidden rounded-[30px] border-white/10 bg-[#0B0B0B] p-5 text-white sm:p-6">
         <WeatherAtmosphere variant={atmosphere} className="rounded-[30px]" />
         <DialogHeader className="relative z-10">
           <div className="flex items-start justify-between gap-3">
