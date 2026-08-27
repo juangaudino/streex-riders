@@ -49,8 +49,8 @@ type SpotifySearchResponse = {
   error?: { message?: string };
 };
 
-type SpotifyPlaylistResponse = {
-  images?: Array<{ url?: string }>;
+type SpotifyOEmbedResponse = {
+  thumbnail_url?: string;
 };
 
 export type PersonalSpotifyPlayback = {
@@ -277,18 +277,18 @@ export async function searchSpotifyTracks(
 }
 
 export async function getSpotifyPlaylistArtwork(
-  accessToken: string,
   playlistIds: readonly string[],
 ): Promise<SpotifyPlaylistArtwork[]> {
   return Promise.all(
     playlistIds.map(async (playlistId) => {
       try {
-        const response = await spotifyFetch(`${SPOTIFY_API}/playlists/${playlistId}?fields=images(url)`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const playlistUrl = `https://open.spotify.com/playlist/${playlistId}`;
+        const response = await fetch(
+          `https://open.spotify.com/oembed?url=${encodeURIComponent(playlistUrl)}`,
+        );
         if (!response.ok) return { id: playlistId, artworkUrl: null };
-        const result = (await response.json()) as SpotifyPlaylistResponse;
-        return { id: playlistId, artworkUrl: result.images?.find((image) => image.url)?.url ?? null };
+        const result = (await response.json()) as SpotifyOEmbedResponse;
+        return { id: playlistId, artworkUrl: result.thumbnail_url ?? null };
       } catch {
         return { id: playlistId, artworkUrl: null };
       }

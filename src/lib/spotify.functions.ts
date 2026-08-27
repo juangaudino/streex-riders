@@ -160,7 +160,7 @@ export const getPersonalSpotifyPlaylistArtwork = createServerFn({ method: "POST"
     assertSpotifyPersonalIntegrationEnabled();
     assertPassengerConsoleSession();
     return {
-      playlists: await getSpotifyPlaylistArtwork(await getSpotifyCatalogAccessToken(), [
+      playlists: await getSpotifyPlaylistArtwork([
         "37i9dQZEVXbLRQDuF5jeBp",
         "37i9dQZEVXbMDoHDwVN2tF",
         "37i9dQZF1DXcBWIGoYBM5M",

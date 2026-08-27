@@ -9203,3 +9203,136 @@ button.passenger-idle-music {
     animation: none;
   }
 }
+
+/* Music horizontal authority. This is deliberately isolated from the idle
+   screen: album art, metadata, controls and the visualizer each get a stable
+   lane, rather than competing for the same flex column. */
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="music"] .passenger-music-header {
+    display: none !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr) !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
+    gap: clamp(0.9rem, 1.35vw, 1.35rem) !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playback {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-actions {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    margin: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search {
+    grid-column: 2 !important;
+    grid-row: 1 / 3 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready {
+    display: grid !important;
+    grid-template-columns: minmax(10.5rem, 0.82fr) minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
+    align-items: start !important;
+    gap: clamp(0.85rem, 1.45vw, 1.4rem) !important;
+    padding: clamp(1rem, 1.6vw, 1.6rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-art {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    align-self: stretch !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    aspect-ratio: 1 / 1 !important;
+    margin: 0 !important;
+    border-radius: clamp(1.1rem, 1.7vw, 1.55rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-copy {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    min-height: 0 !important;
+    justify-content: flex-start !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-track-title {
+    display: -webkit-box !important;
+    min-height: 0 !important;
+    margin: 0.55rem 0 0 !important;
+    overflow: hidden !important;
+    font-size: clamp(1.42rem, 2.25vw, 2.35rem) !important;
+    line-height: 1.04 !important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-track-artist {
+    margin-top: clamp(0.7rem, 1.25dvh, 1rem) !important;
+    font-size: clamp(0.95rem, 1.25vw, 1.15rem) !important;
+    color: rgb(255 255 255 / 0.78) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-track-album {
+    display: -webkit-box !important;
+    overflow: hidden !important;
+    font-size: clamp(0.76rem, 1.05vw, 0.95rem) !important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-device {
+    margin-top: auto !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playing-status {
+    margin-top: clamp(0.75rem, 1.5dvh, 1.15rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-progress {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-controls {
+    margin-top: clamp(0.85rem, 1.8dvh, 1.4rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > .passenger-music-visualizer {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    height: clamp(4.8rem, 11dvh, 7.5rem) !important;
+    margin: 0.15rem 0 0 !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > .passenger-music-visualizer > span {
+    max-width: none !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-collections > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: clamp(0.55rem, 0.85vw, 0.85rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playlist-card {
+    min-height: clamp(8.75rem, 21dvh, 11.5rem) !important;
+    padding: clamp(0.75rem, 1vw, 1rem) !important;
+  }
+}

@@ -2726,28 +2726,32 @@ function PersonalSpotifyMusicView({
           ) : (
             <div className="passenger-music-now-playing-art relative h-52 w-52 shrink-0 rounded-[28px] bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700 shadow-2xl" />
           )}
-          <div className="relative flex min-w-0 flex-1 flex-col justify-center self-stretch">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+          <div className="passenger-music-now-playing-copy relative flex min-w-0 flex-1 flex-col justify-center self-stretch">
+            <p className="passenger-music-now-playing-eyebrow text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}
             </p>
-            <p className="passenger-music-track-title mt-2 line-clamp-2 text-2xl font-black leading-tight tracking-tight">
+            <p className="passenger-music-track-title mt-2 font-black leading-[1.04] tracking-tight">
               {playback.track?.title ?? t.chooseMusic}
             </p>
-            <p className="mt-1 line-clamp-2 text-sm leading-snug text-white/60">
-              {playback.track
-                ? `${playback.track.artist}${playback.track.album ? ` · ${playback.track.album}` : ""}`
-                : t.spotifyNoDevice}
+            <p className="passenger-music-track-artist mt-4 text-sm leading-snug text-white/75">
+              {playback.track?.artist ?? t.spotifyNoDevice}
             </p>
-            <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
+            {playback.track?.album && (
+              <p className="passenger-music-track-album mt-1 text-xs leading-snug text-white/50">
+                {playback.track.album}
+              </p>
+            )}
+            <p className="passenger-music-device mt-4 inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-black/20 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/65">
+              <Music2 className="h-3.5 w-3.5 text-[#E6CE20]" />
               {t.spotifyDevice}: {playback.hasActiveDevice ? t.spotifyActive : "—"}
             </p>
             {playback.track ? (
               <>
-                <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#E6CE20]">
+                <p className="passenger-music-playing-status mt-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#E6CE20]">
                   {playback.isPlaying ? t.spotifyPlaying : t.spotifyPaused}
                 </p>
                 {trackProgress !== null && (
-                  <div className="mt-3 max-w-md" aria-label={`${formatSpotifyDuration(liveProgressMs)} of ${formatSpotifyDuration(playback.track.durationMs)}`}>
+                  <div className="passenger-music-progress mt-3 max-w-md" aria-label={`${formatSpotifyDuration(liveProgressMs)} of ${formatSpotifyDuration(playback.track.durationMs)}`}>
                     <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
                       <div className="h-full rounded-full bg-[#E6CE20] transition-[width] duration-500" style={{ width: `${trackProgress}%` }} />
                     </div>
@@ -2764,7 +2768,7 @@ function PersonalSpotifyMusicView({
                 <p className="mt-1 text-xs leading-relaxed text-white/55">{t.spotifyNoTrackDescription}</p>
               </div>
             )}
-            <div className="mt-5 flex gap-3">
+            <div className="passenger-music-controls mt-5 flex gap-3">
               <button
                 type="button"
                 disabled={busy || !playback.hasActiveDevice}
@@ -2788,8 +2792,8 @@ function PersonalSpotifyMusicView({
                 <SkipForward className="h-5 w-5" />
               </button>
             </div>
-            <MusicVisualizer active={Boolean(playback.isPlaying)} palette={artworkPalette} />
           </div>
+          <MusicVisualizer active={Boolean(playback.isPlaying)} palette={artworkPalette} />
         </section>
       ) : (
         <section className="passenger-music-playback passenger-music-now-playing flex min-h-[280px] flex-col items-center justify-center rounded-[28px] border border-white/10 bg-white/[0.05] p-5 text-sm text-white/60">
