@@ -2513,21 +2513,32 @@ function PersonalSpotifyHomeCard({
 }
 
 function FittedMusicTrackTitle({ title }: { title: string }) {
-  const titleRef = useRef<HTMLParagraphElement>(null);
+  const viewportRef = useRef<HTMLParagraphElement>(null);
+  const itemRef = useRef<HTMLSpanElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  const [durationSeconds, setDurationSeconds] = useState(24);
 
   useEffect(() => {
-    const element = titleRef.current;
-    if (!element) return;
+    const viewport = viewportRef.current;
+    const item = itemRef.current;
+    if (!viewport || !item) return;
 
     let frame = 0;
     const fit = () => {
-      element.style.setProperty("--passenger-track-title-size", "2.2rem");
+      viewport.style.setProperty("--passenger-track-title-size", "2.2rem");
       const minimumSize = 1.5;
       let size = 2.2;
 
-      while (element.scrollWidth > element.clientWidth && size > minimumSize) {
+      while (item.scrollWidth > viewport.clientWidth && size > minimumSize) {
         size = Math.max(minimumSize, Number((size - 0.05).toFixed(2)));
-        element.style.setProperty("--passenger-track-title-size", `${size}rem`);
+        viewport.style.setProperty("--passenger-track-title-size", `${size}rem`);
+      }
+
+      const hasOverflow = item.scrollWidth > viewport.clientWidth + 1;
+      setOverflows(hasOverflow);
+      if (hasOverflow) {
+        const travelDistance = item.scrollWidth + 48;
+        setDurationSeconds(Math.max(24, Math.min(46, Math.round(travelDistance / 26 + 8))));
       }
     };
 
@@ -2537,7 +2548,8 @@ function FittedMusicTrackTitle({ title }: { title: string }) {
     };
 
     const observer = new ResizeObserver(scheduleFit);
-    observer.observe(element);
+    observer.observe(viewport);
+    observer.observe(item);
     window.addEventListener("resize", scheduleFit);
     void document.fonts?.ready.then(scheduleFit).catch(() => undefined);
     scheduleFit();
@@ -2550,8 +2562,20 @@ function FittedMusicTrackTitle({ title }: { title: string }) {
   }, [title]);
 
   return (
-    <p ref={titleRef} className="passenger-music-track-title mt-2 font-black leading-[1.04] tracking-tight">
-      {title}
+    <p ref={viewportRef} className="passenger-music-track-title mt-2 font-black leading-[1.04] tracking-tight">
+      <span
+        className={`passenger-music-title-marquee-track${overflows ? " is-active" : ""}`}
+        style={
+          overflows
+            ? ({ "--passenger-marquee-duration": `${durationSeconds}s` } as React.CSSProperties)
+            : undefined
+        }
+      >
+        <span ref={itemRef} className="passenger-music-title-marquee-item">
+          {title}
+        </span>
+        {overflows ? <span aria-hidden="true" className="passenger-music-title-marquee-item">{title}</span> : null}
+      </span>
     </p>
   );
 }
@@ -2761,6 +2785,12 @@ function PersonalSpotifyMusicView({
       ) : playback ? (
         <section className="passenger-music-playback passenger-music-now-playing passenger-music-now-playing-ready relative flex min-h-[286px] items-center gap-6 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.13] p-7 text-left">
           <span className="passenger-music-ambient-orb absolute -right-14 -top-20 h-56 w-56 rounded-full blur-3xl" />
+          <span aria-hidden="true" className="passenger-music-stage-lights">
+            <span className="passenger-music-stage-light passenger-music-stage-light--one" />
+            <span className="passenger-music-stage-light passenger-music-stage-light--two" />
+            <span className="passenger-music-stage-light passenger-music-stage-light--three" />
+            <span className="passenger-music-stage-light passenger-music-stage-light--four" />
+          </span>
           <div className="passenger-music-player-header relative min-w-0">
             <p className="passenger-music-now-playing-eyebrow text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}
@@ -2786,10 +2816,6 @@ function PersonalSpotifyMusicView({
                 {playback.track.album}
               </p>
             )}
-            <p className="passenger-music-device mt-4 inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-black/20 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/65">
-              <Music2 className="h-3.5 w-3.5 text-[#E6CE20]" />
-              {t.spotifyDevice}: {playback.hasActiveDevice ? t.spotifyActive : "—"}
-            </p>
             {playback.track ? (
               <>
                 <p className="passenger-music-playing-status mt-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#E6CE20]">
