@@ -57,6 +57,7 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   controlPersonalSpotifyPlayback,
   getPersonalSpotifyPlayback,
+  getPersonalSpotifyPlaylistArtwork,
   playPersonalSpotifyTrack,
   searchPersonalSpotifyTracks,
 } from "@/lib/spotify.functions";
@@ -1398,9 +1399,9 @@ function IdleSpotifyNowPlaying({
               ? t.idleMusicPrompt
               : t.idleMusicReady}
         </span>
-        <ResponsiveTrackTitle className="passenger-idle-track-title mt-4 text-3xl font-black leading-tight tracking-tight sm:text-4xl">
+        <SpotifyMarquee className="passenger-idle-track-title mt-4 text-3xl font-black leading-tight tracking-tight sm:text-4xl">
           {track?.title ?? t.idleChooseMusic}
-        </ResponsiveTrackTitle>
+        </SpotifyMarquee>
         <span className="passenger-idle-track-subtitle mt-3 text-lg text-white/55">
           {track
             ? `${track.artist}${track.album ? ` · ${track.album}` : ""}`
@@ -2159,16 +2160,19 @@ const MUSIC_DISCOVERY_COLLECTIONS = [
   {
     accent: "#E6CE20",
     labelKey: "vibeTopUs",
+    playlistId: "37i9dQZEVXbLRQDuF5jeBp",
     query: "spotify top 50 usa",
   },
   {
     accent: "#7ED957",
     labelKey: "vibeTopGlobal",
+    playlistId: "37i9dQZEVXbMDoHDwVN2tF",
     query: "spotify top 50 global",
   },
   {
     accent: "#FF6B6B",
     labelKey: "vibeToday",
+    playlistId: "37i9dQZF1DXcBWIGoYBM5M",
     query: "today's top hits",
   },
 ] as const;
@@ -2353,7 +2357,7 @@ function MusicVisualizer({
   );
 }
 
-function ResponsiveTrackTitle({
+function SpotifyMarquee({
   children,
   className,
 }: {
@@ -2361,39 +2365,48 @@ function ResponsiveTrackTitle({
   className?: string;
 }) {
   const viewportRef = useRef<HTMLSpanElement | null>(null);
-  const measureRef = useRef<HTMLSpanElement | null>(null);
-  const [fontSize, setFontSize] = useState(2.2);
-  const [truncated, setTruncated] = useState(false);
+  const itemRef = useRef<HTMLSpanElement | null>(null);
+  const [overflows, setOverflows] = useState(false);
+  const [durationSeconds, setDurationSeconds] = useState(24);
 
   useEffect(() => {
     const viewport = viewportRef.current;
-    const measureItem = measureRef.current;
-    if (!viewport || !measureItem) return;
+    const item = itemRef.current;
+    if (!viewport || !item) return;
 
     const measure = () => {
-      const availableWidth = viewport.clientWidth;
-      const requiredWidth = measureItem.scrollWidth;
-      const nextFontSize = Math.max(1.5, Math.min(2.2, (2.2 * availableWidth) / requiredWidth));
-      setFontSize(nextFontSize);
-      setTruncated(requiredWidth * (nextFontSize / 2.2) > availableWidth + 1);
+      const hasOverflow = item.scrollWidth > viewport.clientWidth + 1;
+      setOverflows(hasOverflow);
+      if (hasOverflow) {
+        const travelDistance = item.scrollWidth + 48;
+        setDurationSeconds(Math.max(24, Math.min(46, Math.round(travelDistance / 26 + 8))));
+      }
     };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(viewport);
-    observer.observe(measureItem);
+    observer.observe(item);
     return () => observer.disconnect();
   }, [children]);
 
   return (
-    <span ref={viewportRef} className={`passenger-track-title-fit ${className ?? ""}`}>
+    <span ref={viewportRef} className={`passenger-idle-marquee ${className ?? ""}`}>
       <span
-        className={`passenger-track-title-fit__visible${truncated ? " is-truncated" : ""}`}
-        style={{ "--passenger-track-title-size": `${fontSize}rem` } as React.CSSProperties}
+        className={`passenger-idle-marquee-track${overflows ? " is-active" : ""}`}
+        style={
+          overflows
+            ? ({ "--passenger-marquee-duration": `${durationSeconds}s` } as React.CSSProperties)
+            : undefined
+        }
       >
-        {children}
-      </span>
-      <span ref={measureRef} aria-hidden="true" className="passenger-track-title-fit__measure">
-        {children}
+        <span ref={itemRef} className="passenger-idle-marquee-item">
+          {children}
+        </span>
+        {overflows ? (
+          <span aria-hidden="true" className="passenger-idle-marquee-item">
+            {children}
+          </span>
+        ) : null}
       </span>
     </span>
   );
@@ -2523,6 +2536,7 @@ function PersonalSpotifyMusicView({
   const [results, setResults] = useState<SpotifySearchTrack[]>([]);
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
+  const [playlistArtwork, setPlaylistArtwork] = useState<Record<string, string | null>>({});
 
   const refresh = useCallback(
     async (silent = false) => {
@@ -2556,6 +2570,25 @@ function PersonalSpotifyMusicView({
       document.removeEventListener("visibilitychange", refreshOnVisible);
     };
   }, [refresh]);
+
+  useEffect(() => {
+    if (status?.state !== "ready") return;
+    let active = true;
+    void getPersonalSpotifyPlaylistArtwork({ data: {} })
+      .then((response) => {
+        if (active) {
+          setPlaylistArtwork(
+            Object.fromEntries(response.playlists.map((playlist) => [playlist.id, playlist.artworkUrl])),
+          );
+        }
+      })
+      .catch(() => {
+        // Covers are optional: Spotify playback and search must remain independent.
+      });
+    return () => {
+      active = false;
+    };
+  }, [status?.state]);
 
   const trackKey = (playbackStatus: SpotifyPlaybackState | null) => {
     if (playbackStatus?.state !== "ready" || !playbackStatus.playback.track) return null;
@@ -2697,9 +2730,9 @@ function PersonalSpotifyMusicView({
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}
             </p>
-            <ResponsiveTrackTitle className="passenger-music-track-title mt-2 block font-black leading-tight tracking-tight">
+            <p className="passenger-music-track-title mt-2 line-clamp-2 text-2xl font-black leading-tight tracking-tight">
               {playback.track?.title ?? t.chooseMusic}
-            </ResponsiveTrackTitle>
+            </p>
             <p className="mt-1 line-clamp-2 text-sm leading-snug text-white/60">
               {playback.track
                 ? `${playback.track.artist}${playback.track.album ? ` · ${playback.track.album}` : ""}`
@@ -2826,6 +2859,7 @@ function PersonalSpotifyMusicView({
             <div className="passenger-music-collections mt-5">
               <div className="mt-3 grid gap-3">
                 {MUSIC_DISCOVERY_COLLECTIONS.map((collection) => {
+                  const artworkUrl = playlistArtwork[collection.playlistId];
                   return (
                     <button
                       key={collection.query}
@@ -2837,6 +2871,13 @@ function PersonalSpotifyMusicView({
                         "--collection-accent": collection.accent,
                       } as React.CSSProperties}
                     >
+                      {artworkUrl ? (
+                        <img
+                          src={artworkUrl}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      ) : null}
                       <span className="passenger-music-playlist-card__overlay absolute inset-0" />
                       <span className="relative z-10 mt-auto min-w-0 pr-8 text-base font-black text-white">
                         {t[collection.labelKey]}

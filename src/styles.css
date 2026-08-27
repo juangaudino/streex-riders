@@ -9115,31 +9115,41 @@ button.passenger-idle-music {
   }
 }
 
-/* Track titles remain still and use the same fit-to-width rule in the Music
-   screen and Music-first idle card. */
-.passenger-track-title-fit {
+/* Idle remains Music-first; overflow activates a calm marquee only when a
+   title genuinely needs it. The Music screen keeps its independent hierarchy. */
+.passenger-idle-marquee {
   display: block;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
 }
 
-.passenger-track-title-fit__visible {
-  display: block;
-  width: 100%;
-  overflow: hidden;
-  font-size: var(--passenger-track-title-size, 2.2rem) !important;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.passenger-idle-marquee-track {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
 }
 
-.passenger-track-title-fit__measure {
-  position: absolute;
-  visibility: hidden;
-  width: max-content;
-  max-width: none;
-  font-size: 2.2rem !important;
-  white-space: nowrap;
+.passenger-idle-marquee-item {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.passenger-idle-marquee-track.is-active {
+  gap: 3rem;
+  animation: passenger-idle-marquee-scroll var(--passenger-marquee-duration, 24s) linear infinite;
+}
+
+@keyframes passenger-idle-marquee-scroll {
+  0%,
+  7% {
+    transform: translateX(0);
+  }
+
+  90%,
+  100% {
+    transform: translateX(calc(-50% - 1.5rem));
+  }
 }
 
 .passenger-music-playlist-card {
@@ -9174,11 +9184,6 @@ button.passenger-idle-music {
     margin-top: 0.55rem !important;
   }
 
-  .passenger-console-shell[data-view="music"] .passenger-music-track-title {
-    min-height: 1.18em;
-    max-height: 1.18em;
-  }
-
   .passenger-idle-content--music .passenger-idle-track-copy > .passenger-idle-track-subtitle {
     display: block !important;
     min-height: 1.55em;
@@ -9190,5 +9195,11 @@ button.passenger-idle-music {
 
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing::before {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .passenger-idle-marquee-track.is-active {
+    animation: none;
   }
 }
