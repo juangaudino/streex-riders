@@ -172,8 +172,10 @@ const copy = {
     weather: "Weather",
     weatherHint: "Tap for the forecast",
     weatherDetailTitle: "Weather forecast",
-    weatherDetailDescription: "A quick look at the next few hours in",
+    weatherDetailDescription: "Live conditions and a short outlook for",
+    weatherNow: "Right now",
     nextHours: "Next few hours",
+    nextDays: "Next 4 days",
     precipitation: "Precipitation",
     wind: "Wind",
     updated: "Updated",
@@ -368,8 +370,10 @@ const copy = {
     weather: "Clima",
     weatherHint: "Toca para ver el pronóstico",
     weatherDetailTitle: "Pronóstico del clima",
-    weatherDetailDescription: "Una vista rápida de las próximas horas en",
+    weatherDetailDescription: "Condiciones en vivo y un vistazo rápido para",
+    weatherNow: "Ahora",
     nextHours: "Próximas horas",
+    nextDays: "Próximos 4 días",
     precipitation: "Precipitación",
     wind: "Viento",
     updated: "Actualizado",
@@ -1785,12 +1789,28 @@ function WeatherDetailDialog({
   const forecast = (weather?.periods ?? []).slice(0, 4).map((period) => {
     const forecastDate = new Date(period.startTime);
     return {
-      label: forecastDate.toLocaleTimeString("en-US", {
+      label: forecastDate.toLocaleTimeString(locale, {
         hour: "numeric",
         timeZone,
       }),
       temperature: formatTemperature(period.temperatureFahrenheit),
-      condition: weatherConditionLabel(period.condition, t),
+      period,
+    };
+  });
+  const dailyForecast = (weather?.dailyPeriods ?? []).slice(0, 4).map((period) => {
+    const forecastDate = new Date(period.startTime);
+    return {
+      label: forecastDate.toLocaleDateString(locale, {
+        weekday: "short",
+        timeZone,
+      }),
+      date: forecastDate.toLocaleDateString(locale, {
+        month: "short",
+        day: "numeric",
+        timeZone,
+      }),
+      temperature: formatTemperature(period.temperatureFahrenheit),
+      period,
     };
   });
   const current = weather?.periods[0];
@@ -1804,7 +1824,7 @@ function WeatherDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100%_-_2rem)] max-w-xl rounded-[28px] border-white/10 bg-[#151515] text-white">
+      <DialogContent className="w-[calc(100%_-_2rem)] max-w-5xl rounded-[30px] border-white/10 bg-[#121212] p-6 text-white sm:p-7">
         <DialogHeader>
           <DialogTitle className="text-left text-2xl font-extrabold">
             {t.weatherDetailTitle}
@@ -1816,21 +1836,45 @@ function WeatherDetailDialog({
 
         {current ? (
           <>
-            <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-              <WeatherMetric
-                label={t.weather}
-                value={weatherConditionLabel(current.condition, t)}
-              />
-              <WeatherMetric
-                label={t.precipitation}
-                value={
-                  current.precipitationChance === null ? "—" : `${current.precipitationChance}%`
-                }
-              />
-              <WeatherMetric
-                label={t.wind}
-                value={[current.windDirection, current.windSpeed].filter(Boolean).join(" ") || "—"}
-              />
+            <div className="relative overflow-hidden rounded-[26px] border border-[#E6CE20]/25 bg-gradient-to-br from-[#E6CE20]/20 via-[#252116] to-[#101010] p-5">
+              <div className="absolute -right-12 -top-16 h-48 w-48 rounded-full bg-[#E6CE20]/20 blur-3xl" />
+              <div className="relative grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(250px,0.85fr)] sm:items-center">
+                <div className="flex min-w-0 items-center gap-4">
+                  <span className="grid h-20 w-20 shrink-0 place-items-center rounded-[24px] border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-[#E6CE20] shadow-[0_0_32px_rgba(230,206,32,0.13)]">
+                    <WeatherConditionIcon
+                      condition={current.condition}
+                      className="h-10 w-10"
+                      night={isNightAt(new Date(current.startTime), timeZone)}
+                    />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E6CE20]">
+                      {t.weatherNow} · {city}
+                    </p>
+                    <div className="mt-1 flex items-baseline gap-3">
+                      <p className="text-5xl font-black tracking-tight sm:text-6xl">
+                        {formatTemperature(current.temperatureFahrenheit)}
+                      </p>
+                      <p className="truncate text-base font-semibold text-white/80">
+                        {weatherConditionLabel(current.condition, t)}
+                      </p>
+                    </div>
+                    <p className="mt-1 truncate text-sm text-white/55">{current.shortForecast}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+                  <WeatherMetric
+                    label={t.precipitation}
+                    value={
+                      current.precipitationChance === null ? "—" : `${current.precipitationChance}%`
+                    }
+                  />
+                  <WeatherMetric
+                    label={t.wind}
+                    value={[current.windDirection, current.windSpeed].filter(Boolean).join(" ") || "—"}
+                  />
+                </div>
+              </div>
             </div>
 
             <div>
@@ -1841,15 +1885,51 @@ function WeatherDetailDialog({
                 {forecast.map((hour, index) => (
                   <div
                     key={`${hour.label}-${index}`}
-                    className="rounded-2xl border border-white/10 bg-white/[0.035] p-3"
+                    className="rounded-2xl border border-white/10 bg-white/[0.035] p-3.5"
                   >
                     <p className="text-xs font-semibold text-white/55">{hour.label}</p>
-                    <p className="mt-2 text-xl font-bold">{hour.temperature}</p>
-                    <p className="mt-1 text-[10px] leading-tight text-white/50">{hour.condition}</p>
+                    <WeatherConditionIcon
+                      condition={hour.period.condition}
+                      className="mt-3 h-5 w-5 text-[#E6CE20]"
+                      night={isNightAt(new Date(hour.period.startTime), timeZone)}
+                    />
+                    <p className="mt-3 text-xl font-bold">{hour.temperature}</p>
+                    <p className="mt-1 truncate text-[10px] leading-tight text-white/50">
+                      {weatherConditionLabel(hour.period.condition, t)}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
+
+            {dailyForecast.length > 0 ? (
+              <div>
+                <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+                  {t.nextDays}
+                </p>
+                <div className="grid grid-cols-4 gap-2">
+                  {dailyForecast.map((day, index) => (
+                    <div
+                      key={`${day.period.startTime}-${index}`}
+                      className="rounded-2xl border border-white/10 bg-white/[0.025] p-3.5"
+                    >
+                      <p className="truncate text-xs font-bold capitalize text-white/80">{day.label}</p>
+                      <p className="mt-0.5 text-[10px] text-white/45">{day.date}</p>
+                      <div className="mt-3 flex items-center justify-between gap-2">
+                        <WeatherConditionIcon
+                          condition={day.period.condition}
+                          className="h-5 w-5 shrink-0 text-[#E6CE20]"
+                        />
+                        <p className="text-xl font-bold">{day.temperature}</p>
+                      </div>
+                      <p className="mt-2 truncate text-[10px] text-white/50">
+                        {weatherConditionLabel(day.period.condition, t)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </>
         ) : (
           <div className="rounded-2xl border border-[#E6CE20]/25 bg-[#E6CE20]/[0.06] p-4">
