@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { PassengerLocationState, PassengerPosition } from "./around-you-types";
 import {
   isImplausiblePassengerJump,
@@ -7,6 +7,7 @@ import {
 } from "./around-you-utils";
 
 export type PassengerGeolocationOptions = {
+  samplingIntervalMs: number;
   enableHighAccuracy: boolean;
   timeoutMs: number;
   maximumAgeMs: number;
@@ -41,22 +42,14 @@ export function usePassengerLocation({
   options: PassengerGeolocationOptions;
 }): PassengerLocationState {
   const [state, setState] = useState<PassengerLocationState>(INITIAL_STATE);
-  const watchIdRef = useRef<number | null>(null);
   const lastAcceptedRef = useRef<PassengerPosition | null>(null);
   const lastGoodRef = useRef<PassengerPosition | null>(null);
-
-  const clearWatcher = useCallback(() => {
-    if (watchIdRef.current === null || typeof navigator === "undefined") return;
-    navigator.geolocation.clearWatch(watchIdRef.current);
-    watchIdRef.current = null;
-  }, []);
+  const lastRequestedAtRef = useRef<number | null>(null);
+  const requestPendingRef = useRef(false);
 
   useEffect(() => {
     if (!enabled) {
-      clearWatcher();
       setState(INITIAL_STATE);
-      lastAcceptedRef.current = null;
-      lastGoodRef.current = null;
       return;
     }
     if (typeof window === "undefined" || typeof navigator === "undefined") return;
@@ -79,6 +72,7 @@ export function usePassengerLocation({
     };
 
     const handlePosition = (browserPosition: GeolocationPosition) => {
+      requestPendingRef.current = false;
       if (disposed) return;
       const candidate = toPassengerPosition(browserPosition);
       const previous = lastAcceptedRef.current;
@@ -116,6 +110,7 @@ export function usePassengerLocation({
     };
 
     const handleError = (error: GeolocationPositionError) => {
+      requestPendingRef.current = false;
       if (disposed) return;
       if (error.code === error.PERMISSION_DENIED) {
         publishLastGood("denied");
@@ -124,27 +119,72 @@ export function usePassengerLocation({
       }
     };
 
-    const startWatcher = () => {
-      if (watchIdRef.current !== null || document.visibilityState === "hidden") return;
+    const samplingIntervalMs = Math.max(60_000, options.samplingIntervalMs);
+    let samplingTimer: number | null = null;
+
+    const clearSamplingTimer = () => {
+      if (samplingTimer === null) return;
+      window.clearTimeout(samplingTimer);
+      samplingTimer = null;
+    };
+
+    const requestPosition = () => {
+      if (disposed || document.visibilityState === "hidden" || requestPendingRef.current) return;
+      const now = Date.now();
+      const lastRequestedAt = lastRequestedAtRef.current;
+      if (lastRequestedAt !== null && now - lastRequestedAt < samplingIntervalMs) {
+        const usable = isPassengerPositionFresh(
+          lastGoodRef.current,
+          now,
+          options.maximumLastGoodPositionAgeMs,
+        );
+        publishLastGood(lastGoodRef.current ? (usable ? "ready" : "stale") : "idle");
+        return;
+      }
       if (!lastGoodRef.current) {
         setState({ status: "requesting", position: null, lastGoodPositionAgeMs: null });
+      } else {
+        publishLastGood("ready");
       }
-      watchIdRef.current = navigator.geolocation.watchPosition(handlePosition, handleError, {
+      lastRequestedAtRef.current = now;
+      requestPendingRef.current = true;
+      navigator.geolocation.getCurrentPosition(handlePosition, handleError, {
         enableHighAccuracy: options.enableHighAccuracy,
         timeout: options.timeoutMs,
         maximumAge: options.maximumAgeMs,
       });
     };
 
+    const scheduleNextSample = () => {
+      clearSamplingTimer();
+      if (disposed || document.visibilityState === "hidden") return;
+      const lastRequestedAt = lastRequestedAtRef.current;
+      const elapsed = lastRequestedAt === null ? samplingIntervalMs : Date.now() - lastRequestedAt;
+      const delay = requestPendingRef.current
+        ? Math.min(15_000, samplingIntervalMs)
+        : Math.max(0, samplingIntervalMs - elapsed);
+      samplingTimer = window.setTimeout(() => {
+        requestPosition();
+        scheduleNextSample();
+      }, delay);
+    };
+
+    const startSampling = () => {
+      if (document.visibilityState === "hidden") return;
+      publishLastGood(lastGoodRef.current ? "ready" : "idle");
+      requestPosition();
+      scheduleNextSample();
+    };
+
     const handleVisibility = () => {
       if (document.visibilityState === "hidden") {
-        clearWatcher();
+        clearSamplingTimer();
       } else {
-        startWatcher();
+        startSampling();
       }
     };
 
-    startWatcher();
+    startSampling();
     document.addEventListener("visibilitychange", handleVisibility);
     const freshnessTimer = window.setInterval(
       () => {
@@ -155,17 +195,17 @@ export function usePassengerLocation({
           setState({ status: "stale", position: null, lastGoodPositionAgeMs: age });
         }
       },
-      Math.max(2_000, Math.min(10_000, options.maximumLastGoodPositionAgeMs / 2)),
+      Math.max(10_000, Math.min(60_000, options.maximumLastGoodPositionAgeMs / 2)),
     );
 
     return () => {
       disposed = true;
       document.removeEventListener("visibilitychange", handleVisibility);
       window.clearInterval(freshnessTimer);
-      clearWatcher();
+      clearSamplingTimer();
+      requestPendingRef.current = false;
     };
   }, [
-    clearWatcher,
     enabled,
     options.enableHighAccuracy,
     options.materialAccuracyImprovementMeters,
@@ -175,6 +215,7 @@ export function usePassengerLocation({
     options.maximumUsableAccuracyMeters,
     options.minimumAcceptedIntervalMs,
     options.minimumMovementMeters,
+    options.samplingIntervalMs,
     options.timeoutMs,
   ]);
 

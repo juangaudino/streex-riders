@@ -34,15 +34,18 @@ const RAIN_ANGLE = (15 * Math.PI) / 180;
 
 export function WeatherAtmosphere({
   variant,
+  active = true,
   className = "",
 }: {
   variant: AtmosphereVariant;
+  active?: boolean;
   className?: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const flashRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    if (!active) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -124,7 +127,7 @@ export function WeatherAtmosphere({
     resize();
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
-    let frameId = 0;
+    let frameId: number | null = null;
     let last = performance.now();
     let nextStrike = performance.now() + 2500 + Math.random() * 3500;
 
@@ -273,12 +276,32 @@ export function WeatherAtmosphere({
       frameId = requestAnimationFrame(draw);
     };
 
-    frameId = requestAnimationFrame(draw);
-    return () => {
+    const startAnimation = () => {
+      if (frameId !== null || document.visibilityState === "hidden") return;
+      last = performance.now();
+      frameId = requestAnimationFrame(draw);
+    };
+    const stopAnimation = () => {
+      if (frameId === null) return;
       cancelAnimationFrame(frameId);
+      frameId = null;
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        stopAnimation();
+      } else {
+        startAnimation();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    startAnimation();
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      stopAnimation();
       observer.disconnect();
     };
-  }, [variant]);
+  }, [active, variant]);
 
   return (
     <span

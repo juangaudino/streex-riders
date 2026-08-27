@@ -75,6 +75,8 @@ export function AroundYouPlaceCard({
           aria-hidden="true"
           className="passenger-around-place-image"
           src={imageSrc}
+          loading="lazy"
+          decoding="async"
           onError={(event) => {
             if (match.place.imageSrc && !imageFailed) {
               setImageFailed(true);

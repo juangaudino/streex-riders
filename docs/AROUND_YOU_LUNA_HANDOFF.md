@@ -5,8 +5,9 @@ tablet build, while route-specific GPS tuning still requires in-vehicle validati
 
 ## Completed product layer
 
-- Preserved the Sol client-only geolocation, matching, ranking, dwell, hysteresis and cooldown
-  engine without structural changes.
+- Preserved the client-only matching, ranking, dwell, hysteresis and cooldown engine. The location
+  source is now intentionally low-power: a one-shot browser snapshot on Home/Around You, then at
+  most every five minutes while either surface remains visible.
 - Built the final Passenger view with a live featured place, local story facts, category labels,
   altitude when meaningful, nearby-place selection and a manual return to live context.
 - Added an Explore Utah fallback that remains useful when permission is denied, GPS is unavailable,
@@ -30,9 +31,10 @@ tablet build, while route-specific GPS tuning still requires in-vehicle validati
   service-worker static cache behavior after first load.
 - No coordinates, permissions or chosen places are persisted, placed in URLs, sent to a server or
   emitted to analytics. Around You has no location network request.
-- Location remains controlled only by `CONFIG.passengerConsole.aroundYou.enabled`, currently
-  `true` for the paired tablet. Browser GPS stays transient and private; Around You is deliberately
-  hidden from Lite's primary navigation, not removed from the product.
+- Location remains controlled by `CONFIG.passengerConsole.aroundYou.enabled`, currently `true` for
+  the paired tablet, plus the visible Home/Around You surface rule. Browser GPS stays transient and
+  private; it is paused in Music, Games, STREEX and idle. Around You is deliberately hidden from
+  Lite's primary navigation, not removed from the product.
 
 ## Validation completed in code
 
@@ -62,16 +64,17 @@ tablet build, while route-specific GPS tuning still requires in-vehicle validati
 
 1. Enable `CONFIG.passengerConsole.aroundYou.enabled` only for the controlled test build and grant
    browser location permission in Fully Kiosk.
-2. Verify fresh GPS fixes after cold start, tablet wake, hotspot reconnect and after a passenger
-   idle reset; confirm the browser does not request permission repeatedly.
+2. Verify one fresh GPS snapshot after cold start, tablet wake and returning to Home/Around You;
+   confirm the browser does not request permission repeatedly or resample more frequently than the
+   configured five-minute interval.
 3. Drive through downtown Salt Lake City, airport approach, Parley's Canyon and Park City. Confirm
    the featured card changes only when it should, nearby suggestions are sensible and the display
    does not flicker between neighboring POIs.
 4. Observe poor-accuracy periods, tunnels/parking structures and an intentionally offline hotspot.
    Confirm the degraded, stale and Explore Utah states are calm, truthful and still usable.
-5. Test portrait and landscape on the mounted tablet, including touch targets, text legibility,
-   scrolling only within Around You where content exceeds the screen, and no conflict with the
-   global idle attract reset.
+5. Test landscape on the mounted tablet, including touch targets, text legibility, scrolling only
+   within Around You where content exceeds the screen, and no conflict with the global idle attract
+   reset. Portrait remains deferred by product direction.
 6. Confirm no raw coordinates appear in browser history, URLs, local browser storage, service-worker
    cache inspection, network activity or server logs.
 7. Test English and Spanish, reduced-motion settings, screen reader/focus navigation if available,

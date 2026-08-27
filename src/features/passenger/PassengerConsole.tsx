@@ -659,6 +659,18 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
   const isLiteExperience = consoleConfig.experienceMode === "lite";
   const analytics = usePassengerAnalytics(passengerAnalyticsScreen(view));
   const aroundYouEnabled = consoleConfig.aroundYou.enabled || aroundYouTestMode;
+  const resetPassengerSession = useCallback(() => {
+    setBookingOpen(false);
+    setView("home");
+    setRequestedGame(null);
+    setQuickGameIndex((current) => current + 1);
+    setLanguage(consoleConfig.idleReset.defaultLanguage);
+    setSessionKey((current) => current + 1);
+  }, [consoleConfig.idleReset.defaultLanguage]);
+  const idleReset = usePassengerIdleReset({
+    inactivitySeconds: consoleConfig.idleReset.inactivitySeconds,
+    onReset: resetPassengerSession,
+  });
   const simulatedAroundYouPlace = useMemo(
     () =>
       getAroundYouTestPresets(AROUND_YOU_SEED_PLACES).find(
@@ -668,7 +680,11 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
   );
   const weather = usePassengerWeather(online, consoleConfig.weather.refreshMinutes);
   const passengerLocation = usePassengerLocation({
-    enabled: aroundYouEnabled && !simulatedAroundYouPlace,
+    enabled:
+      aroundYouEnabled &&
+      !simulatedAroundYouPlace &&
+      !idleReset.promptOpen &&
+      (view === "home" || view === "around-you"),
     options: consoleConfig.aroundYou.geolocation,
   });
   const aroundYouLocation = simulatedAroundYouPlace
@@ -711,22 +727,10 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
     [analytics],
   );
   const quickGame = PASSENGER_GAMES[quickGameIndex % PASSENGER_GAMES.length];
-  const resetPassengerSession = useCallback(() => {
-    setBookingOpen(false);
-    setView("home");
-    setRequestedGame(null);
-    setQuickGameIndex((current) => current + 1);
-    setLanguage(consoleConfig.idleReset.defaultLanguage);
-    setSessionKey((current) => current + 1);
-  }, [consoleConfig.idleReset.defaultLanguage]);
   const setAroundYouTestPreset = useCallback((placeId: string | null) => {
     setSimulatedAroundYouPlaceId(placeId);
     setSessionKey((current) => current + 1);
   }, []);
-  const idleReset = usePassengerIdleReset({
-    inactivitySeconds: consoleConfig.idleReset.inactivitySeconds,
-    onReset: resetPassengerSession,
-  });
   const previousIdleRef = useRef<{ open: boolean; logicalRest: boolean }>({
     open: false,
     logicalRest: false,
@@ -801,6 +805,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               weather={weather.snapshot}
               weatherCity={consoleConfig.weather.city}
               weatherStatus={weather.status}
+              weatherAtmosphereActive={!idleReset.promptOpen}
               weatherAtmosphereOverride={weatherAtmosphereTestOverride}
               onWeatherAtmosphereOverrideChange={setWeatherAtmosphereTestOverride}
               t={t}
@@ -1380,7 +1385,7 @@ function IdleSpotifyNowPlaying({
     void refresh();
     const interval = window.setInterval(() => {
       if (document.visibilityState === "visible") void refresh();
-    }, 5_000);
+    }, 10_000);
     return () => {
       isMounted = false;
       window.clearInterval(interval);
@@ -1552,6 +1557,7 @@ function HomeView({
   weather,
   weatherCity,
   weatherStatus,
+  weatherAtmosphereActive,
   weatherAtmosphereOverride,
   onWeatherAtmosphereOverrideChange,
   t,
@@ -1566,6 +1572,7 @@ function HomeView({
   weather: PassengerWeatherSnapshot | null;
   weatherCity: string;
   weatherStatus: PassengerWeatherStatus;
+  weatherAtmosphereActive: boolean;
   weatherAtmosphereOverride: AtmosphereVariant | null;
   onWeatherAtmosphereOverrideChange: (value: AtmosphereVariant | null) => void;
   t: (typeof copy)[Language];
@@ -1665,7 +1672,7 @@ function HomeView({
               aria-label={`${t.weather}: ${weatherCity}. ${t.weatherHint}`}
               className="passenger-home-weather relative isolate min-w-[208px] overflow-hidden rounded-2xl border border-white/10 bg-black/25 px-5 py-4 text-left backdrop-blur transition hover:border-[#E6CE20]/40 hover:bg-black/35 focus:outline-none focus:ring-2 focus:ring-[#E6CE20]/60"
             >
-              <WeatherAtmosphere variant={homeAtmosphere} />
+              <WeatherAtmosphere variant={homeAtmosphere} active={weatherAtmosphereActive} />
               <p className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/65">
                 {t.weather}
               </p>
@@ -1902,7 +1909,7 @@ function WeatherDetailDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="!fixed !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 flex h-[40rem] w-[62rem] max-h-[calc(100dvh-2rem)] max-w-[calc(100vw-2rem)] flex-col gap-3 overflow-hidden rounded-[30px] border-white/10 bg-[#0B0B0B] p-5 text-white sm:p-6">
-        <WeatherAtmosphere variant={atmosphere} className="rounded-[30px]" />
+        <WeatherAtmosphere variant={atmosphere} active={open} className="rounded-[30px]" />
         <DialogHeader className="relative z-10">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">

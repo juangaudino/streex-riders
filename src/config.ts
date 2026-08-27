@@ -92,14 +92,17 @@ export const CONFIG = {
       // stay in memory on that device only; Around You never persists or transmits them.
       enabled: true,
       geolocation: {
-        enableHighAccuracy: true,
-        timeoutMs: 15_000,
-        maximumAgeMs: 10_000,
-        minimumAcceptedIntervalMs: 8_000,
-        minimumMovementMeters: 60,
-        maximumUsableAccuracyMeters: 180,
-        maximumLastGoodPositionAgeMs: 60_000,
-        materialAccuracyImprovementMeters: 35,
+        // Around You is intentionally a calm, low-frequency discovery surface. It samples
+        // only while Home or Around You is open; it is not turn-by-turn navigation.
+        samplingIntervalMs: 5 * 60_000,
+        enableHighAccuracy: false,
+        timeoutMs: 10_000,
+        maximumAgeMs: 60_000,
+        minimumAcceptedIntervalMs: 30_000,
+        minimumMovementMeters: 120,
+        maximumUsableAccuracyMeters: 250,
+        maximumLastGoodPositionAgeMs: 5 * 60_000,
+        materialAccuracyImprovementMeters: 50,
         maximumPlausibleSpeedMetersPerSecond: 85,
       },
       selection: {

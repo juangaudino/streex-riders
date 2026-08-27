@@ -37,6 +37,8 @@ export function AroundYouHomeCard({
           aria-hidden="true"
           className="passenger-around-home-card-image"
           src={featured?.place.imageSrc}
+          loading="lazy"
+          decoding="async"
           onError={() => setImageFailed(true)}
         />
       )}

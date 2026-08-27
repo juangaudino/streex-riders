@@ -112,9 +112,12 @@ show passenger data.
   are cached server-side and the last successful snapshot is retained locally for hotspot outages.
   English displays Fahrenheit and Spanish displays Celsius. No API credential is required.
 - Passenger Around You is a client-only local context engine under
-  `src/features/passenger/around-you/`. It watches the tablet's browser geolocation only while the
-  Passenger Console is mounted and the public feature flag is enabled, matches accepted positions
-  against a bundled bilingual POI catalog, and exposes a stable featured place plus nearby places.
+  `src/features/passenger/around-you/`. It takes a low-power browser location snapshot only while
+  Home or Around You is visible (never in Music, Games, STREEX or idle), then at most every five
+  minutes. It matches accepted positions against a bundled bilingual POI catalog and exposes a
+  stable featured place plus nearby places. The last usable position remains in memory only for a
+  short, five-minute cache window, avoiding repeated GPS wake-ups when the passenger returns to
+  Home.
   Raw GPS coordinates are transient React/ref state only: they are never persisted, added to URLs,
   logged intentionally, sent to analytics, or transmitted to the server. The Luna product pass
   adds bilingual presentation, a bundled verified Utah catalog, local assets and offline-safe
@@ -246,6 +249,15 @@ retrieves the received message, forwards its content, and preserves the original
 9. Run a small live Stripe tip and confirm the charge and payout path end to end.
 10. Optionally test importing the saved Fully settings backup when a spare device or reinstall is
     available; do not risk the only configured tablet solely for this drill.
+11. **Owner-directed Passenger/Rides imagery (deferred)** — the owner will generate or select the
+    final artwork and decide which surface each image replaces. Once the assets are approved,
+    perform the technical handoff: inspect composition and orientation, crop or request a
+    landscape regeneration when needed, optimize to an appropriate WebP/AVIF size, upload through
+    the tenant-scoped Storage path, and connect stable per-surface config slots with safe fallbacks.
+    Keep Passenger and Rides image mappings separate; do not assume that seasonal fields such as
+    `theme.default`, `theme.winter`, `heroImage` or `landingHeroImage` already exist in this source.
+    This is intentionally outside the current RELOAD work and must not start until the owner
+    supplies the final asset map.
 
 ### Reload 1.0.4 test controls
 
