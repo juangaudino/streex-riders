@@ -9248,17 +9248,33 @@ button.passenger-idle-music {
 
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready {
     display: grid !important;
-    grid-template-columns: minmax(10.5rem, 0.82fr) minmax(0, 1fr) !important;
-    grid-template-rows: minmax(0, 1fr) auto !important;
-    align-items: start !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto minmax(0, 1fr) auto !important;
+    align-items: stretch !important;
     gap: clamp(0.85rem, 1.45vw, 1.4rem) !important;
     padding: clamp(1rem, 1.6vw, 1.6rem) !important;
   }
 
-  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-art {
+  .passenger-console-shell[data-view="music"] .passenger-music-player-header {
     grid-column: 1 !important;
     grid-row: 1 !important;
-    align-self: start !important;
+    min-width: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-player-body {
+    display: grid !important;
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    grid-template-columns: minmax(11.5rem, 0.88fr) minmax(0, 1.12fr) !important;
+    align-items: center !important;
+    gap: clamp(0.9rem, 1.6vw, 1.5rem) !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-player-body .passenger-music-now-playing-art {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    align-self: center !important;
     justify-self: start !important;
     width: 100% !important;
     height: auto !important;
@@ -9270,7 +9286,7 @@ button.passenger-idle-music {
     border-radius: clamp(1.1rem, 1.7vw, 1.55rem) !important;
   }
 
-  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-copy {
+  .passenger-console-shell[data-view="music"] .passenger-music-player-details {
     grid-column: 2 !important;
     grid-row: 1 !important;
     display: flex !important;
@@ -9290,7 +9306,7 @@ button.passenger-idle-music {
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-track-artist {
-    margin-top: clamp(0.7rem, 1.25dvh, 1rem) !important;
+    margin-top: 0 !important;
     font-size: clamp(0.95rem, 1.25vw, 1.15rem) !important;
     color: rgb(255 255 255 / 0.78) !important;
   }
@@ -9304,7 +9320,7 @@ button.passenger-idle-music {
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-device {
-    margin-top: auto !important;
+    margin-top: clamp(0.9rem, 1.5dvh, 1.15rem) !important;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-playing-status {
@@ -9322,9 +9338,9 @@ button.passenger-idle-music {
 
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > .passenger-music-visualizer {
     grid-column: 1 / -1 !important;
-    grid-row: 2 !important;
+    grid-row: 3 !important;
     width: 100% !important;
-    height: clamp(4.8rem, 11dvh, 7.5rem) !important;
+    height: clamp(5.25rem, 12dvh, 8rem) !important;
     margin: 0.15rem 0 0 !important;
   }
 
@@ -9333,15 +9349,18 @@ button.passenger-idle-music {
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-collections > div {
+    display: grid !important;
     width: 100% !important;
     min-width: 0 !important;
+    max-width: 100% !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: clamp(0.55rem, 0.85vw, 0.85rem) !important;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-playlist-card {
     min-width: 0 !important;
-    min-height: clamp(8.75rem, 21dvh, 11.5rem) !important;
+    min-height: 0 !important;
+    aspect-ratio: 1 / 0.78 !important;
     padding: clamp(0.75rem, 1vw, 1rem) !important;
   }
 }

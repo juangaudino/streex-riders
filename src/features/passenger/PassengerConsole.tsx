@@ -2761,20 +2761,23 @@ function PersonalSpotifyMusicView({
       ) : playback ? (
         <section className="passenger-music-playback passenger-music-now-playing passenger-music-now-playing-ready relative flex min-h-[286px] items-center gap-6 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.13] p-7 text-left">
           <span className="passenger-music-ambient-orb absolute -right-14 -top-20 h-56 w-56 rounded-full blur-3xl" />
-          {playback.track?.artworkUrl ? (
-            <img
-              src={playback.track.artworkUrl}
-              alt=""
-              className="passenger-music-now-playing-art relative h-52 w-52 shrink-0 rounded-[28px] object-cover shadow-2xl"
-            />
-          ) : (
-            <div className="passenger-music-now-playing-art relative h-52 w-52 shrink-0 rounded-[28px] bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700 shadow-2xl" />
-          )}
-          <div className="passenger-music-now-playing-copy relative flex min-w-0 flex-1 flex-col justify-center self-stretch">
+          <div className="passenger-music-player-header relative min-w-0">
             <p className="passenger-music-now-playing-eyebrow text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}
             </p>
             <FittedMusicTrackTitle title={playback.track?.title ?? t.chooseMusic} />
+          </div>
+          <div className="passenger-music-player-body relative min-h-0 min-w-0">
+            {playback.track?.artworkUrl ? (
+              <img
+                src={playback.track.artworkUrl}
+                alt=""
+                className="passenger-music-now-playing-art h-52 w-52 shrink-0 rounded-[28px] object-cover shadow-2xl"
+              />
+            ) : (
+              <div className="passenger-music-now-playing-art h-52 w-52 shrink-0 rounded-[28px] bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700 shadow-2xl" />
+            )}
+            <div className="passenger-music-now-playing-copy passenger-music-player-details flex min-w-0 flex-1 flex-col justify-center self-stretch">
             <p className="passenger-music-track-artist mt-4 text-sm leading-snug text-white/75">
               {playback.track?.artist ?? t.spotifyNoDevice}
             </p>
@@ -2833,6 +2836,7 @@ function PersonalSpotifyMusicView({
               >
                 <SkipForward className="h-5 w-5" />
               </button>
+            </div>
             </div>
           </div>
           <MusicVisualizer active={Boolean(playback.isPlaying)} palette={artworkPalette} />
