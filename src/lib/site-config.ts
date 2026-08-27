@@ -37,6 +37,12 @@ const GalleryImageSchema = z.object({
   microLabel: z.string().trim().max(160).nullable().optional(),
 });
 
+const PassengerConsoleOverrideSchema = z
+  .object({
+    experienceMode: z.enum(["lite", "complete"]).optional(),
+  })
+  .strict();
+
 export const SiteConfigOverrideSchema = z
   .object({
     brandName: z.string().trim().min(1).max(120).optional(),
@@ -67,6 +73,7 @@ export const SiteConfigOverrideSchema = z
     nextdoor: z.string().trim().max(240).optional(),
     services: z.array(ServiceOverrideSchema).optional(),
     sections: SectionsOverrideSchema.optional(),
+    passengerConsole: PassengerConsoleOverrideSchema.optional(),
   })
   .strict();
 
@@ -119,6 +126,10 @@ export function mergeSiteConfig(
     sections: {
       ...base.sections,
       ...(override.sections ?? {}),
+    },
+    passengerConsole: {
+      ...base.passengerConsole,
+      ...(override.passengerConsole ?? {}),
     },
   };
 

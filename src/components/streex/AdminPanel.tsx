@@ -30,6 +30,7 @@ import {
   updateAdminRunnerScore,
   updateAdminRunnerScoreStatus,
   updateAdminTickerTheme,
+  startAdminPassengerAnalyticsBeta,
 } from "@/lib/admin.functions";
 import { getAdminTickerTheme } from "@/lib/ticker-theme.functions";
 import { getAdminSiteConfig, updateAdminSiteConfig } from "@/lib/site-config.functions";
@@ -419,6 +420,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
 
 type PassengerAnalyticsSummary = {
   days: number;
+  reportingStartedAt: string | null;
   sessions: number;
   interactiveSessions: number;
   sessionsWithoutInteraction: number;
@@ -443,6 +445,8 @@ function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
   const [summary, setSummary] = useState<PassengerAnalyticsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [startingBeta, setStartingBeta] = useState(false);
+  const [betaMessage, setBetaMessage] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -460,6 +464,24 @@ function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const startBeta = async () => {
+    setStartingBeta(true);
+    setError(null);
+    setBetaMessage(null);
+    try {
+      const result = await startAdminPassengerAnalyticsBeta({ data: { adminKey } });
+      setBetaMessage(`Beta measurement started ${new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(new Date(result.reportingStartedAt))}. Earlier engineering data is excluded, not deleted.`);
+      await load();
+    } catch (startError) {
+      setError(startError instanceof Error ? startError.message : "Unable to start Passenger beta measurement.");
+    } finally {
+      setStartingBeta(false);
+    }
+  };
 
   return (
     <section className="space-y-5">
@@ -494,8 +516,30 @@ function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
           >
             Refresh
           </button>
+          <button
+            type="button"
+            onClick={() => void startBeta()}
+            disabled={startingBeta}
+            className="rounded-lg border border-[#E6CE20]/45 px-3 py-2 text-xs font-semibold text-[#E6CE20] hover:bg-[#E6CE20]/10 disabled:cursor-not-allowed disabled:opacity-55"
+          >
+            {startingBeta ? "Starting beta…" : "Start beta measurement"}
+          </button>
         </div>
       </div>
+
+      {betaMessage ? (
+        <p className="rounded-xl border border-[#E6CE20]/20 bg-[#E6CE20]/[0.06] px-4 py-3 text-xs leading-relaxed text-[#f4e77c]">
+          {betaMessage}
+        </p>
+      ) : summary?.reportingStartedAt ? (
+        <p className="text-xs text-white/45">
+          Beta measurement began {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(summary.reportingStartedAt))}. Earlier engineering data is excluded, not deleted.
+        </p>
+      ) : (
+        <p className="text-xs text-white/45">
+          Engineering data is currently included. Start beta measurement when you are ready to use this dashboard for passenger testing.
+        </p>
+      )}
 
       {loading ? (
         <p className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm text-white/55">
@@ -1521,6 +1565,8 @@ type AdminServiceDraft = {
 
 type AdminSectionKey = keyof AppConfig["sections"];
 
+type PassengerExperienceMode = AppConfig["passengerConsole"]["experienceMode"];
+
 function adminProfileFromConfig(config: AppConfig) {
   return {
     brandName: config.brandName,
@@ -1565,6 +1611,9 @@ function AdminConfig({ adminKey, tenantId }: { adminKey: string; tenantId: strin
   const [uploading, setUploading] = useState<string | null>(null);
   const [areasText, setAreasText] = useState(CONFIG.areas.join("\n"));
   const [seo, setSeo] = useState({ title: CONFIG.seoTitle, description: CONFIG.seoDescription });
+  const [passengerExperienceMode, setPassengerExperienceMode] = useState<PassengerExperienceMode>(
+    CONFIG.passengerConsole.experienceMode,
+  );
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1614,6 +1663,7 @@ function AdminConfig({ adminKey, tenantId }: { adminKey: string; tenantId: strin
       });
       setAreasText(result.config.areas.join("\n"));
       setSeo({ title: result.config.seoTitle, description: result.config.seoDescription });
+      setPassengerExperienceMode(result.config.passengerConsole.experienceMode);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Failed to load site config.");
     } finally {
@@ -1658,6 +1708,9 @@ function AdminConfig({ adminKey, tenantId }: { adminKey: string; tenantId: strin
               .filter(Boolean),
             seoTitle: seo.title,
             seoDescription: seo.description,
+            passengerConsole: {
+              experienceMode: passengerExperienceMode,
+            },
           },
         },
       });
@@ -1704,6 +1757,34 @@ function AdminConfig({ adminKey, tenantId }: { adminKey: string; tenantId: strin
           </div>
         </div>
       </div>
+
+      <section className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-semibold uppercase streex-tracking text-[#E6CE20]/80">Passenger Console</p>
+            <h2 className="mt-1 text-base font-semibold">Default experience mode</h2>
+            <p className="mt-1 max-w-xl text-xs leading-relaxed text-white/50">
+              This is the persistent tablet mode. Lite is the daily Passenger experience; Complete is reserved for the later personalized experience.
+            </p>
+          </div>
+          <div className="flex rounded-xl border border-white/10 p-1">
+            {(["lite", "complete"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setPassengerExperienceMode(mode)}
+                className={`rounded-lg px-4 py-2 text-xs font-semibold capitalize transition ${
+                  passengerExperienceMode === mode
+                    ? "bg-[#E6CE20] text-black"
+                    : "text-white/60 hover:text-white"
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {loading && <p className="text-sm text-white/50">Loading config...</p>}
 

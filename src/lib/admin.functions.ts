@@ -54,6 +54,29 @@ const RunnerScoreUpdateSchema = AdminSchema.extend({
 const PassengerAnalyticsSummarySchema = AdminSchema.extend({
   days: z.number().int().min(1).max(90).default(30),
 });
+const PASSENGER_ANALYTICS_BETA_START_KEY = "passenger_analytics_beta_start_v1";
+
+function parseAnalyticsReportingStart(value: string | null | undefined) {
+  if (!value) return null;
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
+}
+
+async function getPassengerAnalyticsReportingStart(tenantId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("app_settings")
+    .select("value")
+    .eq("tenant_id", tenantId)
+    .eq("key", PASSENGER_ANALYTICS_BETA_START_KEY)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[PassengerAnalytics] beta start read error", error);
+    throw new Error("Unable to load Passenger analytics settings.");
+  }
+
+  return parseAnalyticsReportingStart(data?.value);
+}
 
 function passengerAnalyticsGame(metadata: Json) {
   if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return null;
@@ -84,7 +107,10 @@ export const getAdminPassengerAnalyticsSummary = createServerFn({ method: "POST"
   .inputValidator((input: unknown) => PassengerAnalyticsSummarySchema.parse(input))
   .handler(async ({ data }) => {
     const access = await assertAdminAccess(data.adminKey);
-    const cutoff = new Date(Date.now() - data.days * 24 * 60 * 60 * 1_000).toISOString();
+    const reportingStartedAt = await getPassengerAnalyticsReportingStart(access.tenantId);
+    const requestedCutoff = new Date(Date.now() - data.days * 24 * 60 * 60 * 1_000);
+    const reportingStart = reportingStartedAt ? new Date(reportingStartedAt) : null;
+    const cutoff = (reportingStart && reportingStart > requestedCutoff ? reportingStart : requestedCutoff).toISOString();
     const [sessionsResult, eventsResult] = await Promise.all([
       supabaseAdmin
         .from("passenger_analytics_sessions")
@@ -133,6 +159,7 @@ export const getAdminPassengerAnalyticsSummary = createServerFn({ method: "POST"
 
     return {
       days: data.days,
+      reportingStartedAt,
       sessions: sessions.length,
       interactiveSessions: sessions.filter((session) => session.interaction_count > 0).length,
       sessionsWithoutInteraction: sessions.filter((session) => session.interaction_count === 0).length,
@@ -157,6 +184,27 @@ export const getAdminPassengerAnalyticsSummary = createServerFn({ method: "POST"
         driverConfirmed: sessions.filter((session) => session.lifecycle === "driver_confirmed").length,
       },
     };
+  });
+
+export const startAdminPassengerAnalyticsBeta = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => AdminSchema.parse(input))
+  .handler(async ({ data }) => {
+    const access = await assertAdminAccess(data.adminKey);
+    const reportingStartedAt = new Date().toISOString();
+    const { error } = await supabaseAdmin.from("app_settings").upsert(
+      {
+        key: PASSENGER_ANALYTICS_BETA_START_KEY,
+        tenant_id: access.tenantId,
+        value: reportingStartedAt,
+        updated_at: reportingStartedAt,
+      },
+      { onConflict: "tenant_id,key" },
+    );
+    if (error) {
+      console.error("[PassengerAnalytics] beta start save error", error);
+      throw new Error("Unable to start Passenger beta measurement.");
+    }
+    return { reportingStartedAt };
   });
 
 export const sendAdminQuote = createServerFn({ method: "POST" })

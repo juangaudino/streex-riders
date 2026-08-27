@@ -31,4 +31,15 @@ describe("public site config", () => {
     expect(result.instagram).toBe("streex.test");
     expect(result.instagramUrl).toBe("https://instagram.com/streex.test");
   });
+
+  test("keeps the complete Passenger configuration when Admin changes only its mode", () => {
+    const result = mergeSiteConfig(CONFIG, {
+      passengerConsole: { experienceMode: "complete" },
+    });
+
+    expect(result.passengerConsole.experienceMode).toBe("complete");
+    expect(result.passengerConsole.liteTheme).toBe(CONFIG.passengerConsole.liteTheme);
+    expect(result.passengerConsole.idleReset).toEqual(CONFIG.passengerConsole.idleReset);
+    expect(result.passengerConsole.music).toEqual(CONFIG.passengerConsole.music);
+  });
 });

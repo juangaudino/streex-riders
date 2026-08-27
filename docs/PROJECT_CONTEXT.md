@@ -101,7 +101,9 @@ show passenger data.
 - Passenger is currently configured as `experienceMode: "lite"`: its primary navigation shows
   Home, Music, Games and STREEX. Around You remains available from its Home card and all of its
   privacy-preserving local engine code remains intact, but it is not a first-level navigation
-  destination. A future Driver MC will be able to select Lite or Complete remotely.
+  destination. The persistent Lite/Complete switch belongs in authenticated Admin configuration;
+  a future Driver MC may later activate a session-specific Complete experience without changing
+  the global default.
 - Passenger Lite supports the color-only `Original` and `STREEX Accent` launch themes through
   `CONFIG.passengerConsole.liteTheme`. Accent is the launch default; changing that one public
   config value restores Original. The theme changes palette only, has no passenger-facing selector,
@@ -212,6 +214,9 @@ retrieves the received message, forwards its content, and preserves the original
   the authenticated Admin summary enforces tenant membership server-side.
 - All current Passenger sessions are `tablet_unverified`. A session becomes `driver_confirmed`
   only through a future trusted Driver MC signal; tablet activity is never called a real ride.
+- Admin can start Passenger beta measurement without deleting data. The timestamp becomes the
+  dashboard's reporting baseline, excluding earlier engineering sessions while retaining them for
+  technical verification. Starting a beta baseline is tenant-scoped and admin-authenticated.
 
 ## Automated Quality Checks
 
@@ -263,9 +268,11 @@ implemented incrementally without replacing the current Passenger architecture.
    repository, never exposed to passengers. It should provide fast on/off modes (Kids, Quiet,
    Guest and Test), content toggles (Games, Around You, payments, contact, Jam and language),
    session actions (Home, reset, idle and refresh music), and tablet telemetry (battery, charging,
-   temperature, Wi-Fi, GPS and Spotify status). Browser code must not receive raw coordinates or
-   secrets. Brightness, battery and kiosk controls require a supported Fully Kiosk Remote Admin
-   or device bridge; they cannot be assumed to be controllable from ordinary PWA JavaScript.
+   temperature, Wi-Fi, GPS and Spotify status). Its future role is operational/session control;
+   the global Lite/Complete default remains an Admin setting. Browser code must not receive raw
+   coordinates or secrets. Brightness, battery and kiosk controls require a supported Fully Kiosk
+   Remote Admin or device bridge; they cannot be assumed to be controllable from ordinary PWA
+   JavaScript.
 2. **Category-first Around You discovery** — continue the approved local/offline browser direction
    with curated categories (restaurants, hotels, cafés, supermarkets, parks, attractions, museums
    and bookstores), transient GPS ordering and no live business scraping.
