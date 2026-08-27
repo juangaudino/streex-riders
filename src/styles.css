@@ -9104,3 +9104,72 @@ button.passenger-idle-music {
     animation: none;
   }
 }
+
+/* Long Spotify metadata should reveal itself rather than be truncated in the
+   Music-first idle screen. The movement activates only after real overflow. */
+.passenger-idle-marquee {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.passenger-idle-marquee-track {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+}
+
+.passenger-idle-marquee-item {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.passenger-idle-marquee-track.is-active {
+  gap: 3rem;
+  animation: passenger-idle-marquee-scroll 13s linear infinite;
+}
+
+@keyframes passenger-idle-marquee-scroll {
+  0%,
+  18% {
+    transform: translateX(0);
+  }
+
+  82%,
+  100% {
+    transform: translateX(calc(-50% - 1.5rem));
+  }
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-idle-content--music .passenger-idle-track-copy > .passenger-idle-track-title {
+    display: block !important;
+    min-height: 1.18em;
+    max-height: none;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+    line-height: 1.12 !important;
+    white-space: nowrap !important;
+    -webkit-box-orient: initial;
+    -webkit-line-clamp: unset;
+  }
+
+  .passenger-idle-content--music .passenger-idle-track-copy > .passenger-idle-track-subtitle {
+    display: block !important;
+    min-height: 1.55em;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing::before {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .passenger-idle-marquee-track.is-active {
+    animation: none;
+  }
+}

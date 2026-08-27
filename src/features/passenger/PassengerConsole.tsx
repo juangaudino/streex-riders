@@ -1398,14 +1398,14 @@ function IdleSpotifyNowPlaying({
               ? t.idleMusicPrompt
               : t.idleMusicReady}
         </span>
-        <span className="mt-4 block text-3xl font-black leading-tight tracking-tight sm:text-4xl">
+        <SpotifyMarquee className="passenger-idle-track-title mt-4 text-3xl font-black leading-tight tracking-tight sm:text-4xl">
           {track?.title ?? t.idleChooseMusic}
-        </span>
-        <span className="mt-3 block text-lg text-white/55">
+        </SpotifyMarquee>
+        <SpotifyMarquee className="passenger-idle-track-subtitle mt-3 text-lg text-white/55">
           {track
             ? `${track.artist}${track.album ? ` · ${track.album}` : ""}`
             : t.idleChooseMusicDescription}
-        </span>
+        </SpotifyMarquee>
         {isDiscoverable && (
           <span className="passenger-idle-discovery mt-5 flex flex-wrap items-center gap-3">
             <span className="passenger-idle-discovery-pills flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white/55">
@@ -2255,6 +2255,46 @@ function MusicVisualizer({ active, compact = false }: { active: boolean; compact
   );
 }
 
+function SpotifyMarquee({
+  children,
+  className,
+}: {
+  children: string;
+  className?: string;
+}) {
+  const viewportRef = useRef<HTMLSpanElement | null>(null);
+  const itemRef = useRef<HTMLSpanElement | null>(null);
+  const [overflows, setOverflows] = useState(false);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    const item = itemRef.current;
+    if (!viewport || !item) return;
+
+    const measure = () => setOverflows(item.scrollWidth > viewport.clientWidth + 1);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(viewport);
+    observer.observe(item);
+    return () => observer.disconnect();
+  }, [children]);
+
+  return (
+    <span ref={viewportRef} className={`passenger-idle-marquee ${className ?? ""}`}>
+      <span className={`passenger-idle-marquee-track${overflows ? " is-active" : ""}`}>
+        <span ref={itemRef} className="passenger-idle-marquee-item">
+          {children}
+        </span>
+        {overflows ? (
+          <span aria-hidden="true" className="passenger-idle-marquee-item">
+            {children}
+          </span>
+        ) : null}
+      </span>
+    </span>
+  );
+}
+
 function useInterpolatedSpotifyProgress(
   initialProgressMs: number | null | undefined,
   durationMs: number | null | undefined,
@@ -2404,7 +2444,7 @@ function PersonalSpotifyMusicView({
     };
     const interval = window.setInterval(() => {
       if (document.visibilityState === "visible") void refresh(true);
-    }, 30_000);
+    }, 5_000);
     document.addEventListener("visibilitychange", refreshOnVisible);
 
     return () => {
