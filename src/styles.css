@@ -8931,3 +8931,59 @@ button.passenger-idle-music {
     bottom: max(1.25rem, env(safe-area-inset-bottom));
   }
 }
+
+/* Music polish: the search panel owns its overflow, while the idle track keeps
+   a fixed two-line title lane so the visualizer never climbs into its metadata. */
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="music"] .passenger-music-search {
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(230 206 32 / 0.65) transparent;
+    padding-bottom: clamp(1.25rem, 4dvh, 3rem) !important;
+  }
+
+  .passenger-idle-content--music .passenger-idle-track-copy > span:nth-child(2) {
+    display: -webkit-box;
+    min-height: 2.18em;
+    max-height: 2.18em;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .passenger-idle-content--music .passenger-idle-track-copy > span:nth-child(3) {
+    min-height: 1.55em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .passenger-idle-content--music .passenger-music-visualizer--compact {
+    width: min(100%, clamp(20rem, 34vw, 31rem)) !important;
+    max-width: none !important;
+    height: clamp(2.8rem, 5.5dvh, 4rem) !important;
+    margin-top: clamp(0.7rem, 1.6dvh, 1.1rem) !important;
+  }
+
+  .passenger-idle-content--music .passenger-music-visualizer--compact > span {
+    max-width: 9px;
+  }
+}
+
+.passenger-music-visualizer > span {
+  background: linear-gradient(to top, #e6ce20 0%, #ffe26b 43%, #ff9b4a 72%, #d785ff 100%);
+  box-shadow: 0 0 11px rgb(230 206 32 / 0.2);
+}
+
+.passenger-music-visualizer > span:nth-child(4n + 2) {
+  background: linear-gradient(to top, #e6ce20 0%, #ffd65a 38%, #ff7865 100%);
+}
+
+.passenger-music-visualizer > span:nth-child(4n + 3) {
+  background: linear-gradient(to top, #e6ce20 0%, #ffcb57 36%, #b781ff 100%);
+}
+
+.passenger-music-visualizer > span:nth-child(4n) {
+  background: linear-gradient(to top, #e6ce20 0%, #f4d249 32%, #61c8ff 100%);
+}

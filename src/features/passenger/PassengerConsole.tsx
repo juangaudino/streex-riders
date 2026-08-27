@@ -2679,34 +2679,6 @@ function PersonalSpotifyMusicView({
           </form>
           {searchMessage && <p className="mt-3 text-sm text-white/55">{searchMessage}</p>}
           {!searchMessage && results.length === 0 && (
-            <div className="passenger-music-landscape-prompt hidden">
-              <span className="grid h-16 w-16 place-items-center rounded-2xl border border-[#E6CE20]/25 bg-[#E6CE20]/10 text-[#E6CE20]">
-                <Search className="h-7 w-7" />
-              </span>
-              <p className="mt-4 text-xl font-bold">{t.musicDiscoveryTitle}</p>
-              <p className="mt-2 max-w-sm text-center text-sm leading-relaxed text-white/50">
-                {t.musicDiscoveryDescription}
-              </p>
-              <div className="passenger-music-landscape-quick-picks mt-6 grid w-full max-w-lg grid-cols-3 gap-3">
-                {[
-                  { label: t.vibeTopUs, query: "spotify top 50 usa" },
-                  { label: t.vibeTopGlobal, query: "spotify top 50 global" },
-                  { label: t.vibeToday, query: "today's top hits" },
-                ].map((pick) => (
-                  <button
-                    key={pick.query}
-                    type="button"
-                    disabled={searching}
-                    onClick={() => searchVibe(pick.query)}
-                    className="rounded-2xl border border-[#E6CE20]/25 bg-[#E6CE20]/[0.06] px-3 py-4 text-left text-xs font-bold text-[#E6CE20] transition hover:bg-[#E6CE20]/[0.14] disabled:opacity-45"
-                  >
-                    {pick.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          {!searchMessage && results.length === 0 && (
             <div className="passenger-music-collections mt-5">
               <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
                 {t.exploreMusic}
