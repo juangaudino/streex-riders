@@ -214,8 +214,12 @@ const copy = {
       "Your driver can finish the private Spotify setup before controls become available.",
     spotifyNotConnected: "Your driver has not connected Spotify yet.",
     spotifyNoDevice: "Start Spotify on the vehicle audio, then return here to choose music.",
+    spotifyNoTrackTitle: "Nothing is playing yet",
+    spotifyNoTrackDescription: "Pick a vibe or search for a song to set the soundtrack.",
     spotifyDevice: "Vehicle audio",
     spotifyActive: "Active",
+    spotifyPlaying: "Playing",
+    spotifyPaused: "Paused",
     spotifyRefresh: "Refresh",
     spotifyControlError: "Spotify could not update playback. Please try again.",
     searchSpotify: "Search Spotify",
@@ -408,8 +412,12 @@ const copy = {
       "Tu conductor puede terminar la configuración privada de Spotify antes de que los controles estén disponibles.",
     spotifyNotConnected: "Tu conductor todavía no ha conectado Spotify.",
     spotifyNoDevice: "Inicia Spotify en el audio del vehículo y vuelve aquí para elegir música.",
+    spotifyNoTrackTitle: "Aún no hay música sonando",
+    spotifyNoTrackDescription: "Elige un ambiente o busca una canción para crear la banda sonora.",
     spotifyDevice: "Audio del vehículo",
     spotifyActive: "Activo",
+    spotifyPlaying: "Reproduciendo",
+    spotifyPaused: "En pausa",
     spotifyRefresh: "Actualizar",
     spotifyControlError: "Spotify no pudo actualizar la reproducción. Inténtalo de nuevo.",
     searchSpotify: "Buscar en Spotify",
@@ -2028,6 +2036,8 @@ type SpotifyPlaybackState =
           artist: string;
           album: string | null;
           artworkUrl: string | null;
+          durationMs: number | null;
+          progressMs: number | null;
         } | null;
       };
     };
@@ -2042,6 +2052,14 @@ type SpotifySearchTrack = {
   durationMs: number | null;
   explicit: boolean;
 };
+
+function formatSpotifyDuration(durationMs: number | null) {
+  if (!durationMs || durationMs < 0) return "—";
+  const totalSeconds = Math.floor(durationMs / 1_000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
 
 function PersonalSpotifyHomeCard({
   onNavigate,
@@ -2165,11 +2183,18 @@ function PersonalSpotifyMusicView({
 
   useEffect(() => {
     void refresh();
+    const refreshOnVisible = () => {
+      if (document.visibilityState === "visible") void refresh(true);
+    };
     const interval = window.setInterval(() => {
       if (document.visibilityState === "visible") void refresh(true);
-    }, 15_000);
+    }, 30_000);
+    document.addEventListener("visibilitychange", refreshOnVisible);
 
-    return () => window.clearInterval(interval);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
+    };
   }, [refresh]);
 
   const trackKey = (playbackStatus: SpotifyPlaybackState | null) => {
@@ -2265,6 +2290,12 @@ function PersonalSpotifyMusicView({
       ? t.musicGettingReadyDescription
       : null;
   const playback = status?.state === "ready" ? status.playback : null;
+  const trackProgress = playback?.track?.durationMs
+    ? Math.min(
+        100,
+        Math.max(0, ((playback.track.progressMs ?? 0) / playback.track.durationMs) * 100),
+      )
+    : null;
 
   return (
     <div className="passenger-music-layout flex flex-col gap-5">
@@ -2308,6 +2339,29 @@ function PersonalSpotifyMusicView({
             <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
               {t.spotifyDevice}: {playback.hasActiveDevice ? t.spotifyActive : "—"}
             </p>
+            {playback.track ? (
+              <>
+                <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#E6CE20]">
+                  {playback.isPlaying ? t.spotifyPlaying : t.spotifyPaused}
+                </p>
+                {trackProgress !== null && (
+                  <div className="mt-3 max-w-md" aria-label={`${formatSpotifyDuration(playback.track.progressMs)} of ${formatSpotifyDuration(playback.track.durationMs)}`}>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-full rounded-full bg-[#E6CE20] transition-[width] duration-500" style={{ width: `${trackProgress}%` }} />
+                    </div>
+                    <div className="mt-1 flex justify-between text-[10px] font-medium text-white/45">
+                      <span>{formatSpotifyDuration(playback.track.progressMs)}</span>
+                      <span>{formatSpotifyDuration(playback.track.durationMs)}</span>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="mt-3 rounded-xl border border-[#E6CE20]/20 bg-[#E6CE20]/[0.06] px-3 py-2.5">
+                <p className="text-sm font-semibold text-white">{t.spotifyNoTrackTitle}</p>
+                <p className="mt-1 text-xs leading-relaxed text-white/55">{t.spotifyNoTrackDescription}</p>
+              </div>
+            )}
             <div className="mt-5 flex gap-3">
               <button
                 type="button"
@@ -2455,6 +2509,9 @@ function PersonalSpotifyMusicView({
                       </span>
                     </span>
                     <span className="flex shrink-0 items-center gap-1 text-[#E6CE20]">
+                      <span className="text-[10px] font-semibold text-white/45">
+                        {formatSpotifyDuration(track.durationMs)}
+                      </span>
                       {track.explicit && (
                         <span className="text-[9px] font-bold uppercase">{t.explicit}</span>
                       )}

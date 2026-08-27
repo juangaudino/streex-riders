@@ -24,8 +24,10 @@ type TokenResponse = {
 type SpotifyPlaybackResponse = {
   device?: { name?: string };
   is_playing?: boolean;
+  progress_ms?: number | null;
   item?: {
     name?: string;
+    duration_ms?: number;
     album?: { name?: string; images?: Array<{ url?: string }> };
     artists?: Array<{ name?: string }>;
   } | null;
@@ -55,6 +57,8 @@ export type PersonalSpotifyPlayback = {
     artist: string;
     album: string | null;
     artworkUrl: string | null;
+    durationMs: number | null;
+    progressMs: number | null;
   } | null;
 };
 
@@ -198,6 +202,8 @@ export async function getSpotifyPlayback(accessToken: string): Promise<PersonalS
               .join(", ") || "Spotify",
           album: item.album?.name ?? null,
           artworkUrl: item.album?.images?.find((image) => image.url)?.url ?? null,
+          durationMs: typeof item.duration_ms === "number" ? item.duration_ms : null,
+          progressMs: typeof result.progress_ms === "number" ? result.progress_ms : null,
         }
       : null,
   };
