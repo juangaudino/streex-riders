@@ -9024,27 +9024,27 @@ button.passenger-idle-music {
    both the full Music lounge and its Music-first idle counterpart. */
 .passenger-sound-lounge::before {
   background:
-    radial-gradient(circle at 20% 30%, rgb(var(--passenger-ambient-color) / 0.34), transparent 46%),
-    radial-gradient(circle at 85% 20%, rgb(var(--passenger-ambient-color) / 0.2), transparent 38%);
-  filter: blur(21px);
+    radial-gradient(circle at 20% 30%, rgb(var(--passenger-ambient-color) / 0.52), transparent 49%),
+    radial-gradient(circle at 85% 20%, rgb(var(--passenger-ambient-color) / 0.36), transparent 42%);
+  filter: blur(28px);
   opacity: 1;
 }
 
 .passenger-music-ambient-orb {
-  background: rgb(var(--passenger-ambient-color) / 0.38);
-  box-shadow: 0 0 82px rgb(var(--passenger-ambient-color) / 0.3);
+  background: rgb(var(--passenger-ambient-color) / 0.62);
+  box-shadow: 0 0 132px rgb(var(--passenger-ambient-color) / 0.68);
 }
 
 @keyframes passenger-music-ambient-pulse {
   0%,
   100% {
-    opacity: 0.58;
-    transform: scale(0.9);
+    opacity: 0.7;
+    transform: scale(0.86);
   }
 
   50% {
     opacity: 1;
-    transform: scale(1.17);
+    transform: scale(1.32);
   }
 }
 
@@ -9052,14 +9052,14 @@ button.passenger-idle-music {
   0%,
   100% {
     box-shadow:
-      inset 0 0 54px rgb(var(--passenger-ambient-color) / 0.12),
-      0 0 0 rgb(var(--passenger-ambient-color) / 0);
+      inset 0 0 90px rgb(var(--passenger-ambient-color) / 0.28),
+      0 0 36px rgb(var(--passenger-ambient-color) / 0.18);
   }
 
   50% {
     box-shadow:
-      inset 0 0 150px rgb(var(--passenger-ambient-color) / 0.38),
-      0 0 62px rgb(var(--passenger-ambient-color) / 0.28);
+      inset 0 0 240px rgb(var(--passenger-ambient-color) / 0.68),
+      0 0 138px rgb(var(--passenger-ambient-color) / 0.58);
   }
 }
 
@@ -9227,7 +9227,7 @@ button.passenger-idle-music {
 
 .passenger-music-stage-lights {
   position: absolute;
-  z-index: 0;
+  z-index: 1;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
@@ -9236,21 +9236,23 @@ button.passenger-idle-music {
 .passenger-music-stage-light {
   position: absolute;
   display: block;
-  border: 1px solid rgb(255 255 255 / 0.22);
+  border: 1px solid rgb(255 255 255 / 0.44);
   border-radius: 999px;
-  background: radial-gradient(circle at 30% 28%, rgb(255 255 255 / 0.32), rgb(var(--passenger-ambient-color) / 0.13) 42%, transparent 72%);
+  background: radial-gradient(circle at 30% 28%, rgb(255 255 255 / 0.62), rgb(var(--passenger-ambient-color) / 0.46) 42%, rgb(230 206 32 / 0.18) 63%, transparent 78%);
   box-shadow:
-    inset 0 0 22px rgb(255 255 255 / 0.12),
-    0 0 48px rgb(var(--passenger-ambient-color) / 0.38);
-  backdrop-filter: blur(11px);
-  opacity: 0.58;
+    inset 0 0 28px rgb(255 255 255 / 0.26),
+    0 0 86px rgb(var(--passenger-ambient-color) / 0.72),
+    0 0 36px rgb(230 206 32 / 0.32);
+  backdrop-filter: blur(14px) saturate(1.5);
+  mix-blend-mode: screen;
+  opacity: 0.9;
   will-change: transform;
 }
 
 .passenger-music-stage-light--one {
   top: 9%;
   left: 41%;
-  width: clamp(3.5rem, 8vw, 7rem);
+  width: clamp(4.5rem, 10vw, 9rem);
   aspect-ratio: 1;
   animation: passenger-music-stage-drift-one 13s ease-in-out infinite alternate;
 }
@@ -9258,7 +9260,7 @@ button.passenger-idle-music {
 .passenger-music-stage-light--two {
   top: 43%;
   right: 7%;
-  width: clamp(2.5rem, 5vw, 4.5rem);
+  width: clamp(3.25rem, 6.5vw, 6rem);
   aspect-ratio: 1;
   animation: passenger-music-stage-drift-two 17s ease-in-out infinite alternate;
 }
@@ -9266,7 +9268,7 @@ button.passenger-idle-music {
 .passenger-music-stage-light--three {
   bottom: 10%;
   left: 17%;
-  width: clamp(2rem, 4vw, 3.5rem);
+  width: clamp(2.75rem, 5vw, 4.5rem);
   aspect-ratio: 1;
   animation: passenger-music-stage-drift-three 15s ease-in-out infinite alternate;
 }
@@ -9274,7 +9276,7 @@ button.passenger-idle-music {
 .passenger-music-stage-light--four {
   top: 27%;
   right: 34%;
-  width: clamp(1.4rem, 2.8vw, 2.4rem);
+  width: clamp(2rem, 3.8vw, 3.25rem);
   aspect-ratio: 1;
   animation: passenger-music-stage-drift-four 11s ease-in-out infinite alternate;
 }
@@ -9350,7 +9352,7 @@ button.passenger-idle-music {
     grid-column: 1 !important;
     grid-row: 1 !important;
     min-width: 0 !important;
-    z-index: 1;
+    z-index: 2;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-player-body {
@@ -9361,7 +9363,7 @@ button.passenger-idle-music {
     align-items: center !important;
     gap: clamp(0.9rem, 1.6vw, 1.5rem) !important;
     min-height: 0 !important;
-    z-index: 1;
+    z-index: 2;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-player-body .passenger-music-now-playing-art {
@@ -9388,7 +9390,8 @@ button.passenger-idle-music {
     grid-row: 1 !important;
     display: flex !important;
     min-height: 0 !important;
-    justify-content: flex-start !important;
+    align-self: center !important;
+    justify-content: center !important;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-track-title {
@@ -9440,7 +9443,7 @@ button.passenger-idle-music {
     height: clamp(5.25rem, 12dvh, 8rem) !important;
     margin: 0.15rem 0 0 !important;
     position: relative;
-    z-index: 1;
+    z-index: 2;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > .passenger-music-visualizer > span {
