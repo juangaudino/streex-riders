@@ -9005,6 +9005,19 @@ button.passenger-idle-music {
   box-shadow: 0 0 82px rgb(var(--passenger-ambient-color) / 0.3);
 }
 
+@keyframes passenger-music-ambient-pulse {
+  0%,
+  100% {
+    opacity: 0.58;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.17);
+  }
+}
+
 @media (orientation: landscape) and (min-width: 900px) {
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing {
     background-image:
@@ -9018,6 +9031,10 @@ button.passenger-idle-music {
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing::before {
     opacity: 0.62;
     filter: drop-shadow(0 0 22px rgb(var(--passenger-ambient-color) / 0.5));
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-ambient-orb {
+    animation: passenger-music-ambient-pulse 2.7s ease-in-out infinite;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing-art {
@@ -9035,5 +9052,11 @@ button.passenger-idle-music {
     box-shadow:
       0 18px 50px rgb(0 0 0 / 0.5),
       0 0 72px rgb(var(--passenger-ambient-color) / 0.58) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .passenger-console-shell[data-view="music"] .passenger-music-ambient-orb {
+    animation: none;
   }
 }
