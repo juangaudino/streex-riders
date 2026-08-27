@@ -86,6 +86,7 @@ import type { AroundYouLanguage } from "./around-you/around-you-types";
 import { useAroundYouEngine } from "./around-you/useAroundYouEngine";
 import { usePassengerLocation } from "./around-you/usePassengerLocation";
 import { usePassengerAnalytics } from "./usePassengerAnalytics";
+import { WeatherAtmosphere, type AtmosphereVariant } from "./WeatherAtmosphere";
 import type { PassengerAnalyticsScreen } from "@/lib/passenger-analytics";
 import utahTriviaAtlas from "@/assets/passenger-games/utah-trivia-atlas.jpg";
 import utahTriviaNationalParks from "@/assets/passenger-games/utah-trivia-national-parks.jpg";
@@ -97,6 +98,31 @@ import passengerRav4Side from "@/assets/streex-gallery/rav4.jpg";
 import horizonQuickActionCard from "@/features/runner/assets/quick-action/horizon_quick_action_card.webp";
 
 type Language = AroundYouLanguage;
+
+const WEATHER_ATMOSPHERE_OPTIONS: { id: AtmosphereVariant; label: string }[] = [
+  { id: "thunderstorms", label: "Storm" },
+  { id: "rain", label: "Rain" },
+  { id: "snow", label: "Snow" },
+  { id: "fog", label: "Fog" },
+  { id: "smoke", label: "Smoke" },
+  { id: "partly-cloudy-night", label: "Night" },
+  { id: "cloudy", label: "Clouds" },
+  { id: "clear", label: "Clear" },
+];
+
+function atmosphereForWeather(condition: PassengerWeatherCondition, night: boolean): AtmosphereVariant {
+  if (condition === "thunderstorms") return "thunderstorms";
+  if (condition === "rain") return "rain";
+  if (condition === "snow") return "snow";
+  if (condition === "fog") return "fog";
+  if (condition === "smoke") return "smoke";
+  if (night && (condition === "clear" || condition === "mostly-clear" || condition === "partly-cloudy")) {
+    return "partly-cloudy-night";
+  }
+  if (condition === "cloudy" || condition === "wind") return "cloudy";
+  return "clear";
+}
+
 type View =
   | "home"
   | "music"
@@ -1827,6 +1853,10 @@ function WeatherDetailDialog({
     };
   });
   const current = weather?.periods[0];
+  const currentNight = current ? isNightAt(new Date(current.startTime), timeZone) : false;
+  const automaticAtmosphere = atmosphereForWeather(current?.condition ?? "clear", currentNight);
+  const [atmosphereOverride, setAtmosphereOverride] = useState<AtmosphereVariant | null>(null);
+  const atmosphere = atmosphereOverride ?? automaticAtmosphere;
   const updatedAt = weather
     ? new Date(weather.updatedAt).toLocaleTimeString(locale, {
         hour: "numeric",
@@ -1837,52 +1867,69 @@ function WeatherDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100%_-_2rem)] max-w-5xl rounded-[30px] border-white/10 bg-[#121212] p-6 text-white sm:p-7">
-        <DialogHeader>
+      <DialogContent className="relative flex max-h-[92vh] w-[calc(100%_-_2rem)] max-w-5xl flex-col gap-4 overflow-hidden rounded-[30px] border-white/10 bg-[#0B0B0B] p-6 text-white sm:p-7">
+        <WeatherAtmosphere variant={atmosphere} className="rounded-[30px]" />
+        <DialogHeader className="relative z-10">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
           <DialogTitle className="text-left text-2xl font-extrabold">
             {t.weatherDetailTitle}
           </DialogTitle>
           <DialogDescription className="text-left text-white/55">
             {t.weatherDetailDescription} {city}.
           </DialogDescription>
+            </div>
+            <div className="flex max-w-full flex-wrap justify-end gap-1.5 rounded-full border border-white/10 bg-black/45 p-1 backdrop-blur">
+              {WEATHER_ATMOSPHERE_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setAtmosphereOverride(option.id)}
+                  className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] transition ${
+                    atmosphere === option.id
+                      ? "bg-[#E6CE20] text-black"
+                      : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </DialogHeader>
 
         {current ? (
-          <>
-            <div className="relative overflow-hidden rounded-[26px] border border-[#E6CE20]/25 bg-gradient-to-br from-[#E6CE20]/20 via-[#252116] to-[#101010] p-5">
-              <div className="absolute -right-12 -top-16 h-48 w-48 rounded-full bg-[#E6CE20]/20 blur-3xl" />
-              <div className="relative grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(250px,0.85fr)] sm:items-center">
+          <div className="relative z-10 flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto pr-1">
+            <div className="relative overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.06] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+              <div className="relative grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(220px,0.7fr)] sm:items-center">
                 <div className="flex min-w-0 items-center gap-4">
-                  <span className="grid h-20 w-20 shrink-0 place-items-center rounded-[24px] border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-[#E6CE20] shadow-[0_0_32px_rgba(230,206,32,0.13)]">
+                  <span className="grid h-20 w-20 shrink-0 place-items-center rounded-[24px] border border-white/[0.08] bg-white/[0.07] text-white/90">
                     <WeatherConditionIcon
                       condition={current.condition}
                       className="h-10 w-10"
-                      night={isNightAt(new Date(current.startTime), timeZone)}
+                      night={currentNight}
                     />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E6CE20]">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45">
                       {t.weatherNow} · {city}
                     </p>
-                    <div className="mt-1 flex items-baseline gap-3">
-                      <p className="text-5xl font-black tracking-tight sm:text-6xl">
-                        {formatTemperature(current.temperatureFahrenheit)}
-                      </p>
-                      <p className="truncate text-base font-semibold text-white/80">
-                        {weatherConditionLabel(current.condition, t)}
-                      </p>
-                    </div>
-                    {language === "en" ? (
-                      <p className="mt-1 truncate text-sm text-white/55">{current.shortForecast}</p>
-                    ) : null}
+                    <p className="mt-1 text-5xl font-black leading-none tracking-tight sm:text-6xl">
+                      {formatTemperature(current.temperatureFahrenheit)}
+                    </p>
+                    <p className="mt-1.5 truncate text-lg font-bold text-[#E6CE20]">
+                      {weatherConditionLabel(current.condition, t)}
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-sm leading-snug text-white/55">
+                      {current.shortForecast}
+                    </p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+                <div className="flex flex-col gap-3 border-t border-white/10 pt-4 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
                   <WeatherMetric
                     label={t.precipitation}
-                    value={
-                      current.precipitationChance === null ? "—" : `${current.precipitationChance}%`
-                    }
+                    value={current.precipitationChance === null ? "—" : `${current.precipitationChance}%`}
+                    progress={current.precipitationChance}
                   />
                   <WeatherMetric
                     label={t.wind}
@@ -1896,20 +1943,20 @@ function WeatherDetailDialog({
               <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
                 {t.nextHours}
               </p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 divide-x divide-white/[0.07] overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl">
                 {forecast.map((hour, index) => (
                   <div
                     key={`${hour.label}-${index}`}
-                    className="rounded-2xl border border-white/10 bg-white/[0.035] p-3.5"
+                    className={`flex flex-col items-center gap-2 px-3 py-3.5 text-center ${index === 0 ? "bg-white/[0.08]" : ""}`}
                   >
-                    <p className="text-xs font-semibold text-white/55">{hour.label}</p>
+                    <p className="text-xs font-semibold text-white/60">{hour.label}</p>
                     <WeatherConditionIcon
                       condition={hour.period.condition}
-                      className="mt-3 h-5 w-5 text-[#E6CE20]"
+                      className="h-6 w-6 text-white/90"
                       night={isNightAt(new Date(hour.period.startTime), timeZone)}
                     />
-                    <p className="mt-3 text-xl font-bold">{hour.temperature}</p>
-                    <p className="mt-1 truncate text-[10px] leading-tight text-white/50">
+                    <p className="text-2xl font-black leading-none">{hour.temperature}</p>
+                    <p className="line-clamp-2 text-[10px] leading-tight text-white/45">
                       {weatherConditionLabel(hour.period.condition, t)}
                     </p>
                   </div>
@@ -1924,28 +1971,27 @@ function WeatherDetailDialog({
                 </p>
                 <div className="grid grid-cols-4 gap-2">
                   {dailyForecast.map((day, index) => (
-                    <div
-                      key={`${day.period.startTime}-${index}`}
-                      className="rounded-2xl border border-white/10 bg-white/[0.025] p-3.5"
-                    >
-                      <p className="truncate text-xs font-bold capitalize text-white/80">{day.label}</p>
-                      <p className="mt-0.5 text-[10px] text-white/45">{day.date}</p>
-                      <div className="mt-3 flex items-center justify-between gap-2">
-                        <WeatherConditionIcon
-                          condition={day.period.condition}
-                          className="h-5 w-5 shrink-0 text-[#E6CE20]"
-                        />
-                        <p className="text-xl font-bold">{day.temperature}</p>
+                  <div
+                    key={`${day.period.startTime}-${index}`}
+                    className={`flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl ${index === 0 ? "border-[#E6CE20]/30" : ""}`}
+                  >
+                      <WeatherConditionIcon condition={day.period.condition} className="h-6 w-6 shrink-0 text-white/90" />
+                      <div className="min-w-0 flex-1">
+                        {index === 0 ? (
+                          <p className="text-[8px] font-bold uppercase tracking-[0.22em] text-[#E6CE20]">
+                            {language === "es" ? "Mañana" : "Tomorrow"}
+                          </p>
+                        ) : null}
+                        <p className="truncate text-xs font-bold capitalize text-white/80">{day.label}</p>
+                        <p className="mt-0.5 text-[10px] text-white/45">{day.date}</p>
                       </div>
-                      <p className="mt-2 truncate text-[10px] text-white/50">
-                        {weatherConditionLabel(day.period.condition, t)}
-                      </p>
+                      <p className={`shrink-0 font-black ${index === 0 ? "text-[1.55rem]" : "text-xl"}`}>{day.temperature}</p>
                     </div>
                   ))}
                 </div>
               </div>
             ) : null}
-          </>
+          </div>
         ) : (
           <div className="rounded-2xl border border-[#E6CE20]/25 bg-[#E6CE20]/[0.06] p-4">
             <p className="text-lg font-bold">{formatTemperature(fallbackTemperatureFahrenheit)}</p>
@@ -1954,7 +2000,7 @@ function WeatherDetailDialog({
           </div>
         )}
 
-        <div className="flex items-center gap-2 border-t border-white/10 pt-3 text-xs text-white/50">
+        <div className="relative z-10 flex items-center gap-2 border-t border-white/10 pt-3 text-xs text-white/50">
           <Cloud className="h-4 w-4 text-[#E6CE20]" />
           <span>
             {updatedAt ? `${t.updated} ${updatedAt}` : t.weatherUnavailable}
@@ -2014,13 +2060,32 @@ function WeatherConditionIcon({
   return <Icon className={className} aria-hidden="true" />;
 }
 
-function WeatherMetric({ label, value }: { label: string; value: string }) {
+function WeatherMetric({
+  label,
+  progress,
+  value,
+}: {
+  label: string;
+  progress?: number | null;
+  value: string;
+}) {
+  const safeProgress = progress === null || progress === undefined ? null : Math.max(0, Math.min(100, progress));
+
   return (
     <div className="min-w-0">
       <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-white/45">
         {label}
       </p>
-      <p className="mt-1 truncate text-sm font-bold">{value}</p>
+      {safeProgress === null ? (
+        <p className="mt-1 truncate text-sm font-bold">{value}</p>
+      ) : (
+        <div className="mt-1.5 flex items-center gap-3">
+          <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+            <span className="block h-full rounded-full bg-[#E6CE20]" style={{ width: `${safeProgress}%` }} />
+          </span>
+          <span className="text-sm font-bold tabular-nums">{value}</span>
+        </div>
+      )}
     </div>
   );
 }
