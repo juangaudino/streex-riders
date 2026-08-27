@@ -1429,6 +1429,12 @@ function IdleSpotifyNowPlaying({
   if (!isDiscoverable)
     return (
       <div className={className} style={ambientStyle(artworkPalette)}>
+        <span aria-hidden="true" className="passenger-idle-stage-lights">
+          <span className="passenger-music-stage-light passenger-music-stage-light--one" />
+          <span className="passenger-music-stage-light passenger-music-stage-light--two" />
+          <span className="passenger-music-stage-light passenger-music-stage-light--three" />
+          <span className="passenger-music-stage-light passenger-music-stage-light--four" />
+        </span>
         {content}
       </div>
     );
