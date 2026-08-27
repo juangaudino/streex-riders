@@ -1,4 +1,4 @@
-const CACHE_NAME = "streex-passenger-v1";
+const CACHE_NAME = "streex-passenger-v2";
 const OFFLINE_PAGE = "/passenger-offline.html";
 const PRECACHE_URLS = [
   OFFLINE_PAGE,
@@ -41,18 +41,6 @@ async function networkFirst(request) {
   }
 }
 
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(request);
-  const network = fetch(request)
-    .then((response) => {
-      if (response.ok) cache.put(request, response.clone());
-      return response;
-    })
-    .catch(() => cached);
-  return cached || network;
-}
-
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -64,5 +52,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (isStaticAsset(url)) event.respondWith(staleWhileRevalidate(request));
+  // A Passenger release ships HTML, JS and CSS as one unit. Serving a stale
+  // module first can leave a Fully tablet with a mismatched UI bundle; prefer
+  // the current release and retain the cache strictly as its offline fallback.
+  if (isStaticAsset(url)) event.respondWith(networkFirst(request));
 });

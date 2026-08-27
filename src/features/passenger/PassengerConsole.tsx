@@ -57,7 +57,6 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   controlPersonalSpotifyPlayback,
   getPersonalSpotifyPlayback,
-  getPersonalSpotifyPlaylistArtwork,
   playPersonalSpotifyTrack,
   searchPersonalSpotifyTracks,
 } from "@/lib/spotify.functions";
@@ -2160,19 +2159,16 @@ const MUSIC_DISCOVERY_COLLECTIONS = [
   {
     accent: "#E6CE20",
     labelKey: "vibeTopUs",
-    playlistId: "37i9dQZEVXbLRQDuF5jeBp",
     query: "spotify top 50 usa",
   },
   {
     accent: "#7ED957",
     labelKey: "vibeTopGlobal",
-    playlistId: "37i9dQZEVXbMDoHDwVN2tF",
     query: "spotify top 50 global",
   },
   {
     accent: "#FF6B6B",
     labelKey: "vibeToday",
-    playlistId: "37i9dQZF1DXcBWIGoYBM5M",
     query: "today's top hits",
   },
 ] as const;
@@ -2527,7 +2523,6 @@ function PersonalSpotifyMusicView({
   const [results, setResults] = useState<SpotifySearchTrack[]>([]);
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
-  const [playlistArtwork, setPlaylistArtwork] = useState<Record<string, string | null>>({});
 
   const refresh = useCallback(
     async (silent = false) => {
@@ -2561,25 +2556,6 @@ function PersonalSpotifyMusicView({
       document.removeEventListener("visibilitychange", refreshOnVisible);
     };
   }, [refresh]);
-
-  useEffect(() => {
-    let active = true;
-    const loadPlaylistArtwork = async () => {
-      try {
-        const response = await getPersonalSpotifyPlaylistArtwork({ data: {} });
-        if (!active) return;
-        setPlaylistArtwork(
-          Object.fromEntries(response.playlists.map((playlist) => [playlist.id, playlist.artworkUrl])),
-        );
-      } catch {
-        // The cards retain their branded color fallback when Spotify is unavailable.
-      }
-    };
-    void loadPlaylistArtwork();
-    return () => {
-      active = false;
-    };
-  }, []);
 
   const trackKey = (playbackStatus: SpotifyPlaybackState | null) => {
     if (playbackStatus?.state !== "ready" || !playbackStatus.playback.track) return null;
@@ -2850,7 +2826,6 @@ function PersonalSpotifyMusicView({
             <div className="passenger-music-collections mt-5">
               <div className="mt-3 grid gap-3">
                 {MUSIC_DISCOVERY_COLLECTIONS.map((collection) => {
-                  const artworkUrl = playlistArtwork[collection.playlistId];
                   return (
                     <button
                       key={collection.query}
@@ -2862,13 +2837,6 @@ function PersonalSpotifyMusicView({
                         "--collection-accent": collection.accent,
                       } as React.CSSProperties}
                     >
-                      {artworkUrl ? (
-                        <img
-                          src={artworkUrl}
-                          alt=""
-                          className="absolute inset-0 h-full w-full object-cover"
-                        />
-                      ) : null}
                       <span className="passenger-music-playlist-card__overlay absolute inset-0" />
                       <span className="relative z-10 mt-auto min-w-0 pr-8 text-base font-black text-white">
                         {t[collection.labelKey]}

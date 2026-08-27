@@ -15,7 +15,6 @@ import {
   controlSpotifyPlayback,
   exchangeSpotifyCode,
   getSpotifyCatalogAccessToken,
-  getSpotifyPlaylistArtwork,
   getSpotifyPlayback,
   isSpotifyPersonalIntegrationEnabled,
   playSpotifyTrack,
@@ -151,20 +150,6 @@ export const searchPersonalSpotifyTracks = createServerFn({ method: "POST" })
         data.limit,
         data.market,
       ),
-    };
-  });
-
-export const getPersonalSpotifyPlaylistArtwork = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => EmptySchema.parse(input))
-  .handler(async () => {
-    assertSpotifyPersonalIntegrationEnabled();
-    assertPassengerConsoleSession();
-    return {
-      playlists: await getSpotifyPlaylistArtwork(await getSpotifyCatalogAccessToken(), [
-        "37i9dQZEVXbLRQDuF5jeBp",
-        "37i9dQZEVXbMDoHDwVN2tF",
-        "37i9dQZF1DXcBWIGoYBM5M",
-      ]),
     };
   });
 

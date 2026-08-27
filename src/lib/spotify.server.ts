@@ -49,12 +49,6 @@ type SpotifySearchResponse = {
   error?: { message?: string };
 };
 
-type SpotifyPlaylistResponse = {
-  id?: string;
-  images?: Array<{ url?: string }>;
-  error?: { message?: string };
-};
-
 export type PersonalSpotifyPlayback = {
   hasActiveDevice: boolean;
   isPlaying: boolean;
@@ -77,11 +71,6 @@ export type SpotifyTrackSearchResult = {
   artworkUrl: string | null;
   durationMs: number | null;
   explicit: boolean;
-};
-
-export type SpotifyPlaylistArtwork = {
-  id: string;
-  artworkUrl: string | null;
 };
 
 function getSpotifyConfig() {
@@ -278,31 +267,6 @@ export async function searchSpotifyTracks(
   });
 }
 
-export async function getSpotifyPlaylistArtwork(
-  accessToken: string,
-  playlistIds: readonly string[],
-): Promise<SpotifyPlaylistArtwork[]> {
-  return Promise.all(
-    playlistIds.map(async (playlistId) => {
-      try {
-        const response = await spotifyFetch(`${SPOTIFY_API}/playlists/${playlistId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        const result = (await response.json()) as SpotifyPlaylistResponse;
-        if (!response.ok) {
-          console.warn("[Spotify] playlist artwork unavailable", result.error?.message);
-          return { id: playlistId, artworkUrl: null };
-        }
-        return {
-          id: playlistId,
-          artworkUrl: result.images?.find((image) => image.url)?.url ?? null,
-        };
-      } catch {
-        return { id: playlistId, artworkUrl: null };
-      }
-    }),
-  );
-}
 
 export async function playSpotifyTrack(accessToken: string, uri: string) {
   const response = await spotifyFetch(`${SPOTIFY_API}/me/player/play`, {
