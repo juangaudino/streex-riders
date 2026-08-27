@@ -1,5 +1,6 @@
 import { Component, useCallback, useEffect, useState, type ReactNode } from "react";
 import {
+  Activity,
   CalendarCheck,
   CalendarClock,
   Gamepad2,
@@ -18,6 +19,7 @@ import {
 import {
   deleteAdminReview,
   deleteAdminRunnerScore,
+  getAdminPassengerAnalyticsSummary,
   listAdminBookings,
   listAdminReviews,
   listAdminRunnerScores,
@@ -50,6 +52,7 @@ import {
 } from "@/lib/tenant.functions";
 
 type AdminTab =
+  | "analytics"
   | "bookings"
   | "reviews"
   | "runner"
@@ -252,6 +255,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
 
   const tabs: { key: AdminTab; label: string; icon: React.ReactNode }[] = [
     { key: "bookings", label: "Bookings", icon: <CalendarCheck className="h-4 w-4" /> },
+    { key: "analytics", label: "Passenger", icon: <Activity className="h-4 w-4" /> },
     { key: "reviews", label: "Reviews", icon: <MessageSquareQuote className="h-4 w-4" /> },
     ...(adminSession.isSuperAdmin
       ? ([{ key: "runner", label: "Horizon", icon: <Gamepad2 className="h-4 w-4" /> }] as const)
@@ -366,7 +370,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
           </div>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mb-7">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-7">
           {tabs.map((tab) => {
             const selected = tab.key === activeTab;
             return (
@@ -389,6 +393,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
 
         <div key={adminSession.activeTenantId}>
           {activeTab === "bookings" && <AdminBookings adminKey={adminKey} />}
+          {activeTab === "analytics" && <AdminPassengerAnalytics adminKey={adminKey} />}
           {activeTab === "reviews" && <AdminReviews adminKey={adminKey} />}
           {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}
           {activeTab === "themes" && <AdminThemes adminKey={adminKey} />}
@@ -408,6 +413,173 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+type PassengerAnalyticsSummary = {
+  days: number;
+  sessions: number;
+  interactiveSessions: number;
+  sessionsWithoutInteraction: number;
+  averageActiveDurationMs: number;
+  firstInteractions: number;
+  music: { opened: number; actions: number };
+  idle: { entered: number; logicalRest: number };
+  byScreen: Record<string, number>;
+  games: Record<string, { opened: number; started: number; completed: number }>;
+  lifecycle: { tabletUnverified: number; driverConfirmed: number };
+};
+
+function formatPassengerDuration(durationMs: number) {
+  const totalSeconds = Math.round(durationMs / 1_000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return minutes ? `${minutes}m ${seconds}s` : `${seconds}s`;
+}
+
+function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
+  const [days, setDays] = useState(30);
+  const [summary, setSummary] = useState<PassengerAnalyticsSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await getAdminPassengerAnalyticsSummary({ data: { adminKey, days } });
+      setSummary(result as PassengerAnalyticsSummary);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "Unable to load Passenger analytics.");
+    } finally {
+      setLoading(false);
+    }
+  }, [adminKey, days]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  return (
+    <section className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-[10px] uppercase streex-tracking text-[#E6CE20]/75">Passenger only</p>
+          <h2 className="mt-1 text-xl font-bold">Anonymous tablet activity</h2>
+          <p className="mt-1 max-w-xl text-xs leading-relaxed text-white/50">
+            No names, bookings, addresses, GPS, device serials or passenger identity. These are tablet
+            sessions, not confirmed rides.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {[7, 30].map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setDays(value)}
+              className={`rounded-lg border px-3 py-2 text-xs font-semibold ${
+                days === value
+                  ? "border-[#E6CE20] bg-[#E6CE20] text-black"
+                  : "border-white/10 text-white/65 hover:text-white"
+              }`}
+            >
+              {value} days
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => void load()}
+            className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/65 hover:text-white"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      {loading ? (
+        <p className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm text-white/55">
+          Loading Passenger analytics…
+        </p>
+      ) : error ? (
+        <p className="rounded-2xl border border-red-400/25 bg-red-400/10 p-5 text-sm text-red-100">
+          {error}
+        </p>
+      ) : summary ? (
+        <>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["Sessions", summary.sessions],
+              ["First interactions", summary.firstInteractions],
+              ["Average active time", formatPassengerDuration(summary.averageActiveDurationMs)],
+              ["No interaction", summary.sessionsWithoutInteraction],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">{label}</p>
+                <p className="mt-2 text-2xl font-black text-[#E6CE20]">{value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <section className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
+              <h3 className="font-semibold">Section use</h3>
+              <div className="mt-4 space-y-2">
+                {Object.entries(summary.byScreen).length ? (
+                  Object.entries(summary.byScreen)
+                    .sort(([, left], [, right]) => right - left)
+                    .map(([screen, count]) => (
+                      <div key={screen} className="flex items-center justify-between text-sm">
+                        <span className="capitalize text-white/65">{screen.replaceAll("_", " ")}</span>
+                        <span className="font-semibold text-white">{count}</span>
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-sm text-white/45">No Passenger activity recorded yet.</p>
+                )}
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
+              <h3 className="font-semibold">Music and rest</h3>
+              <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <Metric label="Music opened" value={summary.music.opened} />
+                <Metric label="Music actions" value={summary.music.actions} />
+                <Metric label="Idle entered" value={summary.idle.entered} />
+                <Metric label="Logical rest" value={summary.idle.logicalRest} />
+              </div>
+            </section>
+          </div>
+
+          <section className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
+            <h3 className="font-semibold">Games</h3>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {Object.entries(summary.games).map(([game, counts]) => (
+                <div key={game} className="rounded-xl border border-white/10 p-4">
+                  <p className="text-sm font-semibold capitalize">{game.replaceAll("-", " ")}</p>
+                  <p className="mt-2 text-xs text-white/50">
+                    Opened {counts.opened} · Started {counts.started} · Finished {counts.completed}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <p className="text-xs text-white/40">
+            {summary.interactiveSessions} interactive tablet sessions · {summary.lifecycle.tabletUnverified}{" "}
+            unverified tablet sessions · {summary.lifecycle.driverConfirmed} confirmed by Driver MC.
+          </p>
+        </>
+      ) : null}
+    </section>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl border border-white/10 p-3">
+      <p className="text-[10px] uppercase tracking-[0.12em] text-white/45">{label}</p>
+      <p className="mt-1 text-xl font-bold text-[#E6CE20]">{value}</p>
     </div>
   );
 }

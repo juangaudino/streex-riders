@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AppConfig } from "@/config";
 import {
   ArrowLeft,
@@ -80,6 +80,8 @@ import {
 import type { AroundYouLanguage } from "./around-you/around-you-types";
 import { useAroundYouEngine } from "./around-you/useAroundYouEngine";
 import { usePassengerLocation } from "./around-you/usePassengerLocation";
+import { usePassengerAnalytics } from "./usePassengerAnalytics";
+import type { PassengerAnalyticsScreen } from "@/lib/passenger-analytics";
 import utahTriviaAtlas from "@/assets/passenger-games/utah-trivia-atlas.jpg";
 import utahTriviaNationalParks from "@/assets/passenger-games/utah-trivia-national-parks.jpg";
 import utahTriviaSymbols from "@/assets/passenger-games/utah-trivia-symbols.jpg";
@@ -111,6 +113,16 @@ type PassengerReview = {
   stars: number;
   text: string;
 };
+
+function passengerAnalyticsScreen(view: View): PassengerAnalyticsScreen {
+  return view === "meet-juan"
+    ? "meet_juan"
+    : view === "where-we-ride"
+      ? "where_we_ride"
+      : view === "around-you"
+        ? "around_you"
+        : view;
+}
 
 const PASSENGER_REVIEW_ROTATION_MS = 30_000;
 
@@ -600,6 +612,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
 
   const consoleConfig = config.passengerConsole;
   const isLiteExperience = consoleConfig.experienceMode === "lite";
+  const analytics = usePassengerAnalytics(passengerAnalyticsScreen(view));
   const aroundYouEnabled = consoleConfig.aroundYou.enabled || aroundYouTestMode;
   const simulatedAroundYouPlace = useMemo(
     () =>
@@ -632,14 +645,26 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
       if (nextView === "home" && view !== "home") {
         setQuickGameIndex((current) => current + 1);
       }
+      if (nextView === "music" && view !== "music") {
+        analytics.track({ name: "music_opened", element: "music", interaction: true });
+      }
       setView(nextView);
     },
-    [view],
+    [analytics, view],
   );
-  const openGame = useCallback((game: PassengerGame) => {
-    setRequestedGame(game);
-    setView("games");
-  }, []);
+  const openGame = useCallback(
+    (game: PassengerGame, source: "idle" | "home" = "home") => {
+      analytics.track({
+        name: "game_opened",
+        element: "game",
+        metadata: { game, source },
+        interaction: true,
+      });
+      setRequestedGame(game);
+      setView("games");
+    },
+    [analytics],
+  );
   const quickGame = PASSENGER_GAMES[quickGameIndex % PASSENGER_GAMES.length];
   const resetPassengerSession = useCallback(() => {
     setBookingOpen(false);
@@ -657,6 +682,30 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
     inactivitySeconds: consoleConfig.idleReset.inactivitySeconds,
     onReset: resetPassengerSession,
   });
+  const previousIdleRef = useRef<{ open: boolean; logicalRest: boolean }>({
+    open: false,
+    logicalRest: false,
+  });
+
+  useEffect(() => {
+    const previous = previousIdleRef.current;
+    if (!previous.open && idleReset.promptOpen) {
+      analytics.track({
+        name: idleReset.logicalRest ? "logical_rest_entered" : "idle_entered",
+        screen: "idle",
+        element: idleReset.logicalRest ? "logical_rest" : "idle",
+      });
+    }
+    if (previous.open && !idleReset.promptOpen) {
+      analytics.track({
+        name: previous.logicalRest ? "logical_rest_resumed" : "idle_resumed",
+        screen: "idle",
+        element: previous.logicalRest ? "logical_rest" : "idle",
+        interaction: true,
+      });
+    }
+    previousIdleRef.current = { open: idleReset.promptOpen, logicalRest: idleReset.logicalRest };
+  }, [analytics, idleReset.logicalRest, idleReset.promptOpen]);
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
@@ -727,7 +776,21 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               }
             />
           )}
-          {view === "music" && <MusicView config={config} onNavigate={navigateTo} t={t} />}
+          {view === "music" && (
+            <MusicView
+              config={config}
+              onMusicAction={(action) =>
+                analytics.track({
+                  name: "music_action",
+                  element: "music_playback",
+                  metadata: { action },
+                  interaction: true,
+                })
+              }
+              onNavigate={navigateTo}
+              t={t}
+            />
+          )}
           {view === "games" && (
             <GamesView
               language={language}
@@ -738,6 +801,25 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               requestedGame={requestedGame}
               onRequestedGameConsumed={consumeRequestedGame}
               phoneContinuation={consoleConfig.links.phoneContinuation}
+              onGameCompleted={(game) =>
+                analytics.track({ name: "game_completed", element: "game", metadata: { game } })
+              }
+              onGameOpened={(game) =>
+                analytics.track({
+                  name: "game_opened",
+                  element: "game",
+                  metadata: { game, source: "navigation" },
+                  interaction: true,
+                })
+              }
+              onGameStarted={(game) =>
+                analytics.track({
+                  name: "game_started",
+                  element: "game",
+                  metadata: { game },
+                  interaction: true,
+                })
+              }
             />
           )}
           {view === "streex" && (
@@ -796,7 +878,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           }}
           onExploreGame={() => {
             idleReset.resume();
-            openGame(quickGame);
+            openGame(quickGame, "idle");
           }}
           onExploreStreex={() => {
             idleReset.resume();
@@ -1905,10 +1987,12 @@ function QuickAccessCard({
 
 function MusicView({
   config,
+  onMusicAction,
   onNavigate,
   t,
 }: {
   config: AppConfig;
+  onMusicAction: (action: "play" | "pause" | "next" | "search" | "top_50" | "vibes") => void;
   onNavigate: (view: View) => void;
   t: (typeof copy)[Language];
 }) {
@@ -1918,6 +2002,7 @@ function MusicView({
       <PersonalSpotifyMusicView
         config={config}
         onNavigate={onNavigate}
+        onMusicAction={onMusicAction}
         catalogMarket={music.catalogMarket}
         searchEnabled={music.searchEnabled}
         searchResultLimit={music.searchResultLimit}
@@ -2040,6 +2125,7 @@ function PersonalSpotifyMusicView({
   config,
   catalogMarket,
   onNavigate,
+  onMusicAction,
   searchEnabled,
   searchResultLimit,
   t,
@@ -2047,6 +2133,7 @@ function PersonalSpotifyMusicView({
   config: AppConfig;
   catalogMarket: string;
   onNavigate: (view: View) => void;
+  onMusicAction: (action: "play" | "pause" | "next" | "search" | "top_50" | "vibes") => void;
   searchEnabled: boolean;
   searchResultLimit: number;
   t: (typeof copy)[Language];
@@ -2106,6 +2193,7 @@ function PersonalSpotifyMusicView({
     try {
       const previousTrackKey = trackKey(status);
       await controlPersonalSpotifyPlayback({ data: { command } });
+      onMusicAction(command);
       if (command === "next") {
         await refreshUntilTrackChanges(previousTrackKey);
       } else {
@@ -2135,6 +2223,7 @@ function PersonalSpotifyMusicView({
         data: { query: normalizedQuery, limit: searchResultLimit, market: catalogMarket },
       });
       setResults(response.tracks);
+      onMusicAction("search");
       setSearchMessage(response.tracks.length ? null : t.searchEmpty);
     } catch (requestError) {
       setResults([]);
@@ -2160,6 +2249,7 @@ function PersonalSpotifyMusicView({
     try {
       const previousTrackKey = trackKey(status);
       await playPersonalSpotifyTrack({ data: { uri } });
+      onMusicAction("play");
       await refreshUntilTrackChanges(previousTrackKey);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : t.spotifyControlError);
@@ -2495,6 +2585,9 @@ function SimulatedMusicView({
 
 function GamesView({
   language,
+  onGameCompleted,
+  onGameOpened,
+  onGameStarted,
   t,
   thisOrThatEnabled,
   onRequestedGameConsumed,
@@ -2504,6 +2597,9 @@ function GamesView({
   phoneContinuation,
 }: {
   language: Language;
+  onGameCompleted: (game: PassengerGame) => void;
+  onGameOpened: (game: PassengerGame) => void;
+  onGameStarted: (game: PassengerGame) => void;
   t: (typeof copy)[Language];
   thisOrThatEnabled: boolean;
   onRequestedGameConsumed: () => void;
@@ -2521,15 +2617,36 @@ function GamesView({
   }, [onRequestedGameConsumed, requestedGame]);
 
   if (activeGame === "trivia" && utahTriviaEnabled) {
-    return <UtahTrivia language={language} onExit={() => setActiveGame(null)} />;
+    return (
+      <UtahTrivia
+        language={language}
+        onComplete={() => onGameCompleted("trivia")}
+        onExit={() => setActiveGame(null)}
+        onStart={() => onGameStarted("trivia")}
+      />
+    );
   }
 
   if (activeGame === "choice" && thisOrThatEnabled) {
-    return <ThisOrThat language={language} onExit={() => setActiveGame(null)} />;
+    return (
+      <ThisOrThat
+        language={language}
+        onComplete={() => onGameCompleted("choice")}
+        onExit={() => setActiveGame(null)}
+        onStart={() => onGameStarted("choice")}
+      />
+    );
   }
 
   if (activeGame === "higher-lower" && utahHigherOrLowerEnabled) {
-    return <UtahHigherOrLower language={language} onExit={() => setActiveGame(null)} />;
+    return (
+      <UtahHigherOrLower
+        language={language}
+        onComplete={() => onGameCompleted("higher-lower")}
+        onExit={() => setActiveGame(null)}
+        onStart={() => onGameStarted("higher-lower")}
+      />
+    );
   }
 
   return (
@@ -2544,7 +2661,14 @@ function GamesView({
           description={t.utahTriviaDescription}
           previewLabel={t.triviaPreview}
           icon={<HoneycombMark />}
-          onClick={utahTriviaEnabled ? () => setActiveGame("trivia") : undefined}
+          onClick={
+            utahTriviaEnabled
+              ? () => {
+                  onGameOpened("trivia");
+                  setActiveGame("trivia");
+                }
+              : undefined
+          }
           status={utahTriviaEnabled ? t.playNow : t.comingSoon}
         />
         <GameCard
@@ -2554,7 +2678,14 @@ function GamesView({
           previewLabel={t.choicePreview}
           choiceLabels={[t.choiceFirst, t.choiceSecond]}
           icon={<ArrowLeftRight className="h-7 w-7" />}
-          onClick={thisOrThatEnabled ? () => setActiveGame("choice") : undefined}
+          onClick={
+            thisOrThatEnabled
+              ? () => {
+                  onGameOpened("choice");
+                  setActiveGame("choice");
+                }
+              : undefined
+          }
           status={thisOrThatEnabled ? t.playNow : t.comingSoon}
         />
         <GameCard
@@ -2563,7 +2694,14 @@ function GamesView({
           description={t.utahHigherOrLowerDescription}
           previewLabel={t.higherOrLowerPreview}
           icon={<ArrowUpDown className="h-7 w-7" />}
-          onClick={utahHigherOrLowerEnabled ? () => setActiveGame("higher-lower") : undefined}
+          onClick={
+            utahHigherOrLowerEnabled
+              ? () => {
+                  onGameOpened("higher-lower");
+                  setActiveGame("higher-lower");
+                }
+              : undefined
+          }
           status={utahHigherOrLowerEnabled ? t.playNow : t.comingSoon}
         />
       </div>

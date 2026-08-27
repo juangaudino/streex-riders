@@ -133,7 +133,17 @@ function saveRecentQuestionIds(questionIds: string[]) {
   }
 }
 
-export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onExit: () => void }) {
+export function UtahTrivia({
+  language,
+  onComplete,
+  onExit,
+  onStart,
+}: {
+  language: TriviaLanguage;
+  onComplete: () => void;
+  onExit: () => void;
+  onStart: () => void;
+}) {
   const t = triviaCopy[language];
   const [phase, setPhase] = useState<TriviaPhase>("intro");
   const [round, setRound] = useState<UtahTriviaQuestion[]>([]);
@@ -154,12 +164,13 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
   const advanceRound = useCallback(() => {
     if (questionIndex >= round.length - 1) {
       setPhase("finished");
+      onComplete();
       return;
     }
     setQuestionIndex((current) => current + 1);
     setSelectedIndex(null);
     setTimedOut(false);
-  }, [questionIndex, round.length]);
+  }, [onComplete, questionIndex, round.length]);
 
   useEffect(() => {
     if (!answered) return;
@@ -188,6 +199,7 @@ export function UtahTrivia({ language, onExit }: { language: TriviaLanguage; onE
     setTimedOut(false);
     setScore(0);
     setPhase("playing");
+    onStart();
   };
 
   if (phase === "intro") {

@@ -109,10 +109,14 @@ function saveRecentIds(ids: string[]) {
 
 export function UtahHigherOrLower({
   language,
+  onComplete,
   onExit,
+  onStart,
 }: {
   language: TriviaLanguage;
+  onComplete: () => void;
   onExit: () => void;
+  onStart: () => void;
 }) {
   const t = copy[language];
   const [phase, setPhase] = useState<Phase>("intro");
@@ -128,12 +132,13 @@ export function UtahHigherOrLower({
   const advanceRound = useCallback(() => {
     if (questionIndex >= round.length - 1) {
       setPhase("finished");
+      onComplete();
       return;
     }
     setQuestionIndex((current) => current + 1);
     setSelectedSide(null);
     setTimedOut(false);
-  }, [questionIndex, round.length]);
+  }, [onComplete, questionIndex, round.length]);
 
   const timer = useTimedRound({
     active: phase === "playing" && Boolean(question) && !answered,
@@ -176,6 +181,7 @@ export function UtahHigherOrLower({
     setScore(0);
     setAnswerLog([]);
     setPhase("playing");
+    onStart();
   };
 
   useEffect(() => {

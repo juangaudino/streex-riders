@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Json } from "@/integrations/supabase/types";
 import { assertAdminAccess, requireSuperAdmin } from "./admin-auth.server";
 import {
   buildAdminNewRequest,
@@ -50,6 +51,15 @@ const RunnerScoreUpdateSchema = AdminSchema.extend({
   name: z.string().trim().min(1).max(24),
   score: z.number().int().min(0).max(999999),
 });
+const PassengerAnalyticsSummarySchema = AdminSchema.extend({
+  days: z.number().int().min(1).max(90).default(30),
+});
+
+function passengerAnalyticsGame(metadata: Json) {
+  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return null;
+  const game = metadata.game;
+  return game === "trivia" || game === "choice" || game === "higher-lower" ? game : null;
+}
 
 export const listAdminBookings = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => AdminSchema.parse(input))
@@ -68,6 +78,85 @@ export const listAdminBookings = createServerFn({ method: "POST" })
     }
 
     return { bookings: bookings ?? [] };
+  });
+
+export const getAdminPassengerAnalyticsSummary = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => PassengerAnalyticsSummarySchema.parse(input))
+  .handler(async ({ data }) => {
+    const access = await assertAdminAccess(data.adminKey);
+    const cutoff = new Date(Date.now() - data.days * 24 * 60 * 60 * 1_000).toISOString();
+    const [sessionsResult, eventsResult] = await Promise.all([
+      supabaseAdmin
+        .from("passenger_analytics_sessions")
+        .select("id,active_duration_ms,interaction_count,lifecycle,started_at")
+        .eq("tenant_id", access.tenantId)
+        .gte("started_at", cutoff),
+      supabaseAdmin
+        .from("passenger_analytics_events")
+        .select("event_name,screen,session_id,metadata")
+        .eq("tenant_id", access.tenantId)
+        .gte("occurred_at", cutoff),
+    ]);
+    if (sessionsResult.error || eventsResult.error) {
+      console.error("[PassengerAnalytics] admin summary error", {
+        sessions: sessionsResult.error,
+        events: eventsResult.error,
+      });
+      throw new Error("Unable to load Passenger analytics.");
+    }
+
+    const sessions = sessionsResult.data ?? [];
+    const events = eventsResult.data ?? [];
+    const byScreen = Object.fromEntries(
+      Array.from(new Set(events.map((event) => event.screen))).map((screen) => [
+        screen,
+        events.filter((event) => event.event_name === "screen_viewed" && event.screen === screen)
+          .length,
+      ]),
+    );
+    const gameCounts = Object.fromEntries(
+      ["trivia", "choice", "higher-lower"].map((game) => [
+        game,
+        {
+          opened: events.filter(
+            (event) => event.event_name === "game_opened" && passengerAnalyticsGame(event.metadata) === game,
+          ).length,
+          started: events.filter(
+            (event) => event.event_name === "game_started" && passengerAnalyticsGame(event.metadata) === game,
+          ).length,
+          completed: events.filter(
+            (event) => event.event_name === "game_completed" && passengerAnalyticsGame(event.metadata) === game,
+          ).length,
+        },
+      ]),
+    );
+
+    return {
+      days: data.days,
+      sessions: sessions.length,
+      interactiveSessions: sessions.filter((session) => session.interaction_count > 0).length,
+      sessionsWithoutInteraction: sessions.filter((session) => session.interaction_count === 0).length,
+      averageActiveDurationMs: sessions.length
+        ? Math.round(
+            sessions.reduce((total, session) => total + session.active_duration_ms, 0) / sessions.length,
+          )
+        : 0,
+      firstInteractions: events.filter((event) => event.event_name === "first_interaction").length,
+      music: {
+        opened: events.filter((event) => event.event_name === "music_opened").length,
+        actions: events.filter((event) => event.event_name === "music_action").length,
+      },
+      idle: {
+        entered: events.filter((event) => event.event_name === "idle_entered").length,
+        logicalRest: events.filter((event) => event.event_name === "logical_rest_entered").length,
+      },
+      byScreen,
+      games: gameCounts,
+      lifecycle: {
+        tabletUnverified: sessions.filter((session) => session.lifecycle === "tablet_unverified").length,
+        driverConfirmed: sessions.filter((session) => session.lifecycle === "driver_confirmed").length,
+      },
+    };
   });
 
 export const sendAdminQuote = createServerFn({ method: "POST" })

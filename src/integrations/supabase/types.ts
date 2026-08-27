@@ -386,6 +386,84 @@ export type Database = {
         };
         Relationships: [];
       };
+      passenger_analytics_events: {
+        Row: {
+          duration_ms: number | null;
+          element: string;
+          event_name: string;
+          id: string;
+          metadata: Json;
+          occurred_at: string;
+          received_at: string;
+          screen: string;
+          session_id: string;
+          tenant_id: string;
+        };
+        Insert: {
+          duration_ms?: number | null;
+          element: string;
+          event_name: string;
+          id: string;
+          metadata?: Json;
+          occurred_at: string;
+          received_at?: string;
+          screen: string;
+          session_id: string;
+          tenant_id: string;
+        };
+        Update: {
+          duration_ms?: number | null;
+          element?: string;
+          event_name?: string;
+          id?: string;
+          metadata?: Json;
+          occurred_at?: string;
+          received_at?: string;
+          screen?: string;
+          session_id?: string;
+          tenant_id?: string;
+        };
+        Relationships: [];
+      };
+      passenger_analytics_sessions: {
+        Row: {
+          active_duration_ms: number;
+          created_at: string;
+          device_installation_id: string;
+          id: string;
+          interaction_count: number;
+          last_active_at: string;
+          lifecycle: string;
+          started_at: string;
+          tenant_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          active_duration_ms?: number;
+          created_at?: string;
+          device_installation_id: string;
+          id: string;
+          interaction_count?: number;
+          last_active_at: string;
+          lifecycle?: string;
+          started_at: string;
+          tenant_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          active_duration_ms?: number;
+          created_at?: string;
+          device_installation_id?: string;
+          id?: string;
+          interaction_count?: number;
+          last_active_at?: string;
+          lifecycle?: string;
+          started_at?: string;
+          tenant_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       spotify_connections: {
         Row: {
           connected_at: string;

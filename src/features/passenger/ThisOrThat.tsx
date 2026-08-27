@@ -130,7 +130,17 @@ function VibeIcon({ vibe }: { vibe: RideVibe }) {
   return <Route className="h-7 w-7" />;
 }
 
-export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onExit: () => void }) {
+export function ThisOrThat({
+  language,
+  onComplete,
+  onExit,
+  onStart,
+}: {
+  language: TriviaLanguage;
+  onComplete: () => void;
+  onExit: () => void;
+  onStart: () => void;
+}) {
   const t = choiceCopy[language];
   const [phase, setPhase] = useState<ChoicePhase>("intro");
   const [round, setRound] = useState<ThisOrThatQuestion[]>([]);
@@ -159,6 +169,7 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
     setSelectedIndex(null);
     setSelections([]);
     setPhase("playing");
+    onStart();
   };
 
   useEffect(() => {
@@ -167,6 +178,7 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
     const timer = window.setTimeout(() => {
       if (choiceIndex === round.length - 1) {
         setPhase("finished");
+        onComplete();
       } else {
         setChoiceIndex((current) => current + 1);
         setSelectedIndex(null);
@@ -174,7 +186,7 @@ export function ThisOrThat({ language, onExit }: { language: TriviaLanguage; onE
     }, 3_000);
 
     return () => window.clearTimeout(timer);
-  }, [choiceIndex, phase, round.length, selectedIndex]);
+  }, [choiceIndex, onComplete, phase, round.length, selectedIndex]);
 
   useEffect(() => {
     if (phase !== "playing") return;

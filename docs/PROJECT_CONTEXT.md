@@ -203,6 +203,15 @@ retrieves the received message, forwards its content, and preserves the original
   `/spotify`. The permanently mounted tablet must not distort public Rides traffic.
 - `booking_submitted` is the primary conversion/key event.
 - Funnel and contact events are centralized through `src/lib/analytics.ts`.
+- Passenger has separate internal analytics in `passenger_analytics_sessions` and
+  `passenger_analytics_events`; it never uses GA. The browser keeps only an opaque random
+  installation id, a bounded 24-hour/100-event offline queue, and no passenger identity, address,
+  GPS, raw device identifier, user agent or secret.
+- Passenger events are server-allowlisted semantic actions only. Both tables have RLS and no
+  `anon`/`authenticated` grants; only server functions using the service role can write them, and
+  the authenticated Admin summary enforces tenant membership server-side.
+- All current Passenger sessions are `tablet_unverified`. A session becomes `driver_confirmed`
+  only through a future trusted Driver MC signal; tablet activity is never called a real ride.
 
 ## Automated Quality Checks
 
