@@ -9466,3 +9466,125 @@ button.passenger-idle-music {
     padding: clamp(0.75rem, 1vw, 1rem) !important;
   }
 }
+
+/* Music stage contrast system. Album colour remains the lead, while a fixed
+   STREEX energy palette keeps dark and monochrome artwork visually alive. */
+.passenger-sound-lounge {
+  --passenger-stage-yellow: 230 206 32;
+  --passenger-stage-cyan: 79 179 255;
+  --passenger-stage-violet: 214 108 255;
+  --passenger-stage-coral: 255 107 74;
+}
+
+.passenger-sound-lounge::before {
+  background:
+    radial-gradient(circle at 19% 28%, rgb(var(--passenger-ambient-color) / 0.64), transparent 48%),
+    radial-gradient(circle at 80% 16%, rgb(var(--passenger-stage-cyan) / calc(var(--passenger-contrast-strength, 0.34) * 0.76)), transparent 42%),
+    radial-gradient(circle at 66% 78%, rgb(var(--passenger-stage-violet) / calc(var(--passenger-contrast-strength, 0.34) * 0.68)), transparent 46%),
+    radial-gradient(circle at 38% 65%, rgb(var(--passenger-stage-yellow) / calc(var(--passenger-contrast-strength, 0.34) * 0.48)), transparent 48%);
+  filter: blur(32px) saturate(1.25);
+}
+
+.passenger-music-ambient-orb {
+  background: radial-gradient(circle, rgb(var(--passenger-ambient-color) / 0.92) 0%, rgb(var(--passenger-stage-violet) / calc(var(--passenger-contrast-strength, 0.34) * 0.72)) 48%, transparent 74%);
+  box-shadow:
+    0 0 150px rgb(var(--passenger-ambient-color) / 0.82),
+    0 0 110px rgb(var(--passenger-stage-cyan) / calc(var(--passenger-contrast-strength, 0.34) * 0.72)),
+    0 0 90px rgb(var(--passenger-stage-violet) / calc(var(--passenger-contrast-strength, 0.34) * 0.58));
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing {
+    background-image:
+      radial-gradient(circle at 16% 82%, rgb(var(--passenger-ambient-color) / 0.58), transparent 54%),
+      radial-gradient(circle at 88% 14%, rgb(var(--passenger-stage-cyan) / calc(var(--passenger-contrast-strength, 0.34) * 0.66)), transparent 44%),
+      radial-gradient(circle at 62% 76%, rgb(var(--passenger-stage-violet) / calc(var(--passenger-contrast-strength, 0.34) * 0.52)), transparent 48%),
+      radial-gradient(circle at 50% 26%, rgb(var(--passenger-stage-yellow) / calc(var(--passenger-contrast-strength, 0.34) * 0.44)), transparent 52%),
+      linear-gradient(115deg, #171715 0%, #11110f 58%, #1f1d0f 100%) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready {
+    box-shadow:
+      inset 0 0 220px rgb(var(--passenger-ambient-color) / 0.5),
+      inset 0 0 130px rgb(var(--passenger-stage-cyan) / calc(var(--passenger-contrast-strength, 0.34) * 0.34)),
+      0 0 108px rgb(var(--passenger-stage-violet) / calc(var(--passenger-contrast-strength, 0.34) * 0.44));
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-art {
+    box-shadow:
+      0 24px 58px rgb(0 0 0 / 0.58),
+      0 0 132px rgb(var(--passenger-ambient-color) / 0.94),
+      0 0 82px rgb(var(--passenger-stage-cyan) / calc(var(--passenger-contrast-strength, 0.34) * 0.66)),
+      0 0 52px rgb(var(--passenger-stage-yellow) / 0.42) !important;
+  }
+}
+
+.passenger-music-stage-lights {
+  z-index: 3;
+}
+
+.passenger-music-stage-light {
+  --passenger-stage-color: var(--passenger-stage-yellow);
+  border: 2px solid rgb(var(--passenger-stage-color) / 0.9);
+  background:
+    radial-gradient(circle at 28% 25%, rgb(255 255 255 / 0.94) 0 4%, rgb(var(--passenger-stage-color) / 0.88) 20%, rgb(var(--passenger-stage-color) / 0.38) 47%, transparent 73%);
+  box-shadow:
+    inset 0 0 34px rgb(255 255 255 / 0.6),
+    0 0 38px rgb(var(--passenger-stage-color) / 0.88),
+    0 0 112px rgb(var(--passenger-stage-color) / 0.74),
+    0 0 172px rgb(var(--passenger-stage-color) / 0.44);
+  backdrop-filter: blur(10px) saturate(1.8);
+  mix-blend-mode: normal;
+  opacity: 0.96;
+}
+
+.passenger-music-stage-light--one {
+  --passenger-stage-color: var(--passenger-stage-cyan);
+  animation-duration: 8s;
+}
+
+.passenger-music-stage-light--two {
+  --passenger-stage-color: var(--passenger-stage-violet);
+  animation-duration: 9s;
+}
+
+.passenger-music-stage-light--three {
+  --passenger-stage-color: var(--passenger-stage-yellow);
+  animation-duration: 7s;
+}
+
+.passenger-music-stage-light--four {
+  --passenger-stage-color: var(--passenger-stage-coral);
+  animation-duration: 7.5s;
+}
+
+.passenger-console-shell[data-view="music"] .passenger-music-player-header,
+.passenger-console-shell[data-view="music"] .passenger-music-player-body,
+.passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > .passenger-music-visualizer {
+  position: relative;
+  z-index: 4;
+}
+
+@keyframes passenger-music-stage-drift-one {
+  0% { transform: translate3d(-1.8rem, -1rem, 0) scale(0.78); }
+  50% { transform: translate3d(4rem, 2.8rem, 0) scale(1.28); }
+  100% { transform: translate3d(0.8rem, 5rem, 0) scale(0.92); }
+}
+
+@keyframes passenger-music-stage-drift-two {
+  0% { transform: translate3d(2.4rem, -2.2rem, 0) scale(0.84); }
+  50% { transform: translate3d(-4.4rem, 2.2rem, 0) scale(1.24); }
+  100% { transform: translate3d(-1.2rem, 5rem, 0) scale(0.9); }
+}
+
+@keyframes passenger-music-stage-drift-three {
+  0% { transform: translate3d(-2rem, 2rem, 0) scale(0.82); }
+  50% { transform: translate3d(4.2rem, -3.2rem, 0) scale(1.32); }
+  100% { transform: translate3d(6rem, 0.8rem, 0) scale(0.88); }
+}
+
+@keyframes passenger-music-stage-drift-four {
+  0% { transform: translate3d(2.2rem, -1.6rem, 0) scale(0.76); }
+  50% { transform: translate3d(-3.8rem, 3.8rem, 0) scale(1.42); }
+  100% { transform: translate3d(-0.8rem, 5.2rem, 0) scale(0.9); }
+}

@@ -2298,11 +2298,18 @@ function useArtworkPalette(artworkUrl: string | null) {
 }
 
 function ambientStyle(palette: ArtworkPalette) {
+  const saturation = [palette.primary, palette.secondary, palette.tertiary].map((color) => {
+    const [red = 0, green = 0, blue = 0] = color.split(" ").map(Number);
+    return colorSaturation(red, green, blue);
+  });
+  const contrastStrength = Math.max(...saturation) < 0.2 ? 0.82 : Math.max(...saturation) < 0.42 ? 0.58 : 0.34;
+
   return {
     "--passenger-ambient-color": palette.primary,
     "--passenger-visualizer-primary": palette.primary,
     "--passenger-visualizer-secondary": palette.secondary,
     "--passenger-visualizer-tertiary": palette.tertiary,
+    "--passenger-contrast-strength": String(contrastStrength),
   } as React.CSSProperties;
 }
 
