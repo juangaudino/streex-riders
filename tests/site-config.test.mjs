@@ -3,6 +3,12 @@ import { CONFIG } from "../src/config.ts";
 import { mergeSiteConfig, SiteConfigOverrideSchema } from "../src/lib/site-config.ts";
 
 describe("public site config", () => {
+  test("ships Lite with the approved real-beta idle cadence", () => {
+    expect(CONFIG.passengerConsole.experienceMode).toBe("lite");
+    expect(CONFIG.passengerConsole.idleReset.inactivitySeconds).toBe(180);
+    expect(CONFIG.passengerConsole.idleReset.featureRotationSeconds).toBe(90);
+  });
+
   test("merges saved section visibility and service changes", () => {
     const override = SiteConfigOverrideSchema.parse({
       tagline: "A saved tagline.",

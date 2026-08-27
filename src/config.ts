@@ -49,10 +49,10 @@ export const CONFIG = {
     // existing Passenger color treatment; Complete deliberately remains Original for now.
     liteTheme: "accent" as "original" | "accent",
     idleReset: {
-      // Launch validation cadence. Music remains the only published idle hero in Lite;
-      // featureRotationSeconds is retained for the upcoming secondary-rail rotation.
-      inactivitySeconds: 30,
-      featureRotationSeconds: 30,
+      // Lite beta cadence. Music remains the only published idle hero in Lite;
+      // the secondary rail rotates independently beneath it.
+      inactivitySeconds: 180,
+      featureRotationSeconds: 90,
       defaultLanguage: "en" as "en" | "es",
     },
     clock: {
