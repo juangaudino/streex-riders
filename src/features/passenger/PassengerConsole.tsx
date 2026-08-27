@@ -6,6 +6,7 @@ import {
   ArrowUpDown,
   CalendarPlus,
   ChevronRight,
+  Clock3,
   Cloud,
   CloudFog,
   CloudLightning,
@@ -15,6 +16,7 @@ import {
   Compass,
   Gamepad2,
   Globe2,
+  Heart,
   HandCoins,
   Languages,
   Mail,
@@ -22,6 +24,7 @@ import {
   MessageCircle,
   MoonStar,
   Music2,
+  Flag,
   MapPin,
   Pause,
   Phone,
@@ -32,6 +35,7 @@ import {
   Sparkles,
   Star,
   Sun,
+  TrendingUp,
   Snowflake,
   Wifi,
   Wind,
@@ -140,14 +144,14 @@ const MUSIC_LIBRARY = [
 ];
 
 const MUSIC_VIBES = [
-  { query: "chill", labelKey: "vibeChill" },
-  { query: "throwbacks", labelKey: "vibeThrowbacks" },
-  { query: "latin", labelKey: "vibeLatin" },
-  { query: "pop", labelKey: "vibePop" },
-  { query: "r&b", labelKey: "vibeRnB" },
-  { query: "spotify top 50 usa", labelKey: "vibeTopUs" },
-  { query: "spotify top 50 global", labelKey: "vibeTopGlobal" },
-  { query: "today's top hits", labelKey: "vibeToday" },
+  { query: "chill", labelKey: "vibeChill", accent: "#4FB3FF", icon: Wind },
+  { query: "throwbacks", labelKey: "vibeThrowbacks", accent: "#FF8C42", icon: Clock3 },
+  { query: "latin", labelKey: "vibeLatin", accent: "#FF4D6D", icon: Music2 },
+  { query: "pop", labelKey: "vibePop", accent: "#C77DFF", icon: Star },
+  { query: "r&b", labelKey: "vibeRnB", accent: "#7B2D8B", icon: Heart },
+  { query: "spotify top 50 usa", labelKey: "vibeTopUs", accent: "#E6CE20", icon: Flag },
+  { query: "spotify top 50 global", labelKey: "vibeTopGlobal", accent: "#7ED957", icon: Globe2 },
+  { query: "today's top hits", labelKey: "vibeToday", accent: "#FF6B6B", icon: TrendingUp },
 ] as const;
 
 const copy = {
@@ -1342,6 +1346,7 @@ function IdleSpotifyNowPlaying({
   const playback = status?.state === "ready" ? status.playback : null;
   const track = playback?.track ?? null;
   const isDiscoverable = !track;
+  const ambientColor = useArtworkAmbient(track?.artworkUrl ?? null);
   const className = `passenger-idle-music grid w-full max-w-4xl items-center gap-7${
     isDiscoverable ? " passenger-idle-music--discover" : ""
   }${compact ? " passenger-idle-music--compact" : ""}`;
@@ -1415,16 +1420,23 @@ function IdleSpotifyNowPlaying({
             </span>
           </span>
         )}
+        {track ? <MusicVisualizer active={Boolean(playback?.isPlaying)} compact /> : null}
       </span>
     </>
   );
 
-  if (!isDiscoverable) return <div className={className}>{content}</div>;
+  if (!isDiscoverable)
+    return (
+      <div className={className} style={ambientStyle(ambientColor)}>
+        {content}
+      </div>
+    );
 
   return (
     <button
       type="button"
       className={className}
+      style={ambientStyle(ambientColor)}
       onClick={(event) => {
         event.stopPropagation();
         onExploreMusic();
@@ -2143,6 +2155,128 @@ function formatSpotifyDuration(durationMs: number | null) {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+const MUSIC_DISCOVERY_COLLECTIONS = [
+  { accent: "#E6CE20", icon: Flag, labelKey: "vibeTopUs", query: "spotify top 50 usa" },
+  { accent: "#7ED957", icon: Globe2, labelKey: "vibeTopGlobal", query: "spotify top 50 global" },
+  { accent: "#FF6B6B", icon: TrendingUp, labelKey: "vibeToday", query: "today's top hits" },
+] as const;
+
+function ambientColorFallback(seed: string | null) {
+  if (!seed) return "230 206 32";
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) | 0;
+  }
+  const palette = ["230 206 32", "201 125 255", "79 179 255", "255 140 66", "255 77 109"];
+  return palette[Math.abs(hash) % palette.length] ?? "230 206 32";
+}
+
+function useArtworkAmbient(artworkUrl: string | null) {
+  const [ambientColor, setAmbientColor] = useState(() => ambientColorFallback(artworkUrl));
+
+  useEffect(() => {
+    const fallback = ambientColorFallback(artworkUrl);
+    if (!artworkUrl) {
+      setAmbientColor(fallback);
+      return;
+    }
+
+    let active = true;
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = 12;
+        canvas.height = 12;
+        const context = canvas.getContext("2d", { willReadFrequently: true });
+        if (!context) throw new Error("Canvas unavailable");
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+        let red = 0;
+        let green = 0;
+        let blue = 0;
+        let count = 0;
+        for (let index = 0; index < pixels.length; index += 4) {
+          const alpha = pixels[index + 3] ?? 0;
+          const pixelRed = pixels[index] ?? 0;
+          const pixelGreen = pixels[index + 1] ?? 0;
+          const pixelBlue = pixels[index + 2] ?? 0;
+          if (alpha < 180 || pixelRed + pixelGreen + pixelBlue < 45) continue;
+          red += pixelRed;
+          green += pixelGreen;
+          blue += pixelBlue;
+          count += 1;
+        }
+        if (!count) throw new Error("No usable pixels");
+        if (active) {
+          setAmbientColor(`${Math.round(red / count)} ${Math.round(green / count)} ${Math.round(blue / count)}`);
+        }
+      } catch {
+        if (active) setAmbientColor(fallback);
+      }
+    };
+    image.onerror = () => {
+      if (active) setAmbientColor(fallback);
+    };
+    image.src = artworkUrl;
+
+    return () => {
+      active = false;
+    };
+  }, [artworkUrl]);
+
+  return ambientColor;
+}
+
+function ambientStyle(ambientColor: string) {
+  return { "--passenger-ambient-color": ambientColor } as React.CSSProperties;
+}
+
+function MusicVisualizer({ active, compact = false }: { active: boolean; compact?: boolean }) {
+  const barHeights = [18, 34, 46, 28, 58, 39, 24, 51, 32, 64, 42, 27, 55, 35];
+  return (
+    <span
+      aria-hidden="true"
+      className={`passenger-music-visualizer${active ? " passenger-music-visualizer--active" : ""}${
+        compact ? " passenger-music-visualizer--compact" : ""
+      }`}
+    >
+      {Array.from({ length: compact ? 14 : 26 }, (_, index) => (
+        <span
+          key={index}
+          style={{
+            "--visualizer-index": index,
+            "--visualizer-height": `${barHeights[index % barHeights.length] ?? 32}px`,
+          } as React.CSSProperties}
+        />
+      ))}
+    </span>
+  );
+}
+
+function useInterpolatedSpotifyProgress(
+  initialProgressMs: number | null | undefined,
+  durationMs: number | null | undefined,
+  isPlaying: boolean | undefined,
+) {
+  const [progressMs, setProgressMs] = useState(initialProgressMs ?? 0);
+
+  useEffect(() => {
+    setProgressMs(initialProgressMs ?? 0);
+  }, [initialProgressMs, durationMs]);
+
+  useEffect(() => {
+    if (!isPlaying || !durationMs) return;
+    const interval = window.setInterval(() => {
+      setProgressMs((current) => Math.min(current + 1_000, durationMs));
+    }, 1_000);
+    return () => window.clearInterval(interval);
+  }, [durationMs, isPlaying]);
+
+  return progressMs;
+}
+
 function PersonalSpotifyHomeCard({
   onNavigate,
   t,
@@ -2372,15 +2506,24 @@ function PersonalSpotifyMusicView({
       ? t.musicGettingReadyDescription
       : null;
   const playback = status?.state === "ready" ? status.playback : null;
+  const liveProgressMs = useInterpolatedSpotifyProgress(
+    playback?.track?.progressMs,
+    playback?.track?.durationMs,
+    playback?.isPlaying,
+  );
   const trackProgress = playback?.track?.durationMs
     ? Math.min(
         100,
-        Math.max(0, ((playback.track.progressMs ?? 0) / playback.track.durationMs) * 100),
+        Math.max(0, (liveProgressMs / playback.track.durationMs) * 100),
       )
     : null;
+  const ambientColor = useArtworkAmbient(playback?.track?.artworkUrl ?? null);
 
   return (
-    <div className="passenger-music-layout flex flex-col gap-5">
+    <div
+      className="passenger-music-layout passenger-sound-lounge flex flex-col gap-5"
+      style={ambientStyle(ambientColor)}
+    >
       <div className="passenger-music-header">
         <ViewHeader eyebrow={t.musicEyebrow} title={t.musicTitle} description={t.musicSubtitle} />
       </div>
@@ -2396,7 +2539,7 @@ function PersonalSpotifyMusicView({
         </section>
       ) : playback ? (
         <section className="passenger-music-playback passenger-music-now-playing passenger-music-now-playing-ready relative flex min-h-[286px] items-center gap-6 overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.075] via-white/[0.04] to-[#E6CE20]/[0.13] p-7 text-left">
-          <span className="absolute -right-14 -top-20 h-56 w-56 rounded-full bg-[#E6CE20]/15 blur-3xl" />
+          <span className="passenger-music-ambient-orb absolute -right-14 -top-20 h-56 w-56 rounded-full blur-3xl" />
           {playback.track?.artworkUrl ? (
             <img
               src={playback.track.artworkUrl}
@@ -2427,12 +2570,12 @@ function PersonalSpotifyMusicView({
                   {playback.isPlaying ? t.spotifyPlaying : t.spotifyPaused}
                 </p>
                 {trackProgress !== null && (
-                  <div className="mt-3 max-w-md" aria-label={`${formatSpotifyDuration(playback.track.progressMs)} of ${formatSpotifyDuration(playback.track.durationMs)}`}>
+                  <div className="mt-3 max-w-md" aria-label={`${formatSpotifyDuration(liveProgressMs)} of ${formatSpotifyDuration(playback.track.durationMs)}`}>
                     <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
                       <div className="h-full rounded-full bg-[#E6CE20] transition-[width] duration-500" style={{ width: `${trackProgress}%` }} />
                     </div>
                     <div className="mt-1 flex justify-between text-[10px] font-medium text-white/45">
-                      <span>{formatSpotifyDuration(playback.track.progressMs)}</span>
+                      <span>{formatSpotifyDuration(liveProgressMs)}</span>
                       <span>{formatSpotifyDuration(playback.track.durationMs)}</span>
                     </div>
                   </div>
@@ -2468,6 +2611,7 @@ function PersonalSpotifyMusicView({
                 <SkipForward className="h-5 w-5" />
               </button>
             </div>
+            <MusicVisualizer active={Boolean(playback.isPlaying)} />
           </div>
         </section>
       ) : (
@@ -2498,17 +2642,22 @@ function PersonalSpotifyMusicView({
               {t.exploreMusic}
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              {MUSIC_VIBES.map((vibe) => (
-                <button
-                  key={vibe.query}
-                  type="button"
-                  disabled={searching}
-                  onClick={() => searchVibe(vibe.query)}
-                  className="rounded-full border border-[#E6CE20]/30 bg-[#E6CE20]/[0.08] px-3 py-1.5 text-xs font-semibold text-[#E6CE20] transition hover:bg-[#E6CE20]/[0.16] disabled:opacity-45"
-                >
-                  {t[vibe.labelKey]}
-                </button>
-              ))}
+              {MUSIC_VIBES.map((vibe) => {
+                const Icon = vibe.icon;
+                return (
+                  <button
+                    key={vibe.query}
+                    type="button"
+                    disabled={searching}
+                    onClick={() => searchVibe(vibe.query)}
+                    className="passenger-music-vibe inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition disabled:opacity-45"
+                    style={{ "--vibe-accent": vibe.accent } as React.CSSProperties}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {t[vibe.labelKey]}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <form className="mt-4 flex gap-2" onSubmit={(event) => void search(event)}>
@@ -2554,6 +2703,39 @@ function PersonalSpotifyMusicView({
                     {pick.label}
                   </button>
                 ))}
+              </div>
+            </div>
+          )}
+          {!searchMessage && results.length === 0 && (
+            <div className="passenger-music-collections mt-5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
+                {t.exploreMusic}
+              </p>
+              <div className="mt-3 grid gap-3">
+                {MUSIC_DISCOVERY_COLLECTIONS.map((collection) => {
+                  const Icon = collection.icon;
+                  return (
+                    <button
+                      key={collection.query}
+                      type="button"
+                      disabled={searching}
+                      onClick={() => searchVibe(collection.query)}
+                      className="passenger-music-collection group flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition disabled:opacity-45"
+                      style={{
+                        "--collection-accent": collection.accent,
+                      } as React.CSSProperties}
+                    >
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-black">{t[collection.labelKey]}</span>
+                        <span className="mt-0.5 block text-xs text-white/50">{t.musicDiscoveryDescription}</span>
+                      </span>
+                      <ChevronRight className="h-5 w-5 shrink-0 text-white/35 transition group-hover:translate-x-0.5" />
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

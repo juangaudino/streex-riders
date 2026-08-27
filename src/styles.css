@@ -3403,6 +3403,243 @@ input[type="time"] {
   }
 }
 
+/* Passenger Sound Lounge — landscape-only Music Reload visual layer.
+   Keep the existing Spotify and idle behavior; this layer only changes the
+   experience around the sanitized metadata that is already available. */
+.passenger-sound-lounge,
+.passenger-idle-music {
+  --passenger-ambient-color: 230 206 32;
+}
+
+.passenger-sound-lounge {
+  isolation: isolate;
+  position: relative;
+}
+
+.passenger-sound-lounge::before {
+  position: absolute;
+  z-index: -1;
+  inset: -5rem -4rem -4rem;
+  border-radius: 2.5rem;
+  background:
+    radial-gradient(circle at 20% 30%, rgb(var(--passenger-ambient-color) / 0.2), transparent 42%),
+    radial-gradient(circle at 85% 20%, rgb(var(--passenger-ambient-color) / 0.11), transparent 34%);
+  content: "";
+  filter: blur(16px);
+  opacity: 0.9;
+  transition: background 1.5s ease, opacity 1.5s ease;
+}
+
+.passenger-music-ambient-orb {
+  background: rgb(var(--passenger-ambient-color) / 0.24);
+  transition: background 1.5s ease;
+}
+
+.passenger-music-visualizer {
+  display: flex;
+  height: 50px;
+  width: min(100%, 300px);
+  align-items: end;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 1.25rem;
+}
+
+.passenger-music-visualizer > span {
+  width: 4px;
+  height: 8px;
+  flex: 1 1 0;
+  max-width: 8px;
+  border-radius: 999px;
+  background: linear-gradient(to top, rgb(230 206 32 / 0.38), #e6ce20);
+  opacity: 0.4;
+  transform-origin: bottom;
+}
+
+.passenger-music-visualizer--active > span {
+  animation: passenger-music-wave 1.45s ease-in-out infinite alternate;
+  animation-delay: calc(var(--visualizer-index) * -75ms);
+  opacity: 0.9;
+}
+
+.passenger-music-visualizer--compact {
+  height: 26px;
+  width: min(100%, 150px);
+  gap: 3px;
+  margin-top: 1.25rem;
+  padding-top: 0;
+}
+
+.passenger-music-visualizer--compact > span {
+  max-width: 5px;
+}
+
+@keyframes passenger-music-wave {
+  0% {
+    height: 10px;
+  }
+  35% {
+    height: var(--visualizer-height);
+  }
+  70% {
+    height: 14px;
+  }
+  100% {
+    height: var(--visualizer-height);
+  }
+}
+
+.passenger-music-collection {
+  border-color: color-mix(in srgb, var(--collection-accent) 40%, transparent);
+  background: linear-gradient(105deg, color-mix(in srgb, var(--collection-accent) 14%, transparent), rgb(255 255 255 / 0.018));
+}
+
+.passenger-music-collection > span:first-child {
+  background: color-mix(in srgb, var(--collection-accent) 19%, #0b0b0b);
+  color: var(--collection-accent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--collection-accent) 16%, transparent);
+}
+
+.passenger-music-collection:hover {
+  border-color: var(--collection-accent);
+  background: linear-gradient(105deg, color-mix(in srgb, var(--collection-accent) 22%, transparent), rgb(255 255 255 / 0.04));
+}
+
+.passenger-music-vibe {
+  border-color: color-mix(in srgb, var(--vibe-accent) 44%, transparent);
+  background: color-mix(in srgb, var(--vibe-accent) 12%, transparent);
+  color: color-mix(in srgb, var(--vibe-accent) 86%, white);
+}
+
+.passenger-music-vibe:hover {
+  border-color: var(--vibe-accent);
+  background: var(--vibe-accent);
+  color: #0b0b0b;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--vibe-accent) 24%, transparent);
+}
+
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="music"] .passenger-music-playback {
+    border-color: rgb(255 255 255 / 0.12) !important;
+    box-shadow: 0 28px 80px rgb(0 0 0 / 0.22);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-art {
+    width: clamp(14rem, 20vw, 17.5rem) !important;
+    height: clamp(14rem, 20vw, 17.5rem) !important;
+    border-radius: 18px !important;
+    box-shadow:
+      0 18px 45px rgb(0 0 0 / 0.45),
+      0 0 42px rgb(var(--passenger-ambient-color) / 0.42) !important;
+    transition: box-shadow 1.5s ease, opacity 0.4s ease;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search {
+    border-color: rgb(255 255 255 / 0.1) !important;
+    background: linear-gradient(145deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.018)) !important;
+    box-shadow: 0 28px 80px rgb(0 0 0 / 0.16);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search form input {
+    border-color: rgb(255 255 255 / 0.12) !important;
+    background: rgb(0 0 0 / 0.32) !important;
+    border-radius: 999px !important;
+    padding-left: 2.85rem !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search form {
+    position: relative;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search form::before {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 1rem;
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 2px solid rgb(255 255 255 / 0.4);
+    border-radius: 999px;
+    content: "";
+    pointer-events: none;
+    transform: translateY(-58%);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search form::after {
+    position: absolute;
+    z-index: 1;
+    top: calc(50% + 0.33rem);
+    left: 1.78rem;
+    width: 0.44rem;
+    height: 2px;
+    background: rgb(255 255 255 / 0.4);
+    content: "";
+    pointer-events: none;
+    transform: rotate(45deg);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search form input:focus {
+    border-color: rgb(230 206 32 / 0.58) !important;
+    box-shadow: 0 0 0 4px rgb(230 206 32 / 0.1);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search form button {
+    min-width: 7.6rem;
+    border-radius: 999px !important;
+    box-shadow: 0 0 28px rgb(230 206 32 / 0.18);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search > div:nth-of-type(1) button {
+    border-color: color-mix(in srgb, var(--vibe-accent, #e6ce20) 46%, transparent) !important;
+    background: color-mix(in srgb, var(--vibe-accent, #e6ce20) 12%, transparent) !important;
+  }
+
+  .passenger-idle-prompt .passenger-idle-music {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: min(35dvh, 22rem);
+    padding: clamp(1.5rem, 3vw, 2.7rem);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 30px;
+    background: linear-gradient(130deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.012));
+  }
+
+  .passenger-idle-prompt .passenger-idle-music::before {
+    position: absolute;
+    z-index: -1;
+    inset: -7rem 5% -7rem -10%;
+    background: radial-gradient(circle, rgb(var(--passenger-ambient-color) / 0.25), transparent 62%);
+    content: "";
+    filter: blur(20px);
+    transition: background 1.5s ease;
+  }
+
+  .passenger-idle-prompt .passenger-idle-artwork {
+    border-radius: 18px !important;
+    box-shadow:
+      0 18px 50px rgb(0 0 0 / 0.5),
+      0 0 42px rgb(var(--passenger-ambient-color) / 0.38) !important;
+  }
+
+  .passenger-idle-prompt .passenger-idle-track-copy > span:nth-child(2) {
+    font-size: clamp(2.35rem, 4.1vw, 4.15rem) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .passenger-music-visualizer--active > span {
+    animation: none;
+    height: 24px;
+  }
+
+  .passenger-sound-lounge::before,
+  .passenger-music-ambient-orb,
+  .passenger-idle-prompt .passenger-idle-music::before {
+    transition: none;
+  }
+}
+
 @media (max-width: 800px) {
   .passenger-idle-content {
     max-width: 680px;
