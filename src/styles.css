@@ -9610,42 +9610,6 @@ button.passenger-idle-music {
   --passenger-stage-coral: 255 107 74;
 }
 
-.passenger-idle-prompt .passenger-idle-stage-lights {
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.passenger-idle-prompt .passenger-idle-stage-lights .passenger-music-stage-light {
-  opacity: 0.82;
-}
-
-.passenger-idle-prompt .passenger-idle-stage-lights .passenger-music-stage-light--one {
-  top: 3%;
-  left: 48%;
-  width: clamp(3.75rem, 8vw, 7rem);
-}
-
-.passenger-idle-prompt .passenger-idle-stage-lights .passenger-music-stage-light--two {
-  top: 36%;
-  right: 4%;
-  width: clamp(2.6rem, 5.5vw, 5rem);
-}
-
-.passenger-idle-prompt .passenger-idle-stage-lights .passenger-music-stage-light--three {
-  bottom: 5%;
-  left: 26%;
-  width: clamp(2.3rem, 4.3vw, 4rem);
-}
-
-.passenger-idle-prompt .passenger-idle-stage-lights .passenger-music-stage-light--four {
-  top: 42%;
-  right: 31%;
-  width: clamp(1.75rem, 3.2vw, 2.85rem);
-}
-
 .passenger-idle-prompt .passenger-idle-music > .passenger-idle-artwork,
 .passenger-idle-prompt .passenger-idle-music > .passenger-idle-track-copy {
   position: relative;
