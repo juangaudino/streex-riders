@@ -1867,7 +1867,7 @@ function WeatherDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="relative flex max-h-[92vh] w-[calc(100%_-_2rem)] max-w-5xl flex-col gap-4 overflow-hidden rounded-[30px] border-white/10 bg-[#0B0B0B] p-6 text-white sm:p-7">
+      <DialogContent className="relative flex h-[min(92dvh,44rem)] min-h-0 w-[calc(100%_-_2rem)] max-w-5xl flex-col gap-3 overflow-hidden rounded-[30px] border-white/10 bg-[#0B0B0B] p-5 text-white sm:p-6">
         <WeatherAtmosphere variant={atmosphere} className="rounded-[30px]" />
         <DialogHeader className="relative z-10">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1879,13 +1879,13 @@ function WeatherDetailDialog({
             {t.weatherDetailDescription} {city}.
           </DialogDescription>
             </div>
-            <div className="flex max-w-full flex-wrap justify-end gap-1.5 rounded-full border border-white/10 bg-black/45 p-1 backdrop-blur">
+            <div className="flex max-w-full flex-wrap justify-end gap-1 rounded-full border border-white/10 bg-black/45 p-1 backdrop-blur">
               {WEATHER_ATMOSPHERE_OPTIONS.map((option) => (
                 <button
                   key={option.id}
                   type="button"
                   onClick={() => setAtmosphereOverride(option.id)}
-                  className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] transition ${
+                  className={`rounded-full px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.1em] transition ${
                     atmosphere === option.id
                       ? "bg-[#E6CE20] text-black"
                       : "text-white/60 hover:text-white"
@@ -1899,7 +1899,7 @@ function WeatherDetailDialog({
         </DialogHeader>
 
         {current ? (
-          <div className="relative z-10 flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto pr-1">
+          <div className="relative z-10 flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain pr-1">
             <div className="relative overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.06] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl">
               <div className="relative grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(220px,0.7fr)] sm:items-center">
                 <div className="flex min-w-0 items-center gap-4">
