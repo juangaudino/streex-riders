@@ -1179,6 +1179,10 @@ function IdleSecondaryRail({
   const current = weather?.periods[0];
   const currentTemperature = current?.temperatureFahrenheit ?? fallbackTemperatureFahrenheit;
   const currentCondition = current?.condition ?? "unknown";
+  const weatherAtmosphere = atmosphereForWeather(
+    currentCondition,
+    current ? isNightAt(new Date(current.startTime), config.passengerConsole.clock.localTimeZone) : false,
+  );
   const hourlyForecast = weather?.periods.slice(1, 5) ?? [];
   const dailyForecast = weather?.dailyPeriods?.slice(0, 4) ?? [];
   if (feature === "game") {
@@ -1284,7 +1288,8 @@ function IdleSecondaryRail({
 
   return (
     <section className="passenger-idle-secondary passenger-idle-secondary--weather passenger-idle-secondary--forecast" aria-label={forecastTitle}>
-      <div className="flex min-w-0 items-center gap-4 px-6 py-4 sm:px-8">
+      <WeatherAtmosphere variant={weatherAtmosphere} className="opacity-90" />
+      <div className="relative z-10 flex min-w-0 items-center gap-4 px-6 py-4 sm:px-8">
         <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-[#E6CE20]">
           <WeatherConditionIcon condition={currentCondition} className="h-6 w-6" />
         </span>
@@ -1302,7 +1307,7 @@ function IdleSecondaryRail({
           </span>
         </span>
       </div>
-      <div className="passenger-idle-forecast">
+      <div className="passenger-idle-forecast relative z-10">
         <span className="passenger-idle-forecast-label">{t.idleWeatherHours}</span>
         <div className="flex min-w-0 flex-1 items-center justify-around gap-2">
           {forecast.map((period) => (
@@ -1595,6 +1600,11 @@ function HomeView({
     language === "es"
       ? `${Math.round(((temperatureFahrenheit - 32) * 5) / 9)}°C`
       : `${Math.round(temperatureFahrenheit)}°F`;
+  const homeCurrentWeather = weather?.periods[0];
+  const homeAtmosphere = atmosphereForWeather(
+    homeCurrentWeather?.condition ?? "clear",
+    isNightAt(now, clockConfig.localTimeZone),
+  );
   const quickGamePresentation = getPassengerGamePresentation(quickGame, t);
 
   return (
@@ -1635,13 +1645,14 @@ function HomeView({
               type="button"
               onClick={() => setWeatherOpen(true)}
               aria-label={`${t.weather}: ${weatherCity}. ${t.weatherHint}`}
-              className="min-w-[208px] rounded-2xl border border-white/10 bg-black/25 px-5 py-4 text-left backdrop-blur transition hover:border-[#E6CE20]/40 hover:bg-black/35 focus:outline-none focus:ring-2 focus:ring-[#E6CE20]/60"
+              className="passenger-home-weather relative isolate min-w-[208px] overflow-hidden rounded-2xl border border-white/10 bg-black/25 px-5 py-4 text-left backdrop-blur transition hover:border-[#E6CE20]/40 hover:bg-black/35 focus:outline-none focus:ring-2 focus:ring-[#E6CE20]/60"
             >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/55">
+              <WeatherAtmosphere variant={homeAtmosphere} className="opacity-90" />
+              <p className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/65">
                 {t.weather}
               </p>
-              <span className="mt-2 flex items-center gap-3">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#E6CE20]/10 text-[#E6CE20]">
+              <span className="relative z-10 mt-2 flex items-center gap-3">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-black/20 text-[#E6CE20] backdrop-blur-sm">
                   <WeatherConditionIcon
                     condition={weather?.periods[0]?.condition ?? "unknown"}
                     className="h-7 w-7"
@@ -1658,7 +1669,7 @@ function HomeView({
                   <span className="mt-0.5 block truncate text-xs text-white/55">{weatherCity}</span>
                 </span>
               </span>
-              <span className="mt-2 flex items-center gap-1 text-[9px] font-semibold text-[#E6CE20]">
+              <span className="relative z-10 mt-2 flex items-center gap-1 text-[9px] font-semibold text-[#E6CE20]">
                 {weatherStatus === "unavailable" && !weather ? t.weatherUnavailable : t.weatherHint}{" "}
                 <ChevronRight className="h-3 w-3" />
               </span>
