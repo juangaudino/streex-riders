@@ -2,9 +2,14 @@
 
 Passenger-facing web application for STREEX Rides, a premium private ride service built around a quiet, hospitality-first experience.
 
-The app combines:
+The repository contains two distinct passenger-facing product surfaces:
 
-- A premium passenger landing page.
+- **STREEX Rides** — the public premium ride landing, booking and operational product.
+- **STREEX Passenger Console** — the no-index, landscape-first in-vehicle tablet experience at
+  `/passenger`; it is an in-repo companion, not a second product or backend.
+
+Together, the app also includes:
+
 - Ride request and review submission flows.
 - A protected Admin control center.
 - Driver availability and calendar management.
@@ -64,6 +69,18 @@ Key sections include:
 - Meet Juan
 - Review submission
 - Booking flow
+
+### Passenger Console
+
+`/passenger` is the bilingual, landscape-first in-vehicle console. It is intentionally separate
+from the landing and booking flow: Lite keeps Music prominent, Games and STREEX remain available,
+and Around You stays accessible from Home while hidden from Lite's primary navigation. Its
+Music-first idle screen, weather rail, offline behavior, privacy boundary and roadmap are defined
+in `docs/PROJECT_CONTEXT.md`.
+
+Passenger is not Google Analytics traffic and never receives booking identity, addresses, raw GPS
+history, credentials or payment secrets. Physical tablet controls remain the responsibility of
+Fully Kiosk/Android rather than browser code.
 
 ### Booking and availability
 
@@ -252,6 +269,10 @@ bun run optimize:images
 ## Documentation
 
 - `docs/PROJECT_CONTEXT.md` — broad product, architecture, routes, and guardrails.
+- `docs/RIDES_ROADMAP.md` — canonical roadmap for the public Rides landing, bookings, Admin and
+  operations. It intentionally excludes Passenger Console work.
+- `docs/PROJECT_CONTEXT.md#passenger-roadmap-order` — canonical Passenger Console roadmap and
+  approved Passenger backlog. It intentionally excludes Rides booking and calendar work.
 - `docs/RUNNER_CONTEXT.md` — STREEX Horizon goals, flow, guardrails, records, and sharing.
 - `docs/GOOGLE_CALENDAR_ROADMAP.md` — planned Google Calendar integration.
 - `docs/IMAGE_OPTIMIZATION.md` — image optimization report.
@@ -260,6 +281,13 @@ bun run optimize:images
 - `AGENTS.md` — repository instructions for AI/code agents.
 
 ## Current roadmap / pending work
+
+### Passenger Console
+
+The canonical Passenger roadmap is intentionally maintained separately in
+`docs/PROJECT_CONTEXT.md#passenger-roadmap-order`. It covers Lite stabilization, the Music-first
+idle experience, Passenger analytics, Fully Kiosk readiness, Driver MC, Music, Climate, Around You
+and later passenger-specific work. Do not add Passenger requests to the Rides/Calendar roadmap.
 
 ### Google Calendar integration
 

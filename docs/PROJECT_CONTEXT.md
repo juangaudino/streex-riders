@@ -31,7 +31,7 @@ Admin access uses Supabase Auth plus database roles. Production has no emergency
 - `/admin/bookings`: Admin bookings view
 - `/admin/reviews`: Admin reviews view
 - `/runner-lab`: hidden, no-index STREEX Runner development route
-- `/passenger`: no-index, in-vehicle Passenger Console for a vertically mounted tablet
+- `/passenger`: no-index, landscape-first in-vehicle Passenger Console for the mounted tablet
 
 ## Main Systems
 
@@ -83,7 +83,9 @@ show passenger data.
   Stripe-hosted checkout because Apple Pay has no direct public payment URL comparable to Venmo or
   Cash App. Never place tokens, PINs, credentials or personal data in Passenger config.
 - Passenger has an isolated PWA manifest and service worker: it installs into `/passenger` in
-  standalone portrait mode, caches only static UI assets, and has an offline recovery screen.
+  standalone mode with no forced orientation, caches only static UI assets, and has an offline
+  recovery screen. Product validation currently prioritizes landscape; portrait is deferred until
+  explicitly resumed.
   It does not enforce Android kiosk mode, cache API data, or store passenger details.
 - Passenger automatically resets transient UI and language after the CONFIG-driven idle interval,
   then remains on a bilingual branded attract screen until touched. The screen presents current
@@ -228,8 +230,12 @@ retrieves the received message, forwards its content, and preserves the original
 
 ## Passenger Roadmap Order
 
+This is the canonical roadmap for the in-vehicle Passenger Console only. Rides landing, booking,
+Admin and Google Calendar planning belong in `docs/RIDES_ROADMAP.md` and
+`docs/GOOGLE_CALENDAR_ROADMAP.md`.
+
 1. Complete the current Passenger beta stabilization: validate the approved idle cadence, game
-   auto-advance and tablet layouts without disturbing Music, Streex, booking or payments.
+   auto-advance and landscape tablet layout without disturbing Music, Streex, booking or payments.
 2. Expand the Around You inventory to 100 verified places across the STREEX corridor, with explicit
    image-present/missing status, requested filename, source/author/license and bilingual copy.
 3. Build the category-first Around You browser/search as a later local/offline phase. It should
@@ -288,8 +294,8 @@ implemented incrementally without replacing the current Passenger architecture.
    with curated categories (restaurants, hotels, cafés, supermarkets, parks, attractions, museums
    and bookstores), transient GPS ordering and no live business scraping.
 3. **Smart attract-screen refinement** — keep the current approved Music-led idle experience and
-   only reintroduce additional Around You or game protagonists after their horizontal and vertical
-   layouts are stable.
+   only reintroduce additional Around You or game protagonists after their landscape layouts are
+   stable. Portrait validation is deferred by product direction.
 4. **Around You content depth** — expand the verified catalog and use richer bilingual editorial
    detail in the featured panel while keeping concise secondary cards and local image fallbacks.
 5. **Contextual Quick Access** — preserve the current session-stable rotation and direct-to-game
