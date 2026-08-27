@@ -2512,6 +2512,50 @@ function PersonalSpotifyHomeCard({
   );
 }
 
+function FittedMusicTrackTitle({ title }: { title: string }) {
+  const titleRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const element = titleRef.current;
+    if (!element) return;
+
+    let frame = 0;
+    const fit = () => {
+      element.style.setProperty("--passenger-track-title-size", "2.2rem");
+      const minimumSize = 1.5;
+      let size = 2.2;
+
+      while (element.scrollWidth > element.clientWidth && size > minimumSize) {
+        size = Math.max(minimumSize, Number((size - 0.05).toFixed(2)));
+        element.style.setProperty("--passenger-track-title-size", `${size}rem`);
+      }
+    };
+
+    const scheduleFit = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(fit);
+    };
+
+    const observer = new ResizeObserver(scheduleFit);
+    observer.observe(element);
+    window.addEventListener("resize", scheduleFit);
+    void document.fonts?.ready.then(scheduleFit).catch(() => undefined);
+    scheduleFit();
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("resize", scheduleFit);
+    };
+  }, [title]);
+
+  return (
+    <p ref={titleRef} className="passenger-music-track-title mt-2 font-black leading-[1.04] tracking-tight">
+      {title}
+    </p>
+  );
+}
+
 function PersonalSpotifyMusicView({
   config,
   catalogMarket,
@@ -2730,9 +2774,7 @@ function PersonalSpotifyMusicView({
             <p className="passenger-music-now-playing-eyebrow text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
               {t.nowPlaying}
             </p>
-            <p className="passenger-music-track-title mt-2 font-black leading-[1.04] tracking-tight">
-              {playback.track?.title ?? t.chooseMusic}
-            </p>
+            <FittedMusicTrackTitle title={playback.track?.title ?? t.chooseMusic} />
             <p className="passenger-music-track-artist mt-4 text-sm leading-snug text-white/75">
               {playback.track?.artist ?? t.spotifyNoDevice}
             </p>
