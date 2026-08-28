@@ -317,7 +317,9 @@ Admin and Google Calendar planning belong in `docs/RIDES_ROADMAP.md` and
 - Passenger's unlinked `?passenger-test=1` owner tool exposes only a logical-rest test button. It
   resets to the Music-first idle screen, dims the web UI visually, and any touch returns to the
   normal console. It never attempts to control physical brightness or send Fully credentials from
-  browser code.
+  browser code. The same owner-only query also exposes the weather-atmosphere test selector; the
+  selector is hidden from normal Passenger/public sessions while the underlying weather effects
+  remain automatic.
 
 ## Approved Passenger Experience Backlog
 

@@ -812,6 +812,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               weatherStatus={weather.status}
               weatherAtmosphereActive={!idleReset.promptOpen}
               weatherAtmosphereOverride={weatherAtmosphereTestOverride}
+              weatherAtmosphereTestMode={passengerTestMode}
               onWeatherAtmosphereOverrideChange={setWeatherAtmosphereTestOverride}
               t={t}
             />
@@ -1570,6 +1571,7 @@ function HomeView({
   weatherStatus,
   weatherAtmosphereActive,
   weatherAtmosphereOverride,
+  weatherAtmosphereTestMode,
   onWeatherAtmosphereOverrideChange,
   t,
 }: {
@@ -1585,6 +1587,7 @@ function HomeView({
   weatherStatus: PassengerWeatherStatus;
   weatherAtmosphereActive: boolean;
   weatherAtmosphereOverride: AtmosphereVariant | null;
+  weatherAtmosphereTestMode: boolean;
   onWeatherAtmosphereOverrideChange: (value: AtmosphereVariant | null) => void;
   t: (typeof copy)[Language];
 }) {
@@ -1729,6 +1732,7 @@ function HomeView({
         weatherStatus={weatherStatus}
         timeZone={clockConfig.localTimeZone}
         atmosphereOverride={weatherAtmosphereOverride}
+        showAtmosphereTestControls={weatherAtmosphereTestMode}
         onAtmosphereOverrideChange={onWeatherAtmosphereOverrideChange}
         t={t}
       />
@@ -1856,6 +1860,7 @@ function WeatherDetailDialog({
   open,
   atmosphereOverride,
   onAtmosphereOverrideChange,
+  showAtmosphereTestControls,
   timeZone,
   t,
   weather,
@@ -1868,6 +1873,7 @@ function WeatherDetailDialog({
   open: boolean;
   atmosphereOverride: AtmosphereVariant | null;
   onAtmosphereOverrideChange: (value: AtmosphereVariant | null) => void;
+  showAtmosphereTestControls: boolean;
   timeZone: string;
   t: (typeof copy)[Language];
   weather: PassengerWeatherSnapshot | null;
@@ -1931,22 +1937,24 @@ function WeatherDetailDialog({
             {t.weatherDetailDescription} {city}.
           </DialogDescription>
             </div>
-            <div className="flex shrink-0 gap-1 rounded-full border border-white/10 bg-black/45 p-1 backdrop-blur">
-              {WEATHER_ATMOSPHERE_OPTIONS.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => onAtmosphereOverrideChange(option.id)}
-                  className={`rounded-full px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.08em] transition ${
-                    atmosphere === option.id
-                      ? "bg-[#E6CE20] text-black"
-                      : "text-white/60 hover:text-white"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
+            {showAtmosphereTestControls && (
+              <div className="flex shrink-0 gap-1 rounded-full border border-white/10 bg-black/45 p-1 backdrop-blur">
+                {WEATHER_ATMOSPHERE_OPTIONS.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => onAtmosphereOverrideChange(option.id)}
+                    className={`rounded-full px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.08em] transition ${
+                      atmosphere === option.id
+                        ? "bg-[#E6CE20] text-black"
+                        : "text-white/60 hover:text-white"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </DialogHeader>
 
