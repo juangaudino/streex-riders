@@ -107,8 +107,14 @@ show passenger data.
   the global default.
 - Passenger Lite supports the color-only `Original` and `STREEX Accent` launch themes through
   `CONFIG.passengerConsole.liteTheme`. Accent is the launch default; changing that one public
-  config value restores Original. The theme changes palette only, has no passenger-facing selector,
-  and is explicitly not applied to future Complete mode.
+  config value restores Original. This is the current launch mechanism. It will be migrated later
+  into the approved `visualTheme` registry; it must not coexist indefinitely as a second theme
+  system.
+- Planned, not yet implemented, Passenger experience model: three independent layers. `experienceMode`
+  selects `lite`, future `complete`, or future `kids`; session personalization can add a bounded
+  greeting/context only after a trusted Driver MC signal; and `visualTheme` controls presentation
+  tokens only. Quiet, Guest and Test are future Driver MC session controls, not experience modes.
+  The current Lite/Accent behavior remains unchanged until that roadmap item begins.
 - The approved Passenger Music Reload visual pass is implemented: Music has the restored hierarchy,
   artwork-led now playing, dynamic album glow, stage-light accents and the approved idle treatment.
   Spotify remains the source of truth for playback and metadata.
@@ -247,8 +253,13 @@ Admin and Google Calendar planning belong in `docs/RIDES_ROADMAP.md` and
 3. Complete Reload 1.0.4 test controls, keeping physical brightness and kiosk actions in Fully Kiosk.
 4. Complete Point 0 internal Passenger analytics and start the approved beta measurement baseline.
 5. Complete Reload 1.0.5 by publishing Lite for daily use and validating it in real rides.
-6. Define and implement the reusable visual-theme layer (Original, Halloween, Night Out, Winter/
-   Park City and Holiday are candidate themes; activation and scope are not yet finalized).
+6. After Lite is published and stable, implement the approved visual-theme architecture and a
+   Halloween pilot. Migrate `liteTheme` into `visualTheme`; keep Original and Accent, ship
+   Halloween first, and defer Night Out, Winter/Park City and Holiday until the tablet pilot is
+   validated. Themes are presentation tokens only: they cannot change navigation, feature logic,
+   Music/Spotify, Games, Around You, GPS, booking, payments or Calendar behavior. Activation is
+   Admin-only in v1, with America/Denver scheduling and whole-theme fallback to Original for any
+   unknown, invalid or expired selection. Do not begin Lovable visual execution for this item yet.
 7. Build Streex Driver MC as the private operational/session control surface.
 8. Expand Around You to 100 verified places, then build the category-first local/offline browser.
 9. Develop additional Passenger games only after Around You is stable. Streex Horizon remains a
@@ -272,6 +283,31 @@ Admin and Google Calendar planning belong in `docs/RIDES_ROADMAP.md` and
     This is intentionally outside the current RELOAD work and must not start until the owner
     supplies the final asset map.
 
+### Approved planning record — modes, personalization and themes
+
+- `experienceMode` has three independent values: `lite`, future `complete`, and future `kids`.
+  Kids is not a Lite/Complete overlay: its navigation, content and restrictions require a separate
+  design item before implementation. A future Driver MC Kids control is a temporary session switch;
+  Quiet, Guest and Test remain session controls only.
+- Session personalization is not a mode. A future trusted Driver MC confirmation may add a
+  time-bounded greeting and contextual content on Lite or Complete; rich reservation/route context
+  remains Complete-only. It is off by default for Kids until an explicit privacy review approves it.
+- `visualTheme` is independent of mode. The first registry will contain Original, Accent and
+  Halloween. Themes may supply palette, CTA, background/gradient, optional per-surface imagery,
+  minimal bilingual seasonal copy and subtle decorative motion. They never contain routes, flags,
+  APIs, GPS, booking, payment, Music, Games or Around You references.
+- The theme registry must be complete and validated as a unit: incomplete/unknown values resolve to
+  Original, never to a mixed partial theme. Optional images fall back to that theme's own palette
+  or gradient. Admin manual activation overrides a scheduled theme; otherwise scheduling falls
+  back to Original. Schedule datetimes use America/Denver.
+- Every theme must meet WCAG AA contrast, honor `prefers-reduced-motion`, and avoid strobing or
+  flashing. Theme motion is decorative only and cannot disable or alter approved Music/Climate
+  effects. Kids may resolve only themes explicitly marked safe; Original and Accent are the only
+  initially safe themes.
+- Before implementation, add contract tests for token completeness/types, contrast pairs,
+  `kidsSafe`, allowed motion intensity, unknown fallback, Kids rejection, activation precedence,
+  schedule expiry and reduced-motion behavior.
+
 ### Reload 1.0.4 test controls
 
 - Fully Kiosk Remote/Admin owns physical tablet controls. A validated remote brightness change is
@@ -289,7 +325,7 @@ implemented incrementally without replacing the current Passenger architecture.
 
 1. **Streex Driver MC (driver control panel)** — the next strategic feature after launch
    stabilization. It will be a private, authenticated phone-side control surface in this same
-   repository, never exposed to passengers. It should provide fast on/off modes (Kids, Quiet,
+   repository, never exposed to passengers. It should provide fast session controls (Kids, Quiet,
    Guest and Test), content toggles (Games, Around You, payments, contact, Jam and language),
    session actions (Home, reset, idle and refresh music), and tablet telemetry (battery, charging,
    temperature, Wi-Fi, GPS and Spotify status). Its future role is operational/session control;
@@ -308,7 +344,8 @@ implemented incrementally without replacing the current Passenger architecture.
 5. **Contextual Quick Access** — preserve the current session-stable rotation and direct-to-game
    behavior; future changes should be tested as guardrails, not as a new navigation model.
 6. **Accessibility and premium readability** — larger type options, high contrast, reduced motion,
-   stable 48–56px touch targets, color-independent states and tablet QA in both orientations.
+   stable 48–56px touch targets and color-independent states. Tablet QA remains landscape-first;
+   portrait work is deferred until explicitly resumed.
 7. **Future Now Playing refinements** — optional improvements beyond the approved Music Reload pass;
    the existing Spotify controls remain the source of truth.
 8. **Remember STREEX / end-of-ride handoff** — do not infer passenger departure from GPS. Use the
