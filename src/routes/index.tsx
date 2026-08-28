@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CONFIG, type AppConfig } from "@/config";
-import { Splash } from "@/components/streex/Splash";
+import { StreexCinematicSplash } from "@/components/streex/cinematic-splash/StreexCinematicSplash";
 import { Header } from "@/components/streex/Header";
 import { QuickActions } from "@/components/streex/QuickActions";
 import { ExperienceGallery } from "@/components/streex/ExperienceGallery";
@@ -18,7 +18,7 @@ import { ServiceAreas } from "@/components/streex/ServiceAreas";
 import { FrequentlyAskedQuestions } from "@/components/streex/FrequentlyAskedQuestions";
 import { TenantProvider } from "@/components/streex/TenantContext";
 
-const SPLASH_SESSION_KEY = "streex_splash_seen_v1";
+const SPLASH_SESSION_KEY = "streex_cinematic_splash_seen_v1";
 
 export const Route = createFileRoute("/")({
   loader: () => getPublicSiteConfig({ data: {} }),
@@ -129,22 +129,22 @@ export function StreexLanding({
   tenant: { id: string; slug: string; previewToken?: string };
 }) {
   const [showSplash, setShowSplash] = useState(true);
-  const [fadingOut, setFadingOut] = useState(false);
+  const [splashVariant] = useState<"full" | "short">(() => {
+    if (typeof window === "undefined") return "full";
+    try {
+      return sessionStorage.getItem(SPLASH_SESSION_KEY) ? "short" : "full";
+    } catch {
+      return "full";
+    }
+  });
   const [siteConfig] = useState<AppConfig>(initialConfig);
 
   useEffect(() => {
     try {
       sessionStorage.setItem(SPLASH_SESSION_KEY, "1");
     } catch {
-      // The splash still works when browser storage is unavailable.
+      // The selected variant still works when browser storage is unavailable.
     }
-
-    const fadeT = setTimeout(() => setFadingOut(true), 1250);
-    const hideT = setTimeout(() => setShowSplash(false), 1700);
-    return () => {
-      clearTimeout(fadeT);
-      clearTimeout(hideT);
-    };
   }, []);
 
   return (
@@ -157,9 +157,7 @@ export function StreexLanding({
     >
       <div className="min-h-screen text-white streex-frame">
         {showSplash && (
-          <div data-streex-splash className={fadingOut ? "streex-fade-out" : ""}>
-            <Splash config={siteConfig} />
-          </div>
+          <StreexCinematicSplash variant={splashVariant} onComplete={() => setShowSplash(false)} />
         )}
 
         <Header config={siteConfig} />

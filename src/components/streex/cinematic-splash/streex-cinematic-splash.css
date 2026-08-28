@@ -1,0 +1,82 @@
+.sx-cinematic-root {
+  --sx-black: #0b0b0b;
+  --sx-white: #fdfdfd;
+  --sx-yellow: #e6ce20;
+  --sx-glow: rgba(230, 206, 32, 0.55);
+  --sx-w: clamp(15rem, 62vw, 46rem);
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .sx-cinematic-root {
+    --sx-w: clamp(13rem, 46vh, 30rem);
+  }
+}
+
+.sx-cinematic-root[data-done="true"] {
+  opacity: 0;
+  visibility: hidden;
+}
+.sx-cinematic-panel {
+  position: absolute;
+  inset: 0;
+  background: var(--sx-black);
+  will-change: transform;
+}
+.sx-cinematic-panel--a {
+  clip-path: polygon(-30% -60%, 25% -60%, 75% 160%, -30% 160%);
+}
+.sx-cinematic-panel--b {
+  clip-path: polygon(25% -60%, 130% -60%, 130% 160%, 75% 160%);
+}
+.sx-cinematic-stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  will-change: transform, opacity;
+}
+.sx-cinematic-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.sx-cinematic-logo {
+  display: block;
+  width: var(--sx-w);
+  height: auto;
+  overflow: hidden;
+}
+.sx-cinematic-word,
+.sx-cinematic-cover,
+.sx-cinematic-accent,
+.sx-cinematic-x,
+.sx-cinematic-stroke {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+.sx-cinematic-stroke,
+.sx-cinematic-accent {
+  opacity: 0;
+}
+.sx-cinematic-x {
+  will-change: transform, filter;
+}
+.sx-cinematic-product {
+  margin-top: calc(var(--sx-w) * 0.05);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(0.55rem, 1.15vw, 0.8rem);
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  color: rgba(253, 253, 253, 0.62);
+  opacity: 0;
+  will-change: opacity, transform, letter-spacing;
+  user-select: none;
+}
