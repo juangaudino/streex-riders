@@ -88,14 +88,15 @@ export function WeatherAtmosphere({
             drift: 8 + Math.random() * 22,
           });
         }
-      } else if (variant === "partly-cloudy-night") {
-        for (let index = 0; index < 28; index += 1) {
+      } else if (variant === "partly-cloudy-night" || variant === "clear" || variant === "cloudy") {
+        const count = variant === "partly-cloudy-night" ? 72 : variant === "clear" ? 46 : 34;
+        for (let index = 0; index < count; index += 1) {
           stars.push({
             x: Math.random() * width,
-            y: Math.random() * height * 0.7,
-            r: 0.6 + Math.random() * 1.1,
+            y: Math.random() * height,
+            r: 0.7 + Math.random() * 1.7,
             phase: Math.random() * Math.PI * 2,
-            rate: 0.4 + Math.random() * 0.9,
+            rate: 0.35 + Math.random() * 1.1,
           });
         }
       } else if (variant === "fog" || variant === "smoke") {
@@ -153,9 +154,10 @@ export function WeatherAtmosphere({
     const drawClouds = (time: number, alpha = 0.06) => {
       ctx.save();
       for (const cloud of [
-        { x: 0.1, y: 0.16, scale: 1, speed: 0.000018 },
-        { x: 0.55, y: 0.3, scale: 0.7, speed: 0.000012 },
-        { x: 0.8, y: 0.1, scale: 0.85, speed: 0.000015 },
+        { x: 0.08, y: 0.13, scale: 1.08, speed: 0.000018 },
+        { x: 0.42, y: 0.34, scale: 0.92, speed: 0.000012 },
+        { x: 0.76, y: 0.09, scale: 1.04, speed: 0.000015 },
+        { x: 1.04, y: 0.56, scale: 1.18, speed: 0.00001 },
       ]) {
         const offset = ((time * cloud.speed + cloud.x) % 1.4) - 0.2;
         const cx = offset * width;
@@ -163,9 +165,10 @@ export function WeatherAtmosphere({
         const scale = cloud.scale * (width / 900);
         ctx.fillStyle = `rgba(200, 214, 245, ${alpha})`;
         ctx.beginPath();
-        ctx.ellipse(cx, cy, 190 * scale, 62 * scale, 0, 0, Math.PI * 2);
-        ctx.ellipse(cx + 130 * scale, cy - 22 * scale, 140 * scale, 48 * scale, 0, 0, Math.PI * 2);
-        ctx.ellipse(cx - 140 * scale, cy + 12 * scale, 120 * scale, 42 * scale, 0, 0, Math.PI * 2);
+        ctx.ellipse(cx, cy, 230 * scale, 72 * scale, 0, 0, Math.PI * 2);
+        ctx.ellipse(cx + 145 * scale, cy - 26 * scale, 162 * scale, 56 * scale, 0, 0, Math.PI * 2);
+        ctx.ellipse(cx - 155 * scale, cy + 14 * scale, 145 * scale, 50 * scale, 0, 0, Math.PI * 2);
+        ctx.ellipse(cx + 24 * scale, cy - 45 * scale, 132 * scale, 48 * scale, 0, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
@@ -215,28 +218,30 @@ export function WeatherAtmosphere({
       } else if (variant === "partly-cloudy-night") {
         const moonX = width * 0.86;
         const moonY = height * 0.14;
-        const halo = ctx.createRadialGradient(moonX, moonY, 4, moonX, moonY, 150);
-        halo.addColorStop(0, "rgba(214, 226, 255, 0.18)");
+        const halo = ctx.createRadialGradient(moonX, moonY, 4, moonX, moonY, 210);
+        halo.addColorStop(0, "rgba(214, 226, 255, 0.32)");
+        halo.addColorStop(0.35, "rgba(140, 160, 255, 0.12)");
         halo.addColorStop(1, "rgba(214, 226, 255, 0)");
         ctx.fillStyle = halo;
-        ctx.fillRect(moonX - 160, moonY - 160, 320, 320);
-        ctx.fillStyle = "rgba(232, 238, 255, 0.72)";
+        ctx.fillRect(moonX - 220, moonY - 220, 440, 440);
+        ctx.fillStyle = "rgba(232, 238, 255, 0.9)";
         ctx.beginPath();
-        ctx.arc(moonX, moonY, 22, 0, Math.PI * 2);
+        ctx.arc(moonX, moonY, 30, 0, Math.PI * 2);
         ctx.fill();
         ctx.globalCompositeOperation = "destination-out";
         ctx.beginPath();
-        ctx.arc(moonX + 10, moonY - 8, 19, 0, Math.PI * 2);
+        ctx.arc(moonX + 13, moonY - 10, 26, 0, Math.PI * 2);
         ctx.fill();
         ctx.globalCompositeOperation = "source-over";
         for (const star of stars) {
           star.phase += dt * star.rate;
-          ctx.fillStyle = `rgba(255,255,255,${0.28 + (Math.sin(star.phase) + 1) * 0.26})`;
+          const brightness = 0.35 + (Math.sin(star.phase) + 1) * 0.28;
+          ctx.fillStyle = `rgba(220,230,255,${brightness})`;
           ctx.beginPath();
-          ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+          ctx.arc(star.x, star.y, star.r * (0.8 + brightness), 0, Math.PI * 2);
           ctx.fill();
         }
-        drawClouds(now);
+        drawClouds(now, 0.14);
       } else if (variant === "fog" || variant === "smoke") {
         const color = variant === "smoke" ? "191, 156, 116" : "208, 220, 235";
         for (const particle of particles) {
@@ -253,17 +258,36 @@ export function WeatherAtmosphere({
           ctx.fillRect(particle.x - particle.r, particle.y - particle.r, particle.r * 2, particle.r * 2);
         }
       } else if (variant === "cloudy") {
-        drawClouds(now, 0.11);
+        const glow = ctx.createRadialGradient(width * 0.68, height * 0.16, 12, width * 0.68, height * 0.16, Math.max(width, height) * 0.7);
+        glow.addColorStop(0, "rgba(179, 204, 255, 0.22)");
+        glow.addColorStop(0.45, "rgba(116, 146, 191, 0.09)");
+        glow.addColorStop(1, "rgba(30, 44, 62, 0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, width, height);
+        drawClouds(now, 0.21);
+        for (const star of stars) {
+          star.phase += dt * star.rate;
+          ctx.fillStyle = `rgba(202, 222, 255, ${0.08 + (Math.sin(star.phase) + 1) * 0.08})`;
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.r * 1.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
       } else {
-        const cx = width * 0.92;
-        const cy = -height * 0.08;
+        const cx = width * 0.88;
+        const cy = height * 0.08;
+        const halo = ctx.createRadialGradient(cx, cy, 8, cx, cy, Math.max(width, height) * 0.52);
+        halo.addColorStop(0, "rgba(255, 235, 150, 0.42)");
+        halo.addColorStop(0.18, "rgba(255, 198, 54, 0.18)");
+        halo.addColorStop(1, "rgba(255, 189, 48, 0)");
+        ctx.fillStyle = halo;
+        ctx.fillRect(0, 0, width, height);
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate((now / 90000) % (Math.PI * 2));
         const reach = Math.hypot(width, height) * 1.2;
         for (let index = 0; index < 14; index += 1) {
           ctx.rotate((Math.PI * 2) / 14);
-          ctx.fillStyle = `rgba(255, 214, 120, ${index % 2 ? 0.09 : 0.17})`;
+          ctx.fillStyle = `rgba(255, 214, 120, ${index % 2 ? 0.14 : 0.27})`;
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(reach, reach * 0.06);
@@ -272,6 +296,17 @@ export function WeatherAtmosphere({
           ctx.fill();
         }
         ctx.restore();
+        ctx.fillStyle = "rgba(255, 241, 185, 0.94)";
+        ctx.beginPath();
+        ctx.arc(cx, cy, 26, 0, Math.PI * 2);
+        ctx.fill();
+        for (const star of stars) {
+          star.phase += dt * star.rate;
+          ctx.fillStyle = `rgba(255, 224, 125, ${0.18 + (Math.sin(star.phase) + 1) * 0.18})`;
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
       frameId = requestAnimationFrame(draw);
     };

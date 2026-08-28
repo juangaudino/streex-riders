@@ -23,6 +23,8 @@ export type PassengerWeatherPeriod = {
 
 export type PassengerWeatherSnapshot = {
   updatedAt: string;
+  /** Display-safe location returned by NWS for the rounded device coordinate. */
+  locationName?: string;
   periods: PassengerWeatherPeriod[];
   dailyPeriods?: PassengerWeatherPeriod[];
 };

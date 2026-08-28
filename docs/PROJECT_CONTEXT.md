@@ -118,10 +118,12 @@ show passenger data.
 - The approved Passenger Music Reload visual pass is implemented: Music has the restored hierarchy,
   artwork-led now playing, dynamic album glow, stage-light accents and the approved idle treatment.
   Spotify remains the source of truth for playback and metadata.
-- Passenger weather uses the public National Weather Service API through a fixed server function.
-  Salt Lake City coordinates and refresh cadence are CONFIG-driven; sanitized hourly forecasts
-  are cached server-side and the last successful snapshot is retained locally for hotspot outages.
-  English displays Fahrenheit and Spanish displays Celsius. No API credential is required.
+- Passenger weather uses the public National Weather Service API through a server function. While
+  Home or Around You is visible, it reuses that existing low-power GPS snapshot (rounded to roughly
+  one kilometre) for the local forecast; it never starts a second location tracker. Salt Lake City
+  is the CONFIG fallback when GPS is unavailable. Sanitized hourly forecasts are cached server-side
+  per rounded area and the last successful snapshot is retained locally for hotspot outages. English
+  displays Fahrenheit and Spanish displays Celsius. No API credential is required.
 - The approved Passenger Climate Premium visual pass is implemented: the weather detail surface,
   Home companion and idle weather rail share the atmospheric states and test override. Future work
   is hardening and tuning, not a new first-pass weather redesign.

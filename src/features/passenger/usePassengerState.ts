@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getPassengerWeather } from "@/lib/weather.functions";
 import type { PassengerWeatherSnapshot } from "@/lib/weather";
+import type { PassengerPosition } from "./around-you/around-you-types";
 
 export type PassengerWeatherStatus = "loading" | "ready" | "unavailable";
 
@@ -157,9 +158,31 @@ export function useOnlineStatus() {
   return online;
 }
 
-export function usePassengerWeather(online: boolean, refreshMinutes: number) {
+export function usePassengerWeather({
+  online,
+  refreshMinutes,
+  fallbackCity,
+  location,
+}: {
+  online: boolean;
+  refreshMinutes: number;
+  fallbackCity: string;
+  location: PassengerPosition | null;
+}) {
   const [snapshot, setSnapshot] = useState<PassengerWeatherSnapshot | null>(null);
   const [status, setStatus] = useState<PassengerWeatherStatus>("loading");
+  const [lastKnownLocation, setLastKnownLocation] = useState<PassengerPosition | null>(null);
+
+  useEffect(() => {
+    if (location) setLastKnownLocation(location);
+  }, [location]);
+
+  const forecastLocation = location ?? lastKnownLocation;
+  // Roughly one kilometre is sufficient for a passenger forecast and prevents exact GPS
+  // coordinates from leaving the tablet. It also makes server-side forecast caching effective.
+  const latitude = forecastLocation ? Math.round(forecastLocation.latitude * 100) / 100 : null;
+  const longitude = forecastLocation ? Math.round(forecastLocation.longitude * 100) / 100 : null;
+  const locationKey = latitude === null || longitude === null ? "fallback" : `${latitude},${longitude}`;
 
   const refresh = useCallback(async () => {
     if (!navigator.onLine) {
@@ -168,7 +191,9 @@ export function usePassengerWeather(online: boolean, refreshMinutes: number) {
     }
 
     try {
-      const response = await getPassengerWeather({ data: {} });
+      const response = await getPassengerWeather({
+        data: latitude === null || longitude === null ? {} : { latitude, longitude },
+      });
       if (response.state !== "ready") {
         setStatus("unavailable");
         return;
@@ -179,7 +204,7 @@ export function usePassengerWeather(online: boolean, refreshMinutes: number) {
     } catch {
       setStatus("unavailable");
     }
-  }, []);
+  }, [latitude, longitude]);
 
   useEffect(() => {
     try {
@@ -196,12 +221,12 @@ export function usePassengerWeather(online: boolean, refreshMinutes: number) {
       Math.max(1, refreshMinutes) * 60_000,
     );
     return () => window.clearInterval(interval);
-  }, [refresh, refreshMinutes]);
+  }, [locationKey, refresh, refreshMinutes]);
 
   useEffect(() => {
     if (online) void refresh();
     else setStatus("unavailable");
   }, [online, refresh]);
 
-  return { snapshot, status };
+  return { snapshot, status, city: snapshot?.locationName ?? fallbackCity };
 }

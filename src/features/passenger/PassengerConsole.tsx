@@ -678,7 +678,6 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
       ) ?? null,
     [simulatedAroundYouPlaceId],
   );
-  const weather = usePassengerWeather(online, consoleConfig.weather.refreshMinutes);
   const passengerLocation = usePassengerLocation({
     enabled:
       aroundYouEnabled &&
@@ -686,6 +685,12 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
       !idleReset.promptOpen &&
       (view === "home" || view === "around-you"),
     options: consoleConfig.aroundYou.geolocation,
+  });
+  const weather = usePassengerWeather({
+    online,
+    refreshMinutes: consoleConfig.weather.refreshMinutes,
+    fallbackCity: consoleConfig.weather.city,
+    location: passengerLocation.position,
   });
   const aroundYouLocation = simulatedAroundYouPlace
     ? {
@@ -803,7 +808,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
               quickGame={quickGame}
               fallbackTemperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
               weather={weather.snapshot}
-              weatherCity={consoleConfig.weather.city}
+              weatherCity={weather.city}
               weatherStatus={weather.status}
               weatherAtmosphereActive={!idleReset.promptOpen}
               weatherAtmosphereOverride={weatherAtmosphereTestOverride}
@@ -938,6 +943,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
           }}
           onResume={idleReset.resume}
           weather={weather.snapshot}
+          weatherCity={weather.city}
           weatherAtmosphereOverride={weatherAtmosphereTestOverride}
         />
       )}
@@ -955,6 +961,7 @@ function PassengerIdlePrompt({
   onExploreStreex,
   onResume,
   weather,
+  weatherCity,
   weatherAtmosphereOverride,
 }: {
   config: AppConfig;
@@ -966,6 +973,7 @@ function PassengerIdlePrompt({
   onExploreStreex: () => void;
   onResume: () => void;
   weather: PassengerWeatherSnapshot | null;
+  weatherCity: string;
   weatherAtmosphereOverride: AtmosphereVariant | null;
 }) {
   const primary = copy[language];
@@ -1028,6 +1036,7 @@ function PassengerIdlePrompt({
           onExploreGame={onExploreGame}
           onExploreStreex={onExploreStreex}
           weather={weather}
+          weatherCity={weatherCity}
           weatherAtmosphereOverride={weatherAtmosphereOverride}
         />
 
@@ -1178,6 +1187,7 @@ function IdleSecondaryRail({
   onExploreGame,
   onExploreStreex,
   weather,
+  weatherCity,
   weatherAtmosphereOverride,
 }: {
   config: AppConfig;
@@ -1188,6 +1198,7 @@ function IdleSecondaryRail({
   onExploreGame: () => void;
   onExploreStreex: () => void;
   weather: PassengerWeatherSnapshot | null;
+  weatherCity: string;
   weatherAtmosphereOverride: AtmosphereVariant | null;
 }) {
   const t = copy[language];
@@ -1319,7 +1330,7 @@ function IdleSecondaryRail({
               {Math.round(currentTemperature)}°F
             </strong>
             <span className="truncate text-sm text-white/70">
-              {feature === "weather-daily" ? t.idleWeatherTitle : weatherConditionLabel(currentCondition, t)}
+              {feature === "weather-daily" ? weatherCity : weatherConditionLabel(currentCondition, t)}
             </span>
           </span>
         </span>

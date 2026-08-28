@@ -12,13 +12,16 @@ const NWS_HEADERS = {
   "User-Agent": "STREEX Passenger Console (rides.getstreex.com; streex.rides@gmail.com)",
 };
 
-let pointCache: {
+type WeatherPoint = {
   key: string;
   forecastUrl: string;
   forecastHourlyUrl: string;
+  locationName?: string;
   expiresAt: number;
-} | null = null;
-let forecastCache: { value: PassengerWeatherSnapshot; expiresAt: number } | null = null;
+};
+
+const pointCache = new Map<string, WeatherPoint>();
+const forecastCache = new Map<string, { value: PassengerWeatherSnapshot; expiresAt: number }>();
 
 async function fetchJson(url: string) {
   const controller = new AbortController();
@@ -34,10 +37,15 @@ async function fetchJson(url: string) {
 
 async function getForecastUrls(latitude: number, longitude: number) {
   const key = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
-  if (pointCache?.key === key && pointCache.expiresAt > Date.now()) return pointCache;
+  const cached = pointCache.get(key);
+  if (cached && cached.expiresAt > Date.now()) return cached;
 
   const payload = (await fetchJson(`https://api.weather.gov/points/${key}`)) as {
-    properties?: { forecast?: unknown; forecastHourly?: unknown };
+    properties?: {
+      forecast?: unknown;
+      forecastHourly?: unknown;
+      relativeLocation?: { properties?: { city?: unknown; state?: unknown } };
+    };
   };
   const forecastUrl = payload.properties?.forecast;
   const forecastHourlyUrl = payload.properties?.forecastHourly;
@@ -50,15 +58,30 @@ async function getForecastUrls(latitude: number, longitude: number) {
     throw new Error("The weather service did not provide usable forecast URLs.");
   }
 
-  pointCache = { key, forecastUrl, forecastHourlyUrl, expiresAt: Date.now() + POINT_CACHE_TTL_MS };
-  return pointCache;
+  const city = payload.properties?.relativeLocation?.properties?.city;
+  const state = payload.properties?.relativeLocation?.properties?.state;
+  const locationName =
+    typeof city === "string"
+      ? [city, typeof state === "string" ? state : null].filter(Boolean).join(", ")
+      : undefined;
+  const value = {
+    key,
+    forecastUrl,
+    forecastHourlyUrl,
+    locationName,
+    expiresAt: Date.now() + POINT_CACHE_TTL_MS,
+  };
+  pointCache.set(key, value);
+  return value;
 }
 
 export async function getPassengerWeatherServer(latitude: number, longitude: number) {
-  if (forecastCache && forecastCache.expiresAt > Date.now()) return forecastCache.value;
+  const key = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+  const cached = forecastCache.get(key);
+  if (cached && cached.expiresAt > Date.now()) return cached.value;
 
   try {
-    const { forecastUrl, forecastHourlyUrl } = await getForecastUrls(latitude, longitude);
+    const { forecastUrl, forecastHourlyUrl, locationName } = await getForecastUrls(latitude, longitude);
     const [hourlyPayload, dailyPayload] = await Promise.all([
       fetchJson(forecastHourlyUrl),
       fetchJson(forecastUrl),
@@ -68,11 +91,12 @@ export async function getPassengerWeatherServer(latitude: number, longitude: num
     const value: PassengerWeatherSnapshot = {
       ...hourly,
       dailyPeriods: daily.periods.slice(0, 4),
+      locationName,
     };
-    forecastCache = { value, expiresAt: Date.now() + FORECAST_CACHE_TTL_MS };
+    forecastCache.set(key, { value, expiresAt: Date.now() + FORECAST_CACHE_TTL_MS });
     return value;
   } catch (error) {
-    if (forecastCache) return forecastCache.value;
+    if (cached) return cached.value;
     throw error;
   }
 }
