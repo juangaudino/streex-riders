@@ -15,6 +15,7 @@ export type CinematicSplashVariant = "full" | "short";
 export interface StreexCinematicSplashProps {
   variant?: CinematicSplashVariant;
   ready?: boolean;
+  tagline?: string;
   onComplete?: () => void;
 }
 
@@ -27,20 +28,20 @@ const EASE = {
 
 const TIMINGS = {
   full: {
-    lineAt: 160,
-    lineDur: 558,
-    whiteAt: 400,
-    whiteDur: 342,
-    impactAt: 780,
-    impactDur: 280,
-    revealAt: 1000,
-    revealDur: 460,
-    glintAt: 1440,
-    glintDur: 460,
-    productAt: 1480,
-    productDur: 380,
-    exitAt: 1780,
-    exitDur: 420,
+    lineAt: 200,
+    lineDur: 720,
+    whiteAt: 500,
+    whiteDur: 460,
+    impactAt: 980,
+    impactDur: 320,
+    revealAt: 1350,
+    revealDur: 520,
+    glintAt: 1830,
+    glintDur: 420,
+    productAt: 1800,
+    productDur: 400,
+    exitAt: 2180,
+    exitDur: 460,
   },
   short: {
     lineAt: 40,
@@ -66,6 +67,7 @@ const IDENTITY = "translate(0,0) rotate(0deg) scale(1,1)";
 export function StreexCinematicSplash({
   variant = "full",
   ready = true,
+  tagline = "Private rides. Elevated.",
   onComplete,
 }: StreexCinematicSplashProps) {
   const timing = TIMINGS[variant];
@@ -288,8 +290,8 @@ export function StreexCinematicSplash({
       add(
         productRef.current,
         [
-          { opacity: 0, letterSpacing: "0.62em", transform: "translate3d(0,6px,0)" },
-          { opacity: 1, letterSpacing: "0.42em", transform: "translate3d(0,0,0)" },
+          { opacity: 0, letterSpacing: "0.28em", transform: "translate3d(0,6px,0)" },
+          { opacity: 1, letterSpacing: "0.16em", transform: "translate3d(0,0,0)" },
         ],
         { duration: timing.productDur, delay: timing.productAt, easing: EASE.settle },
       );
@@ -310,6 +312,9 @@ export function StreexCinematicSplash({
 
   const glintClipId = `streex-cinematic-glint-clip-${uid}`;
   const glintGradientId = `streex-cinematic-glint-gradient-${uid}`;
+  const taglineWords = tagline.trim().split(/\s+/);
+  const finalWord = taglineWords.pop() ?? "";
+  const firstWords = taglineWords.join(" ");
 
   return (
     <div ref={rootRef} className="sx-cinematic-root" aria-hidden="true">
@@ -380,7 +385,9 @@ export function StreexCinematicSplash({
             </g>
           </svg>
           <div ref={productRef} className="sx-cinematic-product">
-            RIDES
+            <span>{firstWords}</span>
+            {firstWords && finalWord && " "}
+            <span className="sx-cinematic-product-accent">{finalWord}</span>
           </div>
         </div>
       </div>

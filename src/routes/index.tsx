@@ -157,7 +157,11 @@ export function StreexLanding({
     >
       <div className="min-h-screen text-white streex-frame">
         {showSplash && (
-          <StreexCinematicSplash variant={splashVariant} onComplete={() => setShowSplash(false)} />
+          <StreexCinematicSplash
+            variant={splashVariant}
+            tagline={siteConfig.tagline}
+            onComplete={() => setShowSplash(false)}
+          />
         )}
 
         <Header config={siteConfig} />
