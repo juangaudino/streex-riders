@@ -4,7 +4,7 @@ import { AdminPanel } from "@/components/streex/AdminPanel";
 export const Route = createFileRoute("/admin/bookings")({
   head: () => ({
     meta: [
-      { title: "Admin — Bookings | Streex Rides" },
+      { title: "Bookings | Streex Admin" },
       { name: "description", content: "Internal booking management panel." },
       { name: "robots", content: "noindex, nofollow" },
     ],

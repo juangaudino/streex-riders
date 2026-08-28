@@ -72,20 +72,32 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: ({ matches }) => {
+    const routeIds = matches.map((match) => (match as { routeId: string }).routeId);
     const isPassengerConsole = matches.some(
       (match) => (match as { routeId: string }).routeId === "/passenger",
     );
+    const isAdmin = routeIds.some(
+      (routeId) => routeId === "/admin" || routeId.startsWith("/admin/"),
+    );
+    const appleTouchIcon = isAdmin
+      ? "/icons/streex-admin-x-white-180.png"
+      : "/icons/streex-wordmark-black-180.png";
+    const manifestHref = isAdmin
+      ? "/admin.webmanifest"
+      : isPassengerConsole
+        ? "/passenger.webmanifest"
+        : "/manifest.webmanifest";
 
     return {
       meta: [
         { charSet: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { title: "Streex Rides" },
+        { title: isAdmin ? "Streex Admin" : "Streex Rides" },
         { name: "theme-color", content: "#0B0B0B" },
         { name: "mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-        { name: "apple-mobile-web-app-title", content: "Streex" },
+        { name: "apple-mobile-web-app-title", content: isAdmin ? "Streex Admin" : "Streex" },
         {
           name: "description",
           content:
@@ -157,21 +169,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {
           rel: "apple-touch-icon",
           sizes: "180x180",
-          href: "/icons/streex-wordmark-black-180.png",
+          href: appleTouchIcon,
         },
         {
           rel: "apple-touch-icon",
           sizes: "167x167",
-          href: "/icons/streex-wordmark-black-167.png",
+          href: isAdmin
+            ? "/icons/streex-admin-x-white-167.png"
+            : "/icons/streex-wordmark-black-167.png",
         },
         {
           rel: "apple-touch-icon",
           sizes: "152x152",
-          href: "/icons/streex-wordmark-black-152.png",
+          href: isAdmin
+            ? "/icons/streex-admin-x-white-152.png"
+            : "/icons/streex-wordmark-black-152.png",
         },
         {
           rel: "manifest",
-          href: isPassengerConsole ? "/passenger.webmanifest" : "/manifest.webmanifest",
+          href: manifestHref,
         },
       ],
     };
