@@ -319,7 +319,8 @@ Admin and Google Calendar planning belong in `docs/RIDES_ROADMAP.md` and
   normal console. It never attempts to control physical brightness or send Fully credentials from
   browser code. The same owner-only query also exposes the weather-atmosphere test selector; the
   selector is hidden from normal Passenger/public sessions while the underlying weather effects
-  remain automatic.
+  remain automatic. In this test mode only, idle begins after 15 seconds and the lower rail rotates
+  every 10 seconds; the public cadence remains 90 seconds and 30 seconds.
 
 ## Approved Passenger Experience Backlog
 

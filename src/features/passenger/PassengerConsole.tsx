@@ -659,6 +659,12 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
   const isLiteExperience = consoleConfig.experienceMode === "lite";
   const analytics = usePassengerAnalytics(passengerAnalyticsScreen(view));
   const aroundYouEnabled = consoleConfig.aroundYou.enabled || aroundYouTestMode;
+  const idleInactivitySeconds = passengerTestMode
+    ? 15
+    : consoleConfig.idleReset.inactivitySeconds;
+  const idleFeatureRotationSeconds = passengerTestMode
+    ? 10
+    : consoleConfig.idleReset.featureRotationSeconds;
   const resetPassengerSession = useCallback(() => {
     setBookingOpen(false);
     setView("home");
@@ -668,7 +674,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
     setSessionKey((current) => current + 1);
   }, [consoleConfig.idleReset.defaultLanguage]);
   const idleReset = usePassengerIdleReset({
-    inactivitySeconds: consoleConfig.idleReset.inactivitySeconds,
+    inactivitySeconds: idleInactivitySeconds,
     onReset: resetPassengerSession,
   });
   const simulatedAroundYouPlace = useMemo(
@@ -927,6 +933,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
       {idleReset.promptOpen && (
         <PassengerIdlePrompt
           config={config}
+          featureRotationSeconds={idleFeatureRotationSeconds}
           fallbackTemperatureFahrenheit={consoleConfig.weather.fallbackTemperatureFahrenheit}
           language={language}
           logicalRest={idleReset.logicalRest}
@@ -954,6 +961,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
 
 function PassengerIdlePrompt({
   config,
+  featureRotationSeconds,
   fallbackTemperatureFahrenheit,
   language,
   logicalRest,
@@ -966,6 +974,7 @@ function PassengerIdlePrompt({
   weatherAtmosphereOverride,
 }: {
   config: AppConfig;
+  featureRotationSeconds: number;
   fallbackTemperatureFahrenheit: number;
   language: Language;
   logicalRest: boolean;
@@ -978,9 +987,7 @@ function PassengerIdlePrompt({
   weatherAtmosphereOverride: AtmosphereVariant | null;
 }) {
   const primary = copy[language];
-  const idleSecondaryRotation = useIdleSecondaryRotation(
-    config.passengerConsole.idleReset.featureRotationSeconds * 1_000,
-  );
+  const idleSecondaryRotation = useIdleSecondaryRotation(featureRotationSeconds * 1_000);
   const now = useClock();
   const time = now
     ? now.toLocaleTimeString("en-US", {
