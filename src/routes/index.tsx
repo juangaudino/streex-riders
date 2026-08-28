@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CONFIG, type AppConfig } from "@/config";
 import { StreexCinematicSplash } from "@/components/streex/cinematic-splash/StreexCinematicSplash";
 import { Header } from "@/components/streex/Header";
@@ -129,6 +129,7 @@ export function StreexLanding({
   tenant: { id: string; slug: string; previewToken?: string };
 }) {
   const [showSplash, setShowSplash] = useState(true);
+  const [homeHeroHandoff, setHomeHeroHandoff] = useState(false);
   const [splashVariant] = useState<"full" | "short">(() => {
     if (typeof window === "undefined") return "full";
     try {
@@ -138,6 +139,8 @@ export function StreexLanding({
     }
   });
   const [siteConfig] = useState<AppConfig>(initialConfig);
+  const handleSplashHandoff = useCallback(() => setHomeHeroHandoff(true), []);
+  const handleSplashComplete = useCallback(() => setShowSplash(false), []);
 
   useEffect(() => {
     try {
@@ -160,7 +163,8 @@ export function StreexLanding({
           <StreexCinematicSplash
             variant={splashVariant}
             tagline={siteConfig.tagline}
-            onComplete={() => setShowSplash(false)}
+            onHandoff={handleSplashHandoff}
+            onComplete={handleSplashComplete}
           />
         )}
 
@@ -172,26 +176,34 @@ export function StreexLanding({
             className="relative px-6 pb-6 flex flex-col items-center text-center"
             style={{ paddingTop: 16 }}
           >
-            <img
-              src={siteConfig.logoSrc}
-              alt={siteConfig.brandName}
-              className="h-auto streex-logo-glow"
-              style={{ width: 192, display: "block", marginBottom: 12 }}
-            />
-            <h1 className="text-3xl font-bold leading-tight tracking-tight">
-              {(() => {
-                const words = siteConfig.tagline.trim().split(/\s+/);
-                const last = words.pop() ?? "";
-                const first = words.join(" ");
-                return (
-                  <>
-                    {first}
-                    <br />
-                    <span className="text-[#E6CE20]">{last}</span>
-                  </>
-                );
-              })()}
-            </h1>
+            <div
+              className={`transition-opacity duration-300 ${
+                showSplash && splashVariant === "full" && !homeHeroHandoff
+                  ? "opacity-0"
+                  : "opacity-100"
+              }`}
+            >
+              <img
+                src={siteConfig.logoSrc}
+                alt={siteConfig.brandName}
+                className="h-auto streex-logo-glow"
+                style={{ width: 192, display: "block", marginBottom: 12 }}
+              />
+              <h1 className="text-3xl font-bold leading-tight tracking-tight">
+                {(() => {
+                  const words = siteConfig.tagline.trim().split(/\s+/);
+                  const last = words.pop() ?? "";
+                  const first = words.join(" ");
+                  return (
+                    <>
+                      {first}
+                      <br />
+                      <span className="text-[#E6CE20]">{last}</span>
+                    </>
+                  );
+                })()}
+              </h1>
+            </div>
             <p className="mt-3 text-sm leading-relaxed text-white/60 max-w-xs">
               {siteConfig.subheadline}
             </p>

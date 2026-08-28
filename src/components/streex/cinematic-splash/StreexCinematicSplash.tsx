@@ -16,6 +16,7 @@ export interface StreexCinematicSplashProps {
   variant?: CinematicSplashVariant;
   ready?: boolean;
   tagline?: string;
+  onHandoff?: () => void;
   onComplete?: () => void;
 }
 
@@ -68,6 +69,7 @@ export function StreexCinematicSplash({
   variant = "full",
   ready = true,
   tagline = "Private rides. Elevated.",
+  onHandoff,
   onComplete,
 }: StreexCinematicSplashProps) {
   const timing = TIMINGS[variant];
@@ -76,6 +78,7 @@ export function StreexCinematicSplash({
   const panelARef = useRef<HTMLDivElement>(null);
   const panelBRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const columnRef = useRef<HTMLDivElement>(null);
   const wordRef = useRef<SVGGElement>(null);
   const wipeRef = useRef<SVGPolygonElement>(null);
   const xRef = useRef<SVGGElement>(null);
@@ -117,6 +120,19 @@ export function StreexCinematicSplash({
     if (reduced) {
       add(rootRef.current, [{ opacity: 1 }, { opacity: 0 }], { duration, easing: EASE.settle });
     } else {
+      if (variant === "full") {
+        add(
+          columnRef.current,
+          [
+            { transform: "translate3d(0,0,0) scale(1)" },
+            {
+              transform: "translate3d(0, calc(-50vh + 88px), 0) scale(0.8)",
+            },
+          ],
+          { duration, easing: EASE.settle },
+        );
+        onHandoff?.();
+      }
       add(
         stageRef.current,
         [
@@ -143,7 +159,7 @@ export function StreexCinematicSplash({
         onComplete?.();
       }, duration),
     );
-  }, [add, onComplete, reduced, timing.exitDur]);
+  }, [add, onComplete, onHandoff, reduced, timing.exitDur, variant]);
 
   const beginIdle = useCallback(() => {
     if (exitedRef.current || idleRef.current || reduced) return;
@@ -290,8 +306,8 @@ export function StreexCinematicSplash({
       add(
         productRef.current,
         [
-          { opacity: 0, letterSpacing: "0.28em", transform: "translate3d(0,6px,0)" },
-          { opacity: 1, letterSpacing: "0.16em", transform: "translate3d(0,0,0)" },
+          { opacity: 0, letterSpacing: "0.08em", transform: "translate3d(0,6px,0)" },
+          { opacity: 1, letterSpacing: "-0.02em", transform: "translate3d(0,0,0)" },
         ],
         { duration: timing.productDur, delay: timing.productAt, easing: EASE.settle },
       );
@@ -321,7 +337,7 @@ export function StreexCinematicSplash({
       <div ref={panelARef} className="sx-cinematic-panel sx-cinematic-panel--a" />
       <div ref={panelBRef} className="sx-cinematic-panel sx-cinematic-panel--b" />
       <div ref={stageRef} className="sx-cinematic-stage">
-        <div className="sx-cinematic-column">
+        <div ref={columnRef} className="sx-cinematic-column">
           <svg
             className="sx-cinematic-logo"
             viewBox={`0 0 ${LOGO_VIEWBOX.w} ${LOGO_VIEWBOX.h}`}
@@ -385,8 +401,7 @@ export function StreexCinematicSplash({
             </g>
           </svg>
           <div ref={productRef} className="sx-cinematic-product">
-            <span>{firstWords}</span>
-            {firstWords && finalWord && " "}
+            <span className="sx-cinematic-product-primary">{firstWords}</span>
             <span className="sx-cinematic-product-accent">{finalWord}</span>
           </div>
         </div>
