@@ -72,7 +72,8 @@
 }
 .sx-cinematic-product {
   margin-top: calc(var(--sx-w) * 0.05);
-  font-family: inherit;
+  /* Mirrors the homepage hero: Montserrat / 30px / 700 / tight leading & tracking. */
+  font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
