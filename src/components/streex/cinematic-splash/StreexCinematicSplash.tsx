@@ -131,6 +131,10 @@ export function StreexCinematicSplash({
           ],
           { duration, easing: EASE.settle },
         );
+        add(productRef.current, [{ transform: "scale(1)" }, { transform: "scale(1.25)" }], {
+          duration,
+          easing: EASE.settle,
+        });
         onHandoff?.();
       }
       add(
@@ -307,7 +311,7 @@ export function StreexCinematicSplash({
         productRef.current,
         [
           { opacity: 0, letterSpacing: "0.08em", transform: "translate3d(0,6px,0)" },
-          { opacity: 1, letterSpacing: "-0.02em", transform: "translate3d(0,0,0)" },
+          { opacity: 1, letterSpacing: "-0.025em", transform: "translate3d(0,0,0)" },
         ],
         { duration: timing.productDur, delay: timing.productAt, easing: EASE.settle },
       );
