@@ -91,10 +91,11 @@ import type { PassengerAnalyticsScreen } from "@/lib/passenger-analytics";
 import utahTriviaAtlas from "@/assets/passenger-games/utah-trivia-atlas.jpg";
 import utahTriviaNationalParks from "@/assets/passenger-games/utah-trivia-national-parks.jpg";
 import utahTriviaSymbols from "@/assets/passenger-games/utah-trivia-symbols.jpg";
+import passengerHomeAirport from "@/assets/streex-gallery/passenger-home-airport.webp";
 import passengerRav4Front from "@/assets/streex-gallery/passenger-rav4-front.jpg";
-import passengerRav4Rear from "@/assets/streex-gallery/passenger-rav4-rear.jpg";
-import passengerRav4Snow from "@/assets/streex-gallery/passenger-rav4-snow.jpg";
-import passengerRav4Side from "@/assets/streex-gallery/rav4.jpg";
+import passengerRav4Rear from "@/assets/streex-gallery/passenger-rav4-rear-winter.webp";
+import passengerRav4Snow from "@/assets/streex-gallery/passenger-rav4-deer-valley.webp";
+import passengerRav4Side from "@/assets/streex-gallery/passenger-rav4-capitol.webp";
 import horizonQuickActionCard from "@/features/runner/assets/quick-action/horizon_quick_action_card.webp";
 
 type Language = AroundYouLanguage;
@@ -1657,7 +1658,7 @@ function HomeView({
     <div className="passenger-home-layout flex flex-1 flex-col gap-5">
       <section className="passenger-home-hero relative overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-[#E6CE20]/15 p-6">
         <img
-          src={passengerRav4Front}
+          src={passengerHomeAirport}
           alt=""
           aria-hidden="true"
           className="passenger-home-hero-image absolute inset-y-0 right-0 h-full w-[58%] object-cover object-center"
@@ -3585,17 +3586,17 @@ function PassengerVehicleGrid({ title }: { title: string }) {
       position: "object-center",
     },
     {
-      alt: "Silver Toyota RAV4, rear view at dusk",
+      alt: "Silver Toyota RAV4, rear view on a snowy Park City street",
       image: passengerRav4Rear,
       position: "object-center",
     },
     {
-      alt: "Silver Toyota RAV4 in the snow",
+      alt: "Silver Toyota RAV4 in Deer Valley snow",
       image: passengerRav4Snow,
       position: "object-center",
     },
     {
-      alt: "Silver Toyota RAV4 on the road",
+      alt: "Silver Toyota RAV4 at the Utah State Capitol",
       image: passengerRav4Side,
       position: "object-center",
     },
