@@ -14,15 +14,21 @@ in-vehicle Passenger Console, whose roadmap lives in `docs/PROJECT_CONTEXT.md` u
 
 ## Next Rides work
 
-1. **Google Calendar Phase 3** — add push-notification reconciliation, incremental sync and an
+1. **Pricing Engine release validation** — the Admin-only calculator, pricing profiles, zones,
+   Flat Rates, promotions, referrals and immutable quote snapshots are implemented locally in
+   `20260830015239_pricing_engine.sql`. Apply and verify the migration only with the authorized
+   Supabase owner workflow, configure the restricted server-only Google Maps key with Routes,
+   Places and Geocoding access, then run live route and quote-to-booking QA before calling it
+   production-ready. Passenger and Horizon remain out of scope.
+2. **Google Calendar Phase 3** — add push-notification reconciliation, incremental sync and an
    explicit recovery decision for manually moved or deleted Google events.
-2. **Scheduling and Admin hardening** — retain overlap regression coverage, tenant authorization
+3. **Scheduling and Admin hardening** — retain overlap regression coverage, tenant authorization
    and generated-type discipline whenever availability or booking code changes.
-3. **Owner-directed Rides imagery** — after the owner supplies an approved asset map, assess each
+4. **Owner-directed Rides imagery** — after the owner supplies an approved asset map, assess each
    image for surface, crop, weight and accessibility; optimize to WebP/AVIF where appropriate and
    use tenant-scoped Storage with stable fallbacks. Do not assume Passenger and Rides use the same
    image or seasonal mapping.
-4. **STREEX Horizon** — keep `/runner-lab` isolated and no-index until a deliberate launch
+5. **STREEX Horizon** — keep `/runner-lab` isolated and no-index until a deliberate launch
    decision. Future rendering work must remain a scoped project, not incidental landing work.
 
 ## Separation rules

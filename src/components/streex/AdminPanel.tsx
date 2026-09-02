@@ -3,6 +3,7 @@ import {
   Activity,
   CalendarCheck,
   CalendarClock,
+  CircleDollarSign,
   Gamepad2,
   MessageSquareQuote,
   Palette,
@@ -41,6 +42,7 @@ import { AdminThemeControl } from "./admin/AdminThemeControl";
 import { AdminCalendar, type CalendarGoogleBusyItem } from "./admin/AdminCalendar";
 import { AdminCalendarEventSheet, type CalendarSheetItem } from "./admin/AdminCalendarEventSheet";
 import { GoogleCalendarConnectionCard } from "./admin/GoogleCalendarConnectionCard";
+import { PricingPanel } from "./admin/PricingPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadTenantAsset, type TenantAssetKind } from "@/lib/tenant-assets";
 import {
@@ -55,6 +57,7 @@ import {
 type AdminTab =
   | "analytics"
   | "bookings"
+  | "pricing"
   | "reviews"
   | "runner"
   | "themes"
@@ -256,6 +259,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
 
   const tabs: { key: AdminTab; label: string; icon: React.ReactNode }[] = [
     { key: "bookings", label: "Bookings", icon: <CalendarCheck className="h-4 w-4" /> },
+    { key: "pricing", label: "Pricing", icon: <CircleDollarSign className="h-4 w-4" /> },
     { key: "analytics", label: "Passenger", icon: <Activity className="h-4 w-4" /> },
     { key: "reviews", label: "Reviews", icon: <MessageSquareQuote className="h-4 w-4" /> },
     ...(adminSession.isSuperAdmin
@@ -394,6 +398,7 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
 
         <div key={adminSession.activeTenantId}>
           {activeTab === "bookings" && <AdminBookings adminKey={adminKey} />}
+          {activeTab === "pricing" && <PricingPanel adminKey={adminKey} />}
           {activeTab === "analytics" && <AdminPassengerAnalytics adminKey={adminKey} />}
           {activeTab === "reviews" && <AdminReviews adminKey={adminKey} />}
           {activeTab === "runner" && <AdminRunnerScores adminKey={adminKey} />}

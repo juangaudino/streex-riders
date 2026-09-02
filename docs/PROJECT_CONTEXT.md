@@ -29,6 +29,7 @@ Admin access uses Supabase Auth plus database roles. Production has no emergency
 - `/{driver-slug}`: active driver landing page, such as `/driver2`
 - `/admin`: internal control center
 - `/admin/bookings`: Admin bookings view
+- `/admin/pricing`: internal rate calculator and pricing-rule configuration
 - `/admin/reviews`: Admin reviews view
 - `/runner-lab`: hidden, no-index STREEX Runner development route
 - `/passenger`: no-index, landscape-first in-vehicle Passenger Console for the mounted tablet
@@ -152,6 +153,7 @@ The Admin control center is implemented primarily in `src/components/streex/Admi
 Current Admin areas:
 
 - Bookings
+- Pricing — tenant-scoped quote calculator, profiles and rate rules
 - Reviews
 - Runner records
 - Display themes
@@ -172,6 +174,28 @@ Primary tables:
 - `tenants`, `tenant_memberships`, `platform_admins`: workspace identity and authorization
 - `calendar_connections`: encrypted per-tenant Google Calendar connections
 - `audit_log`: sensitive platform actions
+- `pricing_profiles`, `pricing_zones`, `pricing_flat_rates`, `pricing_promotions`,
+  `referral_partners`, `pricing_quotes`, `pricing_promo_redemptions`: private,
+  tenant-scoped pricing configuration and quote history (local migration pending application)
+
+### Pricing Engine
+
+The Pricing Engine is an authenticated Admin capability at `/admin/pricing`; it is not a Passenger
+or Horizon feature. One server-side, tenant-scoped engine calculates manual quotes and quotes for
+existing pending bookings. The browser may use the existing Google Places autocomplete for input,
+but Routes, Places detail and Geocoding calls use the server-only `GOOGLE_MAPS_SERVER_KEY`.
+
+The engine checks active zone-based Flat Rates before Dynamic or Hourly pricing. Profiles own the
+rate settings; included service zones and a configurable free positioning radius make operational
+positioning an internal component, never customer-facing copy. Special zones, late-night service,
+waiting and extra stops remain itemized only in the internal snapshot. Discounts and referral
+commissions are independent: promo redemptions are recorded only when a linked booking quote is
+sent, while a referral commission becomes payable only after its booking is completed and is voided
+when that booking is cancelled or declined.
+
+`pricing_quotes` stores the original route, settings, rules, recommendation, final customer rate,
+discount and commission. Later changes to a profile never rewrite a prior quote. New pricing tables
+have RLS enabled with no browser grants; all access is through protected server functions.
 
 Expected public behavior:
 

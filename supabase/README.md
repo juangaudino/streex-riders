@@ -68,3 +68,15 @@ Run `supabase/tests/prevent_schedule_overlaps.sql` after applying the migration 
 
 Google Calendar OAuth, free/busy reads and confirmed-ride event synchronization are implemented and
 stored per tenant after the multi-tenant migration.
+
+## Pricing Engine (local implementation pending application)
+
+`migrations/20260830015239_pricing_engine.sql` adds tenant-scoped pricing profiles, service zones,
+Flat Rates, promotions, referral partners, immutable quote snapshots and promotion-redemption
+records. The migration enables RLS and revokes all browser grants; the application uses protected
+server functions with the existing Supabase Auth and tenant-membership verification.
+
+Do not apply it as part of unrelated work. Before authorized application, configure a restricted
+server-only `GOOGLE_MAPS_SERVER_KEY` for Routes, Places API (New) and Geocoding API. The existing
+`VITE_GOOGLE_MAPS_BROWSER_KEY` remains browser-only autocomplete input and must not be repurposed
+as the server credential.

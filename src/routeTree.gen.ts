@@ -26,6 +26,7 @@ import { Route as GoogleCalendarCallbackRouteImport } from './routes/google-cale
 import { Route as BookingDeclineRouteImport } from './routes/booking.decline'
 import { Route as BookingAcceptRouteImport } from './routes/booking.accept'
 import { Route as AdminReviewsRouteImport } from './routes/admin.reviews'
+import { Route as AdminPricingRouteImport } from './routes/admin.pricing'
 import { Route as AdminBookingsRouteImport } from './routes/admin.bookings'
 import { Route as ApiResendInboundRouteImport } from './routes/api.resend.inbound'
 
@@ -115,6 +116,11 @@ const AdminReviewsRoute = AdminReviewsRouteImport.update({
   path: '/reviews',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPricingRoute = AdminPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBookingsRoute = AdminBookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slc-airport-private-rides': typeof SlcAirportPrivateRidesRoute
   '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/pricing': typeof AdminPricingRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/booking/accept': typeof BookingAcceptRoute
   '/booking/decline': typeof BookingDeclineRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slc-airport-private-rides': typeof SlcAirportPrivateRidesRoute
   '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/pricing': typeof AdminPricingRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/booking/accept': typeof BookingAcceptRoute
   '/booking/decline': typeof BookingDeclineRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/slc-airport-private-rides': typeof SlcAirportPrivateRidesRoute
   '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/pricing': typeof AdminPricingRoute
   '/admin/reviews': typeof AdminReviewsRoute
   '/booking/accept': typeof BookingAcceptRoute
   '/booking/decline': typeof BookingDeclineRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/slc-airport-private-rides'
     | '/admin/bookings'
+    | '/admin/pricing'
     | '/admin/reviews'
     | '/booking/accept'
     | '/booking/decline'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/slc-airport-private-rides'
     | '/admin/bookings'
+    | '/admin/pricing'
     | '/admin/reviews'
     | '/booking/accept'
     | '/booking/decline'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/slc-airport-private-rides'
     | '/admin/bookings'
+    | '/admin/pricing'
     | '/admin/reviews'
     | '/booking/accept'
     | '/booking/decline'
@@ -397,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminReviewsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/pricing': {
+      id: '/admin/pricing'
+      path: '/pricing'
+      fullPath: '/admin/pricing'
+      preLoaderRoute: typeof AdminPricingRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/bookings': {
       id: '/admin/bookings'
       path: '/bookings'
@@ -416,11 +435,13 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminBookingsRoute: typeof AdminBookingsRoute
+  AdminPricingRoute: typeof AdminPricingRoute
   AdminReviewsRoute: typeof AdminReviewsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminBookingsRoute: AdminBookingsRoute,
+  AdminPricingRoute: AdminPricingRoute,
   AdminReviewsRoute: AdminReviewsRoute,
 }
 

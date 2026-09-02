@@ -3,9 +3,15 @@ import { loadGoogleMaps } from "@/lib/google-maps-loader";
 
 type Suggestion = {
   id: string;
+  placeId: string | null;
   primary: string;
   secondary: string;
   full: string;
+};
+
+export type PlacesAutocompleteSelection = {
+  address: string;
+  placeId: string | null;
 };
 
 type Props = {
@@ -15,6 +21,7 @@ type Props = {
   required?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  onPlaceSelected?: (selection: PlacesAutocompleteSelection) => void;
   /** Country bias, ISO 3166-1 alpha-2 codes */
   regionCodes?: string[];
 };
@@ -26,6 +33,7 @@ export function PlacesAutocompleteInput({
   required,
   className,
   style,
+  onPlaceSelected,
   regionCodes = ["us"],
 }: Props) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -92,6 +100,7 @@ export function PlacesAutocompleteInput({
       return [
         {
           id: prediction.placeId || prediction.text.toString(),
+          placeId: prediction.placeId || null,
           primary,
           secondary,
           full: prediction.text.toString(),
@@ -162,6 +171,7 @@ export function PlacesAutocompleteInput({
   const pick = (item: Suggestion) => {
     skipNextFetchRef.current = true;
     onChange(item.full);
+    onPlaceSelected?.({ address: item.full, placeId: item.placeId });
     setOpen(false);
     setSuggestions([]);
     // New session after a selection per Google billing model

@@ -13,6 +13,7 @@ import {
 } from "./booking-emails.server";
 import { bookingConflictMessage } from "./schedule-conflicts";
 import { syncBookingWithGoogleCalendar } from "./google-calendar-sync.server";
+import { updatePricingQuoteLifecycleForBooking } from "./pricing-lifecycle.server";
 
 const AdminSchema = z.object({
   adminKey: z.string().optional().default(""),
@@ -250,6 +251,9 @@ export const updateAdminBookingStatus = createServerFn({ method: "POST" })
     }
 
     const calendarSync = await syncBookingWithGoogleCalendar(booking, access.tenantId);
+    if (data.status === "completed" || data.status === "cancelled" || data.status === "declined") {
+      await updatePricingQuoteLifecycleForBooking(booking.id, access.tenantId, data.status);
+    }
     if (data.status === "declined" || data.status === "cancelled") {
       try {
         const brand = await getTenantEmailBrand(access.tenantId);
