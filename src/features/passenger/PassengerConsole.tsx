@@ -2722,17 +2722,6 @@ function PersonalSpotifyHomeCard({
   );
 }
 
-function MusicTrackTitle({ title }: { title: string }) {
-  return (
-    <p
-      className="passenger-music-track-title mt-2 font-black leading-[1.04] tracking-tight"
-      title={title}
-    >
-      <span className="passenger-music-track-title-text">{title}</span>
-    </p>
-  );
-}
-
 function PersonalSpotifyMusicView({
   config,
   catalogMarket,
@@ -2944,6 +2933,26 @@ function PersonalSpotifyMusicView({
             <span className="passenger-music-stage-light passenger-music-stage-light--three" />
             <span className="passenger-music-stage-light passenger-music-stage-light--four" />
           </span>
+          <div className="passenger-music-player-header relative min-w-0">
+            <div className="min-w-0">
+              <p className="passenger-music-now-playing-eyebrow text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+                {t.nowPlaying}
+              </p>
+              <SpotifyMarquee className="passenger-music-track-title mt-2 font-black leading-[1.04] tracking-tight">
+                {playback.track?.title ?? t.chooseMusic}
+              </SpotifyMarquee>
+            </div>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void refresh()}
+              className="passenger-music-refresh grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/15 text-white/70 disabled:opacity-45"
+              aria-label={t.spotifyRefresh}
+              title={t.spotifyRefresh}
+            >
+              <RefreshCw className={`h-4 w-4${busy ? " animate-spin" : ""}`} />
+            </button>
+          </div>
           <div className="passenger-music-player-body relative flex min-h-0 min-w-0 items-center gap-6">
             {playback.track?.artworkUrl ? (
               <img
@@ -2955,22 +2964,6 @@ function PersonalSpotifyMusicView({
               <div className="passenger-music-now-playing-art h-52 w-52 shrink-0 rounded-[28px] bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700 shadow-2xl" />
             )}
             <div className="passenger-music-now-playing-copy passenger-music-player-details flex min-w-0 flex-1 flex-col justify-center self-stretch">
-              <div className="passenger-music-player-heading flex items-center justify-between gap-3">
-                <p className="passenger-music-now-playing-eyebrow text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
-                  {t.nowPlaying}
-                </p>
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => void refresh()}
-                  className="passenger-music-refresh grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/15 text-white/70 disabled:opacity-45"
-                  aria-label={t.spotifyRefresh}
-                  title={t.spotifyRefresh}
-                >
-                  <RefreshCw className={`h-4 w-4${busy ? " animate-spin" : ""}`} />
-                </button>
-              </div>
-              <MusicTrackTitle title={playback.track?.title ?? t.chooseMusic} />
               <p className="passenger-music-track-artist mt-4 text-sm leading-snug text-white/75">
                 {playback.track?.artist ?? t.spotifyNoDevice}
               </p>

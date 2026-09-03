@@ -9999,7 +9999,7 @@ button.passenger-idle-music {
 
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready {
     grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows: minmax(0, 1fr) auto !important;
+    grid-template-rows: auto minmax(0, 1fr) auto !important;
     gap: clamp(0.85rem, 1.2dvh, 1.15rem) !important;
     padding: clamp(1.15rem, 1.55vw, 1.55rem) !important;
     animation: none !important;
@@ -10020,11 +10020,21 @@ button.passenger-idle-music {
   .passenger-console-shell[data-view="music"] .passenger-music-player-body {
     display: grid !important;
     grid-column: 1 !important;
-    grid-row: 1 !important;
+    grid-row: 2 !important;
     grid-template-columns: minmax(11.5rem, 0.9fr) minmax(0, 1.1fr) !important;
     align-items: center !important;
     gap: clamp(1rem, 1.6vw, 1.6rem) !important;
     width: 100% !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-player-header {
+    display: grid !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: clamp(0.85rem, 1.25vw, 1.2rem);
+    min-width: 0 !important;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-player-body .passenger-music-now-playing-art {
@@ -10042,10 +10052,6 @@ button.passenger-idle-music {
     align-self: center !important;
     justify-content: center !important;
     padding-block: 0.25rem;
-  }
-
-  .passenger-console-shell[data-view="music"] .passenger-music-player-heading {
-    min-height: 2.75rem;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing-eyebrow {
@@ -10071,18 +10077,15 @@ button.passenger-idle-music {
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-track-title {
-    margin: clamp(0.65rem, 1.15dvh, 0.9rem) 0 0 !important;
+    display: block !important;
+    min-width: 0 !important;
+    margin: clamp(0.55rem, 0.95dvh, 0.75rem) 0 0 !important;
     overflow: hidden !important;
-    font-size: clamp(1.65rem, 2.05vw, 2.45rem) !important;
+    font-size: clamp(2rem, 2.65vw, 3.15rem) !important;
     line-height: 1.03 !important;
-    white-space: normal !important;
-  }
-
-  .passenger-console-shell[data-view="music"] .passenger-music-track-title-text {
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    white-space: nowrap !important;
+    -webkit-mask-image: linear-gradient(90deg, black 0%, black 96%, transparent 100%);
+    mask-image: linear-gradient(90deg, black 0%, black 96%, transparent 100%);
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-track-artist {
@@ -10131,7 +10134,7 @@ button.passenger-idle-music {
 
   .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > .passenger-music-visualizer {
     grid-column: 1 !important;
-    grid-row: 2 !important;
+    grid-row: 3 !important;
     height: clamp(5.1rem, 10dvh, 6.6rem) !important;
     margin: 0 !important;
     padding: 0.45rem 0 clamp(0.55rem, 0.9dvh, 0.75rem) !important;
@@ -10224,23 +10227,27 @@ button.passenger-idle-music {
     display: flex;
     min-height: 0;
     flex: 1 1 0%;
+    align-items: center;
+    overflow: hidden;
     margin-top: clamp(0.85rem, 1.4dvh, 1.15rem) !important;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-collections > div {
     width: 100% !important;
-    height: 100% !important;
+    height: auto !important;
     min-height: 0 !important;
     margin-top: 0 !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows: repeat(3, minmax(6.7rem, 1fr)) !important;
-    gap: clamp(0.65rem, 1dvh, 0.85rem) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-rows: auto !important;
+    align-items: center;
+    gap: clamp(0.65rem, 0.9vw, 0.9rem) !important;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-playlist-card {
     min-height: 0 !important;
-    height: 100% !important;
-    aspect-ratio: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
     padding: clamp(1rem, 1.2vw, 1.25rem) !important;
     border-radius: clamp(1.05rem, 1.35vw, 1.35rem) !important;
     box-shadow:
@@ -10258,28 +10265,28 @@ button.passenger-idle-music {
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-playlist-card__overlay {
-    background: linear-gradient(90deg, rgb(0 0 0 / 0.92) 0%, rgb(0 0 0 / 0.68) 46%, rgb(0 0 0 / 0.16) 78%, rgb(0 0 0 / 0.28) 100%);
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.06) 20%, rgb(0 0 0 / 0.32) 54%, rgb(0 0 0 / 0.9) 100%);
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-playlist-card > span.relative {
-    align-self: center;
-    max-width: 62%;
-    margin-top: 0 !important;
-    font-size: clamp(1.08rem, 1.45vw, 1.4rem) !important;
+    align-self: auto;
+    max-width: none;
+    margin-top: auto !important;
+    font-size: clamp(1rem, 1.3vw, 1.28rem) !important;
     line-height: 1.05;
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-playlist-chevron {
-    top: 50% !important;
+    top: auto !important;
     right: clamp(1rem, 1.3vw, 1.3rem) !important;
-    bottom: auto !important;
+    bottom: clamp(1rem, 1.2vw, 1.2rem) !important;
     width: 1.35rem;
     height: 1.35rem;
-    transform: translate3d(0, -50%, 0);
+    transform: translate3d(0, 0, 0);
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-playlist-card:hover .passenger-music-playlist-chevron {
-    transform: translate3d(0.2rem, -50%, 0);
+    transform: translate3d(0.2rem, 0, 0);
   }
 
   .passenger-console-shell[data-view="music"] .passenger-music-results-block {
