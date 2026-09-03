@@ -1057,15 +1057,12 @@ function PassengerIdlePrompt({
               config={config}
               fallbackTemperatureFahrenheit={fallbackTemperatureFahrenheit}
               feature={idleSecondaryRotation.feature}
-              game={idleSecondaryRotation.game}
               language={language}
-              onExploreGame={onExploreGame}
               onExploreStreex={onExploreStreex}
               weather={weather}
               weatherCity={weatherCity}
               weatherAtmosphereOverride={weatherAtmosphereOverride}
             />
-            <IdleGlanceIndicators feature={idleSecondaryRotation.feature} />
           </div>
           <IdlePhoneContinuation config={config} t={primary} />
         </section>
@@ -1121,45 +1118,28 @@ function PassengerTestControls({
 type IdleSecondaryFeature =
   | "weather-hourly"
   | "weather-daily"
-  | "game"
   | "streex";
 
 const IDLE_SECONDARY_FEATURES: readonly IdleSecondaryFeature[] = [
   "weather-hourly",
   "weather-daily",
-  "game",
   "streex",
 ];
 
-function nextIdleGame(current: PassengerGame) {
-  const choices = PASSENGER_GAMES.filter((game) => game !== current);
-  return choices[Math.floor(Math.random() * choices.length)] ?? "trivia";
-}
-
 function useIdleSecondaryRotation(intervalMs: number) {
-  const [rotation, setRotation] = useState({ featureIndex: 0, game: "trivia" as PassengerGame });
+  const [featureIndex, setFeatureIndex] = useState(0);
 
   useEffect(() => {
-    setRotation({ featureIndex: 0, game: "trivia" });
+    setFeatureIndex(0);
     const timer = window.setInterval(() => {
-      setRotation((current) => {
-        const featureIndex = (current.featureIndex + 1) % IDLE_SECONDARY_FEATURES.length;
-        return {
-          featureIndex,
-          game:
-            IDLE_SECONDARY_FEATURES[featureIndex] === "game"
-              ? nextIdleGame(current.game)
-              : current.game,
-        };
-      });
+      setFeatureIndex((current) => (current + 1) % IDLE_SECONDARY_FEATURES.length);
     }, intervalMs);
 
     return () => window.clearInterval(timer);
   }, [intervalMs]);
 
   return {
-    feature: IDLE_SECONDARY_FEATURES[rotation.featureIndex] ?? "weather-hourly",
-    game: rotation.game,
+    feature: IDLE_SECONDARY_FEATURES[featureIndex] ?? "weather-hourly",
   };
 }
 
@@ -1202,9 +1182,7 @@ function IdleSecondaryRail({
   config,
   fallbackTemperatureFahrenheit,
   feature,
-  game,
   language,
-  onExploreGame,
   onExploreStreex,
   weather,
   weatherCity,
@@ -1213,9 +1191,7 @@ function IdleSecondaryRail({
   config: AppConfig;
   fallbackTemperatureFahrenheit: number;
   feature: IdleSecondaryFeature;
-  game: PassengerGame;
   language: Language;
-  onExploreGame: () => void;
   onExploreStreex: () => void;
   weather: PassengerWeatherSnapshot | null;
   weatherCity: string;
@@ -1233,50 +1209,6 @@ function IdleSecondaryRail({
     );
   const hourlyForecast = weather?.periods.slice(1, 5) ?? [];
   const dailyForecast = weather?.dailyPeriods?.slice(0, 4) ?? [];
-  if (feature === "game") {
-    const featured = getPassengerGamePresentation(game, t);
-
-    return (
-      <button
-        type="button"
-        onClick={(event) => {
-          event.stopPropagation();
-          onExploreGame();
-        }}
-        className="passenger-idle-secondary passenger-idle-secondary--game group text-left"
-      >
-        <img
-          src={featured.artwork}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-55 transition duration-500 group-hover:scale-[1.025]"
-        />
-        <span className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,8,8,.96)_0%,rgba(8,8,8,.76)_48%,rgba(8,8,8,.22)_100%)]" />
-        <span className="relative flex h-full items-center justify-between gap-6 px-6 py-5 sm:px-8">
-          <span className="flex min-w-0 items-center gap-4">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#E6CE20]/45 bg-black/40 text-[#E6CE20]">
-              {featured.icon}
-            </span>
-            <span className="min-w-0">
-              <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-[#E6CE20]">
-                {t.idleGameEyebrow}
-              </span>
-              <span className="mt-1 block truncate text-xl font-black tracking-tight sm:text-2xl">
-                {featured.title}
-              </span>
-              <span className="mt-1 hidden max-w-xl truncate text-sm text-white/70 sm:block">
-                {featured.description}
-              </span>
-            </span>
-          </span>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#E6CE20] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-black">
-            {t.playNow}
-            <ChevronRight className="h-4 w-4" />
-          </span>
-        </span>
-      </button>
-    );
-  }
-
   if (feature === "streex") {
     return (
       <button
@@ -1363,17 +1295,6 @@ function IdlePhoneContinuation({ config, t }: { config: AppConfig; t: (typeof co
         <QRCodeSVG value={config.passengerConsole.links.phoneContinuation} size={76} level="M" includeMargin={false} />
       </span>
     </aside>
-  );
-}
-
-function IdleGlanceIndicators({ feature }: { feature: IdleSecondaryFeature }) {
-  const features = ["weather-hourly", "weather-daily", "game", "streex"] as const;
-  return (
-    <span className="passenger-idle-glance-indicators" aria-label="Rotating Streex content">
-      {features.map((item) => (
-        <span key={item} className={item === feature ? "is-active" : ""} />
-      ))}
-    </span>
   );
 }
 
@@ -1573,6 +1494,7 @@ function IdleSpotifyNowPlaying({
               onExploreMusic();
             }}
           >
+            <Music2 aria-hidden="true" />
             Tap to open Music
           </button>
         </span>
