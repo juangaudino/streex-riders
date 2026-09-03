@@ -318,6 +318,7 @@ const copy = {
     tip: "Leave a tip",
     continuePhone: "Continue on your phone",
     continuePhoneDescription: "Scan to continue your Streex experience on your phone.",
+    idlePhoneScan: "Scan to connect",
     idleWeatherTitle: "Salt Lake City weather",
     idleWeatherHours: "Next few hours",
     idleWeatherDays: "Next 4 days",
@@ -519,6 +520,7 @@ const copy = {
     tip: "Dejar propina",
     continuePhone: "Continuar en su teléfono",
     continuePhoneDescription: "Escanee para continuar su experiencia Streex en su teléfono.",
+    idlePhoneScan: "Escanea para conectar",
     idleWeatherTitle: "Clima en Salt Lake City",
     idleWeatherHours: "Próximas horas",
     idleWeatherDays: "Próximos 4 días",
@@ -950,6 +952,14 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
             idleReset.resume();
             navigateTo("streex");
           }}
+          onExploreServices={() => {
+            idleReset.resume();
+            navigateTo("services");
+          }}
+          onExploreYourRide={() => {
+            idleReset.resume();
+            navigateTo("where-we-ride");
+          }}
           onResume={idleReset.resume}
           weather={weather.snapshot}
           weatherCity={weather.city}
@@ -968,7 +978,9 @@ function PassengerIdlePrompt({
   logicalRest,
   onExploreGame,
   onExploreMusic,
+  onExploreServices,
   onExploreStreex,
+  onExploreYourRide,
   onResume,
   weather,
   weatherCity,
@@ -981,7 +993,9 @@ function PassengerIdlePrompt({
   logicalRest: boolean;
   onExploreGame: () => void;
   onExploreMusic: () => void;
+  onExploreServices: () => void;
   onExploreStreex: () => void;
+  onExploreYourRide: () => void;
   onResume: () => void;
   weather: PassengerWeatherSnapshot | null;
   weatherCity: string;
@@ -1036,36 +1050,35 @@ function PassengerIdlePrompt({
           onExploreMusic={onExploreMusic}
           t={primary}
         />
-        <IdleSecondaryRail
-          config={config}
-          fallbackTemperatureFahrenheit={fallbackTemperatureFahrenheit}
-          feature={idleSecondaryRotation.feature}
-          game={idleSecondaryRotation.game}
+        <section className="passenger-idle-glance w-full" aria-label="Streex glance">
+          <div className="passenger-idle-glance-rotating">
+            <span className="passenger-idle-glance-label">STREEX GLANCE</span>
+            <IdleSecondaryRail
+              config={config}
+              fallbackTemperatureFahrenheit={fallbackTemperatureFahrenheit}
+              feature={idleSecondaryRotation.feature}
+              game={idleSecondaryRotation.game}
+              language={language}
+              onExploreGame={onExploreGame}
+              onExploreStreex={onExploreStreex}
+              weather={weather}
+              weatherCity={weatherCity}
+              weatherAtmosphereOverride={weatherAtmosphereOverride}
+            />
+            <IdleGlanceIndicators feature={idleSecondaryRotation.feature} />
+          </div>
+          <IdlePhoneContinuation config={config} t={primary} />
+        </section>
+
+        <IdleExplorePanel
           language={language}
           onExploreGame={onExploreGame}
+          onExploreMusic={onExploreMusic}
+          onExploreServices={onExploreServices}
           onExploreStreex={onExploreStreex}
-          weather={weather}
-          weatherCity={weatherCity}
-          weatherAtmosphereOverride={weatherAtmosphereOverride}
+          onExploreYourRide={onExploreYourRide}
+          t={primary}
         />
-
-        <div className="passenger-idle-ticker w-full" aria-hidden="true">
-          <ServiceTicker config={config} />
-        </div>
-
-        <div className="passenger-idle-footer flex w-full items-center justify-end gap-4">
-          <span className="passenger-idle-action rounded-full border border-[#E6CE20] bg-[#E6CE20] px-8 py-4 text-center text-sm font-black uppercase tracking-[0.12em] text-black shadow-[0_0_35px_rgba(230,206,32,0.26)] sm:min-w-[300px]">
-            <span className="block">{primary.idleAction}</span>
-            <span className="mt-1 flex items-center justify-center gap-1.5 text-[10px] font-bold normal-case tracking-normal text-black/65">
-              <Sparkles className="h-3 w-3" />
-              {config.passengerConsole.experienceMode === "lite"
-                ? language === "es"
-                  ? "Música · Juegos · Streex"
-                  : "Music · Games · Streex"
-                : "Music · Around You · Games · Streex"}
-            </span>
-          </span>
-        </div>
       </div>
     </div>
   );
@@ -1109,14 +1122,12 @@ type IdleSecondaryFeature =
   | "weather-hourly"
   | "weather-daily"
   | "game"
-  | "booking"
   | "streex";
 
 const IDLE_SECONDARY_FEATURES: readonly IdleSecondaryFeature[] = [
   "weather-hourly",
   "weather-daily",
   "game",
-  "booking",
   "streex",
 ];
 
@@ -1266,30 +1277,6 @@ function IdleSecondaryRail({
     );
   }
 
-  if (feature === "booking") {
-    const phoneContinuation = config.passengerConsole.links.phoneContinuation;
-
-    return (
-      <section className="passenger-idle-secondary passenger-idle-secondary--booking" aria-label={t.continuePhone}>
-        <div className="passenger-idle-booking-glow" aria-hidden="true" />
-        <div className="relative flex h-full items-center justify-between gap-5 px-6 py-4 sm:px-8">
-          <div className="min-w-0">
-            <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#E6CE20]">
-              <QrCode className="h-4 w-4" />
-              {t.idleBookingEyebrow}
-            </span>
-            <h2 className="mt-1 text-xl font-black tracking-tight sm:text-2xl">{t.continuePhone}</h2>
-            <p className="mt-1 max-w-xl text-sm text-white/70">{t.idleBookingDescription}</p>
-            <p className="mt-1 text-xs font-semibold text-[#E6CE20]">rides.getstreex.com</p>
-          </div>
-          <div className="shrink-0 rounded-xl bg-white p-1.5 shadow-xl">
-            <QRCodeSVG value={phoneContinuation} size={76} level="M" includeMargin={false} />
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   if (feature === "streex") {
     return (
       <button
@@ -1364,6 +1351,96 @@ function IdleSecondaryRail({
   );
 }
 
+function IdlePhoneContinuation({ config, t }: { config: AppConfig; t: (typeof copy)[Language] }) {
+  return (
+    <aside className="passenger-idle-phone-continuation" aria-label={t.continuePhone}>
+      <Phone className="passenger-idle-phone-icon" aria-hidden="true" />
+      <span className="min-w-0">
+        <span className="block text-base font-semibold leading-tight text-white">{t.continuePhone}</span>
+        <span className="mt-1 block text-sm text-white/50">{t.idlePhoneScan}</span>
+      </span>
+      <span className="rounded-2xl bg-white p-1.5 shadow-xl">
+        <QRCodeSVG value={config.passengerConsole.links.phoneContinuation} size={76} level="M" includeMargin={false} />
+      </span>
+    </aside>
+  );
+}
+
+function IdleGlanceIndicators({ feature }: { feature: IdleSecondaryFeature }) {
+  const features = ["weather-hourly", "weather-daily", "game", "streex"] as const;
+  return (
+    <span className="passenger-idle-glance-indicators" aria-label="Rotating Streex content">
+      {features.map((item) => (
+        <span key={item} className={item === feature ? "is-active" : ""} />
+      ))}
+    </span>
+  );
+}
+
+function IdleExplorePanel({
+  language,
+  onExploreGame,
+  onExploreMusic,
+  onExploreServices,
+  onExploreStreex,
+  onExploreYourRide,
+  t,
+}: {
+  language: Language;
+  onExploreGame: () => void;
+  onExploreMusic: () => void;
+  onExploreServices: () => void;
+  onExploreStreex: () => void;
+  onExploreYourRide: () => void;
+  t: (typeof copy)[Language];
+}) {
+  const items = [
+    { icon: <Gamepad2 />, label: t.games, detail: language === "es" ? "Juega y disfruta" : "Play & enjoy", onClick: onExploreGame },
+    { icon: <MapPin />, label: language === "es" ? "Tu viaje" : "Your Ride", detail: language === "es" ? "Descubre Streex" : "Explore Streex", onClick: onExploreYourRide },
+    { icon: <Music2 />, label: t.music, detail: language === "es" ? "Controla y explora" : "Control & browse", onClick: onExploreMusic },
+    { icon: <Menu />, label: t.services, detail: language === "es" ? "Viajes y más" : "Rides & more", onClick: onExploreServices },
+    { icon: <Sparkles />, label: language === "es" ? "Más" : "More", detail: language === "es" ? "Explora Streex" : "Explore Streex", onClick: onExploreStreex },
+  ];
+
+  return (
+    <section className="passenger-idle-explore w-full" aria-label="Explore Streex">
+      <span className="passenger-idle-explore-label">EXPLORE STREEX</span>
+      <div className="passenger-idle-explore-actions">
+        <div className="passenger-idle-explore-links">
+          {items.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                item.onClick();
+              }}
+              className="passenger-idle-explore-link"
+            >
+              <span className="passenger-idle-explore-icon" aria-hidden="true">{item.icon}</span>
+              <span className="min-w-0 text-left">
+                <span className="block text-sm font-semibold leading-tight">{item.label}</span>
+                <span className="mt-1 block text-xs text-white/45">{item.detail}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onExploreStreex();
+          }}
+          className="passenger-idle-explore-cta"
+        >
+          <span>TAP TO EXPLORE</span>
+          <small>{language === "es" ? "Juegos · Música · Tu viaje · Más" : "Games · Music · Your ride · More"}</small>
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function formatIdleWeatherHour(value: string, language: Language) {
   return new Intl.DateTimeFormat(language === "es" ? "es-US" : "en-US", {
     hour: "numeric",
@@ -1388,6 +1465,7 @@ function IdleSpotifyNowPlaying({
   t: (typeof copy)[Language];
 }) {
   const [status, setStatus] = useState<SpotifyPlaybackState | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!enabled) return;
@@ -1416,6 +1494,25 @@ function IdleSpotifyNowPlaying({
   const track = playback?.track ?? null;
   const isDiscoverable = !track;
   const artworkPalette = useArtworkPalette(track?.artworkUrl ?? null);
+  const liveProgressMs = useInterpolatedSpotifyProgress(
+    track?.progressMs,
+    track?.durationMs,
+    playback?.isPlaying,
+  );
+  const trackProgress = track?.durationMs
+    ? Math.min(100, Math.max(0, (liveProgressMs / track.durationMs) * 100))
+    : null;
+  const control = async (command: "play" | "pause" | "next") => {
+    setBusy(true);
+    try {
+      await controlPersonalSpotifyPlayback({ data: { command } });
+      window.setTimeout(() => {
+        void getPersonalSpotifyPlayback({ data: {} }).then(setStatus).catch(() => setStatus(null));
+      }, command === "next" ? 800 : 300);
+    } finally {
+      setBusy(false);
+    }
+  };
   const className = `passenger-idle-music grid w-full max-w-4xl items-center gap-7${
     isDiscoverable ? " passenger-idle-music--discover" : ""
   }${compact ? " passenger-idle-music--compact" : ""}`;
@@ -1453,7 +1550,8 @@ function IdleSpotifyNowPlaying({
         </span>
       )}
       <span className="passenger-idle-track-copy min-w-0">
-        <span className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#E6CE20]">
+        <span className="passenger-idle-now-playing-row flex items-center justify-between gap-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#E6CE20]">
+          <span className="flex items-center gap-3">
           {playback?.isPlaying && (
             <span className="flex h-5 items-end gap-1" aria-hidden="true">
               <span className="h-2 w-1 animate-pulse rounded-full bg-[#E6CE20]" />
@@ -1466,15 +1564,64 @@ function IdleSpotifyNowPlaying({
             : isDiscoverable
               ? t.idleMusicPrompt
               : t.idleMusicReady}
+          </span>
+          <button
+            type="button"
+            className="passenger-idle-open-music"
+            onClick={(event) => {
+              event.stopPropagation();
+              onExploreMusic();
+            }}
+          >
+            Tap to open Music
+          </button>
         </span>
         <SpotifyMarquee className="passenger-idle-track-title mt-4 text-3xl font-black leading-tight tracking-tight sm:text-4xl">
           {track?.title ?? t.idleChooseMusic}
         </SpotifyMarquee>
-        <span className="passenger-idle-track-subtitle mt-3 text-lg text-white/55">
-          {track
-            ? `${track.artist}${track.album ? ` · ${track.album}` : ""}`
-            : t.idleChooseMusicDescription}
-        </span>
+        {track ? (
+          <span className="passenger-idle-track-details mt-3 block">
+            <span className="block text-lg font-medium text-white/80">{track.artist}</span>
+            {track.album ? <span className="mt-1 block text-base text-white/48">{track.album}</span> : null}
+          </span>
+        ) : <span className="passenger-idle-track-subtitle mt-3 text-lg text-white/55">{t.idleChooseMusicDescription}</span>}
+        {track && trackProgress !== null ? (
+          <span className="passenger-idle-progress mt-6 block max-w-xl">
+            <span className="block h-1.5 overflow-hidden rounded-full bg-white/15">
+              <span className="block h-full rounded-full bg-[#E6CE20] transition-[width] duration-500" style={{ width: `${trackProgress}%` }} />
+            </span>
+            <span className="mt-2 flex justify-between text-xs font-medium tabular-nums text-white/50">
+              <span>{formatSpotifyDuration(liveProgressMs)}</span>
+              <span>{formatSpotifyDuration(track.durationMs)}</span>
+            </span>
+          </span>
+        ) : null}
+        {track ? (
+          <span className="passenger-idle-playback-controls mt-4 flex items-center gap-3">
+            <button
+              type="button"
+              disabled={busy || !playback?.hasActiveDevice}
+              aria-label={playback?.isPlaying ? "Pause" : "Play"}
+              onClick={(event) => {
+                event.stopPropagation();
+                void control(playback?.isPlaying ? "pause" : "play");
+              }}
+            >
+              {playback?.isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current" />}
+            </button>
+            <button
+              type="button"
+              disabled={busy || !playback?.hasActiveDevice}
+              aria-label="Next"
+              onClick={(event) => {
+                event.stopPropagation();
+                void control("next");
+              }}
+            >
+              <SkipForward className="h-5 w-5" />
+            </button>
+          </span>
+        ) : null}
         {isDiscoverable && (
           <span className="passenger-idle-discovery mt-5 flex flex-wrap items-center gap-3">
             <span className="passenger-idle-discovery-pills flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white/55">

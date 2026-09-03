@@ -8765,6 +8765,255 @@ button.passenger-idle-music {
   box-shadow: 0 20px 55px rgba(0, 0, 0, 0.28);
 }
 
+/* Passenger rest redesign: Music is the clear hero; Glance and Explore are
+   deliberately quieter, stable companions for the mounted landscape tablet. */
+.passenger-idle-content--music {
+  max-width: min(100%, 1480px) !important;
+  gap: clamp(0.75rem, 1.5dvh, 1.2rem) !important;
+}
+
+.passenger-idle-prompt .passenger-idle-music {
+  min-height: min(32dvh, 21rem) !important;
+  max-width: none;
+  cursor: pointer;
+}
+
+.passenger-idle-now-playing-row {
+  min-width: 0;
+}
+
+.passenger-idle-now-playing-row > span:first-child {
+  min-width: 0;
+}
+
+.passenger-idle-open-music {
+  flex: 0 0 auto;
+  border: 1px solid rgb(230 206 32 / 0.55);
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.55rem 0.9rem;
+  color: rgb(255 255 255 / 0.82);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: none;
+}
+
+.passenger-idle-track-details {
+  min-width: 0;
+}
+
+.passenger-idle-playback-controls > button {
+  display: grid;
+  width: 2.85rem;
+  height: 2.85rem;
+  place-items: center;
+  border: 1px solid rgb(230 206 32 / 0.7);
+  border-radius: 999px;
+  background: rgb(230 206 32 / 0.12);
+  color: #e6ce20;
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.passenger-idle-playback-controls > button:first-child {
+  background: #e6ce20;
+  color: #0b0b0b;
+}
+
+.passenger-idle-playback-controls > button:not(:disabled):hover {
+  transform: scale(1.06);
+}
+
+.passenger-idle-playback-controls > button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.passenger-idle-glance {
+  display: grid;
+  grid-template-columns: minmax(0, 72%) minmax(250px, 28%);
+  width: 100%;
+  min-height: clamp(8.8rem, 16dvh, 10.25rem);
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 16% 0%, rgb(230 206 32 / 0.12), transparent 36%),
+    linear-gradient(108deg, rgb(24 23 17 / 0.98), rgb(12 12 12 / 0.98));
+  box-shadow: 0 20px 48px rgb(0 0 0 / 0.22);
+}
+
+.passenger-idle-glance-rotating {
+  position: relative;
+  min-width: 0;
+  padding: 2rem 0.85rem 0.8rem;
+}
+
+.passenger-idle-glance-label,
+.passenger-idle-explore-label {
+  position: absolute;
+  top: 0.72rem;
+  left: 1.25rem;
+  color: #e6ce20;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+}
+
+.passenger-idle-glance .passenger-idle-secondary {
+  min-height: 0;
+  height: 100%;
+  border: 0;
+  border-radius: 18px;
+  box-shadow: none;
+}
+
+.passenger-idle-glance-indicators {
+  position: absolute;
+  right: 1.15rem;
+  bottom: 0.72rem;
+  display: flex;
+  gap: 0.35rem;
+}
+
+.passenger-idle-glance-indicators > span {
+  width: 0.32rem;
+  height: 0.32rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.24);
+  transition: width 220ms ease, background 220ms ease;
+}
+
+.passenger-idle-glance-indicators > .is-active {
+  width: 1rem;
+  background: #e6ce20;
+}
+
+.passenger-idle-phone-continuation {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+  padding: 1.2rem;
+  border-left: 1px solid rgb(255 255 255 / 0.13);
+  background: rgb(0 0 0 / 0.16);
+}
+
+.passenger-idle-phone-icon {
+  width: 2rem;
+  height: 2rem;
+  color: #e6ce20;
+}
+
+.passenger-idle-explore {
+  position: relative;
+  min-height: clamp(7.8rem, 13.5dvh, 9.4rem);
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.11);
+  border-radius: 26px;
+  padding: 2rem 1.25rem 1rem;
+  background: linear-gradient(105deg, rgb(16 16 16 / 0.98), rgb(25 23 14 / 0.94));
+}
+
+.passenger-idle-explore-actions,
+.passenger-idle-explore-links {
+  display: flex;
+  min-width: 0;
+  gap: 0.7rem;
+}
+
+.passenger-idle-explore-actions {
+  align-items: stretch;
+}
+
+.passenger-idle-explore-links {
+  flex: 1;
+}
+
+.passenger-idle-explore-link {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  min-width: 0;
+  gap: 0.65rem;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  border-radius: 16px;
+  padding: 0.7rem;
+  color: white;
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.passenger-idle-explore-link:hover {
+  border-color: rgb(230 206 32 / 0.62);
+  background: rgb(255 255 255 / 0.05);
+}
+
+.passenger-idle-explore-icon {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  place-items: center;
+  color: #e6ce20;
+}
+
+.passenger-idle-explore-icon svg {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+.passenger-idle-explore-cta {
+  display: grid;
+  min-width: 15.5rem;
+  place-items: center;
+  align-content: center;
+  border-radius: 999px;
+  padding: 0.6rem 1.5rem;
+  background: #e6ce20;
+  color: #0b0b0b;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.passenger-idle-explore-cta small {
+  margin-top: 0.3rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+@media (max-width: 1100px) {
+  .passenger-idle-explore-link > span:last-child > span:last-child,
+  .passenger-idle-open-music {
+    display: none;
+  }
+
+  .passenger-idle-explore-cta {
+    min-width: 12rem;
+  }
+}
+
+@media (max-height: 720px) and (orientation: landscape) {
+  .passenger-idle-prompt {
+    padding-block: 1.2rem;
+  }
+
+  .passenger-idle-prompt .passenger-idle-music {
+    min-height: min(30dvh, 17rem) !important;
+    padding-block: 1.1rem;
+  }
+
+  .passenger-idle-glance,
+  .passenger-idle-explore {
+    min-height: 7.25rem;
+  }
+
+  .passenger-idle-explore-link {
+    padding-block: 0.45rem;
+  }
+}
+
 .passenger-idle-secondary--weather {
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
 }
