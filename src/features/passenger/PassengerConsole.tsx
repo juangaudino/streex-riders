@@ -2576,7 +2576,7 @@ function SpotifyMarquee({
   const viewportRef = useRef<HTMLSpanElement | null>(null);
   const itemRef = useRef<HTMLSpanElement | null>(null);
   const [overflows, setOverflows] = useState(false);
-  const [durationSeconds, setDurationSeconds] = useState(24);
+  const [durationSeconds, setDurationSeconds] = useState(14);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -2588,7 +2588,7 @@ function SpotifyMarquee({
       setOverflows(hasOverflow);
       if (hasOverflow) {
         const travelDistance = item.scrollWidth + 48;
-        setDurationSeconds(Math.max(24, Math.min(46, Math.round(travelDistance / 26 + 8))));
+        setDurationSeconds(Math.max(14, Math.min(28, Math.round(travelDistance / 48 + 2))));
       }
     };
     measure();
