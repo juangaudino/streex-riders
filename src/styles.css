@@ -9979,3 +9979,365 @@ button.passenger-idle-music {
     0 0 58px rgb(var(--passenger-stage-cyan) / calc(var(--passenger-contrast-strength, 0.34) * 0.54)),
     0 0 38px rgb(var(--passenger-stage-yellow) / 0.38) !important;
 }
+
+/* Music 1.1 horizontal refinement. Spotify behavior stays unchanged; this
+   layer gives playback and discovery stable, touch-friendly lanes while
+   keeping all animated movement on compositor-friendly properties. */
+@media (orientation: landscape) and (min-width: 900px) {
+  .passenger-console-shell[data-view="music"] .passenger-music-layout {
+    grid-template-columns: minmax(24rem, 0.96fr) minmax(0, 1.04fr) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    gap: clamp(0.9rem, 1.25vw, 1.25rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playback,
+  .passenger-console-shell[data-view="music"] .passenger-music-search {
+    grid-row: 1 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
+    gap: clamp(0.85rem, 1.2dvh, 1.15rem) !important;
+    padding: clamp(1.15rem, 1.55vw, 1.55rem) !important;
+    animation: none !important;
+    box-shadow:
+      inset 0 0 150px rgb(var(--passenger-ambient-color) / 0.3),
+      inset 0 0 92px rgb(var(--passenger-stage-cyan) / calc(var(--passenger-contrast-strength, 0.34) * 0.2)),
+      0 24px 72px rgb(0 0 0 / 0.24) !important;
+    will-change: auto !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing::after {
+    top: 8%;
+    right: 5%;
+    color: rgb(230 206 32 / 0.026);
+    font-size: clamp(7rem, 13vw, 12rem);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-player-body {
+    display: grid !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    grid-template-columns: minmax(11.5rem, 0.9fr) minmax(0, 1.1fr) !important;
+    align-items: center !important;
+    gap: clamp(1rem, 1.6vw, 1.6rem) !important;
+    width: 100% !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-player-body .passenger-music-now-playing-art {
+    width: min(100%, 22rem) !important;
+    max-width: 100% !important;
+    justify-self: center !important;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    box-shadow:
+      0 24px 56px rgb(0 0 0 / 0.56),
+      0 0 76px rgb(var(--passenger-ambient-color) / 0.64),
+      0 0 28px rgb(230 206 32 / 0.2) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-player-details {
+    align-self: center !important;
+    justify-content: center !important;
+    padding-block: 0.25rem;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-player-heading {
+    min-height: 2.75rem;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-eyebrow {
+    font-size: clamp(0.68rem, 0.82vw, 0.78rem) !important;
+    letter-spacing: 0.22em !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-refresh {
+    border-color: rgb(255 255 255 / 0.2) !important;
+    background:
+      linear-gradient(145deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.035)),
+      rgb(8 8 8 / 0.36);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.18),
+      0 8px 20px rgb(0 0 0 / 0.24);
+    backdrop-filter: blur(12px) saturate(1.15);
+    transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-refresh:hover {
+    border-color: rgb(230 206 32 / 0.48) !important;
+    color: #e6ce20;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-track-title {
+    margin: clamp(0.65rem, 1.15dvh, 0.9rem) 0 0 !important;
+    overflow: hidden !important;
+    font-size: clamp(1.65rem, 2.05vw, 2.45rem) !important;
+    line-height: 1.03 !important;
+    white-space: normal !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-track-title-text {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-track-artist {
+    margin-top: clamp(0.8rem, 1.35dvh, 1.05rem) !important;
+    font-size: clamp(1.05rem, 1.35vw, 1.3rem) !important;
+    font-weight: 600;
+    color: rgb(255 255 255 / 0.84) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-track-album {
+    margin-top: 0.35rem !important;
+    font-size: clamp(0.82rem, 1vw, 0.98rem) !important;
+    color: rgb(255 255 255 / 0.52) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playing-status {
+    margin-top: clamp(0.75rem, 1.4dvh, 1.05rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-progress {
+    margin-top: clamp(0.55rem, 1dvh, 0.8rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-progress > div:first-child {
+    height: 0.48rem;
+    border: 1px solid rgb(255 255 255 / 0.08);
+    background: rgb(255 255 255 / 0.11);
+    box-shadow: inset 0 1px 4px rgb(0 0 0 / 0.34);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-progress > div:first-child > div {
+    box-shadow: 0 0 12px rgb(230 206 32 / 0.46);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-controls {
+    margin-top: clamp(0.75rem, 1.5dvh, 1.1rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-controls > button {
+    width: clamp(3.25rem, 3.8vw, 3.75rem) !important;
+    height: clamp(3.25rem, 3.8vw, 3.75rem) !important;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.18),
+      0 10px 24px rgb(0 0 0 / 0.28);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > .passenger-music-visualizer {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    height: clamp(5.1rem, 10dvh, 6.6rem) !important;
+    margin: 0 !important;
+    padding: 0.45rem 0 clamp(0.55rem, 0.9dvh, 0.75rem) !important;
+    isolation: isolate;
+    overflow: visible;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > .passenger-music-visualizer > span {
+    position: relative;
+    height: var(--visualizer-height);
+    max-width: none !important;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 0.11);
+    background:
+      linear-gradient(90deg, rgb(255 255 255 / 0.17), transparent 32% 70%, rgb(0 0 0 / 0.22)),
+      linear-gradient(
+        to top,
+        color-mix(in srgb, rgb(var(--visualizer-color)) 54%, #070707),
+        rgb(var(--visualizer-color)) 60%,
+        color-mix(in srgb, rgb(var(--visualizer-color)) 72%, white)
+      );
+    box-shadow:
+      inset 1px 0 0 rgb(255 255 255 / 0.2),
+      inset 0 1px 0 rgb(255 255 255 / 0.24),
+      0 4px 11px rgb(0 0 0 / 0.26),
+      0 0 11px rgb(var(--visualizer-color) / 0.24);
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0) scaleY(0.14);
+    transform-origin: bottom center;
+    will-change: transform;
+    -webkit-box-reflect: below 4px linear-gradient(transparent 8%, rgb(255 255 255 / 0.14) 44%, transparent 90%);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > .passenger-music-visualizer > span::before {
+    position: absolute;
+    inset: 0.08rem 24% auto;
+    height: 36%;
+    border-radius: inherit;
+    background: linear-gradient(to bottom, rgb(255 255 255 / 0.32), transparent);
+    content: "";
+    opacity: 0.68;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > .passenger-music-visualizer.passenger-music-visualizer--active > span {
+    animation: passenger-music-wave-fluid 1s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+    animation-delay: calc(var(--visualizer-index) * -45ms);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search {
+    grid-column: 2 !important;
+    padding: clamp(1.2rem, 1.5vw, 1.55rem) !important;
+    overflow: hidden !important;
+    border-color: rgb(255 255 255 / 0.12) !important;
+    background:
+      radial-gradient(circle at 100% 0%, rgb(var(--passenger-stage-cyan) / 0.1), transparent 34%),
+      linear-gradient(138deg, rgb(var(--passenger-ambient-color) / 0.13), rgb(12 12 10 / 0.94) 44%, rgb(var(--passenger-stage-violet) / 0.065)) !important;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.055),
+      0 24px 72px rgb(0 0 0 / 0.2);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search-heading {
+    padding-bottom: clamp(0.8rem, 1.25dvh, 1rem);
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-vibes {
+    margin-top: clamp(0.75rem, 1.25dvh, 1rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-vibe {
+    min-height: 2.45rem;
+    padding-inline: 0.9rem;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search-form {
+    margin-top: clamp(0.8rem, 1.35dvh, 1.05rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search-form input,
+  .passenger-console-shell[data-view="music"] .passenger-music-search-form button {
+    min-height: 3.4rem;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-search-form button {
+    min-width: clamp(7rem, 9vw, 8.3rem);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-collections {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 0%;
+    margin-top: clamp(0.85rem, 1.4dvh, 1.15rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-collections > div {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin-top: 0 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: repeat(3, minmax(6.7rem, 1fr)) !important;
+    gap: clamp(0.65rem, 1dvh, 0.85rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playlist-card {
+    min-height: 0 !important;
+    height: 100% !important;
+    aspect-ratio: auto !important;
+    padding: clamp(1rem, 1.2vw, 1.25rem) !important;
+    border-radius: clamp(1.05rem, 1.35vw, 1.35rem) !important;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.12),
+      0 12px 28px rgb(0 0 0 / 0.2);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playlist-card > img {
+    object-position: center 42%;
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playlist-card:hover > img {
+    transform: scale(1.035);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playlist-card__overlay {
+    background: linear-gradient(90deg, rgb(0 0 0 / 0.92) 0%, rgb(0 0 0 / 0.68) 46%, rgb(0 0 0 / 0.16) 78%, rgb(0 0 0 / 0.28) 100%);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playlist-card > span.relative {
+    align-self: center;
+    max-width: 62%;
+    margin-top: 0 !important;
+    font-size: clamp(1.08rem, 1.45vw, 1.4rem) !important;
+    line-height: 1.05;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playlist-chevron {
+    top: 50% !important;
+    right: clamp(1rem, 1.3vw, 1.3rem) !important;
+    bottom: auto !important;
+    width: 1.35rem;
+    height: 1.35rem;
+    transform: translate3d(0, -50%, 0);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-playlist-card:hover .passenger-music-playlist-chevron {
+    transform: translate3d(0.2rem, -50%, 0);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-results-block {
+    margin-top: clamp(0.85rem, 1.4dvh, 1.1rem) !important;
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-error {
+    z-index: 8;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    align-self: end;
+    justify-self: center;
+    max-width: calc(100% - 2rem);
+    margin-bottom: 1rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid rgb(252 165 165 / 0.3);
+    border-radius: 999px;
+    background: rgb(32 8 8 / 0.82);
+    backdrop-filter: blur(10px);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-stage-light {
+    border: 0;
+    background: radial-gradient(circle, rgb(var(--passenger-stage-color) / 0.38), rgb(var(--passenger-stage-color) / 0.12) 46%, transparent 72%);
+    box-shadow: none;
+    backdrop-filter: none;
+    mix-blend-mode: screen;
+    opacity: 0.42;
+    will-change: transform, opacity;
+  }
+}
+
+@keyframes passenger-music-wave-fluid {
+  0% {
+    transform: translate3d(0, 0, 0) scaleY(0.14);
+  }
+
+  38% {
+    transform: translate3d(0, 0, 0) scaleY(0.92);
+  }
+
+  68% {
+    transform: translate3d(0, 0, 0) scaleY(0.28);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .passenger-console-shell[data-view="music"] .passenger-music-now-playing-ready > .passenger-music-visualizer.passenger-music-visualizer--active > span {
+    animation: none;
+    transform: translate3d(0, 0, 0) scaleY(0.28);
+  }
+
+  .passenger-console-shell[data-view="music"] .passenger-music-stage-light,
+  .passenger-console-shell[data-view="music"] .passenger-music-ambient-orb {
+    animation: none;
+  }
+}

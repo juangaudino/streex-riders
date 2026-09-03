@@ -30,6 +30,7 @@ import {
   Phone,
   Play,
   QrCode,
+  RefreshCw,
   Search,
   SkipForward,
   Sparkles,
@@ -2721,70 +2722,13 @@ function PersonalSpotifyHomeCard({
   );
 }
 
-function FittedMusicTrackTitle({ title }: { title: string }) {
-  const viewportRef = useRef<HTMLParagraphElement>(null);
-  const itemRef = useRef<HTMLSpanElement>(null);
-  const [overflows, setOverflows] = useState(false);
-  const [durationSeconds, setDurationSeconds] = useState(24);
-
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    const item = itemRef.current;
-    if (!viewport || !item) return;
-
-    let frame = 0;
-    const fit = () => {
-      viewport.style.setProperty("--passenger-track-title-size", "2.2rem");
-      const minimumSize = 1.5;
-      let size = 2.2;
-
-      while (item.scrollWidth > viewport.clientWidth && size > minimumSize) {
-        size = Math.max(minimumSize, Number((size - 0.05).toFixed(2)));
-        viewport.style.setProperty("--passenger-track-title-size", `${size}rem`);
-      }
-
-      const hasOverflow = item.scrollWidth > viewport.clientWidth + 1;
-      setOverflows(hasOverflow);
-      if (hasOverflow) {
-        const travelDistance = item.scrollWidth + 48;
-        setDurationSeconds(Math.max(24, Math.min(46, Math.round(travelDistance / 26 + 8))));
-      }
-    };
-
-    const scheduleFit = () => {
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(fit);
-    };
-
-    const observer = new ResizeObserver(scheduleFit);
-    observer.observe(viewport);
-    observer.observe(item);
-    window.addEventListener("resize", scheduleFit);
-    void document.fonts?.ready.then(scheduleFit).catch(() => undefined);
-    scheduleFit();
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      observer.disconnect();
-      window.removeEventListener("resize", scheduleFit);
-    };
-  }, [title]);
-
+function MusicTrackTitle({ title }: { title: string }) {
   return (
-    <p ref={viewportRef} className="passenger-music-track-title mt-2 font-black leading-[1.04] tracking-tight">
-      <span
-        className={`passenger-music-title-marquee-track${overflows ? " is-active" : ""}`}
-        style={
-          overflows
-            ? ({ "--passenger-marquee-duration": `${durationSeconds}s` } as React.CSSProperties)
-            : undefined
-        }
-      >
-        <span ref={itemRef} className="passenger-music-title-marquee-item">
-          {title}
-        </span>
-        {overflows ? <span aria-hidden="true" className="passenger-music-title-marquee-item">{title}</span> : null}
-      </span>
+    <p
+      className="passenger-music-track-title mt-2 font-black leading-[1.04] tracking-tight"
+      title={title}
+    >
+      <span className="passenger-music-track-title-text">{title}</span>
     </p>
   );
 }
@@ -3000,13 +2944,7 @@ function PersonalSpotifyMusicView({
             <span className="passenger-music-stage-light passenger-music-stage-light--three" />
             <span className="passenger-music-stage-light passenger-music-stage-light--four" />
           </span>
-          <div className="passenger-music-player-header relative min-w-0">
-            <p className="passenger-music-now-playing-eyebrow text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
-              {t.nowPlaying}
-            </p>
-            <FittedMusicTrackTitle title={playback.track?.title ?? t.chooseMusic} />
-          </div>
-          <div className="passenger-music-player-body relative min-h-0 min-w-0">
+          <div className="passenger-music-player-body relative flex min-h-0 min-w-0 items-center gap-6">
             {playback.track?.artworkUrl ? (
               <img
                 src={playback.track.artworkUrl}
@@ -3017,61 +2955,85 @@ function PersonalSpotifyMusicView({
               <div className="passenger-music-now-playing-art h-52 w-52 shrink-0 rounded-[28px] bg-gradient-to-br from-[#E6CE20] via-amber-500 to-orange-700 shadow-2xl" />
             )}
             <div className="passenger-music-now-playing-copy passenger-music-player-details flex min-w-0 flex-1 flex-col justify-center self-stretch">
-            <p className="passenger-music-track-artist mt-4 text-sm leading-snug text-white/75">
-              {playback.track?.artist ?? t.spotifyNoDevice}
-            </p>
-            {playback.track?.album && (
-              <p className="passenger-music-track-album mt-1 text-xs leading-snug text-white/50">
-                {playback.track.album}
-              </p>
-            )}
-            {playback.track ? (
-              <>
-                <p className="passenger-music-playing-status mt-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#E6CE20]">
-                  {playback.isPlaying ? t.spotifyPlaying : t.spotifyPaused}
+              <div className="passenger-music-player-heading flex items-center justify-between gap-3">
+                <p className="passenger-music-now-playing-eyebrow text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+                  {t.nowPlaying}
                 </p>
-                {trackProgress !== null && (
-                  <div className="passenger-music-progress mt-3 max-w-md" aria-label={`${formatSpotifyDuration(liveProgressMs)} of ${formatSpotifyDuration(playback.track.durationMs)}`}>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                      <div className="h-full rounded-full bg-[#E6CE20] transition-[width] duration-500" style={{ width: `${trackProgress}%` }} />
-                    </div>
-                    <div className="mt-1 flex justify-between text-[10px] font-medium text-white/45">
-                      <span>{formatSpotifyDuration(liveProgressMs)}</span>
-                      <span>{formatSpotifyDuration(playback.track.durationMs)}</span>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="mt-3 rounded-xl border border-[#E6CE20]/20 bg-[#E6CE20]/[0.06] px-3 py-2.5">
-                <p className="text-sm font-semibold text-white">{t.spotifyNoTrackTitle}</p>
-                <p className="mt-1 text-xs leading-relaxed text-white/55">{t.spotifyNoTrackDescription}</p>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void refresh()}
+                  className="passenger-music-refresh grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/15 text-white/70 disabled:opacity-45"
+                  aria-label={t.spotifyRefresh}
+                  title={t.spotifyRefresh}
+                >
+                  <RefreshCw className={`h-4 w-4${busy ? " animate-spin" : ""}`} />
+                </button>
               </div>
-            )}
-            <div className="passenger-music-controls mt-5 flex gap-3">
-              <button
-                type="button"
-                disabled={busy || !playback.hasActiveDevice}
-                onClick={() => void control(playback.isPlaying ? "pause" : "play")}
-                className="grid h-12 w-12 place-items-center rounded-full bg-[#E6CE20] text-black disabled:opacity-45"
-                aria-label={playback.isPlaying ? "Pause" : "Play"}
-              >
-                {playback.isPlaying ? (
-                  <Pause className="h-5 w-5 fill-current" />
-                ) : (
-                  <Play className="h-5 w-5 fill-current" />
-                )}
-              </button>
-              <button
-                type="button"
-                disabled={busy || !playback.hasActiveDevice}
-                onClick={() => void control("next")}
-                className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-45"
-                aria-label="Next"
-              >
-                <SkipForward className="h-5 w-5" />
-              </button>
-            </div>
+              <MusicTrackTitle title={playback.track?.title ?? t.chooseMusic} />
+              <p className="passenger-music-track-artist mt-4 text-sm leading-snug text-white/75">
+                {playback.track?.artist ?? t.spotifyNoDevice}
+              </p>
+              {playback.track?.album && (
+                <p className="passenger-music-track-album mt-1 text-xs leading-snug text-white/50">
+                  {playback.track.album}
+                </p>
+              )}
+              {playback.track ? (
+                <>
+                  <p className="passenger-music-playing-status mt-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#E6CE20]">
+                    {playback.isPlaying ? t.spotifyPlaying : t.spotifyPaused}
+                  </p>
+                  {trackProgress !== null && (
+                    <div
+                      className="passenger-music-progress mt-3 max-w-md"
+                      aria-label={`${formatSpotifyDuration(liveProgressMs)} of ${formatSpotifyDuration(playback.track.durationMs)}`}
+                    >
+                      <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                        <div
+                          className="h-full rounded-full bg-[#E6CE20] transition-[width] duration-500"
+                          style={{ width: `${trackProgress}%` }}
+                        />
+                      </div>
+                      <div className="mt-1 flex justify-between text-[10px] font-medium text-white/45">
+                        <span>{formatSpotifyDuration(liveProgressMs)}</span>
+                        <span>{formatSpotifyDuration(playback.track.durationMs)}</span>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="mt-3 rounded-xl border border-[#E6CE20]/20 bg-[#E6CE20]/[0.06] px-3 py-2.5">
+                  <p className="text-sm font-semibold text-white">{t.spotifyNoTrackTitle}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-white/55">
+                    {t.spotifyNoTrackDescription}
+                  </p>
+                </div>
+              )}
+              <div className="passenger-music-controls mt-5 flex gap-3">
+                <button
+                  type="button"
+                  disabled={busy || !playback.hasActiveDevice}
+                  onClick={() => void control(playback.isPlaying ? "pause" : "play")}
+                  className="grid h-12 w-12 place-items-center rounded-full bg-[#E6CE20] text-black disabled:opacity-45"
+                  aria-label={playback.isPlaying ? "Pause" : "Play"}
+                >
+                  {playback.isPlaying ? (
+                    <Pause className="h-5 w-5 fill-current" />
+                  ) : (
+                    <Play className="h-5 w-5 fill-current" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  disabled={busy || !playback.hasActiveDevice}
+                  onClick={() => void control("next")}
+                  className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-45"
+                  aria-label="Next"
+                >
+                  <SkipForward className="h-5 w-5" />
+                </button>
+              </div>
             </div>
           </div>
           <MusicVisualizer active={Boolean(playback.isPlaying)} palette={artworkPalette} />
@@ -3080,26 +3042,27 @@ function PersonalSpotifyMusicView({
         <section className="passenger-music-playback passenger-music-now-playing flex min-h-[280px] flex-col items-center justify-center rounded-[28px] border border-white/10 bg-white/[0.05] p-5 text-sm text-white/60">
           <Music2 className="h-10 w-10 text-[#E6CE20]" />
           <p className="mt-4">{t.spotifyRefresh}</p>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void refresh()}
+            className="passenger-music-refresh mt-5 inline-flex min-h-12 items-center gap-2 rounded-full border border-white/15 px-5 font-semibold text-white/75 disabled:opacity-45"
+          >
+            <RefreshCw className={`h-4 w-4${busy ? " animate-spin" : ""}`} />
+            {t.spotifyRefresh}
+          </button>
         </section>
       )}
-      <div className="passenger-music-actions flex items-center justify-start gap-3">
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => void refresh()}
-          className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white/75 disabled:opacity-45"
-        >
-          {t.spotifyRefresh}
-        </button>
-      </div>
       {error && <p className="passenger-music-error text-sm text-red-300">{error}</p>}
       {searchEnabled && (
         <section className="passenger-music-search rounded-[26px] border border-white/10 bg-white/[0.035] p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
-            {t.searchSpotify}
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-white/60">{t.searchSpotifyHint}</p>
-          <div className="mt-4">
+          <div className="passenger-music-search-heading">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E6CE20]">
+              {t.searchSpotify}
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-white/60">{t.searchSpotifyHint}</p>
+          </div>
+          <div className="passenger-music-vibes mt-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
               {t.exploreMusic}
             </p>
@@ -3122,7 +3085,10 @@ function PersonalSpotifyMusicView({
               })}
             </div>
           </div>
-          <form className="mt-4 flex gap-2" onSubmit={(event) => void search(event)}>
+          <form
+            className="passenger-music-search-form mt-4 flex gap-2"
+            onSubmit={(event) => void search(event)}
+          >
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -3139,7 +3105,11 @@ function PersonalSpotifyMusicView({
               {searching ? "…" : t.searchButton}
             </button>
           </form>
-          {searchMessage && <p className="mt-3 text-sm text-white/55">{searchMessage}</p>}
+          {searchMessage && (
+            <p className="passenger-music-search-message mt-3 text-sm text-white/55">
+              {searchMessage}
+            </p>
+          )}
           {!searchMessage && results.length === 0 && (
             <div className="passenger-music-collections mt-5">
               <div className="mt-3 grid gap-3">
@@ -3167,7 +3137,7 @@ function PersonalSpotifyMusicView({
                       <span className="relative z-10 mt-auto min-w-0 pr-8 text-base font-black text-white">
                         {t[collection.labelKey]}
                       </span>
-                      <ChevronRight className="absolute bottom-4 right-4 z-10 h-5 w-5 text-white/70 transition group-hover:translate-x-0.5" />
+                      <ChevronRight className="passenger-music-playlist-chevron absolute bottom-4 right-4 z-10 h-5 w-5 text-white/70 transition group-hover:translate-x-0.5" />
                     </button>
                   );
                 })}
