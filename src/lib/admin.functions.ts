@@ -14,6 +14,11 @@ import {
 import { bookingConflictMessage } from "./schedule-conflicts";
 import { syncBookingWithGoogleCalendar } from "./google-calendar-sync.server";
 import { updatePricingQuoteLifecycleForBooking } from "./pricing-lifecycle.server";
+import {
+  buildPassengerUsageMap,
+  PASSENGER_ANALYTICS_RANGE_PRESETS,
+  resolvePassengerAnalyticsRange,
+} from "./passenger-analytics-report";
 
 const AdminSchema = z.object({
   adminKey: z.string().optional().default(""),
@@ -53,7 +58,19 @@ const RunnerScoreUpdateSchema = AdminSchema.extend({
   score: z.number().int().min(0).max(999999),
 });
 const PassengerAnalyticsSummarySchema = AdminSchema.extend({
-  days: z.number().int().min(1).max(90).default(30),
+  range: z
+    .object({
+      preset: z.enum(PASSENGER_ANALYTICS_RANGE_PRESETS),
+      startDate: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+        .optional(),
+      endDate: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+        .optional(),
+    })
+    .default({ preset: "last_30_days" }),
 });
 const PASSENGER_ANALYTICS_BETA_START_KEY = "passenger_analytics_beta_start_v1";
 
@@ -109,31 +126,54 @@ export const getAdminPassengerAnalyticsSummary = createServerFn({ method: "POST"
   .handler(async ({ data }) => {
     const access = await assertAdminAccess(data.adminKey);
     const reportingStartedAt = await getPassengerAnalyticsReportingStart(access.tenantId);
-    const requestedCutoff = new Date(Date.now() - data.days * 24 * 60 * 60 * 1_000);
+    const requestedRange = resolvePassengerAnalyticsRange(data.range);
     const reportingStart = reportingStartedAt ? new Date(reportingStartedAt) : null;
-    const cutoff = (reportingStart && reportingStart > requestedCutoff ? reportingStart : requestedCutoff).toISOString();
-    const [sessionsResult, eventsResult] = await Promise.all([
-      supabaseAdmin
-        .from("passenger_analytics_sessions")
-        .select("id,active_duration_ms,interaction_count,lifecycle,started_at")
-        .eq("tenant_id", access.tenantId)
-        .gte("started_at", cutoff),
-      supabaseAdmin
-        .from("passenger_analytics_events")
-        .select("event_name,screen,session_id,metadata")
-        .eq("tenant_id", access.tenantId)
-        .gte("occurred_at", cutoff),
+    const requestedStart = requestedRange.startAt ? new Date(requestedRange.startAt) : null;
+    const effectiveStart =
+      reportingStart && (!requestedStart || reportingStart > requestedStart)
+        ? reportingStart.toISOString()
+        : requestedRange.startAt;
+
+    let sessionsQuery = supabaseAdmin
+      .from("passenger_analytics_sessions")
+      .select("id,active_duration_ms,interaction_count,lifecycle,started_at")
+      .eq("tenant_id", access.tenantId)
+      .lt("started_at", requestedRange.endAt);
+    let eventsQuery = supabaseAdmin
+      .from("passenger_analytics_events")
+      .select("event_name,screen,element,session_id,engagement_id,occurred_at,metadata")
+      .eq("tenant_id", access.tenantId)
+      .lt("occurred_at", requestedRange.endAt);
+    let engagementsQuery = supabaseAdmin
+      .from("passenger_analytics_engagements")
+      .select(
+        "id,entry_screen,entry_source,started_at,last_active_at,active_duration_ms,interaction_count,lifecycle",
+      )
+      .eq("tenant_id", access.tenantId)
+      .lt("started_at", requestedRange.endAt);
+    if (effectiveStart) {
+      sessionsQuery = sessionsQuery.gte("started_at", effectiveStart);
+      eventsQuery = eventsQuery.gte("occurred_at", effectiveStart);
+      engagementsQuery = engagementsQuery.gte("started_at", effectiveStart);
+    }
+
+    const [sessionsResult, eventsResult, engagementsResult] = await Promise.all([
+      sessionsQuery,
+      eventsQuery,
+      engagementsQuery,
     ]);
-    if (sessionsResult.error || eventsResult.error) {
+    if (sessionsResult.error || eventsResult.error || engagementsResult.error) {
       console.error("[PassengerAnalytics] admin summary error", {
         sessions: sessionsResult.error,
         events: eventsResult.error,
+        engagements: engagementsResult.error,
       });
       throw new Error("Unable to load Passenger analytics.");
     }
 
     const sessions = sessionsResult.data ?? [];
     const events = eventsResult.data ?? [];
+    const engagements = engagementsResult.data ?? [];
     const byScreen = Object.fromEntries(
       Array.from(new Set(events.map((event) => event.screen))).map((screen) => [
         screen,
@@ -146,29 +186,78 @@ export const getAdminPassengerAnalyticsSummary = createServerFn({ method: "POST"
         game,
         {
           opened: events.filter(
-            (event) => event.event_name === "game_opened" && passengerAnalyticsGame(event.metadata) === game,
+            (event) =>
+              event.event_name === "game_opened" && passengerAnalyticsGame(event.metadata) === game,
           ).length,
           started: events.filter(
-            (event) => event.event_name === "game_started" && passengerAnalyticsGame(event.metadata) === game,
+            (event) =>
+              event.event_name === "game_started" &&
+              passengerAnalyticsGame(event.metadata) === game,
           ).length,
           completed: events.filter(
-            (event) => event.event_name === "game_completed" && passengerAnalyticsGame(event.metadata) === game,
+            (event) =>
+              event.event_name === "game_completed" &&
+              passengerAnalyticsGame(event.metadata) === game,
           ).length,
         },
       ]),
     );
+    const activeEngagements = engagements.filter((engagement) => engagement.interaction_count > 0);
+    const averageEngagementDurationMs = engagements.length
+      ? Math.round(
+          engagements.reduce((total, engagement) => total + engagement.active_duration_ms, 0) /
+            engagements.length,
+        )
+      : 0;
+    const engagementFirstActionDelays = engagements.flatMap((engagement) => {
+      const firstAction = events
+        .filter(
+          (event) =>
+            event.engagement_id === engagement.id &&
+            ![
+              "engagement_started",
+              "engagement_ended",
+              "screen_viewed",
+              "idle_resumed",
+              "logical_rest_resumed",
+            ].includes(event.event_name),
+        )
+        .sort((left, right) => Date.parse(left.occurred_at) - Date.parse(right.occurred_at))[0];
+      if (!firstAction) return [];
+      return [Math.max(0, Date.parse(firstAction.occurred_at) - Date.parse(engagement.started_at))];
+    });
 
     return {
-      days: data.days,
+      range: {
+        ...requestedRange,
+        startAt: effectiveStart,
+      },
       reportingStartedAt,
-      sessions: sessions.length,
-      interactiveSessions: sessions.filter((session) => session.interaction_count > 0).length,
-      sessionsWithoutInteraction: sessions.filter((session) => session.interaction_count === 0).length,
+      browserSessions: sessions.length,
+      browserSessionsWithoutInteraction: sessions.filter(
+        (session) => session.interaction_count === 0,
+      ).length,
       averageActiveDurationMs: sessions.length
         ? Math.round(
-            sessions.reduce((total, session) => total + session.active_duration_ms, 0) / sessions.length,
+            sessions.reduce((total, session) => total + session.active_duration_ms, 0) /
+              sessions.length,
           )
         : 0,
+      engagements: engagements.length,
+      interactiveEngagements: activeEngagements.length,
+      averageEngagementDurationMs,
+      averageFirstActionDelayMs: engagementFirstActionDelays.length
+        ? Math.round(
+            engagementFirstActionDelays.reduce((total, delay) => total + delay, 0) /
+              engagementFirstActionDelays.length,
+          )
+        : 0,
+      engagementSources: Object.fromEntries(
+        ["initial_interaction", "idle_resume", "test_control"].map((source) => [
+          source,
+          engagements.filter((engagement) => engagement.entry_source === source).length,
+        ]),
+      ),
       firstInteractions: events.filter((event) => event.event_name === "first_interaction").length,
       music: {
         opened: events.filter((event) => event.event_name === "music_opened").length,
@@ -181,9 +270,12 @@ export const getAdminPassengerAnalyticsSummary = createServerFn({ method: "POST"
       byScreen,
       games: gameCounts,
       lifecycle: {
-        tabletUnverified: sessions.filter((session) => session.lifecycle === "tablet_unverified").length,
-        driverConfirmed: sessions.filter((session) => session.lifecycle === "driver_confirmed").length,
+        tabletUnverified: sessions.filter((session) => session.lifecycle === "tablet_unverified")
+          .length,
+        driverConfirmed: sessions.filter((session) => session.lifecycle === "driver_confirmed")
+          .length,
       },
+      usageMap: buildPassengerUsageMap(events, engagements),
     };
   });
 

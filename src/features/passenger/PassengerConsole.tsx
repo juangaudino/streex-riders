@@ -112,13 +112,19 @@ const WEATHER_ATMOSPHERE_OPTIONS: { id: AtmosphereVariant; label: string }[] = [
   { id: "clear", label: "Clear" },
 ];
 
-function atmosphereForWeather(condition: PassengerWeatherCondition, night: boolean): AtmosphereVariant {
+function atmosphereForWeather(
+  condition: PassengerWeatherCondition,
+  night: boolean,
+): AtmosphereVariant {
   if (condition === "thunderstorms") return "thunderstorms";
   if (condition === "rain") return "rain";
   if (condition === "snow") return "snow";
   if (condition === "fog") return "fog";
   if (condition === "smoke") return "smoke";
-  if (night && (condition === "clear" || condition === "mostly-clear" || condition === "partly-cloudy")) {
+  if (
+    night &&
+    (condition === "clear" || condition === "mostly-clear" || condition === "partly-cloudy")
+  ) {
     return "partly-cloudy-night";
   }
   if (condition === "cloudy" || condition === "wind") return "cloudy";
@@ -530,7 +536,8 @@ const copy = {
     idleBookingDescription: "Escanee para reservar su próximo viaje privado desde su teléfono.",
     idleStreexEyebrow: "Tu viaje, a tu manera",
     idleStreexTitle: "Explora Streex",
-    idleStreexDescription: "Planea un viaje, conoce los servicios, deja propina o comparte tu opinión.",
+    idleStreexDescription:
+      "Planea un viaje, conoce los servicios, deja propina o comparte tu opinión.",
     idleStreexAction: "Abrir Streex",
     meetJuan: "Conoce a Juan",
     guestNotesEyebrow: "Notas de huéspedes Streex",
@@ -663,9 +670,7 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
   const isLiteExperience = consoleConfig.experienceMode === "lite";
   const analytics = usePassengerAnalytics(passengerAnalyticsScreen(view));
   const aroundYouEnabled = consoleConfig.aroundYou.enabled || aroundYouTestMode;
-  const idleInactivitySeconds = passengerTestMode
-    ? 15
-    : consoleConfig.idleReset.inactivitySeconds;
+  const idleInactivitySeconds = passengerTestMode ? 15 : consoleConfig.idleReset.inactivitySeconds;
   const idleFeatureRotationSeconds = passengerTestMode
     ? 10
     : consoleConfig.idleReset.featureRotationSeconds;
@@ -759,8 +764,13 @@ export function PassengerConsole({ config }: PassengerConsoleProps) {
         screen: "idle",
         element: idleReset.logicalRest ? "logical_rest" : "idle",
       });
+      analytics.endEngagement(idleReset.logicalRest ? "logical_rest" : "idle");
     }
     if (previous.open && !idleReset.promptOpen) {
+      analytics.beginEngagement({
+        source: previous.logicalRest ? "test_control" : "idle_resume",
+        screen: "home",
+      });
       analytics.track({
         name: previous.logicalRest ? "logical_rest_resumed" : "idle_resumed",
         screen: "idle",
@@ -1116,10 +1126,7 @@ function PassengerTestControls({
   );
 }
 
-type IdleSecondaryFeature =
-  | "weather-hourly"
-  | "weather-daily"
-  | "streex";
+type IdleSecondaryFeature = "weather-hourly" | "weather-daily" | "streex";
 
 const IDLE_SECONDARY_FEATURES: readonly IdleSecondaryFeature[] = [
   "weather-hourly",
@@ -1206,7 +1213,9 @@ function IdleSecondaryRail({
     weatherAtmosphereOverride ??
     atmosphereForWeather(
       currentCondition,
-      current ? isNightAt(new Date(current.startTime), config.passengerConsole.clock.localTimeZone) : false,
+      current
+        ? isNightAt(new Date(current.startTime), config.passengerConsole.clock.localTimeZone)
+        : false,
     );
   const hourlyForecast = weather?.periods.slice(1, 5) ?? [];
   const dailyForecast = weather?.dailyPeriods?.slice(0, 4) ?? [];
@@ -1229,7 +1238,9 @@ function IdleSecondaryRail({
             <span className="mt-1 block text-xl font-black tracking-tight sm:text-2xl">
               {t.idleStreexTitle}
             </span>
-            <span className="mt-1 block max-w-xl text-sm text-white/70">{t.idleStreexDescription}</span>
+            <span className="mt-1 block max-w-xl text-sm text-white/70">
+              {t.idleStreexDescription}
+            </span>
           </span>
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#E6CE20] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-black">
             {t.idleStreexAction}
@@ -1244,7 +1255,10 @@ function IdleSecondaryRail({
   const forecastTitle = feature === "weather-daily" ? t.idleWeatherDays : t.idleWeatherHours;
 
   return (
-    <section className="passenger-idle-secondary passenger-idle-secondary--weather passenger-idle-secondary--forecast" aria-label={forecastTitle}>
+    <section
+      className="passenger-idle-secondary passenger-idle-secondary--weather passenger-idle-secondary--forecast"
+      aria-label={forecastTitle}
+    >
       <WeatherAtmosphere variant={weatherAtmosphere} />
       <div className="relative z-10 flex min-w-0 items-center gap-4 px-6 py-4 sm:px-8">
         <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#E6CE20]/35 bg-[#E6CE20]/10 text-[#E6CE20]">
@@ -1259,7 +1273,9 @@ function IdleSecondaryRail({
               {Math.round(currentTemperature)}°F
             </strong>
             <span className="truncate text-sm text-white/70">
-              {feature === "weather-daily" ? weatherCity : weatherConditionLabel(currentCondition, t)}
+              {feature === "weather-daily"
+                ? weatherCity
+                : weatherConditionLabel(currentCondition, t)}
             </span>
           </span>
         </span>
@@ -1268,14 +1284,22 @@ function IdleSecondaryRail({
         <span className="passenger-idle-forecast-label">{t.idleWeatherHours}</span>
         <div className="flex min-w-0 flex-1 items-center justify-around gap-2">
           {forecast.map((period) => (
-            <span key={period.startTime} className="grid min-w-0 justify-items-center gap-1 text-center">
+            <span
+              key={period.startTime}
+              className="grid min-w-0 justify-items-center gap-1 text-center"
+            >
               <span className="text-[10px] font-bold text-white/60">
                 {feature === "weather-daily"
                   ? formatIdleWeatherDay(period.startTime, language)
                   : formatIdleWeatherHour(period.startTime, language)}
               </span>
-              <WeatherConditionIcon condition={period.condition} className="h-4 w-4 text-[#E6CE20]" />
-              <span className="text-xs font-black tabular-nums">{Math.round(period.temperatureFahrenheit)}°</span>
+              <WeatherConditionIcon
+                condition={period.condition}
+                className="h-4 w-4 text-[#E6CE20]"
+              />
+              <span className="text-xs font-black tabular-nums">
+                {Math.round(period.temperatureFahrenheit)}°
+              </span>
             </span>
           ))}
         </div>
@@ -1289,11 +1313,18 @@ function IdlePhoneContinuation({ config, t }: { config: AppConfig; t: (typeof co
     <aside className="passenger-idle-phone-continuation" aria-label={t.continuePhone}>
       <Phone className="passenger-idle-phone-icon" aria-hidden="true" />
       <span className="min-w-0">
-        <span className="block text-base font-semibold leading-tight text-white">{t.continuePhone}</span>
+        <span className="block text-base font-semibold leading-tight text-white">
+          {t.continuePhone}
+        </span>
         <span className="mt-1 block text-sm text-white/50">{t.idlePhoneScan}</span>
       </span>
       <span className="rounded-2xl bg-white p-1.5 shadow-xl">
-        <QRCodeSVG value={config.passengerConsole.links.phoneContinuation} size={76} level="M" includeMargin={false} />
+        <QRCodeSVG
+          value={config.passengerConsole.links.phoneContinuation}
+          size={76}
+          level="M"
+          includeMargin={false}
+        />
       </span>
     </aside>
   );
@@ -1317,11 +1348,36 @@ function IdleExplorePanel({
   t: (typeof copy)[Language];
 }) {
   const items = [
-    { icon: <Gamepad2 />, label: t.games, detail: language === "es" ? "Juega y disfruta" : "Play & enjoy", onClick: onExploreGame },
-    { icon: <MapPin />, label: language === "es" ? "Tu viaje" : "Your Ride", detail: language === "es" ? "Descubre Streex" : "Explore Streex", onClick: onExploreYourRide },
-    { icon: <Music2 />, label: t.music, detail: language === "es" ? "Controla y explora" : "Control & browse", onClick: onExploreMusic },
-    { icon: <Menu />, label: t.services, detail: language === "es" ? "Viajes y más" : "Rides & more", onClick: onExploreServices },
-    { icon: <Sparkles />, label: language === "es" ? "Más" : "More", detail: language === "es" ? "Explora Streex" : "Explore Streex", onClick: onExploreStreex },
+    {
+      icon: <Gamepad2 />,
+      label: t.games,
+      detail: language === "es" ? "Juega y disfruta" : "Play & enjoy",
+      onClick: onExploreGame,
+    },
+    {
+      icon: <MapPin />,
+      label: language === "es" ? "Tu viaje" : "Your Ride",
+      detail: language === "es" ? "Descubre Streex" : "Explore Streex",
+      onClick: onExploreYourRide,
+    },
+    {
+      icon: <Music2 />,
+      label: t.music,
+      detail: language === "es" ? "Controla y explora" : "Control & browse",
+      onClick: onExploreMusic,
+    },
+    {
+      icon: <Menu />,
+      label: t.services,
+      detail: language === "es" ? "Viajes y más" : "Rides & more",
+      onClick: onExploreServices,
+    },
+    {
+      icon: <Sparkles />,
+      label: language === "es" ? "Más" : "More",
+      detail: language === "es" ? "Explora Streex" : "Explore Streex",
+      onClick: onExploreStreex,
+    },
   ];
 
   return (
@@ -1339,7 +1395,9 @@ function IdleExplorePanel({
               }}
               className="passenger-idle-explore-link"
             >
-              <span className="passenger-idle-explore-icon" aria-hidden="true">{item.icon}</span>
+              <span className="passenger-idle-explore-icon" aria-hidden="true">
+                {item.icon}
+              </span>
               <span className="min-w-0 text-left">
                 <span className="block text-sm font-semibold leading-tight">{item.label}</span>
                 <span className="mt-1 block text-xs text-white/45">{item.detail}</span>
@@ -1356,7 +1414,11 @@ function IdleExplorePanel({
           className="passenger-idle-explore-cta"
         >
           <span>TAP TO EXPLORE</span>
-          <small>{language === "es" ? "Juegos · Música · Tu viaje · Más" : "Games · Music · Your ride · More"}</small>
+          <small>
+            {language === "es"
+              ? "Juegos · Música · Tu viaje · Más"
+              : "Games · Music · Your ride · More"}
+          </small>
         </button>
       </div>
     </section>
@@ -1428,9 +1490,14 @@ function IdleSpotifyNowPlaying({
     setBusy(true);
     try {
       await controlPersonalSpotifyPlayback({ data: { command } });
-      window.setTimeout(() => {
-        void getPersonalSpotifyPlayback({ data: {} }).then(setStatus).catch(() => setStatus(null));
-      }, command === "next" ? 800 : 300);
+      window.setTimeout(
+        () => {
+          void getPersonalSpotifyPlayback({ data: {} })
+            .then(setStatus)
+            .catch(() => setStatus(null));
+        },
+        command === "next" ? 800 : 300,
+      );
     } finally {
       setBusy(false);
     }
@@ -1474,18 +1541,18 @@ function IdleSpotifyNowPlaying({
       <span className="passenger-idle-track-copy min-w-0">
         <span className="passenger-idle-now-playing-row flex items-center justify-between gap-3 text-[11px] font-bold uppercase tracking-[0.22em] text-[#E6CE20]">
           <span className="flex items-center gap-3">
-          {playback?.isPlaying && (
-            <span className="flex h-5 items-end gap-1" aria-hidden="true">
-              <span className="h-2 w-1 animate-pulse rounded-full bg-[#E6CE20]" />
-              <span className="h-5 w-1 animate-pulse rounded-full bg-[#E6CE20]" />
-              <span className="h-3 w-1 animate-pulse rounded-full bg-[#E6CE20]" />
-            </span>
-          )}
-          {playback?.isPlaying
-            ? t.idleNowPlaying
-            : isDiscoverable
-              ? t.idleMusicPrompt
-              : t.idleMusicReady}
+            {playback?.isPlaying && (
+              <span className="flex h-5 items-end gap-1" aria-hidden="true">
+                <span className="h-2 w-1 animate-pulse rounded-full bg-[#E6CE20]" />
+                <span className="h-5 w-1 animate-pulse rounded-full bg-[#E6CE20]" />
+                <span className="h-3 w-1 animate-pulse rounded-full bg-[#E6CE20]" />
+              </span>
+            )}
+            {playback?.isPlaying
+              ? t.idleNowPlaying
+              : isDiscoverable
+                ? t.idleMusicPrompt
+                : t.idleMusicReady}
           </span>
           <button
             type="button"
@@ -1505,13 +1572,22 @@ function IdleSpotifyNowPlaying({
         {track ? (
           <span className="passenger-idle-track-details mt-3 block">
             <span className="block text-lg font-medium text-white/80">{track.artist}</span>
-            {track.album ? <span className="mt-1 block text-base text-white/48">{track.album}</span> : null}
+            {track.album ? (
+              <span className="mt-1 block text-base text-white/48">{track.album}</span>
+            ) : null}
           </span>
-        ) : <span className="passenger-idle-track-subtitle mt-3 text-lg text-white/55">{t.idleChooseMusicDescription}</span>}
+        ) : (
+          <span className="passenger-idle-track-subtitle mt-3 text-lg text-white/55">
+            {t.idleChooseMusicDescription}
+          </span>
+        )}
         {track && trackProgress !== null ? (
           <span className="passenger-idle-progress mt-6 block max-w-xl">
             <span className="block h-1.5 overflow-hidden rounded-full bg-white/15">
-              <span className="block h-full rounded-full bg-[#E6CE20] transition-[width] duration-500" style={{ width: `${trackProgress}%` }} />
+              <span
+                className="block h-full rounded-full bg-[#E6CE20] transition-[width] duration-500"
+                style={{ width: `${trackProgress}%` }}
+              />
             </span>
             <span className="mt-2 flex justify-between text-xs font-medium tabular-nums text-white/50">
               <span>{formatSpotifyDuration(liveProgressMs)}</span>
@@ -1530,7 +1606,11 @@ function IdleSpotifyNowPlaying({
                 void control(playback?.isPlaying ? "pause" : "play");
               }}
             >
-              {playback?.isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current" />}
+              {playback?.isPlaying ? (
+                <Pause className="h-5 w-5 fill-current" />
+              ) : (
+                <Play className="h-5 w-5 fill-current" />
+              )}
             </button>
             <button
               type="button"
@@ -1559,7 +1639,9 @@ function IdleSpotifyNowPlaying({
             </span>
           </span>
         )}
-        {track ? <MusicVisualizer active={Boolean(playback?.isPlaying)} compact palette={artworkPalette} /> : null}
+        {track ? (
+          <MusicVisualizer active={Boolean(playback?.isPlaying)} compact palette={artworkPalette} />
+        ) : null}
       </span>
     </>
   );
@@ -2008,12 +2090,12 @@ function WeatherDetailDialog({
         <DialogHeader className="relative z-10">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-          <DialogTitle className="text-left text-2xl font-extrabold">
-            {t.weatherDetailTitle}
-          </DialogTitle>
-          <DialogDescription className="text-left text-white/55">
-            {t.weatherDetailDescription} {city}.
-          </DialogDescription>
+              <DialogTitle className="text-left text-2xl font-extrabold">
+                {t.weatherDetailTitle}
+              </DialogTitle>
+              <DialogDescription className="text-left text-white/55">
+                {t.weatherDetailDescription} {city}.
+              </DialogDescription>
             </div>
             {showAtmosphereTestControls && (
               <div className="flex shrink-0 gap-1 rounded-full border border-white/10 bg-black/45 p-1 backdrop-blur">
@@ -2066,12 +2148,16 @@ function WeatherDetailDialog({
                 <div className="flex flex-col gap-3 border-t border-white/10 pt-3 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
                   <WeatherMetric
                     label={t.precipitation}
-                    value={current.precipitationChance === null ? "—" : `${current.precipitationChance}%`}
+                    value={
+                      current.precipitationChance === null ? "—" : `${current.precipitationChance}%`
+                    }
                     progress={current.precipitationChance}
                   />
                   <WeatherMetric
                     label={t.wind}
-                    value={[current.windDirection, current.windSpeed].filter(Boolean).join(" ") || "—"}
+                    value={
+                      [current.windDirection, current.windSpeed].filter(Boolean).join(" ") || "—"
+                    }
                   />
                 </div>
               </div>
@@ -2109,21 +2195,30 @@ function WeatherDetailDialog({
                 </p>
                 <div className="grid grid-cols-4 gap-2">
                   {dailyForecast.map((day, index) => (
-                  <div
-                    key={`${day.period.startTime}-${index}`}
-                    className={`flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl ${index === 0 ? "border-[#E6CE20]/30" : ""}`}
-                  >
-                      <WeatherConditionIcon condition={day.period.condition} className="h-6 w-6 shrink-0 text-white/90" />
+                    <div
+                      key={`${day.period.startTime}-${index}`}
+                      className={`flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl ${index === 0 ? "border-[#E6CE20]/30" : ""}`}
+                    >
+                      <WeatherConditionIcon
+                        condition={day.period.condition}
+                        className="h-6 w-6 shrink-0 text-white/90"
+                      />
                       <div className="min-w-0 flex-1">
                         {index === 0 ? (
                           <p className="text-[8px] font-bold uppercase tracking-[0.22em] text-[#E6CE20]">
                             {language === "es" ? "Mañana" : "Tomorrow"}
                           </p>
                         ) : null}
-                        <p className="truncate text-xs font-bold capitalize text-white/80">{day.label}</p>
+                        <p className="truncate text-xs font-bold capitalize text-white/80">
+                          {day.label}
+                        </p>
                         <p className="mt-0.5 text-[10px] text-white/45">{day.date}</p>
                       </div>
-                      <p className={`shrink-0 font-black ${index === 0 ? "text-[1.55rem]" : "text-xl"}`}>{day.temperature}</p>
+                      <p
+                        className={`shrink-0 font-black ${index === 0 ? "text-[1.55rem]" : "text-xl"}`}
+                      >
+                        {day.temperature}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -2207,7 +2302,8 @@ function WeatherMetric({
   progress?: number | null;
   value: string;
 }) {
-  const safeProgress = progress === null || progress === undefined ? null : Math.max(0, Math.min(100, progress));
+  const safeProgress =
+    progress === null || progress === undefined ? null : Math.max(0, Math.min(100, progress));
 
   return (
     <div className="min-w-0">
@@ -2219,7 +2315,10 @@ function WeatherMetric({
       ) : (
         <div className="mt-1.5 flex items-center gap-3">
           <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
-            <span className="block h-full rounded-full bg-[#E6CE20]" style={{ width: `${safeProgress}%` }} />
+            <span
+              className="block h-full rounded-full bg-[#E6CE20]"
+              style={{ width: `${safeProgress}%` }}
+            />
           </span>
           <span className="text-sm font-bold tabular-nums">{value}</span>
         </div>
@@ -2432,7 +2531,10 @@ function useArtworkPalette(artworkUrl: string | null) {
         if (!context) throw new Error("Canvas unavailable");
         context.drawImage(image, 0, 0, canvas.width, canvas.height);
         const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
-        const colors = new Map<string, { red: number; green: number; blue: number; count: number }>();
+        const colors = new Map<
+          string,
+          { red: number; green: number; blue: number; count: number }
+        >();
         for (let index = 0; index < pixels.length; index += 4) {
           const alpha = pixels[index + 3] ?? 0;
           const pixelRed = pixels[index] ?? 0;
@@ -2505,7 +2607,8 @@ function ambientStyle(palette: ArtworkPalette) {
     const [red = 0, green = 0, blue = 0] = color.split(" ").map(Number);
     return colorSaturation(red, green, blue);
   });
-  const contrastStrength = Math.max(...saturation) < 0.2 ? 0.82 : Math.max(...saturation) < 0.42 ? 0.58 : 0.34;
+  const contrastStrength =
+    Math.max(...saturation) < 0.2 ? 0.82 : Math.max(...saturation) < 0.42 ? 0.58 : 0.34;
 
   return {
     "--passenger-ambient-color": palette.primary,
@@ -2555,11 +2658,13 @@ function MusicVisualizer({
         return (
           <span
             key={index}
-            style={{
-              "--visualizer-index": index,
-              "--visualizer-height": `${compact ? Math.round(baseHeight * 1.55) : baseHeight}px`,
-              "--visualizer-color": visualizerColor,
-            } as React.CSSProperties}
+            style={
+              {
+                "--visualizer-index": index,
+                "--visualizer-height": `${compact ? Math.round(baseHeight * 1.55) : baseHeight}px`,
+                "--visualizer-color": visualizerColor,
+              } as React.CSSProperties
+            }
           />
         );
       })}
@@ -2567,13 +2672,7 @@ function MusicVisualizer({
   );
 }
 
-function SpotifyMarquee({
-  children,
-  className,
-}: {
-  children: string;
-  className?: string;
-}) {
+function SpotifyMarquee({ children, className }: { children: string; className?: string }) {
   const viewportRef = useRef<HTMLSpanElement | null>(null);
   const itemRef = useRef<HTMLSpanElement | null>(null);
   const [overflows, setOverflows] = useState(false);
@@ -2788,7 +2887,9 @@ function PersonalSpotifyMusicView({
       .then((response) => {
         if (active) {
           setPlaylistArtwork(
-            Object.fromEntries(response.playlists.map((playlist) => [playlist.id, playlist.artworkUrl])),
+            Object.fromEntries(
+              response.playlists.map((playlist) => [playlist.id, playlist.artworkUrl]),
+            ),
           );
         }
       })
@@ -2899,10 +3000,7 @@ function PersonalSpotifyMusicView({
     playback?.isPlaying,
   );
   const trackProgress = playback?.track?.durationMs
-    ? Math.min(
-        100,
-        Math.max(0, (liveProgressMs / playback.track.durationMs) * 100),
-      )
+    ? Math.min(100, Math.max(0, (liveProgressMs / playback.track.durationMs) * 100))
     : null;
   const artworkPalette = useArtworkPalette(playback?.track?.artworkUrl ?? null);
 
@@ -3115,9 +3213,11 @@ function PersonalSpotifyMusicView({
                       disabled={searching}
                       onClick={() => searchVibe(collection.query)}
                       className="passenger-music-collection passenger-music-playlist-card group relative flex min-h-[8rem] overflow-hidden rounded-2xl border p-4 text-left transition disabled:opacity-45"
-                      style={{
-                        "--collection-accent": collection.accent,
-                      } as React.CSSProperties}
+                      style={
+                        {
+                          "--collection-accent": collection.accent,
+                        } as React.CSSProperties
+                      }
                     >
                       {artworkUrl ? (
                         <img

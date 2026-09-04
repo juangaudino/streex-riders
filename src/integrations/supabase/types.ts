@@ -390,6 +390,7 @@ export type Database = {
         Row: {
           duration_ms: number | null;
           element: string;
+          engagement_id: string | null;
           event_name: string;
           id: string;
           metadata: Json;
@@ -402,6 +403,7 @@ export type Database = {
         Insert: {
           duration_ms?: number | null;
           element: string;
+          engagement_id?: string | null;
           event_name: string;
           id: string;
           metadata?: Json;
@@ -414,6 +416,7 @@ export type Database = {
         Update: {
           duration_ms?: number | null;
           element?: string;
+          engagement_id?: string | null;
           event_name?: string;
           id?: string;
           metadata?: Json;
@@ -422,6 +425,57 @@ export type Database = {
           screen?: string;
           session_id?: string;
           tenant_id?: string;
+        };
+        Relationships: [];
+      };
+      passenger_analytics_engagements: {
+        Row: {
+          active_duration_ms: number;
+          created_at: string;
+          device_installation_id: string;
+          ended_at: string | null;
+          ended_by: string | null;
+          entry_screen: string;
+          entry_source: string;
+          id: string;
+          interaction_count: number;
+          last_active_at: string;
+          lifecycle: string;
+          started_at: string;
+          tenant_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          active_duration_ms?: number;
+          created_at?: string;
+          device_installation_id: string;
+          ended_at?: string | null;
+          ended_by?: string | null;
+          entry_screen: string;
+          entry_source: string;
+          id: string;
+          interaction_count?: number;
+          last_active_at: string;
+          lifecycle?: string;
+          started_at: string;
+          tenant_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          active_duration_ms?: number;
+          created_at?: string;
+          device_installation_id?: string;
+          ended_at?: string | null;
+          ended_by?: string | null;
+          entry_screen?: string;
+          entry_source?: string;
+          id?: string;
+          interaction_count?: number;
+          last_active_at?: string;
+          lifecycle?: string;
+          started_at?: string;
+          tenant_id?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };

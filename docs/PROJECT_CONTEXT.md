@@ -247,18 +247,27 @@ retrieves the received message, forwards its content, and preserves the original
   `/spotify`. The permanently mounted tablet must not distort public Rides traffic.
 - `booking_submitted` is the primary conversion/key event.
 - Funnel and contact events are centralized through `src/lib/analytics.ts`.
-- Passenger has separate internal analytics in `passenger_analytics_sessions` and
-  `passenger_analytics_events`; it never uses GA. The browser keeps only an opaque random
-  installation id, a bounded 24-hour/100-event offline queue, and no passenger identity, address,
-  GPS, raw device identifier, user agent or secret.
-- Passenger events are server-allowlisted semantic actions only. Both tables have RLS and no
+- Passenger has separate internal analytics in `passenger_analytics_sessions`,
+  `passenger_analytics_events` and `passenger_analytics_engagements`; it never uses GA. A browser
+  session remains technical telemetry, while an anonymous engagement starts on a real Passenger
+  interaction and ends when the console returns to idle. Every idle exit begins a new engagement
+  because it normally represents a new passenger. The browser keeps only an opaque random
+  installation id, bounded 24-hour event and engagement queues, and no passenger identity,
+  address, GPS, raw device identifier, user agent, touch coordinates or secret.
+- Passenger events are server-allowlisted semantic actions only. All three tables have RLS and no
   `anon`/`authenticated` grants; only server functions using the service role can write them, and
-  the authenticated Admin summary enforces tenant membership server-side.
+  the authenticated Admin summary enforces tenant membership server-side. The usage map is an
+  aggregate semantic path (`screen → action → destination`) and recent anonymous engagement paths;
+  it is deliberately not a coordinate heatmap.
 - All current Passenger sessions are `tablet_unverified`. A session becomes `driver_confirmed`
   only through a future trusted Driver MC signal; tablet activity is never called a real ride.
 - Admin can start Passenger beta measurement without deleting data. The timestamp becomes the
   dashboard's reporting baseline, excluding earlier engineering sessions while retaining them for
   technical verification. Starting a beta baseline is tenant-scoped and admin-authenticated.
+- Admin Passenger Analytics supports Today, Yesterday, last 7/30/90 days, this week, this month,
+  all beta data and a custom inclusive calendar range. Calendar boundaries use `America/Denver`
+  (including daylight-saving transitions), then honor the beta baseline without deleting historic
+  engineering data.
 
 ## Automated Quality Checks
 

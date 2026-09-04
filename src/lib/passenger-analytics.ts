@@ -1,5 +1,7 @@
 export const PASSENGER_ANALYTICS_EVENT_NAMES = [
   "session_started",
+  "engagement_started",
+  "engagement_ended",
   "first_interaction",
   "screen_viewed",
   "music_opened",
@@ -42,11 +44,25 @@ export const PASSENGER_ANALYTICS_ELEMENTS = [
 ] as const;
 
 export const PASSENGER_GAME_IDS = ["trivia", "choice", "higher-lower"] as const;
+export const PASSENGER_ANALYTICS_ENGAGEMENT_SOURCES = [
+  "initial_interaction",
+  "idle_resume",
+  "test_control",
+] as const;
+export const PASSENGER_ANALYTICS_ENGAGEMENT_END_REASONS = [
+  "idle",
+  "logical_rest",
+  "pagehide",
+] as const;
 
 export type PassengerAnalyticsEventName = (typeof PASSENGER_ANALYTICS_EVENT_NAMES)[number];
 export type PassengerAnalyticsScreen = (typeof PASSENGER_ANALYTICS_SCREENS)[number];
 export type PassengerAnalyticsElement = (typeof PASSENGER_ANALYTICS_ELEMENTS)[number];
 export type PassengerGameId = (typeof PASSENGER_GAME_IDS)[number];
+export type PassengerAnalyticsEngagementSource =
+  (typeof PASSENGER_ANALYTICS_ENGAGEMENT_SOURCES)[number];
+export type PassengerAnalyticsEngagementEndReason =
+  (typeof PASSENGER_ANALYTICS_ENGAGEMENT_END_REASONS)[number];
 
 export type PassengerAnalyticsMetadata = {
   game?: PassengerGameId;
@@ -62,6 +78,7 @@ export type PassengerAnalyticsEvent = {
   occurredAt: string;
   durationMs?: number;
   metadata?: PassengerAnalyticsMetadata;
+  engagementId?: string;
 };
 
 export type PassengerAnalyticsSession = {
@@ -73,5 +90,19 @@ export type PassengerAnalyticsSession = {
   interactionCount: number;
 };
 
+export type PassengerAnalyticsEngagement = {
+  id: string;
+  deviceInstallationId: string;
+  entryScreen: PassengerAnalyticsScreen;
+  entrySource: PassengerAnalyticsEngagementSource;
+  startedAt: string;
+  lastActiveAt: string;
+  endedAt?: string;
+  endedBy?: PassengerAnalyticsEngagementEndReason;
+  activeDurationMs: number;
+  interactionCount: number;
+};
+
 export const PASSENGER_ANALYTICS_QUEUE_LIMIT = 100;
 export const PASSENGER_ANALYTICS_QUEUE_MAX_AGE_MS = 24 * 60 * 60 * 1_000;
+export const PASSENGER_ANALYTICS_ENGAGEMENT_QUEUE_LIMIT = 25;

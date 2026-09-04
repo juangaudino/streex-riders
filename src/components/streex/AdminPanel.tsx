@@ -35,6 +35,10 @@ import {
 } from "@/lib/admin.functions";
 import { getAdminTickerTheme } from "@/lib/ticker-theme.functions";
 import { getAdminSiteConfig, updateAdminSiteConfig } from "@/lib/site-config.functions";
+import {
+  passengerAnalyticsToday,
+  type PassengerAnalyticsRangePreset,
+} from "@/lib/passenger-analytics-report";
 import { CONFIG, type AppConfig } from "@/config";
 import logo from "@/assets/brand/streex-rides-transparent.webp";
 import { useAdminTheme } from "./admin/useAdminTheme";
@@ -424,18 +428,41 @@ export function AdminPanel({ initialTab = "bookings" }: { initialTab?: AdminTab 
 }
 
 type PassengerAnalyticsSummary = {
-  days: number;
+  range: {
+    preset: PassengerAnalyticsRangePreset;
+    startDate: string | null;
+    endDate: string;
+    startAt: string | null;
+    endAt: string;
+  };
   reportingStartedAt: string | null;
-  sessions: number;
-  interactiveSessions: number;
-  sessionsWithoutInteraction: number;
+  browserSessions: number;
+  browserSessionsWithoutInteraction: number;
   averageActiveDurationMs: number;
+  engagements: number;
+  interactiveEngagements: number;
+  averageEngagementDurationMs: number;
+  averageFirstActionDelayMs: number;
+  engagementSources: Record<string, number>;
   firstInteractions: number;
   music: { opened: number; actions: number };
   idle: { entered: number; logicalRest: number };
   byScreen: Record<string, number>;
   games: Record<string, { opened: number; started: number; completed: number }>;
   lifecycle: { tabletUnverified: number; driverConfirmed: number };
+  usageMap: {
+    nodes: Array<{ screen: string; count: number }>;
+    flows: Array<{ from: string; to: string; count: number }>;
+    actions: Array<{ screen: string; element: string; action: string; count: number }>;
+    journeys: Array<{
+      id: string;
+      startedAt: string;
+      entrySource: string;
+      path: string[];
+      interactionCount: number;
+      activeDurationMs: number;
+    }>;
+  };
 };
 
 function formatPassengerDuration(durationMs: number) {
@@ -446,7 +473,9 @@ function formatPassengerDuration(durationMs: number) {
 }
 
 function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
-  const [days, setDays] = useState(30);
+  const [rangePreset, setRangePreset] = useState<PassengerAnalyticsRangePreset>("last_30_days");
+  const [customStartDate, setCustomStartDate] = useState(() => passengerAnalyticsToday());
+  const [customEndDate, setCustomEndDate] = useState(() => passengerAnalyticsToday());
   const [summary, setSummary] = useState<PassengerAnalyticsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -457,14 +486,26 @@ function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
     setLoading(true);
     setError(null);
     try {
-      const result = await getAdminPassengerAnalyticsSummary({ data: { adminKey, days } });
+      const result = await getAdminPassengerAnalyticsSummary({
+        data: {
+          adminKey,
+          range: {
+            preset: rangePreset,
+            ...(rangePreset === "custom"
+              ? { startDate: customStartDate, endDate: customEndDate }
+              : {}),
+          },
+        },
+      });
       setSummary(result as PassengerAnalyticsSummary);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Unable to load Passenger analytics.");
+      setError(
+        loadError instanceof Error ? loadError.message : "Unable to load Passenger analytics.",
+      );
     } finally {
       setLoading(false);
     }
-  }, [adminKey, days]);
+  }, [adminKey, customEndDate, customStartDate, rangePreset]);
 
   useEffect(() => {
     void load();
@@ -476,13 +517,21 @@ function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
     setBetaMessage(null);
     try {
       const result = await startAdminPassengerAnalyticsBeta({ data: { adminKey } });
-      setBetaMessage(`Beta measurement started ${new Intl.DateTimeFormat(undefined, {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(new Date(result.reportingStartedAt))}. Earlier engineering data is excluded, not deleted.`);
+      setBetaMessage(
+        `Beta measurement started ${new Intl.DateTimeFormat(undefined, {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }).format(
+          new Date(result.reportingStartedAt),
+        )}. Earlier engineering data is excluded, not deleted.`,
+      );
       await load();
     } catch (startError) {
-      setError(startError instanceof Error ? startError.message : "Unable to start Passenger beta measurement.");
+      setError(
+        startError instanceof Error
+          ? startError.message
+          : "Unable to start Passenger beta measurement.",
+      );
     } finally {
       setStartingBeta(false);
     }
@@ -495,25 +544,55 @@ function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
           <p className="text-[10px] uppercase streex-tracking text-[#E6CE20]/75">Passenger only</p>
           <h2 className="mt-1 text-xl font-bold">Anonymous tablet activity</h2>
           <p className="mt-1 max-w-xl text-xs leading-relaxed text-white/50">
-            No names, bookings, addresses, GPS, device serials or passenger identity. These are tablet
-            sessions, not confirmed rides.
+            No names, bookings, addresses, GPS, device serials or passenger identity. These are
+            tablet sessions, not confirmed rides.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {[7, 30].map((value) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setDays(value)}
-              className={`rounded-lg border px-3 py-2 text-xs font-semibold ${
-                days === value
-                  ? "border-[#E6CE20] bg-[#E6CE20] text-black"
-                  : "border-white/10 text-white/65 hover:text-white"
-              }`}
+        <div className="flex flex-wrap items-end gap-2">
+          <label className="grid gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/45">
+            Period
+            <select
+              value={rangePreset}
+              onChange={(event) =>
+                setRangePreset(event.target.value as PassengerAnalyticsRangePreset)
+              }
+              className="min-h-9 rounded-lg border border-white/10 bg-black/30 px-3 text-xs font-medium normal-case tracking-normal text-white outline-none focus:border-[#E6CE20]/60"
             >
-              {value} days
-            </button>
-          ))}
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="last_7_days">Last 7 days</option>
+              <option value="last_30_days">Last 30 days</option>
+              <option value="last_90_days">Last 90 days</option>
+              <option value="this_week">This week</option>
+              <option value="this_month">This month</option>
+              <option value="all">All beta data</option>
+              <option value="custom">Custom dates…</option>
+            </select>
+          </label>
+          {rangePreset === "custom" && (
+            <>
+              <label className="grid gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/45">
+                From
+                <input
+                  type="date"
+                  value={customStartDate}
+                  max={customEndDate}
+                  onChange={(event) => setCustomStartDate(event.target.value)}
+                  className="min-h-9 rounded-lg border border-white/10 bg-black/30 px-2 text-xs text-white outline-none focus:border-[#E6CE20]/60"
+                />
+              </label>
+              <label className="grid gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/45">
+                To
+                <input
+                  type="date"
+                  value={customEndDate}
+                  min={customStartDate}
+                  onChange={(event) => setCustomEndDate(event.target.value)}
+                  className="min-h-9 rounded-lg border border-white/10 bg-black/30 px-2 text-xs text-white outline-none focus:border-[#E6CE20]/60"
+                />
+              </label>
+            </>
+          )}
           <button
             type="button"
             onClick={() => void load()}
@@ -538,11 +617,22 @@ function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
         </p>
       ) : summary?.reportingStartedAt ? (
         <p className="text-xs text-white/45">
-          Beta measurement began {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(summary.reportingStartedAt))}. Earlier engineering data is excluded, not deleted.
+          Beta measurement began{" "}
+          {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(
+            new Date(summary.reportingStartedAt),
+          )}
+          . Earlier engineering data is excluded, not deleted.
         </p>
       ) : (
         <p className="text-xs text-white/45">
-          Engineering data is currently included. Start beta measurement when you are ready to use this dashboard for passenger testing.
+          Engineering data is currently included. Start beta measurement when you are ready to use
+          this dashboard for passenger testing.
+        </p>
+      )}
+
+      {summary?.range.startDate && (
+        <p className="text-xs text-white/40">
+          Showing {summary.range.startDate} through {summary.range.endDate} in Salt Lake City time.
         </p>
       )}
 
@@ -558,13 +648,15 @@ function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
         <>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              ["Sessions", summary.sessions],
-              ["First interactions", summary.firstInteractions],
-              ["Average active time", formatPassengerDuration(summary.averageActiveDurationMs)],
-              ["No interaction", summary.sessionsWithoutInteraction],
+              ["Passenger engagements", summary.engagements],
+              ["Idle wake-ups", summary.engagementSources.idle_resume ?? 0],
+              ["Average engagement", formatPassengerDuration(summary.averageEngagementDurationMs)],
+              ["First action", formatPassengerDuration(summary.averageFirstActionDelayMs)],
             ].map(([label, value]) => (
               <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">{label}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
+                  {label}
+                </p>
                 <p className="mt-2 text-2xl font-black text-[#E6CE20]">{value}</p>
               </div>
             ))}
@@ -579,7 +671,9 @@ function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
                     .sort(([, left], [, right]) => right - left)
                     .map(([screen, count]) => (
                       <div key={screen} className="flex items-center justify-between text-sm">
-                        <span className="capitalize text-white/65">{screen.replaceAll("_", " ")}</span>
+                        <span className="capitalize text-white/65">
+                          {screen.replaceAll("_", " ")}
+                        </span>
                         <span className="font-semibold text-white">{count}</span>
                       </div>
                     ))
@@ -590,12 +684,17 @@ function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
             </section>
 
             <section className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
-              <h3 className="font-semibold">Music and rest</h3>
+              <h3 className="font-semibold">Music, rest and technical health</h3>
               <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                 <Metric label="Music opened" value={summary.music.opened} />
                 <Metric label="Music actions" value={summary.music.actions} />
                 <Metric label="Idle entered" value={summary.idle.entered} />
                 <Metric label="Logical rest" value={summary.idle.logicalRest} />
+                <Metric label="Browser loads" value={summary.browserSessions} />
+                <Metric
+                  label="Loads without interaction"
+                  value={summary.browserSessionsWithoutInteraction}
+                />
               </div>
             </section>
           </div>
@@ -614,9 +713,110 @@ function AdminPassengerAnalytics({ adminKey }: { adminKey: string }) {
             </div>
           </section>
 
+          <section className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <div>
+                <h3 className="font-semibold">Usage map</h3>
+                <p className="mt-1 text-xs leading-relaxed text-white/45">
+                  Anonymous paths from a Passenger engagement. This is semantic interaction flow,
+                  never a touch-coordinate heatmap.
+                </p>
+              </div>
+              <span className="text-[10px] uppercase tracking-[0.14em] text-[#E6CE20]/75">
+                Map of use
+              </span>
+            </div>
+            {summary.usageMap.nodes.length ? (
+              <div className="mt-5 grid gap-4 xl:grid-cols-3">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
+                    Destinations
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {summary.usageMap.nodes.slice(0, 8).map((node) => (
+                      <span
+                        key={node.screen}
+                        className="rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-xs text-white/70"
+                      >
+                        {node.screen.replaceAll("_", " ")}{" "}
+                        <b className="ml-1 text-[#E6CE20]">{node.count}</b>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
+                    Top routes
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    {summary.usageMap.flows.slice(0, 5).map((flow) => (
+                      <p key={`${flow.from}-${flow.to}`} className="text-sm text-white/70">
+                        <span className="capitalize">{flow.from.replaceAll("_", " ")}</span>
+                        <span className="mx-2 text-[#E6CE20]">→</span>
+                        <span className="capitalize">{flow.to.replaceAll("_", " ")}</span>
+                        <b className="ml-2 text-white">{flow.count}</b>
+                      </p>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
+                    Top actions
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    {summary.usageMap.actions.slice(0, 5).map((action) => (
+                      <p
+                        key={`${action.screen}-${action.element}-${action.action}`}
+                        className="text-sm text-white/70"
+                      >
+                        <span className="capitalize">{action.screen.replaceAll("_", " ")}</span>
+                        <span className="mx-1 text-white/35">·</span>
+                        <span>{action.action.replaceAll("_", " ")}</span>
+                        <b className="ml-2 text-white">{action.count}</b>
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-white/45">
+                The map will appear after Passenger engagements are recorded.
+              </p>
+            )}
+
+            {summary.usageMap.journeys.length > 0 && (
+              <div className="mt-5 border-t border-white/10 pt-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
+                  Recent anonymous journeys
+                </p>
+                <div className="mt-3 grid gap-2 lg:grid-cols-2">
+                  {summary.usageMap.journeys.slice(0, 6).map((journey, index) => (
+                    <div
+                      key={journey.id}
+                      className="rounded-xl border border-white/10 bg-black/15 px-3 py-2.5"
+                    >
+                      <p className="text-xs font-semibold text-white/80">
+                        Engagement {index + 1} · {journey.entrySource.replaceAll("_", " ")}
+                      </p>
+                      <p className="mt-1 text-xs text-white/50">
+                        {journey.path.map((screen) => screen.replaceAll("_", " ")).join(" → ")}
+                      </p>
+                      <p className="mt-1 text-[11px] text-[#E6CE20]/80">
+                        {journey.interactionCount} interactions ·{" "}
+                        {formatPassengerDuration(journey.activeDurationMs)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+
           <p className="text-xs text-white/40">
-            {summary.interactiveSessions} interactive tablet sessions · {summary.lifecycle.tabletUnverified}{" "}
-            unverified tablet sessions · {summary.lifecycle.driverConfirmed} confirmed by Driver MC.
+            {summary.interactiveEngagements} interactive Passenger engagements ·{" "}
+            {summary.firstInteractions} first browser interactions ·{" "}
+            {summary.lifecycle.tabletUnverified} unverified browser sessions ·{" "}
+            {summary.lifecycle.driverConfirmed} confirmed by Driver MC.
           </p>
         </>
       ) : null}
@@ -1766,10 +1966,13 @@ function AdminConfig({ adminKey, tenantId }: { adminKey: string; tenantId: strin
       <section className="rounded-2xl border border-white/10 bg-white/[0.025] p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-[10px] font-semibold uppercase streex-tracking text-[#E6CE20]/80">Passenger Console</p>
+            <p className="text-[10px] font-semibold uppercase streex-tracking text-[#E6CE20]/80">
+              Passenger Console
+            </p>
             <h2 className="mt-1 text-base font-semibold">Default experience mode</h2>
             <p className="mt-1 max-w-xl text-xs leading-relaxed text-white/50">
-              This is the persistent tablet mode. Lite is the daily Passenger experience; Complete is reserved for the later personalized experience.
+              This is the persistent tablet mode. Lite is the daily Passenger experience; Complete
+              is reserved for the later personalized experience.
             </p>
           </div>
           <div className="flex rounded-xl border border-white/10 p-1">
