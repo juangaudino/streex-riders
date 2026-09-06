@@ -220,10 +220,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const location = useRouterState({ select: (state) => state.location });
+  const { pathname, searchStr } = location;
 
   useEffect(() => {
-    if (!isAnalyticsAllowed(pathname)) return;
+    if (!isAnalyticsAllowed(pathname, searchStr)) return;
 
     const startAnalytics = () => {
       initializeAnalytics();
@@ -237,7 +238,7 @@ function RootComponent() {
 
     window.addEventListener("load", startAnalytics, { once: true });
     return () => window.removeEventListener("load", startAnalytics);
-  }, [pathname]);
+  }, [pathname, searchStr]);
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -34,7 +34,7 @@ No interpretar el orden dentro del informe histórico como prioridad vigente. No
 
 | ID  | Tarea                                                                          | Prioridad | Estado                                                                 |
 | --- | ------------------------------------------------------------------------------ | --------- | ---------------------------------------------------------------------- |
-| S01 | Analytics: excluir respuestas/previews y sanear URLs/referrers                 | P0        | LISTA — siguiente tarea exacta                                         |
+| S01 | Analytics: excluir respuestas/previews y sanear URLs/referrers                 | P0        | HECHA — pruebas focalizadas, build y carga local sintética verificados |
 | S02 | Respuesta a cotización: GET neutral, acción deliberada, token y compatibilidad | P0        | PLANIFICADA; política de emails anteriores se aprueba antes de activar |
 | S03 | Formato acotado y CI/checks coherentes                                         | P1        | PLANIFICADA; enumerar y aprobar archivos Passenger implicados          |
 | S04 | Dependencias afectadas, actualización compatible dirigida                      | P1        | PLANIFICADA                                                            |

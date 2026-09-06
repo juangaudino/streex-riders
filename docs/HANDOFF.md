@@ -1,20 +1,19 @@
 # STREEX — HANDOFF maestro
 
-Checkpoint: 2026-09-05, consolidación posterior a auditoría y decisiones del propietario. Rama: main. Baseline de código auditado: c38d98f (feat(passenger): deepen private analytics). Este checkpoint modifica documentación, no código de producto.
+Checkpoint: 2026-09-05, S01 cerrada después de la consolidación posterior a auditoría y decisiones del propietario. Rama: main. Baseline de auditoría: c38d98f (feat(passenger): deepen private analytics). S01 añade una contención puntual de Analytics; no hay cambios de Booking, Pricing, Passenger, Horizon, migraciones ni configuración.
 
 ## Reanudar aquí
 
-**Siguiente ID: S01 — contención de Analytics sensible.**
+**Siguiente ID: S02.1 — decidir transición de respuestas de cotización existentes.**
 
-Estado: LISTA para ejecución cuando el propietario ordene avanzar. Modelo recomendado: **Terra, razonamiento Alto**. No ejecutar S02 ni toda F1 en la misma intervención.
+Estado: DECISIÓN DEL PROPIETARIO antes de implementar S02. Modelo recomendado para el posterior trabajo técnico: **Terra, razonamiento Muy alto**. No implementar S02.2 ni toda F1 en la misma intervención.
 
-1. Leer [AGENTS](../AGENTS.md), [ROADMAP](ROADMAP.md) y [tarjeta S01](EXECUTION_PLAN.md#s01--contención-de-analytics-sensible).
-2. Inspeccionar solo src/lib/analytics.ts, tests/analytics.test.mjs y el wiring real necesario de inicialización. No volver a auditar el repositorio ni consultar producción por rutina.
-3. Proponer/ejecutar la contención aprobada: no GA en /booking/accept, /booking/decline ni previews; URLs/referrers saneados sin query/hash sensibles; conservar conversiones públicas permitidas.
-4. Probar con identificadores ficticios, primera carga y SPA. No abrir enlaces reales de clientes ni enviar identificadores a GA para comprobar su fuga.
-5. Actualizar ROADMAP/HANDOFF con evidencia, revisar diff, commit/push del único cambio y parar. Después corresponde S02, no rediseño visual ni Pricing.
+1. Leer [AGENTS](../AGENTS.md), [ROADMAP](ROADMAP.md) y [tarjeta S02](EXECUTION_PLAN.md#s02--respuestas-deliberadas-y-capacidades-limitadas).
+2. Presentar una única decisión: duración de la capacidad firmada y política para los emails UUID-only ya enviados. La recomendación actual es que un enlace antiguo abra una pantalla neutral de enlace desactualizado/renovación controlada, no conserve una mutación por GET indefinidamente.
+3. No escribir código, no reemitir emails y no invalidar enlaces activos hasta que el propietario apruebe explícitamente esa transición.
+4. Tras la decisión, ejecutar solo S02.2: GET neutral, POST firmado e idempotente y tests de acciones cruzadas, caducidad y concurrencia. S02.3 requiere QA de correo/respuesta autorizado.
 
-S01 **no** corrige la mutación por abrir enlaces. Esa limitación queda hasta S02. Si la implementación exige cambiar respuestas, tokens o APIs de otros productos, detenerse y acotar; no mezclar ambos trabajos silenciosamente.
+S01 cerrada: /booking/accept, /booking/decline y tenant previews no inician Analytics; page_location y page_referrer eliminan query/hash; las navegaciones SPA observan también searchStr. S01 **no** corrige la mutación por abrir enlaces. Esa limitación queda hasta S02. Si la implementación exige cambiar respuestas, tokens o APIs de otros productos, detenerse y acotar; no mezclar ambos trabajos silenciosamente.
 
 Prompt reutilizable:
 
@@ -32,6 +31,8 @@ Prompt reutilizable:
 Si el próximo ID aquí y ROADMAP difieren, resolver esa divergencia antes de editar código. Cuando se cierra un ID, mover ambos punteros en el mismo checkpoint. Leer históricos solo para una pregunta de evidencia concreta.
 
 ## Qué cambió en este checkpoint
+
+- S01: `src/lib/analytics.ts`, el wiring raíz y `tests/analytics.test.mjs` contienen respuestas/previews antes de inicializar GA y sanearon ubicación/referrer de los eventos permitidos. Evidencia: 5 pruebas focalizadas passing; Prettier focalizado; `bun run check` (typecheck y build) passing; carga local de `/booking/accept?id=synthetic-booking-id` sin `gtag`, `dataLayer` ni script de Google Analytics. No se abrieron enlaces de clientes, no se consultó producción ni se inició telemetría desde una ruta pública para la verificación.
 
 - [Auditoría original](audits/2026-09-05-audit.md) preservada en el repositorio, sin reescribir sus conclusiones ni prioridades históricas. [Cómo interpretarla ahora](audits/README.md).
 - Un ROADMAP, un EXECUTION_PLAN y un HANDOFF activos para todos los productos; roadmaps/handoffs previos archivados o convertidos en referencia técnica.
@@ -92,7 +93,7 @@ Rutina previamente acordada: checkpoint semanal y renovación de pairing Passeng
 
 ## Git y cierre de cambios
 
-El worktree ya tenía supabase/.temp/cli-latest modificado antes de empezar; preservarlo y excluirlo del commit. Este checkpoint solo incluye AGENTS/README/documentación. Baseline de aplicación no cambia.
+El worktree ya tenía supabase/.temp/cli-latest modificado antes de empezar; preservarlo y excluirlo del commit. S01 incluye Analytics, sus pruebas y este checkpoint; no hay migraciones ni cambios de configuración.
 
 Identificar el commit documental por el mensaje `docs: consolidate STREEX execution roadmap and checkpoint`; no confundirlo con código implementado. Hash/push/CI de la entrega se informan al cerrar D00. Una CI roja por el lint histórico no significa que las correcciones S03 estén hechas.
 
