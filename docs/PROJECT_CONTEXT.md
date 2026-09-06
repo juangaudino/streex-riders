@@ -1,6 +1,6 @@
 # STREEX — contexto técnico
 
-Actualizado: 2026-09-05. Este documento describe contratos; no establece una cola de trabajo.
+Actualizado: 2026-09-06. Este documento describe contratos; no establece una cola de trabajo.
 Prioridad/estado: [ROADMAP](ROADMAP.md). Reanudación: [HANDOFF](HANDOFF.md). Criterios: [EXECUTION_PLAN](EXECUTION_PLAN.md).
 El contexto anterior, incluidos roadmaps Passenger, se conserva en [archivo](archive/2026-09-05/PROJECT_CONTEXT.md).
 
@@ -8,7 +8,7 @@ El contexto anterior, incluidos roadmaps Passenger, se conserva en [archivo](arc
 
 Rides es la app principal de Juan; Pricing/Admin cotiza y opera; Passenger es la experiencia bilingüe en vivo; Horizon sigue global y técnicamente aislado bajo runner. Comparten repositorio, no responsabilidades indistintas. Su planificación es única.
 
-Producción: Vercel en https://rides.getstreex.com y Supabase standalone de Rides. Lovable permanece como herramienta de trabajo/aprobación visual. Migraciones versionadas requieren autorización privilegiada; secretos nunca se documentan.
+Producción: Vercel en https://rides.getstreex.com y Supabase standalone de Rides. La entrada pública https://getstreex.com/* se redirige en Cloudflare con 301 a la ruta equivalente en `https://rides.getstreex.com/$1`; no envía a Passenger. Lovable permanece como herramienta de trabajo/aprobación visual. Migraciones versionadas requieren autorización privilegiada; secretos nunca se documentan.
 
 Arquitectura: React 19, TanStack Start/Router, TypeScript, Vite/Tailwind, Bun y FullCalendar. Preservar el monolito modular.
 
