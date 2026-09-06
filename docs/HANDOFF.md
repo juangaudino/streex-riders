@@ -1,22 +1,22 @@
 # STREEX — HANDOFF maestro
 
-Checkpoint: 2026-09-06, S02.3 iniciada con evidencia parcial y detenida de forma segura antes de duplicar datos de prueba. Rama: main. Baseline de auditoría: c38d98f (feat(passenger): deepen private analytics). S01 contiene Analytics; S02.2 protege las respuestas de cotización. No hay cambios de Pricing, Passenger, Horizon, migraciones ni configuración escrita en el repositorio.
+Checkpoint: 2026-09-06, S02.3 detenida de forma segura por configuración de runtime antes de enviar correo o mutar la reserva QA. Rama: main. Baseline de auditoría: c38d98f (feat(passenger): deepen private analytics). S01 contiene Analytics; S02.2 protege las respuestas de cotización. No hay cambios de Pricing, Passenger, Horizon, migraciones ni configuración escrita en el repositorio.
 
 ## Reanudar aquí
 
 **Siguiente ID: S02.3 — QA autorizado de correo y respuesta de cotización.**
 
-Estado: VALIDACIÓN PENDIENTE — requiere autenticación manual de Admin y confirmación de la reserva de prueba antes de cualquier nuevo envío. Modelo recomendado: **Terra, razonamiento Muy alto**. S02.1 fue aprobada: capacidad firmada de 72 horas; los enlaces UUID heredados abren una pantalla neutral y se reemiten manualmente. S02.2 está validada localmente, pero no se ha enviado correo, abierto un enlace de cliente ni ejecutado una respuesta contra producción.
+Estado: BLOQUEADA — producción no reconoce una configuración utilizable de `BOOKING_RESPONSE_TOKEN_SECRET`. Modelo recomendado: **Terra, razonamiento Muy alto**. S02.1 fue aprobada: capacidad firmada de 72 horas; los enlaces UUID heredados abren una pantalla neutral y se reemiten manualmente. S02.2 está validada localmente, pero no se ha enviado correo, abierto un enlace de cliente ni ejecutado una respuesta contra producción.
 
 1. Leer [AGENTS](../AGENTS.md), [ROADMAP](ROADMAP.md) y [tarjeta S02](EXECUTION_PLAN.md#s02--respuestas-deliberadas-y-capacidades-limitadas).
-2. El propietario debe iniciar sesión manualmente en `https://rides.getstreex.com/admin/bookings` y confirmar que está listo; nunca pedir, recibir ni guardar su contraseña. Antes de crear otra solicitud, identificar si existe la reserva marcada `S02.3 controlled QA only — do not dispatch or drive.` que pudo haberse enviado antes de una interrupción. Si no se puede determinar su existencia, detenerse y pedir decisión en vez de duplicarla.
-3. Sólo cuando exista una reserva de prueba confirmada y un buzón controlado para recibir la cotización, comprobar sin leer ni mostrar su valor que la configuración reportada de `BOOKING_RESPONSE_TOKEN_SECRET` permite el envío controlado. Abrir primero cada enlace sin pulsar la acción: debe no mutar la reserva. Probar aceptar y rechazar en reservas de prueba separadas, doble clic/concurrencia y enlace UUID heredado neutral. Registrar el resultado de cada capa y cualquier dato de prueba que deba conservarse; no borrar datos sin autorización.
-4. Verificar que la reemisión manual usa el flujo existente de Admin/Pricing, que no se registra el token en Analytics/logs y que una respuesta ya procesada queda neutral/idempotente. La caducidad de 72 horas se cubre por pruebas deterministas; no esperar 72 horas para cerrar este QA.
+2. El propietario debe corregir la variable en Vercel para Production: nombre exacto `BOOKING_RESPONSE_TOKEN_SECRET`, valor no vacío de al menos 32 caracteres y desplegar de nuevo el `main` actual. No pedir, recibir, mostrar ni guardar el valor. El error de runtime también puede indicar que la variable se añadió sólo a Preview/Development o después del despliegue activo.
+3. Con el nuevo despliegue disponible, retomar la única reserva pendiente marcada `S02.3 controlled QA only — do not dispatch or drive.`; no crear otra. Reintentar una sola cotización simbólica y comprobar que llega al buzón controlado. Si vuelve a fallar, detenerse y registrar el error exacto sin cambiar código ni secretos.
+4. Sólo después del envío confirmado, abrir primero cada enlace sin pulsar la acción: debe no mutar la reserva. Probar aceptar y rechazar en reservas de prueba separadas, doble clic/concurrencia y enlace UUID heredado neutral. Verificar que la reemisión manual usa el flujo existente de Admin/Pricing, que no se registra el token en Analytics/logs y que una respuesta ya procesada queda neutral/idempotente. La caducidad de 72 horas se cubre por pruebas deterministas; no esperar 72 horas para cerrar este QA.
 5. Detenerse ante cualquier error de configuración, entrega, respuesta o Calendar: no parchear, reemitir masivamente ni cambiar secretos. Al cerrar, actualizar ROADMAP/HANDOFF y hacer un commit independiente. S03 sólo se habilita si S02 queda HECHA o el bloqueo queda explícitamente aceptado.
 
 S02.1 decidida: 72 horas y enlaces UUID heredados neutrales, con reemisión manual. S02.2 implementada: `/booking/accept` y `/booking/decline` sólo consultan estado al abrirse; una acción POST deliberada exige capacidad HMAC vinculada a reserva, acción y caducidad. La transición `quoted` usa compare-and-set para que aceptación/rechazo concurrentes tengan un único ganador; las pantallas heredadas no consultan ni mutan una reserva. Los envíos Admin/Pricing verifican la configuración antes de actualizar la cotización. La clave dedicada fue configurada por el propietario y no fue leída ni verificada directamente durante esta fase; el código conserva el secreto de preview existente como fallback acotado, nunca el secreto de Calendar.
 
-Evidencia parcial S02.3 (2026-09-05/06): producción ya sirve la pantalla neutral para un enlace UUID sintético. Se completó el formulario público con una marca explícita de QA y se inició su envío, pero la sesión se interrumpió inmediatamente después del clic: no existe confirmación fiable de que la solicitud haya quedado creada. La pestaña automatizada no persistió; una búsqueda acotada de correo no mostró una confirmación nueva y Admin pide inicio de sesión. No se creó una segunda solicitud, no se emitió cotización ni se ejecutó respuesta, cambio de Calendar o reemisión. El formulario permitió direcciones manuales, aunque mostró que las sugerencias de direcciones no estaban disponibles; registrar esa observación para P01, sin cambiar Maps durante S02.
+Evidencia parcial S02.3 (2026-09-05/06): producción ya sirve la pantalla neutral para un enlace UUID sintético. Se completó el formulario público con una marca explícita de QA y se inició su envío, pero la sesión se interrumpió inmediatamente después del clic. El propietario inició sesión manualmente en Admin y confirmó que existe exactamente una reserva QA pendiente con esa marca. Al intentar enviarle una cotización simbólica, producción devolvió `BOOKING_RESPONSE_TOKEN_SECRET is not configured.` La prevalidación está antes del update y del envío, por lo que esa reserva sigue pendiente y no se generó correo, respuesta ni Calendar desde ese intento. No se creó una segunda solicitud ni se reemitió nada. El formulario permitió direcciones manuales, aunque mostró que las sugerencias de direcciones no estaban disponibles; registrar esa observación para P01, sin cambiar Maps durante S02.
 
 Prompt reutilizable:
 
@@ -79,7 +79,7 @@ Consolidación actual:
 
 ## Decisiones pendientes con parada localizada
 
-- S02.3: autenticación manual de Admin y confirmación de la reserva de prueba antes de QA de correo/respuesta; no usar enlaces de clientes ni convertir el commit en prueba de producción.
+- S02.3: configurar y desplegar `BOOKING_RESPONSE_TOKEN_SECRET` en Production, después retomar la única reserva QA pendiente; no usar enlaces de clientes ni convertir el commit en prueba de producción.
 - P04: tarifas reales/Hourly sin destino, stops, zonas superpuestas, positioning retorno, referral y overrides; no usar números temporales como precios aprobados.
 - P08.1: cuándo una quote es enviada, cómo reservar/consumir promo y cómo recuperar fallo incierto de email.
 - R01.1: duración/buffer/capacidad, holds y expiración.
@@ -96,7 +96,7 @@ Rutina previamente acordada: checkpoint semanal y renovación de pairing Passeng
 
 ## Git y cierre de cambios
 
-El worktree ya tenía supabase/.temp/cli-latest modificado antes de empezar; preservarlo y excluirlo del commit. S01 incluye Analytics y sus pruebas. S02.2 incluye Booking, sus pruebas focalizadas. Este checkpoint S02.3 sólo documenta evidencia parcial; no hay migraciones ni cambios de configuración escritos en el repositorio. La configuración de `BOOKING_RESPONSE_TOKEN_SECRET` fue realizada por el propietario fuera del repositorio y queda pendiente de prueba de runtime controlada.
+El worktree ya tenía supabase/.temp/cli-latest modificado antes de empezar; preservarlo y excluirlo del commit. S01 incluye Analytics y sus pruebas. S02.2 incluye Booking, sus pruebas focalizadas. Este checkpoint S02.3 documenta el bloqueo de runtime; no hay migraciones ni cambios de configuración escritos en el repositorio. La configuración de `BOOKING_RESPONSE_TOKEN_SECRET` permanece fuera del repositorio y requiere corrección/despliegue por el propietario antes de reintentar.
 
 Identificar el commit documental por el mensaje `docs: consolidate STREEX execution roadmap and checkpoint`; no confundirlo con código implementado. Hash/push/CI de la entrega se informan al cerrar D00. Una CI roja por el lint histórico no significa que las correcciones S03 estén hechas.
 
