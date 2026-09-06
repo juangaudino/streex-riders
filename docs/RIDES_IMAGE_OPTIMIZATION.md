@@ -1,5 +1,7 @@
 # Rides Image Optimization
 
+Historical asset-optimization report, not a pending reprocessing task. New imagery/performance work follows O01/B08 in the [master roadmap](ROADMAP.md) and requires an approved per-surface asset map.
+
 Total before: 4108.2 KB
 Total after: 856.3 KB
 Total saved: 3251.9 KB (79.2%)

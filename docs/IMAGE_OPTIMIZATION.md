@@ -1,5 +1,7 @@
 # Image Optimization Report
 
+Historical measurement report, preserved for reference. It is not a current optimization queue or proof of current route performance. Active work is governed by [ROADMAP](ROADMAP.md), O01/B08.
+
 Generated: 2026-06-05T05:08:38.842Z
 
 Total before: 138527.8 KB

@@ -1,5 +1,7 @@
 # Around You — Luna Completion Report
 
+> HISTÓRICO — reemplazado como planificación el 2026-09-05. No ejecutar instrucciones ni inferir estado actual desde este snapshot. Usar [HANDOFF maestro](../../HANDOFF.md), [ROADMAP maestro](../../ROADMAP.md) y documentación técnica vigente.
+
 Status: product/content implementation complete; the feature gate is enabled for the validated
 tablet build, while route-specific GPS tuning still requires in-vehicle validation.
 

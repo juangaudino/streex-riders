@@ -1,5 +1,7 @@
 # STREEX Rides Roadmap
 
+> HISTÓRICO — reemplazado como planificación el 2026-09-05. No ejecutar instrucciones ni inferir estado actual desde este snapshot. Usar [HANDOFF maestro](../../HANDOFF.md), [ROADMAP maestro](../../ROADMAP.md) y documentación técnica vigente.
+
 This is the canonical roadmap for the public STREEX Rides product: the landing, booking flow,
 Admin, availability, reviews and operational integrations. It intentionally excludes the
 in-vehicle Passenger Console, whose roadmap lives in `docs/PROJECT_CONTEXT.md` under

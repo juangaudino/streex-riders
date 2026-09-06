@@ -1,5 +1,7 @@
 # Around You — Sol Handoff Report
 
+> HISTÓRICO — reemplazado como planificación el 2026-09-05. No ejecutar instrucciones ni inferir estado actual desde este snapshot. Usar [HANDOFF maestro](../../HANDOFF.md), [ROADMAP maestro](../../ROADMAP.md) y documentación técnica vigente.
+
 Status: technical foundation complete; final product/content pass intentionally not started.
 
 ## Implemented

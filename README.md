@@ -1,351 +1,84 @@
-# STREEX Rides
+# STREEX
 
-Passenger-facing web application for STREEX Rides, a premium private ride service built around a quiet, hospitality-first experience.
+Aplicación para la operación real de STREEX: Rides (reservas y servicio), Pricing/Admin (cotizaciones y agenda) y Passenger (experiencia en vivo, con Horizon como sub-workstream experiencial).
 
-The repository contains two distinct passenger-facing product surfaces:
+## Continuar el trabajo
 
-- **STREEX Rides** — the public premium ride landing, booking and operational product.
-- **STREEX Passenger Console** — the no-index, landscape-first in-vehicle tablet experience at
-  `/passenger`; it is an in-repo companion, not a second product or backend.
-
-Together, the app also includes:
+Leer en este orden:
 
-- Ride request and review submission flows.
-- A protected Admin control center.
-- Driver availability and calendar management.
-- Moderated passenger reviews and STREEX Horizon records.
-- A hidden experiential game route, STREEX Horizon, at `/runner-lab`.
+1. [AGENTS.md](AGENTS.md): límites y reglas del repositorio.
+2. [HANDOFF maestro](docs/HANDOFF.md): checkpoint, evidencia y siguiente tarea exacta.
+3. [ROADMAP maestro](docs/ROADMAP.md): única prioridad y estado global.
+4. [Plan de ejecución](docs/EXECUTION_PLAN.md): contrato y verificación de la tarea elegida.
 
-## Product principles
+No existen roadmaps activos separados por producto. Una solicitud de “ejecutar la siguiente etapa” se traduce en la siguiente tarea atómica habilitada, no en implementar una fase completa de una vez.
 
-STREEX should feel elevated, trustworthy, personal, and useful. Keep the design restrained and premium:
+## Dirección aprobada — 2026-09-05
 
-- Deep black: `#0B0B0B`
-- STREEX yellow: `#E6CE20`
-- White: `#FFFFFF`
+- Primero la operación de Juan: seguridad, reservas, dinero, Pricing y disponibilidad fiables.
+- UX/UI es un workstream importante y temprano: Clima es referencia de acabado; Music conserva identidad propia; Rides debe estar diseñado para teléfono, tablet y escritorio.
+- Passenger sigue siendo fundamental para el uso actual. Horizon puede evolucionar con un alcance aprobado; no hay reescritura ni cambio de motor autorizado.
+- Comercialización SaaS y nuevas altas de conductores están en standby. Seguridad e integridad de los tenants actuales NO se posponen.
+- Trabajar en main, un cambio aprobado por vez, con pruebas, checkpoint, commit y push. No hacer migraciones, configurar secretos ni producir efectos reales sin autorización específica.
 
-Avoid loud arcade, casino, crypto-app, generic SaaS, or generic rideshare styling.
+## Arquitectura y despliegue
 
-## Tech stack
+React 19, TanStack Start/Router, TypeScript, Vite, Tailwind, Bun y FullCalendar. Producción en Vercel: https://rides.getstreex.com. Backend: proyecto Supabase standalone de STREEX Rides. Lovable es parte del flujo de edición/aprobación visual, no el propietario del backend de producción actual.
 
-- React 19
-- TanStack Start and TanStack Router
-- TypeScript
-- Vite
-- Tailwind CSS
-- FullCalendar for Admin calendar views
-- Supabase Auth, Postgres, RLS, and Storage
-- Bun package manager
+Mantener monolito modular, estética negro/amarillo y hospitalidad. No migrar framework ni introducir microservicios para completar este plan.
 
-## Main routes
+| Superficie      | Ruta                                                    | Responsabilidad                                                    |
+| --------------- | ------------------------------------------------------- | ------------------------------------------------------------------ |
+| Rides           | / y /{driver-slug}                                      | Servicio, confianza, contacto y solicitud de reserva               |
+| Reserva directa | /request-a-ride                                         | Entrada no-index para QR/perfiles                                  |
+| Respuesta       | /booking/accept y /booking/decline                      | Respuestas a cotización; hardening pendiente S01/S02               |
+| Admin           | /admin, /admin/bookings, /admin/pricing, /admin/reviews | Operación autenticada y tenant-scoped                              |
+| Passenger       | /passenger                                              | Tablet bilingüe, landscape-first, no-index                         |
+| Horizon         | /runner-lab                                             | Juego Canvas 2D, no-index; tiene entradas visibles, no es “oculto” |
+| Spotify         | /spotify/setup y /spotify/callback                      | Setup del conductor, no acceso público a credenciales              |
 
-| Route                                  | Purpose                                    |
-| -------------------------------------- | ------------------------------------------ |
-| `/`                                    | Passenger landing page                     |
-| `/{driver-slug}`                       | Active driver landing page                 |
-| `/admin`                               | Protected Admin control center             |
-| `/admin/bookings`                      | Admin booking view                         |
-| `/admin/reviews`                       | Admin review view                          |
-| `/runner-lab`                          | Hidden, no-index STREEX Horizon game route |
-| `/passenger`                           | No-index in-vehicle Passenger Console      |
-| `/booking.accept` / `/booking.decline` | Booking response routes                    |
+## Estado verificado de referencia
 
-## Core systems
+Baseline de código c38d98f. La auditoría del 2026-09-05 registró 60 pruebas passing, typecheck/build passing y lint/CI fallando por deuda de formato. No son pruebas nuevas de este checkpoint documental ni certificación completa de producción.
 
-### Passenger landing
+Pricing está implementado y su migración aplicada; Maps/Geocoding y QA completo de cotizaciones siguen abiertos. Calendar OAuth/free-busy/sync de reservas confirmadas existe y tiene validación histórica de producción: no duplicarlo.
 
-The landing page is composed in `src/routes/index.tsx` with components under `src/components/streex/`.
+Clima Premium, Music Reload, Lite/Accent y analytics por engagements existen. “Implementado” no significa que toda la calidad visual/operativa deseada esté terminada.
 
-Key sections include:
+## Desarrollo y validación
 
-- Header and hero
-- Service ticker
-- Quick Actions
-- Payment options
-- More ways to connect
-- Experience gallery
-- Services
-- Approved reviews
-- Meet Juan
-- Review submission
-- Booking flow
+Usar Bun según package.json y bun.lock:
 
-### Passenger Console
-
-`/passenger` is the bilingual, landscape-first in-vehicle console. It is intentionally separate
-from the landing and booking flow: Lite keeps Music prominent, Games and STREEX remain available,
-and Around You stays accessible from Home while hidden from Lite's primary navigation. Its
-Music-first idle screen, weather rail, offline behavior, privacy boundary and roadmap are defined
-in `docs/PROJECT_CONTEXT.md`.
-
-Passenger is not Google Analytics traffic and never receives booking identity, addresses, raw GPS
-history, credentials or payment secrets. Physical tablet controls remain the responsibility of
-Fully Kiosk/Android rather than browser code.
-
-### Booking and availability
-
-Passenger ride requests are stored in `bookings`.
-
-Current availability rules:
-
-- Passenger requests can only select generated available slots.
-- Pending requests do not block availability.
-- Quoted and confirmed rides block availability.
-- Manual blocked slots also block availability.
-- Default ride duration is 60 minutes.
-- Slot duration is 30 minutes.
-- Minimum notice is 12 hours.
-- Timezone is `America/Denver`.
-- Database triggers reject overlapping quoted/confirmed rides and manual blocks.
-
-Relevant files:
-
-- `src/components/streex/BookingFormModal.tsx`
-- `src/lib/booking.functions.ts`
-- `src/lib/availability.functions.ts`
-- `src/lib/availability.server.ts`
-- `src/lib/schedule-conflicts.ts`
-- `tests/schedule-conflicts.test.mjs`
-- `supabase/migrations/20260619035636_prevent_schedule_overlaps.sql`
-
-### Admin
-
-The Admin control center lives primarily in `src/components/streex/AdminPanel.tsx`.
-
-Current Admin areas:
-
-- Bookings
-- Reviews
-- STREEX Horizon records
-- Display themes
-- Site configuration
-- Availability and driver calendar
-
-Privileged actions use Supabase Auth and tenant membership checks. There is no production bypass
-key; every Admin request must carry an authenticated Supabase session.
-
-The Drivers tab is exclusive to platform Super Admins and provisions invitation-only workspaces.
-The platform Super Admin and primary driver owner are separate accounts; both enter through
-`/admin`, and their database roles determine what they can access. See
-`docs/MULTI_TENANT_ADMIN.md` for onboarding, isolation and deployment instructions.
-
-Relevant files:
-
-- `src/components/streex/AdminPanel.tsx`
-- `src/components/streex/admin/AdminCalendar.tsx`
-- `src/components/streex/admin/AdminCalendarEventSheet.tsx`
-- `src/lib/admin.functions.ts`
-- `src/lib/admin-auth.server.ts`
-
-### Reviews
-
-Passenger reviews are submitted as `pending`. Only `approved` reviews are shown publicly.
-
-Relevant files:
-
-- `src/components/streex/FeedbackForm.tsx`
-- `src/components/streex/Reviews.tsx`
-- `src/lib/review.functions.ts`
-
-### STREEX Horizon
-
-STREEX Horizon is a hidden experiential feature inside STREEX Rides. It is not a separate brand and should not disrupt the production booking flow.
-
-Current flow:
-
-1. Intro
-2. Transition
-3. Gameplay
-4. Results, score saving, card saving, and sharing
-
-Records use `runner_scores` and start as `pending`; Admin approval is required before public leaderboard visibility.
-
-Relevant files:
-
-- `src/routes/runner-lab.tsx`
-- `src/features/runner/RunnerApp.tsx`
-- `src/features/runner/components/RunnerCanvas.tsx`
-- `src/features/runner/components/RunnerResults.tsx`
-- `src/features/runner/engine/`
-- `src/lib/runner-score.functions.ts`
-- `docs/RUNNER_CONTEXT.md`
-
-## Backend and database
-
-The app is built around Lovable Cloud with Supabase-compatible database and storage behavior. Backend schema and migration notes live under `supabase/`.
-
-Primary tables:
-
-- `bookings`
-- `tenant_availability`
-- `blocked_slots`
-- `reviews`
-- `runner_scores`
-- `app_settings`
-- `tenants`, `user_profiles`, `tenant_memberships`, `platform_admins`
-- `calendar_connections`, `calendar_oauth_states`
-- `audit_log`
-
-Important files:
-
-- `supabase/production_schema.sql`
-- `supabase/README.md`
-- `supabase/availability_phase_4_1.sql`
-- `supabase/booking_service_type_phase_4_2.sql`
-- `supabase/migrations/`
-
-Do not commit secrets. Sensitive values belong in Lovable secrets or local `.env`.
-
-## Environment variables
-
-See `.env.example` for the supported variable names.
-
-Common groups:
-
-- Supabase/Lovable database keys
-- Google Maps browser key
-- Google Analytics measurement ID
-- Google Calendar OAuth credentials and token-encryption key
-- Email/Resend settings
-- `SITE_URL`
-
-### Analytics
-
-Google Analytics 4 is initialized only in production on public passenger routes. Admin and
-STREEX Horizon are excluded. The implementation intentionally avoids sending passenger names,
-email addresses, phone numbers, pickup addresses, or destinations.
-
-Primary commercial events include booking funnel activity, successful ride requests, contact
-clicks, social clicks, service selection, and review submissions. `booking_submitted` is the
-recommended GA4 key event.
-
-Relevant file: `src/lib/analytics.ts`.
-
-## Development
-
-Install dependencies:
-
-```bash
-bun install
-```
-
-Run the development server:
-
-```bash
+```sh
+bun install --frozen-lockfile
 bun run dev
 ```
 
-Build:
+Secuencia equivalente a Quality (cada comando debe pasar):
 
-```bash
+```sh
+bun run typecheck
+bun run lint
+bun test tests/*.test.mjs
 bun run build
 ```
 
-Typecheck:
+bun run check solo ejecuta typecheck + build. check:full añade lint, pero tampoco sustituye las pruebas. Mientras S03 esté pendiente, declarar la deuda histórica y revisar las pruebas enfocadas del cambio; no limpiar Passenger incidentalmente.
 
-```bash
-bun run typecheck
-```
+Para cambios solo documentales: comprobar links locales, trazabilidad, formato de documentos activos y git diff --check. No es necesario repetir el build ni pruebas del producto.
 
-Full project check:
+Los detalles de QA, pausas, rollback y evidencia están en el [plan único](docs/EXECUTION_PLAN.md#protocolo-de-ejecución-y-verificación).
 
-```bash
-bun run check
-```
+## Documentación técnica y referencias
 
-Useful tests:
+- [Contexto técnico](docs/PROJECT_CONTEXT.md): contratos y límites actuales, no otro roadmap.
+- [Calendar](docs/GOOGLE_CALENDAR.md): reglas de integración y recuperación.
+- [Passenger/Around You](docs/AROUND_YOU.md): GPS transitorio, catálogo y QA de campo.
+- [Horizon](docs/RUNNER_CONTEXT.md): arquitectura y reevaluación acotada.
+- [Multi-tenant](docs/MULTI_TENANT_ADMIN.md): modelo de autorización; onboarding comercial en standby.
+- [Supabase](supabase/README.md): historia y disciplina de migraciones, sin bootstrap automático.
+- [Auditoría preservada](docs/audits/2026-09-05-audit.md) y [contexto de lectura](docs/audits/README.md).
+- [Archivo documental](docs/archive/README.md): versiones históricas no ejecutables.
+- [Optimización general](docs/IMAGE_OPTIMIZATION.md) y [optimización Rides](docs/RIDES_IMAGE_OPTIMIZATION.md): informes históricos, no nuevo backlog.
 
-```bash
-node tests/schedule-conflicts.test.mjs
-node tests/fullcalendar-intl-timezone.test.mjs
-```
-
-Image optimization:
-
-```bash
-bun run optimize:images
-```
-
-## Documentation
-
-- `docs/PROJECT_CONTEXT.md` — broad product, architecture, routes, and guardrails.
-- `docs/RIDES_ROADMAP.md` — canonical roadmap for the public Rides landing, bookings, Admin and
-  operations. It intentionally excludes Passenger Console work.
-- `docs/PROJECT_CONTEXT.md#passenger-roadmap-order` — canonical Passenger Console roadmap and
-  approved Passenger backlog. It intentionally excludes Rides booking and calendar work.
-- `docs/RUNNER_CONTEXT.md` — STREEX Horizon goals, flow, guardrails, records, and sharing.
-- `docs/GOOGLE_CALENDAR_ROADMAP.md` — planned Google Calendar integration.
-- `docs/IMAGE_OPTIMIZATION.md` — image optimization report.
-- `docs/MULTI_TENANT_ADMIN.md` — driver onboarding, authorization, assets, and release checklist.
-- `supabase/README.md` — database baseline and migration notes.
-- `AGENTS.md` — repository instructions for AI/code agents.
-
-## Current roadmap / pending work
-
-### Passenger Console
-
-The canonical Passenger roadmap is intentionally maintained separately in
-`docs/PROJECT_CONTEXT.md#passenger-roadmap-order`. It covers Lite stabilization, the Music-first
-idle experience, Passenger analytics, Fully Kiosk readiness, themes, Driver MC, Around You and later
-passenger-specific work. Music Reload and Climate Premium are already part of the approved current
-baseline, not pending roadmap entries. Passenger planning separates experience modes, visual themes
-and session personalization; it does not make them interchangeable. Do not add Passenger requests
-to the Rides/Calendar roadmap.
-
-### Google Calendar integration
-
-Status: production OAuth, read-only availability blocking, and confirmed-ride event synchronization
-are implemented and verified end-to-end in production, including confirmation, cancellation, and
-passenger notification flows.
-
-Planned phases:
-
-1. Completed: OAuth plus Google busy-time blocking in passenger and Admin calendars.
-2. Completed in source: create/update/delete Google events for confirmed STREEX rides, with Admin
-   sync status and manual retry.
-3. Next: add near-real-time sync via Google push notifications and reconciliation jobs.
-
-Open product decisions:
-
-- Admin warning/recovery behavior when Google events are moved or deleted.
-
-See `docs/GOOGLE_CALENDAR_ROADMAP.md`.
-
-### Admin and scheduling hardening
-
-- Overlap protection and manual blocked slots have been verified in production; preserve those
-  regression checks when scheduling code changes.
-- Keep checking Lovable/Supabase type drift when availability tables change.
-- Keep Supabase Auth sessions and tenant membership checks as the only Admin authorization path.
-
-### STREEX Horizon
-
-- Keep `/runner-lab` isolated and no-index until intentionally launched.
-- Continue mobile performance testing for canvas rendering and large assets.
-- Treat future major rendering upgrades, such as PixiJS, as deliberate projects rather than small polish tasks.
-- Keep new visual work aligned with the premium STREEX brand, not loud arcade styling.
-
-### Documentation cleanup
-
-- Keep `docs/PROJECT_CONTEXT.md`, `docs/RUNNER_CONTEXT.md`, and `supabase/README.md` synchronized when backend ownership, routes, or product decisions change.
-
-## Validation expectations
-
-Before merging meaningful changes:
-
-```bash
-bun run typecheck
-bun run build
-```
-
-For larger changes, run:
-
-```bash
-bun run check:full
-```
-
-For booking/calendar logic, also run the focused schedule and timezone tests.
-
-## Deployment
-
-The application is hosted through Lovable and backed by Lovable Cloud / Supabase-compatible services. Production-sensitive configuration should be managed in Lovable secrets or the hosting provider’s environment settings, not committed to the repo.
+Variables soportadas en .env.example. Credenciales privadas en Vercel/entorno local; nunca en Git, config pública, screenshots, logs o documentación. GA excluye Passenger/Admin/Horizon/Spotify, pero la protección de URLs sensibles de Rides sigue pendiente S01; no interpretar la intención de privacidad como garantía ya implementada.

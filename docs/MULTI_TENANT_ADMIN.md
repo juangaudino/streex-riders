@@ -1,8 +1,10 @@
 # Multi-tenant and Super Admin
 
+Technical reference updated 2026-09-05, not a separate roadmap. Resume from [HANDOFF](HANDOFF.md); [ROADMAP](ROADMAP.md) and [EXECUTION_PLAN](EXECUTION_PLAN.md) own priority and verification. Current authorization/isolation is S05; new-driver commercialization is standby C01. Do not provision another driver as part of a routine checkpoint.
+
 ## Architecture
 
-STREEX Rides is one application and one Supabase project shared by isolated driver workspaces. The
+STREEX Rides is one application and one Supabase project with tenant-scoped driver workspaces. The
 primary workspace is `streex`; additional public pages use `/{slug}`, for example `/driver2`.
 
 Supabase Auth owns identities. Authorization comes from database memberships, never from mutable
@@ -22,7 +24,9 @@ The two initial identities are intentionally separate:
 Both identities sign in at `/admin`; the database role determines which controls and workspaces are
 visible. STREEX Horizon remains global.
 
-## Driver onboarding
+## Driver onboarding — existing capability, commercial use in standby
+
+The sequence below describes the implemented UI, not authorization to run it or proof of commercial readiness. C01 must first close neutral defaults/payment ownership and publication gates. S05 must independently close current RLS/suspension differences even while commercialization is deferred.
 
 1. Sign in at `/admin` as Super Admin.
 2. Open **Drivers** and choose **Add driver**.
@@ -42,34 +46,22 @@ public server action (availability, booking, ticker and reviews) must revalidate
 confirm that the requested tenant matches it. Never authorize a draft action from a browser-supplied
 `tenant_id` alone.
 
-## Production migration
+## Production migration — completed bootstrap, do not replay
 
-Apply `supabase/migrations/20260715035104_multi_tenant_super_admin.sql` with a Supabase account that
-has Owner/Administrator database privileges. This migration is additive and backfills current
-global records to the `streex` tenant.
+`supabase/migrations/20260715035104_multi_tenant_super_admin.sql` is part of the existing production history. It introduced the tenant model and backfilled original records to `streex`. Do not apply it again or run migration repair without proving the actual schema/history difference.
 
 The initial bootstrap and recovery sequence below has been completed in production. Current Admin
 authorization is Supabase Auth only; the temporary emergency key has been removed.
 
-After applying it:
-
-1. In Supabase Auth URL Configuration, keep `https://rides.getstreex.com` as Site URL.
-2. Add `https://rides.getstreex.com/admin` to allowed redirect URLs.
-3. Configure `TENANT_PREVIEW_SECRET` with at least 32 random characters (it may initially reuse the existing Calendar token-encryption secret).
-4. Deploy the application.
-5. Enter Admin as the platform Super Admin using `juangaudino@gmail.com`.
-6. In Drivers, use **Assign driver owner** on the primary STREEX workspace and assign
-   `streex.rides@gmail.com`. Existing Auth users are reused; otherwise the system sends an invitation.
-7. Accept or reset access for `streex.rides@gmail.com`, then verify it sees only `streex`.
-8. Create a test tenant and validate booking, email, availability, assets and Google Calendar
-   isolation.
-9. Verify both account logins in production and keep the emergency bypass disabled.
+Auth redirects, tenant-preview signing and the two account roles have historical setup evidence. Do not rotate secrets, reassign owners, resend invitations or redeploy just to resume documentation. Any future setup/recovery operation requires its own authorized scope. Test isolation with controlled fixtures, not newly activated commercial tenants.
 
 The `tenant-assets` public bucket accepts only images under `{tenant-id}/brand`,
 `{tenant-id}/profile` and `{tenant-id}/gallery`. Upload/update/delete policies require membership in
 that tenant or platform Super Admin authority.
 
 ## Required release checks
+
+These are target checks, not a claim that every path currently passes. The 2026-09-05 audit identified a difference between server suspension checks and direct Data API policies, plus preview-state and inherited payment-default risks. S05/R04/C01 identify their current versus standby scopes.
 
 - Driver 2 cannot read or mutate Juan's bookings, reviews, settings or availability.
 - Changing `x-streex-tenant` does not grant a non-member access.
