@@ -1,6 +1,8 @@
 // Server-only: sends transactional emails through Resend.
 // Imported only from server functions / server routes.
 
+import { createBookingResponseToken } from "./booking-response-token.server";
+
 const FROM = process.env.EMAIL_FROM || "Streex Rides <onboarding@resend.dev>";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "streex.rides@gmail.com";
 const SITE_URL = process.env.SITE_URL || "https://rides.getstreex.com";
@@ -194,8 +196,12 @@ export function buildAdminNewRequest(b: Booking, brand: TenantEmailBrand = DEFAU
 }
 
 export function buildPassengerQuote(b: Booking, brand: TenantEmailBrand = DEFAULT_BRAND) {
-  const accept = `${SITE_URL}/booking/accept?id=${encodeURIComponent(b.id)}`;
-  const decline = `${SITE_URL}/booking/decline?id=${encodeURIComponent(b.id)}`;
+  const accept = `${SITE_URL}/booking/accept?token=${encodeURIComponent(
+    createBookingResponseToken(b.id, "accept"),
+  )}`;
+  const decline = `${SITE_URL}/booking/decline?token=${encodeURIComponent(
+    createBookingResponseToken(b.id, "decline"),
+  )}`;
   return {
     subject: "Your Ride Quote — Streex Rides",
     html: wrap(

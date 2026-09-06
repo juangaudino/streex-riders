@@ -3,25 +3,51 @@ import logo from "@/assets/brand/streex-rides-transparent.webp";
 
 export type ResponseVariant = "accepted" | "declined" | "already" | "not_found" | "error";
 
-export function BookingResponseShell({ variant }: { variant: ResponseVariant }) {
+type BookingResponseAction = "accept" | "decline";
+
+export function BookingResponseShell({
+  variant,
+  action,
+  isSubmitting = false,
+  onRespond,
+}: {
+  variant: ResponseVariant | "ready" | "expired" | "legacy";
+  action?: BookingResponseAction;
+  isSubmitting?: boolean;
+  onRespond?: () => void;
+}) {
   const isPositive = variant === "accepted";
   const isNeutral = variant === "declined";
-  const isError = variant === "not_found" || variant === "error" || variant === "already";
+  const isError =
+    variant === "not_found" ||
+    variant === "error" ||
+    variant === "already" ||
+    variant === "expired" ||
+    variant === "legacy";
 
-  const titles: Record<ResponseVariant, string> = {
+  const titles: Record<typeof variant, string> = {
     accepted: "Your ride is confirmed.",
     declined: "No problem.",
     already: "Already processed",
     not_found: "Request not found",
     error: "Something went wrong",
+    ready: action === "accept" ? "Confirm your ride" : "Decline this ride?",
+    expired: "This secure link has expired",
+    legacy: "This quote link has been retired",
   };
 
-  const messages: Record<ResponseVariant, string> = {
+  const messages: Record<typeof variant, string> = {
     accepted: "See you soon!",
     declined: "Feel free to reach out anytime.",
     already: "This request has already been processed.",
     not_found: "We couldn't find that ride request.",
     error: "Please try again or contact Juan directly.",
+    ready:
+      action === "accept"
+        ? "Reviewing this page does not confirm your ride. Choose Confirm when you are ready."
+        : "Reviewing this page does not decline your ride. Choose Decline if you do not wish to proceed.",
+    expired: "Please contact STREEX for a new secure quote link.",
+    legacy: "Please contact STREEX to receive a new secure quote link.",
   };
 
   return (
@@ -56,6 +82,21 @@ export function BookingResponseShell({ variant }: { variant: ResponseVariant }) 
 
         <h1 className="text-2xl font-bold mb-2">{titles[variant]}</h1>
         <p className="text-sm text-white/65 mb-8">{messages[variant]}</p>
+
+        {variant === "ready" && onRespond ? (
+          <button
+            type="button"
+            onClick={onRespond}
+            disabled={isSubmitting}
+            className="mb-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#E6CE20] px-5 text-sm font-semibold text-black transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSubmitting
+              ? "Updating your request…"
+              : action === "accept"
+                ? "Confirm ride"
+                : "Decline ride"}
+          </button>
+        ) : null}
 
         <div className="streex-glass w-full p-5 text-left">
           <div className="text-[10px] uppercase tracking-[0.22em] text-white/45 font-semibold mb-2">

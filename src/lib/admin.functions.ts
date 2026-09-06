@@ -14,6 +14,7 @@ import {
 import { bookingConflictMessage } from "./schedule-conflicts";
 import { syncBookingWithGoogleCalendar } from "./google-calendar-sync.server";
 import { updatePricingQuoteLifecycleForBooking } from "./pricing-lifecycle.server";
+import { assertBookingResponseTokenConfigured } from "./booking-response-token.server";
 import {
   buildPassengerUsageMap,
   PASSENGER_ANALYTICS_RANGE_PRESETS,
@@ -304,6 +305,7 @@ export const sendAdminQuote = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => QuoteSchema.parse(input))
   .handler(async ({ data }) => {
     const access = await assertAdminAccess(data.adminKey);
+    assertBookingResponseTokenConfigured();
 
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")

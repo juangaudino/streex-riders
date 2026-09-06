@@ -1,19 +1,20 @@
 # STREEX — HANDOFF maestro
 
-Checkpoint: 2026-09-05, S01 cerrada después de la consolidación posterior a auditoría y decisiones del propietario. Rama: main. Baseline de auditoría: c38d98f (feat(passenger): deepen private analytics). S01 añade una contención puntual de Analytics; no hay cambios de Booking, Pricing, Passenger, Horizon, migraciones ni configuración.
+Checkpoint: 2026-09-05, S02.2 implementada después de la consolidación posterior a auditoría y decisiones del propietario. Rama: main. Baseline de auditoría: c38d98f (feat(passenger): deepen private analytics). S01 contiene Analytics; S02.2 protege las respuestas de cotización. No hay cambios de Pricing, Passenger, Horizon, migraciones ni configuración escrita en el repositorio.
 
 ## Reanudar aquí
 
-**Siguiente ID: S02.1 — decidir transición de respuestas de cotización existentes.**
+**Siguiente ID: S02.3 — QA autorizado de correo y respuesta de cotización.**
 
-Estado: DECISIÓN DEL PROPIETARIO antes de implementar S02. Modelo recomendado para el posterior trabajo técnico: **Terra, razonamiento Muy alto**. No implementar S02.2 ni toda F1 en la misma intervención.
+Estado: VALIDACIÓN PENDIENTE. Modelo recomendado: **Terra, razonamiento Muy alto**. S02.1 fue aprobada: capacidad firmada de 72 horas; los enlaces UUID heredados abren una pantalla neutral y se reemiten manualmente. S02.2 está validada localmente, pero no se ha enviado correo, abierto un enlace de cliente ni ejecutado una respuesta contra producción.
 
 1. Leer [AGENTS](../AGENTS.md), [ROADMAP](ROADMAP.md) y [tarjeta S02](EXECUTION_PLAN.md#s02--respuestas-deliberadas-y-capacidades-limitadas).
-2. Presentar una única decisión: duración de la capacidad firmada y política para los emails UUID-only ya enviados. La recomendación actual es que un enlace antiguo abra una pantalla neutral de enlace desactualizado/renovación controlada, no conserve una mutación por GET indefinidamente.
-3. No escribir código, no reemitir emails y no invalidar enlaces activos hasta que el propietario apruebe explícitamente esa transición.
-4. Tras la decisión, ejecutar solo S02.2: GET neutral, POST firmado e idempotente y tests de acciones cruzadas, caducidad y concurrencia. S02.3 requiere QA de correo/respuesta autorizado.
+2. Antes de cualquier efecto externo, pedir y recibir autorización expresa para crear y usar una reserva de prueba que pertenezca al propietario; no usar reservas, correos ni enlaces de clientes.
+3. Con el despliegue del commit S02.2 disponible, comprobar sin leer ni mostrar su valor que la configuración reportada de `BOOKING_RESPONSE_TOKEN_SECRET` permite el envío controlado. Abrir primero cada enlace sin pulsar la acción: debe no mutar la reserva. Probar aceptar y rechazar en reservas de prueba separadas, doble clic/concurrencia y enlace UUID heredado neutral. Registrar el resultado de cada capa y cualquier dato de prueba que deba conservarse; no borrar datos sin autorización.
+4. Verificar que la reemisión manual usa el flujo existente de Admin/Pricing, que no se registra el token en Analytics/logs y que una respuesta ya procesada queda neutral/idempotente. La caducidad de 72 horas se cubre por pruebas deterministas; no esperar 72 horas para cerrar este QA.
+5. Detenerse ante cualquier error de configuración, entrega, respuesta o Calendar: no parchear, reemitir masivamente ni cambiar secretos. Al cerrar, actualizar ROADMAP/HANDOFF y hacer un commit independiente. S03 sólo se habilita si S02 queda HECHA o el bloqueo queda explícitamente aceptado.
 
-S01 cerrada: /booking/accept, /booking/decline y tenant previews no inician Analytics; page_location y page_referrer eliminan query/hash; las navegaciones SPA observan también searchStr. S01 **no** corrige la mutación por abrir enlaces. Esa limitación queda hasta S02. Si la implementación exige cambiar respuestas, tokens o APIs de otros productos, detenerse y acotar; no mezclar ambos trabajos silenciosamente.
+S02.1 decidida: 72 horas y enlaces UUID heredados neutrales, con reemisión manual. S02.2 implementada: `/booking/accept` y `/booking/decline` sólo consultan estado al abrirse; una acción POST deliberada exige capacidad HMAC vinculada a reserva, acción y caducidad. La transición `quoted` usa compare-and-set para que aceptación/rechazo concurrentes tengan un único ganador; las pantallas heredadas no consultan ni mutan una reserva. Los envíos Admin/Pricing verifican la configuración antes de actualizar la cotización. La clave dedicada fue configurada por el propietario y no fue leída ni verificada directamente durante esta fase; el código conserva el secreto de preview existente como fallback acotado, nunca el secreto de Calendar.
 
 Prompt reutilizable:
 
@@ -76,7 +77,7 @@ Consolidación actual:
 
 ## Decisiones pendientes con parada localizada
 
-- S02.1: caducidad y transición de emails antiguos; no UUID-only indefinido.
+- S02.3: autorización y evidencia de QA de correo/respuesta en una reserva de prueba; no usar enlaces de clientes ni convertir el commit en prueba de producción.
 - P04: tarifas reales/Hourly sin destino, stops, zonas superpuestas, positioning retorno, referral y overrides; no usar números temporales como precios aprobados.
 - P08.1: cuándo una quote es enviada, cómo reservar/consumir promo y cómo recuperar fallo incierto de email.
 - R01.1: duración/buffer/capacidad, holds y expiración.
@@ -93,7 +94,7 @@ Rutina previamente acordada: checkpoint semanal y renovación de pairing Passeng
 
 ## Git y cierre de cambios
 
-El worktree ya tenía supabase/.temp/cli-latest modificado antes de empezar; preservarlo y excluirlo del commit. S01 incluye Analytics, sus pruebas y este checkpoint; no hay migraciones ni cambios de configuración.
+El worktree ya tenía supabase/.temp/cli-latest modificado antes de empezar; preservarlo y excluirlo del commit. S01 incluye Analytics y sus pruebas. S02.2 incluye Booking, sus pruebas focalizadas y este checkpoint; no hay migraciones ni cambios de configuración escritos en el repositorio. La configuración de `BOOKING_RESPONSE_TOKEN_SECRET` fue realizada por el propietario fuera del repositorio y queda pendiente de prueba de runtime controlada.
 
 Identificar el commit documental por el mensaje `docs: consolidate STREEX execution roadmap and checkpoint`; no confundirlo con código implementado. Hash/push/CI de la entrega se informan al cerrar D00. Una CI roja por el lint histórico no significa que las correcciones S03 estén hechas.
 

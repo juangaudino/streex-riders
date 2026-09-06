@@ -14,6 +14,7 @@ import type { Json, Tables } from "@/integrations/supabase/types";
 import { assertAdminAccess } from "./admin-auth.server";
 import { buildPassengerQuote, getTenantEmailBrand, sendEmail } from "./booking-emails.server";
 import { bookingConflictMessage } from "./schedule-conflicts";
+import { assertBookingResponseTokenConfigured } from "./booking-response-token.server";
 import { computeDrivingRoute, resolvePricingLocation } from "./pricing-maps.server";
 
 const AdminSchema = z.object({ adminKey: z.string().optional().default("") });
@@ -629,6 +630,7 @@ export const savePricingQuote = createServerFn({ method: "POST" })
     const access = await assertAdminAccess(data.adminKey);
     if (data.sendBookingQuote && !data.bookingId)
       throw new Error("Only a linked booking can be emailed from Pricing.");
+    if (data.sendBookingQuote) assertBookingResponseTokenConfigured();
     const prepared = await prepareQuote(access.tenantId, data);
     if (data.sendBookingQuote && prepared.booking?.status !== "pending") {
       throw new Error("Only a pending booking can receive a new Pricing quote.");

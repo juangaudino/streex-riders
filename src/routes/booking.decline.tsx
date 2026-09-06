@@ -1,9 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { z } from "zod";
-import { declineBooking } from "@/lib/booking.functions";
+import {
+  declineBooking,
+  getBookingResponseState,
+  type BookingResponseState,
+} from "@/lib/booking.functions";
 import { BookingResponseShell } from "@/components/streex/BookingResponseShell";
 
-const Search = z.object({ id: z.string().optional() });
+const Search = z.object({
+  id: z.string().optional(),
+  token: z.string().trim().max(4096).optional(),
+});
 
 export const Route = createFileRoute("/booking/decline")({
   head: () => ({
@@ -14,14 +22,13 @@ export const Route = createFileRoute("/booking/decline")({
     ],
   }),
   validateSearch: (s) => Search.parse(s),
-  loaderDeps: ({ search: { id } }) => ({ id }),
+  loaderDeps: ({ search: { id, token } }) => ({ id, token }),
   loader: async ({ deps }) => {
-    if (!deps.id) return { state: "not_found" as const };
+    if (!deps.token) return { state: deps.id ? ("legacy" as const) : ("not_found" as const) };
     try {
-      const result = await declineBooking({ data: { id: deps.id } });
-      if (result.status === "not_found") return { state: "not_found" as const };
-      if (result.status === "already_processed") return { state: "already" as const };
-      return { state: "ok" as const };
+      return {
+        state: await getBookingResponseState({ data: { token: deps.token, action: "decline" } }),
+      };
     } catch {
       return { state: "error" as const };
     }
@@ -30,6 +37,38 @@ export const Route = createFileRoute("/booking/decline")({
 });
 
 function DeclinePage() {
-  const { state } = Route.useLoaderData();
-  return <BookingResponseShell variant={state === "ok" ? "declined" : state} />;
+  const { state: initialState } = Route.useLoaderData();
+  const { token } = Route.useSearch();
+  const [state, setState] = useState<
+    BookingResponseState | "declined" | "legacy" | "not_found" | "error"
+  >(initialState);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const respond = async () => {
+    if (!token || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const result = await declineBooking({ data: { token } });
+      setState(
+        result.status === "declined"
+          ? "declined"
+          : result.status === "already_processed"
+            ? "already"
+            : "expired",
+      );
+    } catch {
+      setState("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <BookingResponseShell
+      variant={state}
+      action="decline"
+      isSubmitting={isSubmitting}
+      onRespond={state === "ready" ? respond : undefined}
+    />
+  );
 }

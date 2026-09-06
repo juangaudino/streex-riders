@@ -15,6 +15,10 @@ import {
 import { resolveBookingSlot } from "./availability.functions";
 import { isScheduleConflictError } from "./schedule-conflicts";
 import { syncBookingWithGoogleCalendar } from "./google-calendar-sync.server";
+import {
+  verifyBookingResponseToken,
+  type BookingResponseAction,
+} from "./booking-response-token.server";
 
 type BookingRow = Tables<"bookings">;
 
@@ -87,25 +91,55 @@ export const createBooking = createServerFn({ method: "POST" })
     return { ok: true, id: booking.id };
   });
 
-const IdSchema = z.object({ id: z.string().uuid() });
+const ResponseTokenSchema = z.object({ token: z.string().trim().min(1).max(4096) });
+const ResponseStateSchema = ResponseTokenSchema.extend({
+  action: z.enum(["accept", "decline"]),
+});
 
 type Outcome =
   | { status: "confirmed" | "declined"; booking: BookingRow }
   | { status: "already_processed"; current: string }
-  | { status: "not_found" };
+  | { status: "invalid" };
 
-async function processResponse(id: string, action: "accept" | "decline"): Promise<Outcome> {
+export type BookingResponseState = "ready" | "already" | "expired";
+
+async function loadBookingResponseState(token: string, action: BookingResponseAction) {
+  const capability = verifyBookingResponseToken(token, action);
+  if (!capability) return "expired" satisfies BookingResponseState;
+
+  const { data: booking, error } = await supabaseAdmin
+    .from("bookings")
+    .select("status")
+    .eq("id", capability.bookingId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[getBookingResponseState] read error", error);
+    throw new Error("Unable to load this response.");
+  }
+  if (!booking) return "expired" satisfies BookingResponseState;
+  return booking.status === "quoted" ? "ready" : "already";
+}
+
+export const getBookingResponseState = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => ResponseStateSchema.parse(input))
+  .handler(async ({ data }) => loadBookingResponseState(data.token, data.action));
+
+async function processResponse(token: string, action: BookingResponseAction): Promise<Outcome> {
+  const capability = verifyBookingResponseToken(token, action);
+  if (!capability) return { status: "invalid" };
+
   const { data: existing, error: readErr } = await supabaseAdmin
     .from("bookings")
     .select("*")
-    .eq("id", id)
+    .eq("id", capability.bookingId)
     .maybeSingle();
 
   if (readErr) {
     console.error("[processResponse] read error", readErr);
     throw new Error("Unable to process this request.");
   }
-  if (!existing) return { status: "not_found" };
+  if (!existing) return { status: "invalid" };
   if (existing.status !== "quoted") {
     return { status: "already_processed", current: existing.status };
   }
@@ -114,12 +148,20 @@ async function processResponse(id: string, action: "accept" | "decline"): Promis
   const { data: updated, error: updErr } = await supabaseAdmin
     .from("bookings")
     .update({ status: newStatus })
-    .eq("id", id)
+    .eq("id", capability.bookingId)
     .eq("status", "quoted")
     .select("*")
     .single();
 
   if (updErr || !updated) {
+    const { data: current, error: currentErr } = await supabaseAdmin
+      .from("bookings")
+      .select("status")
+      .eq("id", capability.bookingId)
+      .maybeSingle();
+    if (!currentErr && current && current.status !== "quoted") {
+      return { status: "already_processed", current: current.status };
+    }
     console.error("[processResponse] update error", updErr);
     if (isScheduleConflictError(updErr)) {
       throw new Error(
@@ -154,9 +196,9 @@ async function processResponse(id: string, action: "accept" | "decline"): Promis
 }
 
 export const acceptBooking = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => IdSchema.parse(input))
-  .handler(async ({ data }) => processResponse(data.id, "accept"));
+  .inputValidator((input: unknown) => ResponseTokenSchema.parse(input))
+  .handler(async ({ data }) => processResponse(data.token, "accept"));
 
 export const declineBooking = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => IdSchema.parse(input))
-  .handler(async ({ data }) => processResponse(data.id, "decline"));
+  .inputValidator((input: unknown) => ResponseTokenSchema.parse(input))
+  .handler(async ({ data }) => processResponse(data.token, "decline"));
