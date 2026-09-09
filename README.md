@@ -16,13 +16,13 @@ Representative product visuals from the repository:
 
 <table>
   <tr>
-    <td width="33%"><img src="public/images/streex/park-city.webp" alt="STREEX destination experience in Park City" /></td>
-    <td width="33%"><img src="public/images/passenger/around-you/salt-lake-valley.webp" alt="Passenger Around You visual for Salt Lake Valley" /></td>
+    <td width="33%"><img src="public/images/streex/slc.webp" alt="STREEX Rides landing service-area visual in Salt Lake City" /></td>
+    <td width="33%"><img src="src/assets/streex-gallery/passenger-home-airport.webp" alt="Passenger airport arrival experience" /></td>
     <td width="33%"><img src="src/features/runner/assets/quick-action/horizon_quick_action_card.webp" alt="Horizon interactive experience preview" /></td>
   </tr>
   <tr>
-    <td align="center">Rides and destination experience</td>
-    <td align="center">Passenger content layer</td>
+    <td align="center">Rides landing and service experience</td>
+    <td align="center">Passenger journey</td>
     <td align="center">Horizon experiential layer</td>
   </tr>
 </table>
