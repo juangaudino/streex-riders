@@ -1,60 +1,167 @@
-# STREEX
+# STREEX Rides
 
-Aplicación para la operación real de STREEX: Rides (reservas y servicio), Pricing/Admin (cotizaciones y agenda) y Passenger (experiencia en vivo, con Horizon como sub-workstream experiencial).
+**A modular operating system for a premium private ride service.**
 
-## Continuar el trabajo
+STREEX connects the public ride experience with the operational tools behind it: service pages, booking requests, availability, rule-based pricing, admin workflows, calendar synchronization, and a bilingual passenger console designed for the vehicle tablet.
 
-Leer en este orden:
+I built the product as a single modular ecosystem rather than a collection of disconnected demos. The result combines customer-facing booking, tenant-scoped operations, pricing and scheduling logic, private analytics, and an in-ride entertainment layer while preserving clear boundaries between public, admin, passenger, and experiential surfaces.
 
-1. [AGENTS.md](AGENTS.md): límites y reglas del repositorio.
-2. [HANDOFF maestro](docs/HANDOFF.md): checkpoint, evidencia y siguiente tarea exacta.
-3. [ROADMAP maestro](docs/ROADMAP.md): única prioridad y estado global.
-4. [Plan de ejecución](docs/EXECUTION_PLAN.md): contrato y verificación de la tarea elegida.
+> This repository contains an active product with implemented capabilities and documented validation boundaries. Some workflows are implemented in code but still require authenticated, production, or physical-device QA before they can be described as fully release-ready.
 
-No existen roadmaps activos separados por producto. Una solicitud de “ejecutar la siguiente etapa” se traduce en la siguiente tarea atómica habilitada, no en implementar una fase completa de una vez.
+## Product preview
 
-## Dirección aprobada — 2026-09-05
+![STREEX private rides product preview](public/images/streex/streex-og-preview.jpg)
 
-- Primero la operación de Juan: seguridad, reservas, dinero, Pricing y disponibilidad fiables.
-- UX/UI es un workstream importante y temprano: Clima es referencia de acabado; Music conserva identidad propia; Rides debe estar diseñado para teléfono, tablet y escritorio.
-- Passenger sigue siendo fundamental para el uso actual. Horizon puede evolucionar con un alcance aprobado; no hay reescritura ni cambio de motor autorizado.
-- Comercialización SaaS y nuevas altas de conductores están en standby. Seguridad e integridad de los tenants actuales NO se posponen.
-- Trabajar en main, un cambio aprobado por vez, con pruebas, checkpoint, commit y push. No hacer migraciones, configurar secretos ni producir efectos reales sin autorización específica.
+Representative product visuals from the repository:
 
-## Arquitectura y despliegue
+<table>
+  <tr>
+    <td width="33%"><img src="public/images/streex/park-city.webp" alt="STREEX destination experience in Park City" /></td>
+    <td width="33%"><img src="public/images/passenger/around-you/salt-lake-valley.webp" alt="Passenger Around You visual for Salt Lake Valley" /></td>
+    <td width="33%"><img src="src/features/runner/assets/quick-action/horizon_quick_action_card.webp" alt="Horizon interactive experience preview" /></td>
+  </tr>
+  <tr>
+    <td align="center">Rides and destination experience</td>
+    <td align="center">Passenger content layer</td>
+    <td align="center">Horizon experiential layer</td>
+  </tr>
+</table>
 
-React 19, TanStack Start/Router, TypeScript, Vite, Tailwind, Bun y FullCalendar. Producción en Vercel: https://rides.getstreex.com. Backend: proyecto Supabase standalone de STREEX Rides. Lovable es parte del flujo de edición/aprobación visual, no el propietario del backend de producción actual.
+The visual assets above are product imagery, not substitutes for authenticated operational evidence. Admin and Pricing screenshots should be captured with controlled data before publishing them as portfolio material.
 
-Mantener monolito modular, estética negro/amarillo y hospitalidad. No migrar framework ni introducir microservicios para completar este plan.
+## What I built
 
-| Superficie      | Ruta                                                    | Responsabilidad                                                    |
-| --------------- | ------------------------------------------------------- | ------------------------------------------------------------------ |
-| Rides           | / y /{driver-slug}                                      | Servicio, confianza, contacto y solicitud de reserva               |
-| Reserva directa | /request-a-ride                                         | Entrada no-index para QR/perfiles                                  |
-| Respuesta       | /booking/accept y /booking/decline                      | Respuestas a cotización; hardening pendiente S01/S02               |
-| Admin           | /admin, /admin/bookings, /admin/pricing, /admin/reviews | Operación autenticada y tenant-scoped                              |
-| Passenger       | /passenger                                              | Tablet bilingüe, landscape-first, no-index                         |
-| Horizon         | /runner-lab                                             | Juego Canvas 2D, no-index; tiene entradas visibles, no es “oculto” |
-| Spotify         | /spotify/setup y /spotify/callback                      | Setup del conductor, no acceso público a credenciales              |
+STREEX is organized around six connected product surfaces:
 
-## Estado verificado de referencia
+| Surface | Purpose |
+| --- | --- |
+| **Rides** | Public brand, service areas, driver profiles, reviews and customer trust layer |
+| **Booking** | Ride requests, availability checks, quotes and deliberate quote responses |
+| **Pricing Engine** | Zone-based pricing, route inputs, quote snapshots and lifecycle rules |
+| **Admin** | Authenticated bookings, calendar, availability, reviews, settings and operations |
+| **Passenger** | Bilingual, landscape-first tablet experience for the ride itself |
+| **Horizon** | Lightweight Canvas 2D interactive experience connected to the STREEX ecosystem |
 
-Baseline de código c38d98f. La auditoría del 2026-09-05 registró 60 pruebas passing, typecheck/build passing y lint/CI fallando por deuda de formato. No son pruebas nuevas de este checkpoint documental ni certificación completa de producción.
+The goal is operational continuity: a request can move from a public service page into an internal workflow, receive a controlled quote, interact with availability and calendar rules, and continue into a branded passenger experience.
 
-Pricing está implementado y su migración aplicada; Maps/Geocoding y QA completo de cotizaciones siguen abiertos. Calendar OAuth/free-busy/sync de reservas confirmadas existe y tiene validación histórica de producción: no duplicarlo.
+## Core capabilities
 
-Clima Premium, Music Reload, Lite/Accent y analytics por engagements existen. “Implementado” no significa que toda la calidad visual/operativa deseada esté terminada.
+### Customer and booking experience
 
-## Desarrollo y validación
+- Public STREEX landing page and tenant-aware driver/service pages.
+- Dedicated request flow at `/request-a-ride`.
+- Service pages for Salt Lake City Airport, Park City and Las Vegas.
+- Availability checks with schedule-conflict protection.
+- Quote response pages with neutral read-only loading and deliberate accept/decline actions.
+- Reviews, service areas, payment continuation and contact flows.
 
-Usar Bun según package.json y bun.lock:
+### Admin and operations
+
+- Authenticated Admin at `/admin` with tenant-scoped workspaces.
+- Booking operations, status changes, availability, blocked slots and reviews.
+- FullCalendar-based calendar views and operational event handling.
+- Driver/workspace configuration with database-backed memberships.
+- Pricing configuration at `/admin/pricing`.
+
+### Pricing and integrations
+
+- Modular pricing engine with zone-first Flat Rate logic.
+- Route, place and geocoding inputs through Google Maps services.
+- Quote snapshots that preserve pricing inputs, rules, recommendation, final price, discounts and commission context.
+- Google Calendar OAuth, free-busy checks and synchronization for confirmed bookings.
+- Resend transactional email and signed inbound webhook handling.
+- Spotify pairing for the current personal/driver-mediated passenger music flow.
+
+### Passenger experience
+
+- Bilingual English/Spanish tablet console at `/passenger`.
+- Music-first idle experience with STREEX-owned UI and Spotify as a playback/metadata source.
+- Climate Premium with current conditions, hourly and daily forecasts, atmospheric states and stale/offline fallback behavior.
+- Around You local recommendations with transient location use and no persisted raw GPS history.
+- Offline-friendly local games: Utah Trivia, Higher or Lower and This or That.
+- QR-based continuation to booking, contact and payment actions.
+- Private semantic engagement analytics that avoid passenger identity, addresses, raw GPS and touch-coordinate collection.
+
+## Architecture and stack
+
+The application is a modular monolith with separate route and data boundaries for public Rides, Admin, Passenger and Horizon.
+
+| Layer | Technology |
+| --- | --- |
+| UI | React 19, TypeScript, Tailwind CSS, Radix UI, Recharts |
+| Application | TanStack Start, TanStack Router, React Query, Vite |
+| Backend | Supabase Auth, Postgres, Row Level Security and server-side functions |
+| Scheduling | FullCalendar, timezone-aware availability and conflict checks |
+| Integrations | Google Maps, Google Calendar, Resend, Spotify and NWS weather data |
+| Tooling | Bun, TypeScript checks, ESLint, Prettier and focused test suites |
+| Deployment | Vercel with a standalone Supabase project for STREEX Rides |
+
+## Technical highlights
+
+- Tenant authorization is based on Supabase Auth plus database memberships rather than browser-provided tenant claims or mutable user metadata.
+- Privileged reads and writes stay server-side; public access is constrained by RLS and route-level authorization contracts.
+- Pricing data is snapshot-oriented so later configuration changes do not silently rewrite an existing quote.
+- Booking response actions use signed, expiring capabilities and compare-and-set transitions to prevent accidental or concurrent double processing.
+- Calendar credentials and OAuth state are protected and bound to the initiating tenant; private event details are not exposed to Passenger or analytics.
+- Passenger analytics use allowlisted semantic actions and separate technical sessions from meaningful engagement.
+- Passenger and Admin have separate manifests/service-worker boundaries; browser code is not presented as proof of Android or kiosk hardware control.
+- The product preserves a clear distinction between automated checks, authenticated browser QA, production verification and physical-tablet validation.
+
+## Demo and deployment
+
+- **Live Rides product:** [rides.getstreex.com](https://rides.getstreex.com)
+- **Public entry:** [getstreex.com](https://getstreex.com) redirects to the Rides deployment while preserving the path.
+- **Booking entry:** [`/request-a-ride`](https://rides.getstreex.com/request-a-ride)
+- **Admin:** [`/admin`](https://rides.getstreex.com/admin) — authenticated operational surface
+- **Passenger:** [`/passenger`](https://rides.getstreex.com/passenger) — no-index tablet surface
+- **Horizon:** [`/runner-lab`](https://rides.getstreex.com/runner-lab) — no-index interactive surface
+
+The public Rides surface is available for browsing. Admin, Pricing and operational workflows should be evaluated with authorized access and controlled data rather than by treating a public build as production certification.
+
+## Implementation status
+
+### Implemented in the current product baseline
+
+- Public Rides experience, service pages, tenant-aware pages and booking entry points.
+- Admin authentication, tenant memberships, booking operations, reviews and availability tooling.
+- Pricing Engine code and database migration, including zone/pricing entities and quote snapshots.
+- Google Calendar OAuth, free-busy and confirmed-booking synchronization baseline.
+- Passenger console, Music, Climate Premium, local games, Around You and privacy-oriented engagement analytics.
+- Spotify pairing and server-side credential handling for the current Passenger workflow.
+- PWA manifests and offline/static-asset recovery boundaries for Admin and Passenger.
+
+### Still requiring validation or follow-up work
+
+- End-to-end authenticated QA for Pricing zones, routes, quotes and quote-to-booking behavior.
+- Remaining controlled acceptance/rejection and Calendar evidence for quote responses.
+- Additional RLS, suspension/archival and permission hardening identified in the current audit.
+- Responsive, accessibility and operational UX refinement across Rides and Admin.
+- Further accuracy and ingestion validation for aggregated Passenger analytics.
+- Full physical-tablet validation for the current Passenger deployment and kiosk workflow.
+
+This distinction is intentional: implemented code, automated tests, historical production evidence and release readiness are different levels of evidence.
+
+## Technical documentation
+
+- [Technical context](docs/PROJECT_CONTEXT.md) — current contracts and system boundaries.
+- [Google Calendar](docs/GOOGLE_CALENDAR.md) — OAuth, free-busy, sync and recovery rules.
+- [Around You](docs/AROUND_YOU.md) — transient location, catalog and field-QA boundaries.
+- [Multi-tenant Admin](docs/MULTI_TENANT_ADMIN.md) — authorization, memberships and tenant isolation.
+- [Horizon](docs/RUNNER_CONTEXT.md) — Canvas 2D architecture and product boundaries.
+- [Supabase](supabase/README.md) — migration history and database discipline.
+- [Preserved audit](docs/audits/2026-09-05-audit.md) and [audit reading guide](docs/audits/README.md).
+- [Image optimization notes](docs/IMAGE_OPTIMIZATION.md) and [Rides image optimization](docs/RIDES_IMAGE_OPTIMIZATION.md).
+
+## Local development
+
+The project uses Bun and the committed `bun.lock` file:
 
 ```sh
 bun install --frozen-lockfile
 bun run dev
 ```
 
-Secuencia equivalente a Quality (cada comando debe pasar):
+Useful checks:
 
 ```sh
 bun run typecheck
@@ -63,22 +170,15 @@ bun test tests/*.test.mjs
 bun run build
 ```
 
-bun run check solo ejecuta typecheck + build. check:full añade lint, pero tampoco sustituye las pruebas. Mientras S03 esté pendiente, declarar la deuda histórica y revisar las pruebas enfocadas del cambio; no limpiar Passenger incidentalmente.
+`bun run check` runs typecheck and build. `bun run check:full` also includes lint. The repository currently carries known historical formatting/lint debt, so a green build should not be described as complete production QA.
 
-Para cambios solo documentales: comprobar links locales, trazabilidad, formato de documentos activos y git diff --check. No es necesario repetir el build ni pruebas del producto.
+## Project continuity
 
-Los detalles de QA, pausas, rollback y evidencia están en el [plan único](docs/EXECUTION_PLAN.md#protocolo-de-ejecución-y-verificación).
+The repository also contains operational documentation used to continue development safely:
 
-## Documentación técnica y referencias
+1. [AGENTS.md](AGENTS.md) — repository rules and scope boundaries.
+2. [HANDOFF.md](docs/HANDOFF.md) — current checkpoint and next authorized task.
+3. [ROADMAP.md](docs/ROADMAP.md) — single priority order and status model.
+4. [EXECUTION_PLAN.md](docs/EXECUTION_PLAN.md) — task contracts and verification protocol.
 
-- [Contexto técnico](docs/PROJECT_CONTEXT.md): contratos y límites actuales, no otro roadmap.
-- [Calendar](docs/GOOGLE_CALENDAR.md): reglas de integración y recuperación.
-- [Passenger/Around You](docs/AROUND_YOU.md): GPS transitorio, catálogo y QA de campo.
-- [Horizon](docs/RUNNER_CONTEXT.md): arquitectura y reevaluación acotada.
-- [Multi-tenant](docs/MULTI_TENANT_ADMIN.md): modelo de autorización; onboarding comercial en standby.
-- [Supabase](supabase/README.md): historia y disciplina de migraciones, sin bootstrap automático.
-- [Auditoría preservada](docs/audits/2026-09-05-audit.md) y [contexto de lectura](docs/audits/README.md).
-- [Archivo documental](docs/archive/README.md): versiones históricas no ejecutables.
-- [Optimización general](docs/IMAGE_OPTIMIZATION.md) y [optimización Rides](docs/RIDES_IMAGE_OPTIMIZATION.md): informes históricos, no nuevo backlog.
-
-Variables soportadas en .env.example. Credenciales privadas en Vercel/entorno local; nunca en Git, config pública, screenshots, logs o documentación. GA excluye Passenger/Admin/Horizon/Spotify, pero la protección de URLs sensibles de Rides sigue pendiente S01; no interpretar la intención de privacidad como garantía ya implementada.
+Secrets remain in local or deployment environments and are never committed, placed in screenshots, or documented as values. See [.env.example](.env.example) for supported configuration names.
