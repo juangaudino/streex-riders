@@ -15,7 +15,7 @@ Real product captures from the current product surfaces:
 <table>
   <tr>
     <td width="28%" valign="top"><img src="public/images/readme/rides-landing-mobile.png" alt="Real STREEX Rides landing capture on mobile" width="100%" /><br /><sub>Rides landing · mobile</sub></td>
-    <td width="44%" valign="top"><img src="public/images/readme/passenger-tablet-home.jpg" alt="Real STREEX Passenger tablet home screen" width="100%" /><br /><sub>Passenger /passenger · tablet</sub></td>
+    <td width="44%" valign="top"><img src="public/images/readme/passenger-tablet-home.jpg" alt="Real STREEX Passenger tablet home screen" width="100%" /><br /><sub>Passenger /passenger · tablet home</sub><br /><br /><img src="public/images/readme/passenger-weather.png" alt="Real STREEX Passenger weather forecast screen" width="100%" /><br /><sub>Passenger weather experience · live forecast</sub></td>
     <td width="28%" valign="top"><img src="public/images/readme/horizon-gameplay.png" alt="Real STREEX Horizon gameplay capture" width="100%" /><br /><sub>Horizon gameplay · interactive surface</sub></td>
   </tr>
 </table>
