@@ -17,7 +17,7 @@ Representative product visuals from the repository:
 <table>
   <tr>
     <td width="33%"><img src="public/images/streex/slc.webp" alt="STREEX Rides landing service-area visual in Salt Lake City" /></td>
-    <td width="33%"><img src="src/assets/streex-gallery/passenger-home-airport.webp" alt="Passenger airport arrival experience" /></td>
+    <td width="33%"><img src="public/images/readme/passenger-tablet-home.jpg" alt="Actual STREEX Passenger tablet home screen" /></td>
     <td width="33%"><img src="src/features/runner/assets/quick-action/horizon_quick_action_card.webp" alt="Horizon interactive experience preview" /></td>
   </tr>
   <tr>
@@ -27,7 +27,7 @@ Representative product visuals from the repository:
   </tr>
 </table>
 
-The first visual is the Rides landing hero; the second is a Passenger asset used by the tablet console at `/passenger`; Horizon remains the connected experiential layer. These visuals complement, but do not replace, authenticated operational evidence.
+The first visual is the Rides landing hero; the second is a real tablet capture of `/passenger`; Horizon remains the connected experiential layer. These visuals complement, but do not replace, authenticated operational evidence.
 
 ## What I built
 
