@@ -10,7 +10,7 @@ I built the product as a single modular ecosystem rather than a collection of di
 
 ## Product preview
 
-![STREEX private rides product preview](public/images/streex/streex-og-preview.jpg)
+![STREEX Rides landing hero](public/images/streex/streex-og-preview.jpg)
 
 Representative product visuals from the repository:
 
@@ -21,13 +21,13 @@ Representative product visuals from the repository:
     <td width="33%"><img src="src/features/runner/assets/quick-action/horizon_quick_action_card.webp" alt="Horizon interactive experience preview" /></td>
   </tr>
   <tr>
-    <td align="center">Rides landing and service experience</td>
-    <td align="center">Passenger journey</td>
+    <td align="center">Rides landing / service area</td>
+    <td align="center">Passenger tablet /passenger</td>
     <td align="center">Horizon experiential layer</td>
   </tr>
 </table>
 
-The visual assets above are product imagery, not substitutes for authenticated operational evidence. Admin and Pricing screenshots should be captured with controlled data before publishing them as portfolio material.
+The first visual is the Rides landing hero; the second is a Passenger asset used by the tablet console at `/passenger`; Horizon remains the connected experiential layer. These visuals complement, but do not replace, authenticated operational evidence.
 
 ## What I built
 
