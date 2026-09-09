@@ -10,24 +10,17 @@ I built the product as a single modular ecosystem rather than a collection of di
 
 ## Product preview
 
-![STREEX Rides landing hero](public/images/streex/streex-og-preview.jpg)
-
-Representative product visuals from the repository:
+Real product captures from the current product surfaces:
 
 <table>
   <tr>
-    <td width="33%"><img src="public/images/streex/slc.webp" alt="STREEX Rides landing service-area visual in Salt Lake City" /></td>
-    <td width="33%"><img src="public/images/readme/passenger-tablet-home.jpg" alt="Actual STREEX Passenger tablet home screen" /></td>
-    <td width="33%"><img src="src/features/runner/assets/quick-action/horizon_quick_action_card.webp" alt="Horizon interactive experience preview" /></td>
-  </tr>
-  <tr>
-    <td align="center">Rides landing / service area</td>
-    <td align="center">Passenger tablet /passenger</td>
-    <td align="center">Horizon experiential layer</td>
+    <td width="28%" valign="top"><img src="public/images/readme/rides-landing-mobile.png" alt="Real STREEX Rides landing capture on mobile" width="100%" /><br /><sub>Rides landing · mobile</sub></td>
+    <td width="44%" valign="top"><img src="public/images/readme/passenger-tablet-home.jpg" alt="Real STREEX Passenger tablet home screen" width="100%" /><br /><sub>Passenger /passenger · tablet</sub></td>
+    <td width="28%" valign="top"><img src="public/images/readme/horizon-gameplay.png" alt="Real STREEX Horizon gameplay capture" width="100%" /><br /><sub>Horizon gameplay · interactive surface</sub></td>
   </tr>
 </table>
 
-The first visual is the Rides landing hero; the second is a real tablet capture of `/passenger`; Horizon remains the connected experiential layer. These visuals complement, but do not replace, authenticated operational evidence.
+These are real product captures rather than generic destination imagery or marketing mockups. They complement, but do not replace, authenticated operational evidence.
 
 ## What I built
 
